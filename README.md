@@ -1,2 +1,8 @@
 # fraudbusters
-![alt text](https://github.com/rbkmoney/fraudbusters/blob/master/fraud%20scheme.png)
+
+### Общая схема
+![alt text](fraud%20scheme.png)
+
+### Первая итерация
+
+![alt text](first-step.png)
