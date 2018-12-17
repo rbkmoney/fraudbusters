@@ -49,10 +49,9 @@ public class TemplateDispatcherTest {
 
     @Test
     public void doDispatchGlobal() {
-        RuleTemplate ruleTemplate = RuleTemplate.builder()
-                .lvl(Level.GLOBAL)
-                .template(TEMPLATE)
-                .build();
+        RuleTemplate ruleTemplate = new RuleTemplate();
+        ruleTemplate.setLvl(Level.GLOBAL);
+        ruleTemplate.setTemplate(TEMPLATE);
         Mockito.when(globalStreamFactory.create(fraudStreamProperties, parseContext)).thenReturn(kafkaStreams);
 
         templateDispatcher.doDispatch(ruleTemplate);
@@ -61,13 +60,11 @@ public class TemplateDispatcherTest {
 
     @Test
     public void doDispatchConcrete() {
-        RuleTemplate ruleTemplate = RuleTemplate.builder()
-                .lvl(Level.CONCRETE)
-                .localId(LOCAL_ID)
-                .template(TEMPLATE)
-                .build();
+        RuleTemplate ruleTemplate = new RuleTemplate();
+        ruleTemplate.setLvl(Level.CONCRETE);
+        ruleTemplate.setTemplate(TEMPLATE);
+        ruleTemplate.setLocalId(LOCAL_ID);
         Mockito.when(concreteTemplateStreamFactory.create(fraudStreamProperties, parseContext, LOCAL_ID)).thenReturn(kafkaStreams);
-
         templateDispatcher.doDispatch(ruleTemplate);
         Mockito.verify(pool, Mockito.times(1)).add(LOCAL_ID, kafkaStreams);
     }

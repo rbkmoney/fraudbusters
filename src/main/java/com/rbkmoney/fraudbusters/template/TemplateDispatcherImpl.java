@@ -10,6 +10,7 @@ import com.rbkmoney.fraudo.FraudoParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StreamsConfig;
 import org.springframework.stereotype.Service;
 
 import java.util.Properties;
@@ -36,6 +37,7 @@ public class TemplateDispatcherImpl implements TemplateDispatcher {
             case CONCRETE: {
                 String localId = ruleTemplate.getLocalId();
                 FraudoParser.ParseContext parseContext = fraudContextParser.parse(ruleTemplate.getTemplate());
+                fraudStreamProperties.put(StreamsConfig.CLIENT_ID_CONFIG, "fraud-busters-client-1");
                 KafkaStreams streams = concreteTemplateStreamFactory.create(fraudStreamProperties, parseContext, localId);
                 pool.add(localId, streams);
                 return;

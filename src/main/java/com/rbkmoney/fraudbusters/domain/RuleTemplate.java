@@ -3,9 +3,10 @@ package com.rbkmoney.fraudbusters.domain;
 import com.rbkmoney.fraudbusters.constant.Level;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class RuleTemplate {
 
     private String globalId;

@@ -1,11 +1,13 @@
 package com.rbkmoney.fraudbusters.template.pool;
 
 import org.apache.kafka.streams.KafkaStreams;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class TemplatePool implements StreamPool {
 
     private Map<String, KafkaStreams> streams = new ConcurrentHashMap<>();

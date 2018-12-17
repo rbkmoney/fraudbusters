@@ -18,7 +18,7 @@ public class TemplateListenerFactory {
     private final String listenTopic;
     private final Properties templateListenerProperties;
 
-    public TemplateListenerFactory(@Value("${template.topic}") String listenTopic, Properties templateListenerProperties) {
+    public TemplateListenerFactory(@Value("${kafka.template.topic}") String listenTopic, Properties templateListenerProperties) {
         this.listenTopic = listenTopic;
         this.templateListenerProperties = templateListenerProperties;
     }

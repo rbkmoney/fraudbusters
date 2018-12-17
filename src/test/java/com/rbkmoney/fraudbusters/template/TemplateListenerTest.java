@@ -79,7 +79,7 @@ public class TemplateListenerTest {
     }
 
     private void addRecord(MockConsumer<String, RuleTemplate> mockConsumer, long l, String s) throws InterruptedException {
-        RuleTemplate ruleTemplate = RuleTemplate.builder().build();
+        RuleTemplate ruleTemplate = new RuleTemplate();
         mockConsumer.addRecord(new ConsumerRecord<>(MY_TOPIC, 0, l, s, ruleTemplate));
         Thread.sleep(SLEEP);
     }
@@ -93,7 +93,7 @@ public class TemplateListenerTest {
         Thread.sleep(SLEEP);
         templateListener.stop();
         Thread.sleep(SLEEP);
-        RuleTemplate ruleTemplateNew = RuleTemplate.builder().build();
+        RuleTemplate ruleTemplateNew = new RuleTemplate();
         mockConsumer.addRecord(new ConsumerRecord<>(MY_TOPIC, 0, 1L, "1", ruleTemplateNew));
     }
 }
