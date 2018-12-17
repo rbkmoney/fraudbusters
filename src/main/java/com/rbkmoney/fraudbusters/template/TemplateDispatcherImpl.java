@@ -14,6 +14,7 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.springframework.stereotype.Service;
 
 import java.util.Properties;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -30,6 +31,7 @@ public class TemplateDispatcherImpl implements TemplateDispatcher {
         switch (ruleTemplate.getLvl()) {
             case GLOBAL: {
                 FraudoParser.ParseContext parseContext = fraudContextParser.parse(ruleTemplate.getTemplate());
+                fraudStreamProperties.put(StreamsConfig.CLIENT_ID_CONFIG, generateKey("fraud-busters-global-stream-"));
                 KafkaStreams newStream = globalStreamFactory.create(fraudStreamProperties, parseContext);
                 pool.add(Level.GLOBAL.toString(), newStream);
                 return;
@@ -37,7 +39,7 @@ public class TemplateDispatcherImpl implements TemplateDispatcher {
             case CONCRETE: {
                 String localId = ruleTemplate.getLocalId();
                 FraudoParser.ParseContext parseContext = fraudContextParser.parse(ruleTemplate.getTemplate());
-                fraudStreamProperties.put(StreamsConfig.CLIENT_ID_CONFIG, "fraud-busters-client-1");
+                fraudStreamProperties.put(StreamsConfig.CLIENT_ID_CONFIG, generateKey("fraud-busters-concrete-stream-"));
                 KafkaStreams streams = concreteTemplateStreamFactory.create(fraudStreamProperties, parseContext, localId);
                 pool.add(localId, streams);
                 return;
@@ -46,6 +48,10 @@ public class TemplateDispatcherImpl implements TemplateDispatcher {
                 log.warn("This template lvl={} is not supported!", ruleTemplate.getLvl());
             }
         }
+    }
+
+    private String generateKey(String prefix) {
+        return prefix + UUID.randomUUID().toString();
     }
 
 }

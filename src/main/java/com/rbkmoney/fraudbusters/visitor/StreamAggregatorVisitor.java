@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters.visitor;
 
 import com.rbkmoney.fraudo.FraudoBaseVisitor;
 import com.rbkmoney.fraudo.FraudoParser;
-import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.model.FraudModel;
 import com.rbkmoney.fraudo.utils.TextUtil;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +14,7 @@ import org.apache.kafka.streams.kstream.*;
 
 import java.util.concurrent.TimeUnit;
 
+//TODO - for aggregate
 @RequiredArgsConstructor
 public class StreamAggregatorVisitor extends FraudoBaseVisitor<StreamsBuilder> {
 
