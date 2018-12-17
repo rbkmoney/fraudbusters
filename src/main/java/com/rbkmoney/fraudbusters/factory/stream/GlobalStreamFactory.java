@@ -45,7 +45,7 @@ public class GlobalStreamFactory implements TemplateStreamFactory {
     private final InListFinder whiteListFinder;
 
     @Override
-    public KafkaStreams create(Properties streamsConfiguration, FraudoParser.ParseContext parseContext) {
+    public KafkaStreams create(final Properties streamsConfiguration, FraudoParser.ParseContext parseContext) {
         StreamsBuilder builder = new StreamsBuilder();
         KStream<ResultStatus, FraudResult>[] branch = builder
                 .stream(readTopic, Consumed.with(Serdes.String(), fraudoModelSerde))

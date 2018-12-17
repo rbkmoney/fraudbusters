@@ -5,4 +5,4 @@ kafka:
   global.stream.topic: global_topic
   concrete.stream.topic: concrete
   result.stream.topic: result
-  template.topic: template_new_3
+  template.topic: template

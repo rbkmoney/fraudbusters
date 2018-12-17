@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.fraudbusters.template.TemplateBroker;
+import com.rbkmoney.fraudbusters.factory.TemplateListenerFactory;
+import com.rbkmoney.fraudbusters.template.TemplateDispatcherImpl;
 import com.rbkmoney.fraudbusters.template.TemplateListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,13 +22,13 @@ public class ListenerStartup implements ApplicationListener<ApplicationReadyEven
     @Value("${kafka.template.topic}")
     private String templateTopic;
 
-    private final TemplateBroker templateBroker;
+    private final TemplateDispatcherImpl templateDispatcherImpl;
+    private final TemplateListenerFactory templateListenerFactory;
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
     public void onApplicationEvent(final ApplicationReadyEvent event) {
-        executorService.submit(new TemplateListener(templateTopic, bootstrapServers, templateBroker));
-        return;
+        executorService.submit(new TemplateListener(templateDispatcherImpl, templateListenerFactory));
     }
 }
