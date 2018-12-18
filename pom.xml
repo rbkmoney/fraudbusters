@@ -21,6 +21,8 @@
         <dockerfile.base.service.tag>22c57470c4fc47161894f036b7cf9d70f42b75f5</dockerfile.base.service.tag>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools-version>7.0.0.Final</drools-version>
+        <damsel.version>1.256-2afe121</damsel.version>
+        <woody.thrift.version>1.1.15</woody.thrift.version>
         <geck.version>0.6.7</geck.version>
     </properties>
     <dependencies>
@@ -75,9 +77,14 @@
             <version>${geck.version}</version>
         </dependency>
         <dependency>
-            <groupId>ru.yandex.clickhouse</groupId>
-            <artifactId>clickhouse-jdbc</artifactId>
-            <version>0.1.41</version>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>damsel</artifactId>
+            <version>${damsel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rbkmoney.woody</groupId>
+            <artifactId>woody-thrift</artifactId>
+            <version>${woody.thrift.version}</version>
         </dependency>
 
         <dependency>
@@ -85,7 +92,11 @@
             <artifactId>HikariCP-java6</artifactId>
             <version>2.3.8</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>27.0.1-jre</version>
+        </dependency>
 
         <!-- Test libs -->
         <dependency>
