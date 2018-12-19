@@ -23,7 +23,7 @@ public class FraudoModelSerializer implements Serializer<FraudModel> {
         try {
             retVal = om.writeValueAsString(data).getBytes();
         } catch (Exception e) {
-            log.error("Error when serialize fraudModel data: {} e: ", data, e);
+            log.error("Error when serialize fraudModel data: {} ", data, e);
         }
         return retVal;
     }

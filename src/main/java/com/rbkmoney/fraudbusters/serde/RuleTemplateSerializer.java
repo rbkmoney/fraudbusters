@@ -23,7 +23,7 @@ public class RuleTemplateSerializer implements Serializer<RuleTemplate> {
         try {
             retVal = om.writeValueAsString(data).getBytes();
         } catch (Exception e) {
-            log.error("Error when serialize RuleTemplate data: {} e: ", data, e);
+            log.error("Error when serialize RuleTemplate data: {} ", data, e);
         }
         return retVal;
     }

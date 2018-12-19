@@ -14,13 +14,13 @@ public class FraudInspectorServlet extends GenericServlet {
 
     private Servlet thriftServlet;
 
-    private final InspectorProxySrv.Iface iface;
+    private final InspectorProxySrv.Iface fraudInspectorHandler;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         thriftServlet = new THServiceBuilder()
-                .build(InspectorProxySrv.Iface.class, iface);
+                .build(InspectorProxySrv.Iface.class, fraudInspectorHandler);
     }
 
     @Override

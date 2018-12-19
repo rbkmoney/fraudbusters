@@ -23,7 +23,7 @@ public class RuleTemplateDeserializer implements Deserializer<RuleTemplate> {
         try {
             ruleTemplate = om.readValue(data, RuleTemplate.class);
         } catch (Exception e) {
-            log.error("Error when deserialize ruleTemplate data: {} e: ", data, e);
+            log.error("Error when deserialize ruleTemplate data: {} ", data, e);
         }
         return ruleTemplate;
     }
