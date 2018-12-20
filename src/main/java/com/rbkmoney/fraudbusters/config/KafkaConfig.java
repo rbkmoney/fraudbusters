@@ -1,10 +1,12 @@
 package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.fraudbusters.domain.FraudResult;
+import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import com.rbkmoney.fraudbusters.serde.FraudoModelSerde;
 import com.rbkmoney.fraudbusters.serde.FraudoModelSerializer;
 import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
 import com.rbkmoney.fraudbusters.serde.RuleTemplateDeserializer;
+import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudo.model.FraudModel;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -26,17 +28,20 @@ import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 
 @Configuration
 public class KafkaConfig {
 
     private static final String GROUP_ID = "TemplateListener-";
-    private String bootstrapServers;
-    @Value("${kafka.result.stream.topic}")
-    private String replyTopic;
+    private static final String EARLIEST = "earliest";
+    public static final String REPLY_CONSUMER = "ReplyConsumer";
 
-    public KafkaConfig(@Value("${kafka.bootstrap.servers}") String bootstrapServers) {
+    private final String bootstrapServers;
+    private final String replyTopic;
+
+    public KafkaConfig(@Value("${kafka.result.stream.topic}") String replyTopic,
+                       @Value("${kafka.bootstrap.servers}") String bootstrapServers) {
+        this.replyTopic = replyTopic;
         this.bootstrapServers = bootstrapServers;
     }
 
@@ -54,24 +59,27 @@ public class KafkaConfig {
     }
 
     @Bean
-    public Properties templateListenerProperties() {
-        final Properties props = new Properties();
+    public ConsumerFactory<String, RuleTemplate> templateListenerFactory() {
+        final Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID + UUID.randomUUID().toString());
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, RuleTemplateDeserializer.class.getName());
-        return props;
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, KeyGenerator.generateKey(GROUP_ID));
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, EARLIEST);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new RuleTemplateDeserializer());
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, RuleTemplate> templateListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, RuleTemplate> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(templateListenerFactory());
+        return factory;
     }
 
     @Bean
     public Map<String, Object> producerConfigs() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                bootstrapServers);
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class);
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudoModelSerializer.class);
         return props;
     }
@@ -80,7 +88,7 @@ public class KafkaConfig {
     public Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "helloworld");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, REPLY_CONSUMER);
         return props;
     }
 
@@ -96,9 +104,9 @@ public class KafkaConfig {
 
     @Bean
     public ReplyingKafkaTemplate<String, FraudModel, FraudResult> replyKafkaTemplate(ProducerFactory<String, FraudModel> pf,
-                                                                                     KafkaMessageListenerContainer<String, FraudResult> container) {
+                                                                                     KafkaMessageListenerContainer<String,
+                                                                                             FraudResult> container) {
         return new ReplyingKafkaTemplate<>(pf, container);
-
     }
 
     @Bean
@@ -119,5 +127,4 @@ public class KafkaConfig {
         factory.setReplyTemplate(kafkaTemplate());
         return factory;
     }
-
 }

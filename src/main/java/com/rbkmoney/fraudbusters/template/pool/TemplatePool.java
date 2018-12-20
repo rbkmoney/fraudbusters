@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class TemplatePool implements StreamPool {
 
+    public static final long WAIT_TIME = 10L;
     private Map<String, KafkaStreams> streams = new ConcurrentHashMap<>();
 
     @Override
@@ -25,12 +26,12 @@ public class TemplatePool implements StreamPool {
 
     @Override
     public void clear() {
-        streams.forEach((key, value) -> value.close(Duration.ofSeconds(10L)));
+        streams.forEach((key, value) -> value.close(Duration.ofSeconds(WAIT_TIME)));
     }
 
     private KafkaStreams restartStream(KafkaStreams kafkaStreamsOld, KafkaStreams newStream) {
         if (kafkaStreamsOld != null && kafkaStreamsOld.state().isRunning()) {
-            kafkaStreamsOld.close(Duration.ofSeconds(10L));
+            kafkaStreamsOld.close(Duration.ofSeconds(WAIT_TIME));
         }
         newStream.start();
         return newStream;

@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.constant;
 
-public enum Level {
+public enum TemplateLevel {
 
     GLOBAL, CONCRETE
 

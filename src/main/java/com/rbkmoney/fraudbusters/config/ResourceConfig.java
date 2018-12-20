@@ -23,7 +23,8 @@ public class ResourceConfig {
     @Bean
     @Autowired
     public InspectorProxySrv.Iface fraudInspectorHandler(ReplyingKafkaTemplate<String, FraudModel, FraudResult> kafkaTemplate,
-                                                         FraudResultRiskScoreConverter resultConverter, ContextToFraudModelConverter requestConverter) {
+                                                         FraudResultRiskScoreConverter resultConverter,
+                                                         ContextToFraudModelConverter requestConverter) {
         return new FraudInspectorHandler(kafkaTemplate, requestTopic, requestReplyTopic, resultConverter, requestConverter);
     }
 
