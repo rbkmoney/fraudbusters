@@ -1,0 +1,8 @@
+server.port: @server.port@
+
+kafka:
+  bootstrap.servers: "localhost:29092"
+  global.stream.topic: global_topic
+  concrete.stream.topic: concrete
+  result.stream.topic: result
+  template.topic: template

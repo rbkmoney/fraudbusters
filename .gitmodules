@@ -1,0 +1,4 @@
+[submodule "build_utils"]
+	path = build_utils
+	url = git@github.com:rbkmoney/build_utils.git
+	branch = master
