@@ -18,7 +18,7 @@
         <project.maintainer>Struzhkin Konstantin &lt;k.struzhkin@rbkmoney.com&gt;</project.maintainer>
         <shared.resources.version>0.3.2</shared.resources.version>
         <server.port>8022</server.port>
-        <dockerfile.base.service.tag>22c57470c4fc47161894f036b7cf9d70f42b75f5</dockerfile.base.service.tag>
+        <dockerfile.base.service.tag>81f57f9ef5e5854c27659c9f56f59cdb2b7c43e5</dockerfile.base.service.tag>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools-version>7.0.0.Final</drools-version>
         <damsel.version>1.256-2afe121</damsel.version>

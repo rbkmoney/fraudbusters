@@ -4,7 +4,7 @@ import com.rbkmoney.fraudbusters.fraud.aggragator.CountAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.aggragator.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.aggragator.UniqueValueAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.finder.BlackListFinder;
-import com.rbkmoney.fraudbusters.fraud.finder.WightListFinder;
+import com.rbkmoney.fraudbusters.fraud.finder.WhiteListFinder;
 import com.rbkmoney.fraudbusters.fraud.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
@@ -51,7 +51,7 @@ public class FraudoConfig {
 
     @Bean
     public InListFinder whiteListFinder() {
-        return new WightListFinder();
+        return new WhiteListFinder();
     }
 
 }
