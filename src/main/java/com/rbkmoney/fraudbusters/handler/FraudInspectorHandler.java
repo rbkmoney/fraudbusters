@@ -18,6 +18,8 @@ import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.kafka.support.KafkaHeaders;
 
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @RequiredArgsConstructor
 public class FraudInspectorHandler implements InspectorProxySrv.Iface {
@@ -35,7 +37,7 @@ public class FraudInspectorHandler implements InspectorProxySrv.Iface {
             ProducerRecord<String, FraudModel> record = new ProducerRecord<>(requestTopic, model);
             record.headers().add(new RecordHeader(KafkaHeaders.REPLY_TOPIC, requestReplyTopic.getBytes()));
             RequestReplyFuture<String, FraudModel, FraudResult> sendAndReceive = kafkaTemplate.sendAndReceive(record);
-            ConsumerRecord<String, FraudResult> consumerRecord = sendAndReceive.get();
+            ConsumerRecord<String, FraudResult> consumerRecord = sendAndReceive.get(60L, TimeUnit.SECONDS);
             return resultConverter.convert(consumerRecord.value());
         } catch (Exception e) {
             log.error("Error when inspectPayment() e: ", e);
