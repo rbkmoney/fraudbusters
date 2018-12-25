@@ -17,6 +17,7 @@ public class ResourceConfig {
 
     @Value("${kafka.global.stream.topic}")
     private String requestTopic;
+
     @Value("${kafka.result.stream.topic}")
     private String requestReplyTopic;
 

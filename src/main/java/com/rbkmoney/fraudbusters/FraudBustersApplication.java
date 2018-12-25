@@ -12,5 +12,4 @@ public class FraudBustersApplication {
         SpringApplication.run(FraudBustersApplication.class, args);
     }
 
-
 }
