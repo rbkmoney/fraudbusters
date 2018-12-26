@@ -32,6 +32,7 @@ public class ConcreteStreamFactory implements ConcreteTemplateStreamFactory {
     public KafkaStreams create(final Properties streamsConfiguration, FraudoParser.ParseContext parseContext, String merchantId) {
         StreamsBuilder builder = new StreamsBuilder();
         builder.stream(readTopic, Consumed.with(Serdes.String(), fraudoModelSerde))
+                .filter((s, fraudModel) -> fraudModel != null)
                 .peek((s, fraudModel) -> log.debug("Concrete stream check merchantId: {} and fraudModel: {}", merchantId, fraudModel))
                 .filter((k, v) -> merchantId.equals(v.getPartyId()))
                 .mapValues(fraudModel -> new FraudResult(fraudModel, fraudHandler.handle(parseContext, fraudModel)))

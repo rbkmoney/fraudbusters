@@ -6,7 +6,6 @@ import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import com.rbkmoney.fraudbusters.serde.FraudoModelSerializer;
-import com.rbkmoney.fraudbusters.serde.RuleTemplateSerializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudo.model.FraudModel;
@@ -38,7 +37,7 @@ public class ApiInspectorTestTest {
     int serverPort;
 
     private static String SERVICE_URL = "http://localhost:%s/v1/fraud_inspector";
-
+//
 //    @Before
 //    public void init() throws ExecutionException, InterruptedException {
 //        Producer<String, FraudModel> producerNew = createProducerGlobal();
@@ -58,7 +57,7 @@ public class ApiInspectorTestTest {
 //    }
 
     @Test
-    public void test() throws URISyntaxException, TException {
+    public void test() throws URISyntaxException, TException, InterruptedException {
 
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, 8022)))
@@ -67,6 +66,7 @@ public class ApiInspectorTestTest {
 
         Context context = BeanUtil.createContext();
         RiskScore riskScore = client.inspectPayment(context);
+        Thread.sleep(10000L);
 
         Assert.assertEquals(riskScore, RiskScore.low);
     }

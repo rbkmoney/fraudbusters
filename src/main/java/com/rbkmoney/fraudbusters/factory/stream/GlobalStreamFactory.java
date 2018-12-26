@@ -54,6 +54,7 @@ public class GlobalStreamFactory implements TemplateStreamFactory {
             StreamsBuilder builder = new StreamsBuilder();
             KStream<String, FraudResult>[] branch = builder
                     .stream(readTopic, Consumed.with(Serdes.String(), fraudoModelSerde))
+                    .filter((s, fraudModel) -> fraudModel != null)
                     .peek((s, fraudModel) -> log.debug("Global stream check fraudModel: {}", fraudModel))
                     .mapValues(fraudModel -> new FraudResult(fraudModel, applyRules(parseContext, fraudModel)))
                     .branch((k, v) -> ResultStatus.ACCEPT.equals(v.getResultStatus()),
