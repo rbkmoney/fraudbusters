@@ -35,6 +35,7 @@ public class KafkaConfig {
     private static final String GROUP_ID = "TemplateListener-";
     private static final String EARLIEST = "earliest";
     public static final String REPLY_CONSUMER = "ReplyConsumer";
+    public static final String RESULT_AGGREGATOR = "ResultAggregator";
 
     private final String bootstrapServers;
     private final String replyTopic;
@@ -76,6 +77,20 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, FraudResult> resultListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, FraudResult> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        final Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, RESULT_AGGREGATOR);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, EARLIEST);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
+        DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
+                new StringDeserializer(), new FraudoResultDeserializer());
+        factory.setConsumerFactory(consumerFactory);
+        return factory;
+    }
+
+    @Bean
     public Map<String, Object> producerConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -112,9 +127,9 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaMessageListenerContainer<String, FraudResult> replyContainer(ConsumerFactory<String, FraudResult> cf) {
+    public KafkaMessageListenerContainer<String, FraudResult> replyContainer() {
         ContainerProperties containerProperties = new ContainerProperties(replyTopic);
-        return new KafkaMessageListenerContainer<>(cf, containerProperties);
+        return new KafkaMessageListenerContainer<>(consumerFactory(), containerProperties);
     }
 
     @Bean

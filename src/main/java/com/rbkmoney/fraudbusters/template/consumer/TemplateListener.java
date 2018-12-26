@@ -16,6 +16,7 @@ public class TemplateListener {
 
     @KafkaListener(topics = "${kafka.template.topic}", containerFactory = "templateListenerContainerFactory")
     public void listen(RuleTemplate ruleTemplate) {
+        log.info("TemplateListener ruleTemplate: {}", ruleTemplate);
         templateDispatcherImpl.doDispatch(ruleTemplate);
     }
 }
