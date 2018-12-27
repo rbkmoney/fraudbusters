@@ -7,12 +7,16 @@ import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.FraudModel;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -21,7 +25,6 @@ import ru.yandex.clickhouse.ClickHouseDataSource;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,7 +35,7 @@ import java.util.TimeZone;
 @Slf4j
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = ClickhouseConfig.class, initializers = FraudResultRepositoryTest.Initializer.class)
+@ContextConfiguration(classes = {FraudResultRepository.class, ClickhouseConfig.class}, initializers = FraudResultRepositoryTest.Initializer.class)
 public class FraudResultRepositoryTest {
 
     @ClassRule
@@ -41,8 +44,10 @@ public class FraudResultRepositoryTest {
     private DateFormat dateFormat;
 
     @Autowired
-    private ClickHouseDataSource clickHouseDataSource;
     private FraudResultRepository fraudResultRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
@@ -76,8 +81,6 @@ public class FraudResultRepositoryTest {
         );
         connection.close();
 
-        fraudResultRepository = new FraudResultRepository(clickHouseDataSource);
-
     }
 
     private Connection getSystemConn() throws SQLException {
@@ -94,24 +97,21 @@ public class FraudResultRepositoryTest {
         value.setFraudModel(fraudModel);
         fraudResultRepository.insert(value);
 
-        Connection connection = clickHouseDataSource.getConnection();
-        ResultSet rs = connection.createStatement().executeQuery("SELECT count() as cnt from fraud.events_unique");
-        Assert.assertTrue(rs.next());
-        Assert.assertEquals(1, rs.getInt("cnt"));
-
+        int count = jdbcTemplate.queryForObject("SELECT count() as cnt from fraud.events_unique",
+                (resultSet, i) -> resultSet.getInt("cnt"));
+        Assert.assertEquals(1, count);
     }
+
 
     @Test
     public void insertBatch() throws SQLException {
         List<FraudResult> batch = createBatch();
         fraudResultRepository.insertBatch(batch);
 
-        Connection connection = clickHouseDataSource.getConnection();
-        ResultSet rs = connection.createStatement().executeQuery("SELECT count() as cnt from fraud.events_unique");
-        rs.next();
+        int count = jdbcTemplate.queryForObject("SELECT count() as cnt from fraud.events_unique",
+                (resultSet, i) -> resultSet.getInt("cnt"));
 
-        Assert.assertEquals(2, rs.getInt("cnt"));
-        Assert.assertFalse(rs.next());
+        Assert.assertEquals(2, count);
     }
 
     @NotNull
@@ -133,16 +133,7 @@ public class FraudResultRepositoryTest {
         List<FraudResult> batch = createBatch();
         fraudResultRepository.insertBatch(batch);
         long to = Instant.now().toEpochMilli();
-
-        Long count = fraudResultRepository.countOperationByEmail(BeanUtil.EMAIL, from, to);
-
-        Assert.assertEquals(1L, count.longValue());
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        Connection connection = getSystemConn();
-        connection.createStatement().execute("DROP DATABASE fraud");
-        connection.close();
+        int count = fraudResultRepository.countOperationByEmail(BeanUtil.EMAIL, from, to);
+        Assert.assertEquals(1, count);
     }
 }

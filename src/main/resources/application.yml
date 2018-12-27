@@ -7,4 +7,4 @@ kafka:
   result.stream.topic: result
   template.topic: template
 
-clickhouse.db.url: "jdbc:clickhouse://localhost:1234/ppc"
+clickhouse.db.url: "jdbc:clickhouse://localhost:8123/default"
