@@ -1,10 +1,10 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
+import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.fraudo.model.FraudModel;
 
 public class BeanUtil {
@@ -19,6 +19,13 @@ public class BeanUtil {
     public static final String SUFIX = "_2";
 
     public static Context createContext() {
+        String pId = "pId";
+        return createContext(pId);
+    }
+
+    public static Context createContext(String pId) {
+        ContactInfo contact_info = new ContactInfo();
+        contact_info.setEmail(EMAIL);
         return new Context(
                 new PaymentInfo(
                         new Shop("2035728",
@@ -28,10 +35,11 @@ public class BeanUtil {
                                     setUrl("http://www.pizza-sushi.com/");
                                 }}
                         ),
-                        new InvoicePayment("pId",
+                        new InvoicePayment(pId,
                                 "",
                                 Payer.customer(
-                                        new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(), new ContactInfo())),
+                                        new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(),
+                                                contact_info)),
                                 new Cash(
                                         9000000000000000000L,
                                         new CurrencyRef("RUB")
@@ -41,7 +49,7 @@ public class BeanUtil {
                                 "",
                                 "",
                                 new InvoiceDetails("drugs guns murder")),
-                        new Party("ptId")
+                        new Party(pId)
                 )
         );
 

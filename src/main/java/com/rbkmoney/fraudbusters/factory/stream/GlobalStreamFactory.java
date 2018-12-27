@@ -57,7 +57,7 @@ public class GlobalStreamFactory implements TemplateStreamFactory {
                     .filter((s, fraudModel) -> fraudModel != null)
                     .peek((s, fraudModel) -> log.debug("Global stream check fraudModel: {}", fraudModel))
                     .mapValues(fraudModel -> new FraudResult(fraudModel, applyRules(parseContext, fraudModel)))
-                    .branch((k, v) -> ResultStatus.ACCEPT.equals(v.getResultStatus()),
+                    .branch((k, v) -> ResultStatus.ACCEPT.equals(v.getResultStatus()) || ResultStatus.DECLINE.equals(v.getResultStatus()),
                             (k, v) -> !ResultStatus.ACCEPT.equals(v.getResultStatus()));
             branch[0].to(resultTopic, Produced.with(Serdes.String(), new FraudoResultSerde()));
             branch[1].mapValues(FraudResult::getFraudModel).to(concreteTopic);

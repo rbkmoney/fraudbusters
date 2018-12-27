@@ -3,6 +3,8 @@ package com.rbkmoney.fraudbusters.repository;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
+import com.rbkmoney.fraudbusters.util.FileUtil;
+import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.FraudModel;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +28,8 @@ import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.List;
-import java.util.TimeZone;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -38,10 +37,9 @@ import java.util.TimeZone;
 @ContextConfiguration(classes = {FraudResultRepository.class, ClickhouseConfig.class}, initializers = FraudResultRepositoryTest.Initializer.class)
 public class FraudResultRepositoryTest {
 
+    public static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_unique";
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer();
-
-    private DateFormat dateFormat;
 
     @Autowired
     private FraudResultRepository fraudResultRepository;
@@ -61,26 +59,12 @@ public class FraudResultRepositoryTest {
     @Before
     public void setUp() throws Exception {
         Connection connection = getSystemConn();
-        connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS fraud");
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateFormat.setTimeZone(TimeZone.getDefault());
-
-        connection.createStatement().execute("DROP TABLE IF EXISTS fraud.events_unique");
-        connection.createStatement().execute(
-                "create table fraud.events_unique (" +
-                        "timestamp Date," +
-                        "shopId String," +
-                        "partyId String," +
-                        "ip String," +
-                        "email String," +
-                        "bin String," +
-                        "fingerprint String," +
-                        "resultStatus String," +
-                        "eventTime UInt64" +
-                        ") ENGINE = MergeTree(timestamp, (shopId, partyId, ip, email, bin, fingerprint, resultStatus), 8192);"
-        );
+        String sql = FileUtil.getFile("sql/db_init.sql");
+        String[] split = sql.split(";");
+        for (String exec : split) {
+            connection.createStatement().execute(exec);
+        }
         connection.close();
-
     }
 
     private Connection getSystemConn() throws SQLException {
@@ -91,15 +75,12 @@ public class FraudResultRepositoryTest {
 
     @Test
     public void insert() throws SQLException {
-        FraudResult value = new FraudResult();
-        value.setResultStatus(ResultStatus.ACCEPT);
-        FraudModel fraudModel = BeanUtil.createFraudModel();
-        value.setFraudModel(fraudModel);
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
         fraudResultRepository.insert(value);
 
-        int count = jdbcTemplate.queryForObject("SELECT count() as cnt from fraud.events_unique",
+        Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
                 (resultSet, i) -> resultSet.getInt("cnt"));
-        Assert.assertEquals(1, count);
+        Assert.assertEquals(1, count.intValue());
     }
 
 
@@ -108,32 +89,64 @@ public class FraudResultRepositoryTest {
         List<FraudResult> batch = createBatch();
         fraudResultRepository.insertBatch(batch);
 
-        int count = jdbcTemplate.queryForObject("SELECT count() as cnt from fraud.events_unique",
+        Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
                 (resultSet, i) -> resultSet.getInt("cnt"));
 
-        Assert.assertEquals(2, count);
+        Assert.assertEquals(2, count.intValue());
     }
 
     @NotNull
     private List<FraudResult> createBatch() {
-        FraudResult value = new FraudResult();
-        value.setResultStatus(ResultStatus.ACCEPT);
-        FraudModel fraudModel = BeanUtil.createFraudModel();
-        value.setFraudModel(fraudModel);
-        FraudResult value2 = new FraudResult();
-        value2.setResultStatus(ResultStatus.DECLINE);
-        FraudModel fraudModel2 = BeanUtil.createFraudModelSecond();
-        value2.setFraudModel(fraudModel2);
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
+        FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
         return List.of(value, value2);
+    }
+
+    @NotNull
+    private FraudResult createFraudResult(ResultStatus decline, FraudModel fraudModelSecond) {
+        FraudResult value2 = new FraudResult();
+        value2.setResultStatus(decline);
+        FraudModel fraudModel2 = fraudModelSecond;
+        value2.setFraudModel(fraudModel2);
+        return value2;
     }
 
     @Test
     public void countOperationByEmail() throws SQLException {
-        long from = Instant.now().toEpochMilli();
+        Instant now = Instant.now();
+        Long to = TimestampUtil.generateTimestampNow(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         List<FraudResult> batch = createBatch();
         fraudResultRepository.insertBatch(batch);
-        long to = Instant.now().toEpochMilli();
+
         int count = fraudResultRepository.countOperationByEmail(BeanUtil.EMAIL, from, to);
         Assert.assertEquals(1, count);
     }
+
+    @Test
+    public void countOperationByEmailSuccess() throws SQLException {
+        Instant now = Instant.now();
+        Long to = TimestampUtil.generateTimestampNow(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        List<FraudResult> batch = createBatch();
+        fraudResultRepository.insertBatch(batch);
+
+        int count = fraudResultRepository.countOperationByEmailSuccess(BeanUtil.EMAIL, from, to);
+        Assert.assertEquals(1, count);
+    }
+
+    @Test
+    public void countOperationByEmailError() throws SQLException {
+        Instant now = Instant.now();
+        Long to = TimestampUtil.generateTimestampNow(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
+        FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
+        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModel());
+        fraudResultRepository.insertBatch(List.of(value, value2, value3));
+
+        int count = fraudResultRepository.countOperationByEmailError(BeanUtil.EMAIL, from, to);
+        Assert.assertEquals(1, count);
+    }
+
 }

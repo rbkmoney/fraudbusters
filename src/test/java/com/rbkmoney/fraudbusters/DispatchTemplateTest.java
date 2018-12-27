@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
 
-public class FraudBustersApplicationTest extends KafkaAbstractTest {
+public class DispatchTemplateTest extends KafkaAbstractTest {
 
     public static final String CONCRETE = "concrete";
     public static final String TEMPLATE = "rule: 12 >= 1\n" +
@@ -21,14 +21,16 @@ public class FraudBustersApplicationTest extends KafkaAbstractTest {
     @Test
     public void testGlobal() throws ExecutionException, InterruptedException, TException {
         Producer<String, RuleTemplate> producer = createProducer();
-
         RuleTemplate ruleTemplate = new RuleTemplate();
         ruleTemplate.setLvl(TemplateLevel.GLOBAL);
         ruleTemplate.setTemplate(TEMPLATE);
         ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
                 TemplateLevel.GLOBAL.toString(), ruleTemplate);
         producer.send(producerRecord).get();
+        producer.close();
+
         Thread.sleep(SLEEP);
+
         KafkaStreams kafkaStreams = streamPool.get(TemplateLevel.GLOBAL.toString());
         Assert.assertNotNull(kafkaStreams);
     }
@@ -36,17 +38,16 @@ public class FraudBustersApplicationTest extends KafkaAbstractTest {
     @Test
     public void testConcrete() throws ExecutionException, InterruptedException, TException {
         RuleTemplate ruleTemplate = new RuleTemplate();
-
         ruleTemplate.setLvl(TemplateLevel.CONCRETE);
         ruleTemplate.setLocalId(CONCRETE);
         ruleTemplate.setTemplate(TEMPLATE);
         ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
                 CONCRETE, ruleTemplate);
         Producer<String, RuleTemplate> producer = createProducer();
-
         producer.send(producerRecord).get();
-
+        producer.close();
         Thread.sleep(SLEEP);
+
         KafkaStreams kafkaStreams = streamPool.get(CONCRETE);
         Assert.assertNotNull(kafkaStreams);
     }

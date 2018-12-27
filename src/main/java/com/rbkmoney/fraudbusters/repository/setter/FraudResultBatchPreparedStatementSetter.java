@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.List;
 
@@ -28,7 +29,8 @@ public class FraudResultBatchPreparedStatementSetter implements BatchPreparedSta
         ps.setString(6, fraudModel.getShopId());
         ps.setString(7, fraudModel.getPartyId());
         ps.setString(8, fraudResult.getResultStatus().name());
-        ps.setLong(9, Instant.now().toEpochMilli());
+        ps.setLong(9, Instant.now().atZone(ZoneId.systemDefault()).withSecond(0)
+                .withNano(0).toInstant().toEpochMilli());
     }
 
     @Override

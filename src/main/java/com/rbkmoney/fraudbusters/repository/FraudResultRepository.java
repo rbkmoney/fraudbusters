@@ -1,7 +1,9 @@
 package com.rbkmoney.fraudbusters.repository;
 
 import com.rbkmoney.fraudbusters.domain.FraudResult;
+import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.FraudResultBatchPreparedStatementSetter;
+import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.FraudModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,9 +43,22 @@ public class FraudResultRepository implements CrudRepository<FraudResult> {
     }
 
     public Integer countOperationByEmail(String email, Long from, Long to) {
-        return jdbcTemplate.queryForObject("select email, count() as cnt from fraud.events_unique " +
-                        "where  (eventTime >= ? and eventTime <= ? and email = ?)" +
-                        "group by email ", new Object[]{from, to, email},
-                (resultSet, i) -> resultSet.getInt("cnt"));
+        return jdbcTemplate.query("select email, count() as cnt from fraud.events_unique " +
+                "where  (eventTime >= ? and eventTime <= ? and email = ?)" +
+                "group by email ", new Object[]{from, to, email}, new CountExtractor());
+    }
+
+    public Integer countOperationByEmailSuccess(String email, Long from, Long to) {
+        return jdbcTemplate.query("select email, count() as cnt from fraud.events_unique " +
+                "where  (eventTime >= ? and eventTime <= ? and email = ? and resultStatus in (?, ?, ?))" +
+                "group by email ", new Object[]{from, to, email, ResultStatus.ACCEPT.toString(),
+                ResultStatus.NOTIFY.toString(), ResultStatus.THREE_DS.toString()}, new CountExtractor());
+    }
+
+    public Integer countOperationByEmailError(String email, Long from, Long to) {
+        return jdbcTemplate.query("select email, count() as cnt from fraud.events_unique " +
+                        "where  (eventTime >= ? and eventTime <= ? and email = ? and resultStatus = ?)" +
+                        "group by email ", new Object[]{from, to, email, ResultStatus.DECLINE.toString()},
+                new CountExtractor());
     }
 }

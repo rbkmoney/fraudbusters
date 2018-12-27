@@ -8,6 +8,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,11 +31,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ContextConfiguration(classes = FraudBustersApplication.class, initializers = KafkaAbstractTest.Initializer.class)
 public abstract class KafkaAbstractTest {
 
+    @ClassRule
     public static KafkaContainer kafka = new KafkaContainer("5.0.1").withEmbeddedZookeeper();
-
-    static {
-        kafka.start();
-    }
 
     @Autowired
     public StreamPool streamPool;

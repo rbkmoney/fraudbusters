@@ -22,6 +22,8 @@ public class ContextToFraudModelConverter implements Converter<Context, FraudMod
         fraudModel.setBin(payer.getCustomer().getPaymentTool().getBankCard().getBin());
         fraudModel.setEmail(payer.getCustomer().getContactInfo().getEmail());
         fraudModel.setShopId(payment.getShop().getId());
+        fraudModel.setFingerprint(party.getPartyId());
+        fraudModel.setIp(party.getPartyId());
         return fraudModel;
     }
 }

@@ -44,6 +44,13 @@ public class TemplateDispatcherImpl implements TemplateDispatcher {
                 pool.add(localId, streams);
                 return;
             }
+            case DEFAULT: {
+                fraudStreamProperties.put(StreamsConfig.APPLICATION_ID_CONFIG, KeyGenerator.generateKey("fraud-busters-default-stream-"));
+                fraudStreamProperties.put(StreamsConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("fraud-busters-default-stream-"));
+                KafkaStreams newStream = concreteTemplateStreamFactory.createDefault(fraudStreamProperties, pool);
+                pool.add(TemplateLevel.DEFAULT.toString(), newStream);
+                return;
+            }
             default: {
                 log.warn("This template lvl={} is not supported!", ruleTemplate.getLvl());
             }
