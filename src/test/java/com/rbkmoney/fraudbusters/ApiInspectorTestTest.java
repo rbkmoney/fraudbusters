@@ -26,7 +26,7 @@ import java.net.URISyntaxException;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-public class ApiInspectorTestTest {
+public class ApiInspectorTestTest extends KafkaAbstractTest {
 
     public static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
@@ -37,46 +37,45 @@ public class ApiInspectorTestTest {
     int serverPort;
 
     private static String SERVICE_URL = "http://localhost:%s/v1/fraud_inspector";
-//
-//    @Before
-//    public void init() throws ExecutionException, InterruptedException {
-//        Producer<String, FraudModel> producerNew = createProducerGlobal();
-//
-//        ProducerRecord<String, FraudModel> producerRecordNew = new ProducerRecord<>("global_topic",
-//                TemplateLevel.GLOBAL.toString(), null);
-//        producerNew.send(producerRecordNew).get();
-//
-//        Producer<String, RuleTemplate> producer = createProducer();
-//
-//        RuleTemplate ruleTemplate = new RuleTemplate();
-//        ruleTemplate.setLvl(TemplateLevel.GLOBAL);
-//        ruleTemplate.setTemplate(TEMPLATE);
-//        ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
-//                TemplateLevel.GLOBAL.toString(), ruleTemplate);
-//        producer.send(producerRecord).get();
-//    }
+
+    @Before
+    public void init() throws ExecutionException, InterruptedException {
+        Producer<String, FraudModel> producerNew = createProducerGlobal();
+
+        ProducerRecord<String, FraudModel> producerRecordNew = new ProducerRecord<>("global_topic",
+                TemplateLevel.GLOBAL.toString(), null);
+        producerNew.send(producerRecordNew).get();
+
+        Producer<String, RuleTemplate> producer = createProducer();
+
+        RuleTemplate ruleTemplate = new RuleTemplate();
+        ruleTemplate.setLvl(TemplateLevel.GLOBAL);
+        ruleTemplate.setTemplate(TEMPLATE);
+        ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
+                TemplateLevel.GLOBAL.toString(), ruleTemplate);
+        producer.send(producerRecord).get();
+    }
 
     @Test
     public void test() throws URISyntaxException, TException, InterruptedException {
 
         THClientBuilder clientBuilder = new THClientBuilder()
-                .withAddress(new URI(String.format(SERVICE_URL, 8022)))
+                .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
         client = clientBuilder.build(InspectorProxySrv.Iface.class);
 
         Context context = BeanUtil.createContext();
         RiskScore riskScore = client.inspectPayment(context);
-        Thread.sleep(10000L);
 
         Assert.assertEquals(riskScore, RiskScore.low);
     }
 
-//    public static Producer<String, FraudModel> createProducerGlobal() {
-//        Properties props = new Properties();
-//        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
-//        props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("global"));
-//        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-//        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudoModelSerializer.class.getName());
-//        return new KafkaProducer<>(props);
-//    }
+    public static Producer<String, FraudModel> createProducerGlobal() {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("global"));
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudoModelSerializer.class.getName());
+        return new KafkaProducer<>(props);
+    }
 }

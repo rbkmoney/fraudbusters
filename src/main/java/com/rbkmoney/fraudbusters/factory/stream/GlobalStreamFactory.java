@@ -63,7 +63,7 @@ public class GlobalStreamFactory implements TemplateStreamFactory {
             branch[1].mapValues(FraudResult::getFraudModel).to(concreteTopic);
             return new KafkaStreams(builder.build(), streamsConfiguration);
         } catch (Exception e) {
-            log.error("Error when GlobalStreamFactory create e: ", e);
+            log.error("Error when GlobalStreamFactory insert e: ", e);
             throw new RuntimeException(e);
         }
     }

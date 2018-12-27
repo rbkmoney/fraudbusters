@@ -5,9 +5,18 @@ import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
+import com.rbkmoney.fraudo.model.FraudModel;
 
 public class BeanUtil {
 
+
+    public static final String FINGERPRINT = "fingerprint";
+    public static final String SHOP_ID = "shopId";
+    public static final String PARTY_ID = "partyId";
+    public static final String IP = "ip";
+    public static final String EMAIL = "email";
+    public static final String BIN = "bin";
+    public static final String SUFIX = "_2";
 
     public static Context createContext() {
         return new Context(
@@ -56,5 +65,27 @@ public class BeanUtil {
                     "4242"
             ));
         }};
+    }
+
+    public static FraudModel createFraudModel() {
+        FraudModel fraudModel = new FraudModel();
+        fraudModel.setFingerprint(FINGERPRINT);
+        fraudModel.setShopId(SHOP_ID);
+        fraudModel.setPartyId(PARTY_ID);
+        fraudModel.setIp(IP);
+        fraudModel.setEmail(EMAIL);
+        fraudModel.setBin(BIN);
+        return fraudModel;
+    }
+
+    public static FraudModel createFraudModelSecond() {
+        FraudModel fraudModel = new FraudModel();
+        fraudModel.setFingerprint(FINGERPRINT + SUFIX);
+        fraudModel.setShopId(SHOP_ID + SUFIX);
+        fraudModel.setPartyId(PARTY_ID + SUFIX);
+        fraudModel.setIp(IP + SUFIX);
+        fraudModel.setEmail(EMAIL + SUFIX);
+        fraudModel.setBin(BIN + SUFIX);
+        return fraudModel;
     }
 }
