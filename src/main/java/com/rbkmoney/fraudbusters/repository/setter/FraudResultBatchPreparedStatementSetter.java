@@ -28,7 +28,7 @@ public class FraudResultBatchPreparedStatementSetter implements BatchPreparedSta
         ps.setString(5, fraudModel.getFingerprint());
         ps.setString(6, fraudModel.getShopId());
         ps.setString(7, fraudModel.getPartyId());
-        ps.setString(8, fraudResult.getResultStatus().name());
+        ps.setString(8, fraudResult.getResultModel().getResultStatus().name());
         ps.setLong(9, Instant.now().atZone(ZoneId.systemDefault()).withSecond(0)
                 .withNano(0).toInstant().toEpochMilli());
     }

@@ -31,7 +31,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
 
         Thread.sleep(SLEEP);
 
-        KafkaStreams kafkaStreams = streamPool.get(TemplateLevel.GLOBAL.toString());
+        KafkaStreams kafkaStreams = pool.get(TemplateLevel.GLOBAL.toString());
         Assert.assertNotNull(kafkaStreams);
     }
 
@@ -48,7 +48,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         producer.close();
         Thread.sleep(SLEEP);
 
-        KafkaStreams kafkaStreams = streamPool.get(CONCRETE);
+        KafkaStreams kafkaStreams = pool.get(CONCRETE);
         Assert.assertNotNull(kafkaStreams);
     }
 

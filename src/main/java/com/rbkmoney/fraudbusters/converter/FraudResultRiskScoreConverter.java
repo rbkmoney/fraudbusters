@@ -10,7 +10,7 @@ public class FraudResultRiskScoreConverter implements Converter<FraudResult, Ris
 
     @Override
     public RiskScore convert(FraudResult fraudResult) {
-        switch (fraudResult.getResultStatus()) {
+        switch (fraudResult.getResultModel().getResultStatus()) {
             case ACCEPT:
                 return RiskScore.low;
             case DECLINE:

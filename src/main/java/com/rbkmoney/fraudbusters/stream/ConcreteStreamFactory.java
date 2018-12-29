@@ -1,11 +1,9 @@
-package com.rbkmoney.fraudbusters.factory.stream;
+package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.serde.FraudoModelSerde;
 import com.rbkmoney.fraudbusters.template.FraudHandler;
-import com.rbkmoney.fraudbusters.template.pool.StreamPool;
 import com.rbkmoney.fraudo.FraudoParser;
-import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
@@ -38,16 +36,6 @@ public class ConcreteStreamFactory implements ConcreteTemplateStreamFactory {
                 .peek((s, fraudModel) -> log.debug("Concrete stream check merchantId: {} and fraudModel: {}", merchantId, fraudModel))
                 .filter((k, v) -> merchantId.equals(v.getPartyId()))
                 .mapValues(fraudModel -> new FraudResult(fraudModel, fraudHandler.handle(parseContext, fraudModel)))
-                .to(resultTopic);
-        return new KafkaStreams(builder.build(), streamsConfiguration);
-    }
-
-    @Override
-    public KafkaStreams createDefault(Properties streamsConfiguration, final StreamPool pool) {
-        StreamsBuilder builder = new StreamsBuilder();
-        builder.stream(readTopic, Consumed.with(Serdes.String(), fraudoModelSerde))
-                .filter((s, fraudModel) -> fraudModel != null && pool.get(fraudModel.getPartyId()) == null)
-                .mapValues(fraudModel -> new FraudResult(fraudModel, ResultStatus.ACCEPT))
                 .to(resultTopic);
         return new KafkaStreams(builder.build(), streamsConfiguration);
     }

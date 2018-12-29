@@ -21,12 +21,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.ClickHouseContainer;
 import ru.yandex.clickhouse.ClickHouseDataSource;
@@ -106,7 +104,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
         Context context = BeanUtil.createContext();
         RiskScore riskScore = client.inspectPayment(context);
-        Assert.assertEquals(RiskScore.low, riskScore);
+        Assert.assertEquals(RiskScore.high, riskScore);
 
         Thread.sleep(2000L);
         context = BeanUtil.createContext("test");

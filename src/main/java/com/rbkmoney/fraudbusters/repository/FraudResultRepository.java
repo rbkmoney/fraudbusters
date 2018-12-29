@@ -31,7 +31,7 @@ public class FraudResultRepository implements CrudRepository<FraudResult> {
             FraudModel fraudModel = value.getFraudModel();
             jdbcTemplate.update(INSERT, new java.sql.Date(Calendar.getInstance().getTime().getTime()), fraudModel.getIp(),
                     fraudModel.getEmail(), fraudModel.getBin(), fraudModel.getFingerprint(), fraudModel.getShopId(),
-                    fraudModel.getPartyId(), value.getResultStatus().name(), Instant.now().toEpochMilli());
+                    fraudModel.getPartyId(), value.getResultModel().getResultStatus().name(), Instant.now().toEpochMilli());
         }
     }
 

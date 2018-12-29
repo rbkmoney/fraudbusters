@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.fraudo.model.ResultModel;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
@@ -105,7 +106,7 @@ public class FraudResultRepositoryTest {
     @NotNull
     private FraudResult createFraudResult(ResultStatus decline, FraudModel fraudModelSecond) {
         FraudResult value2 = new FraudResult();
-        value2.setResultStatus(decline);
+        value2.setResultModel(new ResultModel(decline, null));
         FraudModel fraudModel2 = fraudModelSecond;
         value2.setFraudModel(fraudModel2);
         return value2;
