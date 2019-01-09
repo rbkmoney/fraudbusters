@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.factory.stream;
+package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudo.FraudoParser;
 import org.apache.kafka.streams.KafkaStreams;

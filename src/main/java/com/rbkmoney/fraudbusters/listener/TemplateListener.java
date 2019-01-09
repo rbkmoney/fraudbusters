@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.template.consumer;
+package com.rbkmoney.fraudbusters.listener;
 
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import com.rbkmoney.fraudbusters.template.TemplateDispatcherImpl;
@@ -16,6 +16,7 @@ public class TemplateListener {
 
     @KafkaListener(topics = "${kafka.template.topic}", containerFactory = "templateListenerContainerFactory")
     public void listen(RuleTemplate ruleTemplate) {
+        log.info("TemplateListener ruleTemplate: {}", ruleTemplate);
         templateDispatcherImpl.doDispatch(ruleTemplate);
     }
 }

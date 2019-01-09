@@ -2,8 +2,8 @@ package com.rbkmoney.fraudbusters.template;
 
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
-import com.rbkmoney.fraudbusters.factory.stream.ConcreteTemplateStreamFactory;
-import com.rbkmoney.fraudbusters.factory.stream.GlobalStreamFactory;
+import com.rbkmoney.fraudbusters.stream.ConcreteTemplateStreamFactory;
+import com.rbkmoney.fraudbusters.stream.GlobalStreamFactory;
 import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.template.pool.StreamPool;
 import com.rbkmoney.fraudo.FraudoParser;
@@ -51,7 +51,7 @@ public class TemplateDispatcherTest {
         RuleTemplate ruleTemplate = new RuleTemplate();
         ruleTemplate.setLvl(TemplateLevel.GLOBAL);
         ruleTemplate.setTemplate(TEMPLATE);
-        Mockito.when(globalStreamFactory.create(fraudStreamProperties, parseContext)).thenReturn(kafkaStreams);
+        Mockito.when(globalStreamFactory.create(fraudStreamProperties, parseContext, pool)).thenReturn(kafkaStreams);
 
         templateDispatcher.doDispatch(ruleTemplate);
         Mockito.verify(pool, Mockito.times(1)).add(TemplateLevel.GLOBAL.toString(), kafkaStreams);

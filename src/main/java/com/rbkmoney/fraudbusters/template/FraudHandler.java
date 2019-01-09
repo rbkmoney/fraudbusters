@@ -9,6 +9,7 @@ import com.rbkmoney.fraudo.factory.FastFraudVisitorFactory;
 import com.rbkmoney.fraudo.factory.FraudVisitorFactory;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.fraudo.model.ResultModel;
 import com.rbkmoney.fraudo.resolver.CountryResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -26,8 +27,8 @@ public class FraudHandler {
     private final InListFinder blackListFinder;
     private final InListFinder whiteListFinder;
 
-    public ResultStatus handle(FraudoParser.ParseContext parseContext, FraudModel fraudModel) {
-        return (ResultStatus) fraudVisitorFactory.createVisitor(fraudModel, countAggregator, sumAggregator,
+    public ResultModel handle(FraudoParser.ParseContext parseContext, FraudModel fraudModel) {
+        return (ResultModel) fraudVisitorFactory.createVisitor(fraudModel, countAggregator, sumAggregator,
                 uniqueValueAggregator, countryResolver, blackListFinder, whiteListFinder)
                 .visit(parseContext);
     }

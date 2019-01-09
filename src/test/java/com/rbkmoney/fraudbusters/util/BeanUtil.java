@@ -1,15 +1,31 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
+import com.rbkmoney.damsel.proxy_inspector.*;
+import com.rbkmoney.fraudo.model.FraudModel;
 
 public class BeanUtil {
 
 
+    public static final String FINGERPRINT = "fingerprint";
+    public static final String SHOP_ID = "shopId";
+    public static final String PARTY_ID = "partyId";
+    public static final String IP = "ip";
+    public static final String EMAIL = "email";
+    public static final String BIN = "bin";
+    public static final String SUFIX = "_2";
+
     public static Context createContext() {
+        String pId = "pId";
+        return createContext(pId);
+    }
+
+    public static Context createContext(String pId) {
+        ContactInfo contact_info = new ContactInfo();
+        contact_info.setEmail(EMAIL);
         return new Context(
                 new PaymentInfo(
                         new Shop("2035728",
@@ -19,10 +35,11 @@ public class BeanUtil {
                                     setUrl("http://www.pizza-sushi.com/");
                                 }}
                         ),
-                        new InvoicePayment("pId",
+                        new InvoicePayment(pId,
                                 "",
                                 Payer.customer(
-                                        new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(), new ContactInfo())),
+                                        new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(),
+                                                contact_info)),
                                 new Cash(
                                         9000000000000000000L,
                                         new CurrencyRef("RUB")
@@ -32,7 +49,7 @@ public class BeanUtil {
                                 "",
                                 "",
                                 new InvoiceDetails("drugs guns murder")),
-                        new Party("ptId")
+                        new Party(pId)
                 )
         );
 
@@ -56,5 +73,29 @@ public class BeanUtil {
                     "4242"
             ));
         }};
+    }
+
+    public static FraudModel createFraudModel() {
+        FraudModel fraudModel = new FraudModel();
+        fraudModel.setFingerprint(FINGERPRINT);
+        fraudModel.setShopId(SHOP_ID);
+        fraudModel.setPartyId(PARTY_ID);
+        fraudModel.setIp(IP);
+        fraudModel.setEmail(EMAIL);
+        fraudModel.setBin(BIN);
+        fraudModel.setAmount(10000L);
+        return fraudModel;
+    }
+
+    public static FraudModel createFraudModelSecond() {
+        FraudModel fraudModel = new FraudModel();
+        fraudModel.setFingerprint(FINGERPRINT + SUFIX);
+        fraudModel.setShopId(SHOP_ID + SUFIX);
+        fraudModel.setPartyId(PARTY_ID + SUFIX);
+        fraudModel.setIp(IP + SUFIX);
+        fraudModel.setEmail(EMAIL + SUFIX);
+        fraudModel.setBin(BIN + SUFIX);
+        fraudModel.setAmount(10000L);
+        return fraudModel;
     }
 }

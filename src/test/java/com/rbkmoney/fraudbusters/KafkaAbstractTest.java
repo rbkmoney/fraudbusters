@@ -8,6 +8,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.junit.After;
+import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +17,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
+import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -30,16 +34,18 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ContextConfiguration(classes = FraudBustersApplication.class, initializers = KafkaAbstractTest.Initializer.class)
 public abstract class KafkaAbstractTest {
 
+    @ClassRule
     public static KafkaContainer kafka = new KafkaContainer("5.0.1").withEmbeddedZookeeper();
 
-    static {
-        kafka.start();
-    }
-
-    @Autowired
-    public StreamPool streamPool;
     @Value("${kafka.template.topic}")
     public String templateTopic;
+
+    @Autowired
+    StreamPool pool;
+    @Autowired
+    private ReplyingKafkaTemplate replyingKafkaTemplate;
+    @Autowired
+    private KafkaListenerEndpointRegistry registry;
 
     public static Producer<String, RuleTemplate> createProducer() {
         Properties props = new Properties();
@@ -58,4 +64,5 @@ public abstract class KafkaAbstractTest {
                     .applyTo(configurableApplicationContext.getEnvironment());
         }
     }
+
 }

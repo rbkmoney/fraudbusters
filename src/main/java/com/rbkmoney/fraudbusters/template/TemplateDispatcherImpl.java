@@ -2,9 +2,9 @@ package com.rbkmoney.fraudbusters.template;
 
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
-import com.rbkmoney.fraudbusters.factory.stream.ConcreteTemplateStreamFactory;
-import com.rbkmoney.fraudbusters.factory.stream.GlobalStreamFactory;
 import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
+import com.rbkmoney.fraudbusters.stream.ConcreteTemplateStreamFactory;
+import com.rbkmoney.fraudbusters.stream.GlobalStreamFactory;
 import com.rbkmoney.fraudbusters.template.pool.StreamPool;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudo.FraudoParser;
@@ -32,7 +32,7 @@ public class TemplateDispatcherImpl implements TemplateDispatcher {
             case GLOBAL: {
                 FraudoParser.ParseContext parseContext = fraudContextParser.parse(ruleTemplate.getTemplate());
                 fraudStreamProperties.put(StreamsConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("fraud-busters-global-stream-"));
-                KafkaStreams newStream = globalStreamFactory.create(fraudStreamProperties, parseContext);
+                KafkaStreams newStream = globalStreamFactory.create(fraudStreamProperties, parseContext, pool);
                 pool.add(TemplateLevel.GLOBAL.toString(), newStream);
                 return;
             }
