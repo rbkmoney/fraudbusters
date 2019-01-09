@@ -9,14 +9,13 @@ import java.io.IOException;
 public class FileUtil {
 
     public static String getFile(String fileName) {
-        String result = "";
         ClassLoader classLoader = FileUtil.class.getClassLoader();
         try {
-            result = IOUtils.toString(classLoader.getResourceAsStream(fileName), "UTF8");
+            return IOUtils.toString(classLoader.getResourceAsStream(fileName), "UTF8");
         } catch (IOException e) {
             log.error("Error when getFile e: ", e);
+            return "";
         }
-        return result;
     }
 
 }

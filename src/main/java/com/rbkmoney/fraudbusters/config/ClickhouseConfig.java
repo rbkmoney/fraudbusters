@@ -13,11 +13,11 @@ import javax.sql.DataSource;
 public class ClickhouseConfig {
 
     @Value("${clickhouse.db.url}")
-    private String DB_URL;
+    private String dbUrl;
 
     @Bean
     public ClickHouseDataSource clickHouseDataSource() {
-        return new ClickHouseDataSource(DB_URL);
+        return new ClickHouseDataSource(dbUrl);
     }
 
     @Bean

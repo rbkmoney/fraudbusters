@@ -1,6 +1,8 @@
 package com.rbkmoney.fraudbusters.repository;
 
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
+import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
+import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
@@ -31,22 +33,26 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = {FraudResultRepository.class, ClickhouseConfig.class}, initializers = FraudResultRepositoryTest.Initializer.class)
-public class FraudResultRepositoryTest {
+@ContextConfiguration(classes = {EventRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class}, initializers = EventRepositoryTest.Initializer.class)
+public class EventRepositoryTest {
 
     public static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_unique";
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer();
 
     @Autowired
-    private FraudResultRepository fraudResultRepository;
+    private EventRepository eventRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    FraudResultToEventConverter fraudResultToEventConverter;
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
@@ -77,7 +83,7 @@ public class FraudResultRepositoryTest {
     @Test
     public void insert() throws SQLException {
         FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
-        fraudResultRepository.insert(value);
+        eventRepository.insert(fraudResultToEventConverter.convert(value));
 
         Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
                 (resultSet, i) -> resultSet.getInt("cnt"));
@@ -88,7 +94,10 @@ public class FraudResultRepositoryTest {
     @Test
     public void insertBatch() throws SQLException {
         List<FraudResult> batch = createBatch();
-        fraudResultRepository.insertBatch(batch);
+        List<Event> events = batch.stream()
+                .map(fraudResultToEventConverter::convert)
+                .collect(Collectors.toList());
+        eventRepository.insertBatch(events);
 
         Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
                 (resultSet, i) -> resultSet.getInt("cnt"));
@@ -118,9 +127,9 @@ public class FraudResultRepositoryTest {
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         List<FraudResult> batch = createBatch();
-        fraudResultRepository.insertBatch(batch);
+        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
 
-        int count = fraudResultRepository.countOperationByEmail(BeanUtil.EMAIL, from, to);
+        int count = eventRepository.countOperationByEmail(BeanUtil.EMAIL, from, to);
         Assert.assertEquals(1, count);
     }
 
@@ -130,9 +139,9 @@ public class FraudResultRepositoryTest {
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         List<FraudResult> batch = createBatch();
-        fraudResultRepository.insertBatch(batch);
+        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
 
-        int count = fraudResultRepository.countOperationByEmailSuccess(BeanUtil.EMAIL, from, to);
+        int count = eventRepository.countOperationByEmailSuccess(BeanUtil.EMAIL, from, to);
         Assert.assertEquals(1, count);
     }
 
@@ -144,9 +153,9 @@ public class FraudResultRepositoryTest {
         FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
         FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
         FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModel());
-        fraudResultRepository.insertBatch(List.of(value, value2, value3));
+        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3)));
 
-        int count = fraudResultRepository.countOperationByEmailError(BeanUtil.EMAIL, from, to);
+        int count = eventRepository.countOperationByEmailError(BeanUtil.EMAIL, from, to);
         Assert.assertEquals(1, count);
     }
 

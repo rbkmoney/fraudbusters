@@ -1,7 +1,8 @@
 package com.rbkmoney.fraudbusters.listener;
 
+import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.repository.FraudResultRepository;
+import com.rbkmoney.fraudbusters.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,11 +15,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ResultAggregatorListener {
 
-    private final FraudResultRepository fraudResultRepository;
+    private final EventRepository eventRepository;
+    private final FraudResultToEventConverter fraudResultToEventConverter;
 
     @KafkaListener(topics = "${kafka.result.stream.topic}", containerFactory = "resultListenerContainerFactory")
     public void listen(List<FraudResult> batch) {
         log.info("ResultAggregatorListener listen result: {}", batch);
-        fraudResultRepository.insertBatch(batch);
+        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
     }
 }

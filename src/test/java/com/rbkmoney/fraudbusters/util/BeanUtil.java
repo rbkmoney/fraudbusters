@@ -83,6 +83,7 @@ public class BeanUtil {
         fraudModel.setIp(IP);
         fraudModel.setEmail(EMAIL);
         fraudModel.setBin(BIN);
+        fraudModel.setAmount(10000L);
         return fraudModel;
     }
 
@@ -94,6 +95,7 @@ public class BeanUtil {
         fraudModel.setIp(IP + SUFIX);
         fraudModel.setEmail(EMAIL + SUFIX);
         fraudModel.setBin(BIN + SUFIX);
+        fraudModel.setAmount(10000L);
         return fraudModel;
     }
 }

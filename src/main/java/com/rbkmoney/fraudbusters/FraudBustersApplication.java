@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.fraudbusters.listener.TemplateListener;
 import com.rbkmoney.fraudbusters.template.pool.StreamPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;

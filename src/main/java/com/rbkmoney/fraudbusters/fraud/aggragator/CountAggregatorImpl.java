@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.fraud.aggragator;
 
-import com.rbkmoney.fraudbusters.repository.FraudResultRepository;
+import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.constant.CheckedField;
@@ -14,12 +14,12 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class CountAggregatorImpl implements CountAggregator {
 
-    private final FraudResultRepository fraudResultRepository;
+    private final EventRepository eventRepository;
 
     @Override
     public Integer count(CheckedField checkedField, FraudModel fraudModel, Long aLong) {
         Instant now = Instant.now();
-        Integer count = fraudResultRepository.countOperationByEmail(fraudModel.getEmail(), TimestampUtil.generateTimestampMinusMinutes(now, aLong),
+        Integer count = eventRepository.countOperationByEmail(fraudModel.getEmail(), TimestampUtil.generateTimestampMinusMinutes(now, aLong),
                 TimestampUtil.generateTimestampNow(now));
         log.debug("CountAggregatorImpl count: {}", count);
         return count;
@@ -28,14 +28,14 @@ public class CountAggregatorImpl implements CountAggregator {
     @Override
     public Integer countSuccess(CheckedField checkedField, FraudModel fraudModel, Long aLong) {
         Instant now = Instant.now();
-        return fraudResultRepository.countOperationByEmailSuccess(fraudModel.getEmail(), TimestampUtil.generateTimestampNow(now),
+        return eventRepository.countOperationByEmailSuccess(fraudModel.getEmail(), TimestampUtil.generateTimestampNow(now),
                 TimestampUtil.generateTimestampMinusMinutes(now, aLong));
     }
 
     @Override
     public Integer countError(CheckedField checkedField, FraudModel fraudModel, Long aLong, String s) {
         Instant now = Instant.now();
-        return fraudResultRepository.countOperationByEmailError(fraudModel.getEmail(), TimestampUtil.generateTimestampNow(now),
+        return eventRepository.countOperationByEmailError(fraudModel.getEmail(), TimestampUtil.generateTimestampNow(now),
                 TimestampUtil.generateTimestampMinusMinutes(now, aLong));
     }
 }
