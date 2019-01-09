@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.domain;
 
-import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.FraudModel;
 import com.rbkmoney.fraudo.model.ResultModel;
 import lombok.AllArgsConstructor;

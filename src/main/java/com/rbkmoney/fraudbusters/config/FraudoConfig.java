@@ -6,6 +6,7 @@ import com.rbkmoney.fraudbusters.fraud.aggragator.UniqueValueAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.finder.BlackListFinder;
 import com.rbkmoney.fraudbusters.fraud.finder.WhiteListFinder;
 import com.rbkmoney.fraudbusters.fraud.resolver.CountryResolverImpl;
+import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
@@ -14,7 +15,6 @@ import com.rbkmoney.fraudo.factory.FastFraudVisitorFactory;
 import com.rbkmoney.fraudo.factory.FraudVisitorFactory;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.resolver.CountryResolver;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,19 +27,18 @@ public class FraudoConfig {
     }
 
     @Bean
-    @Autowired
-    public CountAggregator countAggregator(EventRepository eventRepository) {
-        return new CountAggregatorImpl(eventRepository);
+    public CountAggregator countAggregator(EventRepository eventRepository, FieldResolver fieldResolver) {
+        return new CountAggregatorImpl(eventRepository, fieldResolver);
     }
 
     @Bean
-    public SumAggregator sumAggregator() {
-        return new SumAggregatorImpl();
+    public SumAggregator sumAggregator(EventRepository eventRepository, FieldResolver fieldResolver) {
+        return new SumAggregatorImpl(eventRepository, fieldResolver);
     }
 
     @Bean
-    public UniqueValueAggregator uniqueValueAggregator() {
-        return new UniqueValueAggregatorImpl();
+    public UniqueValueAggregator uniqueValueAggregator(EventRepository eventRepository, FieldResolver fieldResolver) {
+        return new UniqueValueAggregatorImpl(eventRepository, fieldResolver);
     }
 
     @Bean
