@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.repository;
 
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
+import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
@@ -57,6 +58,7 @@ public class EventRepositoryTest {
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
             TestPropertyValues
                     .of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl())
                     .applyTo(configurableApplicationContext.getEnvironment());
@@ -122,31 +124,55 @@ public class EventRepositoryTest {
     }
 
     @Test
-    public void countOperationByEmail() throws SQLException {
+    public void countOperationByEmailTest() throws SQLException {
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         List<FraudResult> batch = createBatch();
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
 
-        int count = eventRepository.countOperationByEmail(BeanUtil.EMAIL, from, to);
+        int count = eventRepository.countOperationByField(EventField.email, BeanUtil.EMAIL, from, to);
         Assert.assertEquals(1, count);
     }
 
     @Test
-    public void countOperationByEmailSuccess() throws SQLException {
+    public void sumOperationByEmailTest() throws SQLException {
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         List<FraudResult> batch = createBatch();
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
 
-        int count = eventRepository.countOperationByEmailSuccess(BeanUtil.EMAIL, from, to);
+        Long sum = eventRepository.sumOperationByField(EventField.email, BeanUtil.EMAIL, from, to);
+        Assert.assertEquals(BeanUtil.AMOUNT_FIRST, sum);
+    }
+
+    @Test
+    public void countOperationByEmailSuccessTest() {
+        Instant now = Instant.now();
+        Long to = TimestampUtil.generateTimestampNow(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        List<FraudResult> batch = createBatch();
+        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
+
+        int count = eventRepository.countOperationSuccess(EventField.email, BeanUtil.EMAIL, from, to);
         Assert.assertEquals(1, count);
     }
 
     @Test
-    public void countOperationByEmailError() throws SQLException {
+    public void sumOperationByEmailSuccessTest() {
+        Instant now = Instant.now();
+        Long to = TimestampUtil.generateTimestampNow(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        List<FraudResult> batch = createBatch();
+        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
+
+        Long sum = eventRepository.sumOperationSuccess(EventField.email, BeanUtil.EMAIL, from, to);
+        Assert.assertEquals(BeanUtil.AMOUNT_FIRST, sum);
+    }
+
+    @Test
+    public void countOperationByEmailErrorTest() throws SQLException {
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
@@ -155,8 +181,36 @@ public class EventRepositoryTest {
         FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModel());
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3)));
 
-        int count = eventRepository.countOperationByEmailError(BeanUtil.EMAIL, from, to);
+        int count = eventRepository.countOperationError(EventField.email, BeanUtil.EMAIL, from, to);
         Assert.assertEquals(1, count);
+    }
+
+    @Test
+    public void sumOperationByEmailErrorTest() throws SQLException {
+        Instant now = Instant.now();
+        Long to = TimestampUtil.generateTimestampNow(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
+        FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
+        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModel());
+        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3)));
+
+        Long sum = eventRepository.sumOperationError(EventField.email, BeanUtil.EMAIL, from, to);
+        Assert.assertEquals(BeanUtil.AMOUNT_FIRST, sum);
+    }
+
+    @Test
+    public void countUniqOperationTest() {
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
+        FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
+        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModel());
+        FraudModel fraudModel = BeanUtil.createFraudModel();
+        fraudModel.setFingerprint("test");
+        FraudResult value4 = createFraudResult(ResultStatus.DECLINE, fraudModel);
+        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3, value4)));
+
+        Integer sum = eventRepository.uniqCountOperation(EventField.email, BeanUtil.EMAIL, EventField.fingerprint);
+        Assert.assertEquals(Integer.valueOf(2), sum);
     }
 
 }

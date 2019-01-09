@@ -11,6 +11,7 @@ import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudo.model.FraudModel;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -37,10 +38,11 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
+@Slf4j
 @ContextConfiguration(initializers = EndToEndIntegrationTest.Initializer.class)
 public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
-    public static final String TEMPLATE = "rule: count(\"email\", 10) >= 1\n" +
+    public static final String TEMPLATE = "rule: count(\"email\", 10) >= 1 AND sum(\"email\", 10) >= 90\n" +
             " -> decline;";
     public static final String GLOBAL_TOPIC = "global_topic";
 
@@ -57,6 +59,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
             TestPropertyValues
                     .of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl())
                     .applyTo(configurableApplicationContext.getEnvironment());

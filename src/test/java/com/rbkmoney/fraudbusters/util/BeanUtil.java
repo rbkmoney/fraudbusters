@@ -17,6 +17,8 @@ public class BeanUtil {
     public static final String EMAIL = "email";
     public static final String BIN = "bin";
     public static final String SUFIX = "_2";
+    public static final Long AMOUNT_SECOND = 1000L;
+    public static final Long AMOUNT_FIRST = 10500L;
 
     public static Context createContext() {
         String pId = "pId";
@@ -41,7 +43,7 @@ public class BeanUtil {
                                         new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(),
                                                 contact_info)),
                                 new Cash(
-                                        9000000000000000000L,
+                                        9000L,
                                         new CurrencyRef("RUB")
                                 )),
                         new com.rbkmoney.damsel.proxy_inspector.Invoice(
@@ -83,7 +85,7 @@ public class BeanUtil {
         fraudModel.setIp(IP);
         fraudModel.setEmail(EMAIL);
         fraudModel.setBin(BIN);
-        fraudModel.setAmount(10000L);
+        fraudModel.setAmount(AMOUNT_FIRST);
         return fraudModel;
     }
 
@@ -95,7 +97,7 @@ public class BeanUtil {
         fraudModel.setIp(IP + SUFIX);
         fraudModel.setEmail(EMAIL + SUFIX);
         fraudModel.setBin(BIN + SUFIX);
-        fraudModel.setAmount(10000L);
+        fraudModel.setAmount(AMOUNT_SECOND);
         return fraudModel;
     }
 }

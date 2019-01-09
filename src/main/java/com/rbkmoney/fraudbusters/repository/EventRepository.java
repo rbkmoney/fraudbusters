@@ -1,7 +1,9 @@
 package com.rbkmoney.fraudbusters.repository;
 
+import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
+import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.EventBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.setter.EventParametersGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
@@ -43,29 +45,63 @@ public class EventRepository implements CrudRepository<Event> {
         }
     }
 
-    public Integer countOperationByEmail(String email, Long from, Long to) {
-        String sql = "select email, count() as cnt " +
+    public Integer countOperationByField(EventField fieldName, String value, Long from, Long to) {
+        String sql = String.format("select %1$s, count() as cnt " +
                 "from fraud.events_unique " +
-                "where  (eventTime >= ? and eventTime <= ? and email = ?)" +
-                "group by email ";
-        return jdbcTemplate.query(sql, new Object[]{from, to, email}, new CountExtractor());
+                "where  (eventTime >= ? and eventTime <= ? and %1$s = ?)" +
+                "group by %1$s", fieldName.name());
+        return jdbcTemplate.query(sql, new Object[]{from, to, value}, new CountExtractor());
     }
 
-    public Integer countOperationByEmailSuccess(String email, Long from, Long to) {
-        String sql = "select email, count() as cnt " +
+    public Integer countOperationSuccess(EventField fieldName, String value, Long from, Long to) {
+        String sql = String.format("select %1$s, count() as cnt " +
                 "from fraud.events_unique " +
-                "where  (eventTime >= ? and eventTime <= ? and email = ? and resultStatus in (?, ?, ?))" +
-                "group by email ";
-        return jdbcTemplate.query(sql, new Object[]{from, to, email, ResultStatus.ACCEPT.toString(),
+                "where  (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus in (?, ?, ?))" +
+                "group by %1$s", fieldName.name());
+        return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.ACCEPT.toString(),
                 ResultStatus.NORMAL.toString(), ResultStatus.THREE_DS.toString()}, new CountExtractor());
     }
 
-    public Integer countOperationByEmailError(String email, Long from, Long to) {
-        String sql = "select email, count() as cnt " +
+    public Integer countOperationError(EventField fieldName, String value, Long from, Long to) {
+        String sql = String.format("select %1$s, count() as cnt " +
                 "from fraud.events_unique " +
-                "where  (eventTime >= ? and eventTime <= ? and email = ? and resultStatus = ?)" +
-                "group by email ";
-        return jdbcTemplate.query(sql, new Object[]{from, to, email, ResultStatus.DECLINE.toString()},
+                "where  (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ?)" +
+                "group by %1$s", fieldName.name());
+        return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.DECLINE.toString()},
                 new CountExtractor());
+    }
+
+    public Long sumOperationByField(EventField fieldName, String value, Long from, Long to) {
+        String sql = String.format("select %1$s, sum(amount) as sum " +
+                "from fraud.events_unique " +
+                "where  (eventTime >= ? and eventTime <= ? and %1$s = ?)" +
+                "group by %1$s", fieldName.name());
+        return jdbcTemplate.query(sql, new Object[]{from, to, value}, new SumExtractor());
+    }
+
+    public Long sumOperationSuccess(EventField fieldName, String value, Long from, Long to) {
+        String sql = String.format("select %1$s, sum(amount) as sum " +
+                "from fraud.events_unique " +
+                "where  (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus in (?, ?, ?))" +
+                "group by %1$s", fieldName.name());
+        return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.ACCEPT.toString(),
+                ResultStatus.NORMAL.toString(), ResultStatus.THREE_DS.toString()}, new SumExtractor());
+    }
+
+    public Long sumOperationError(EventField fieldName, String value, Long from, Long to) {
+        String sql = String.format("select %1$s, sum(amount) as sum " +
+                "from fraud.events_unique " +
+                "where  (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ?)" +
+                "group by %1$s", fieldName);
+        return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.DECLINE.toString()},
+                new SumExtractor());
+    }
+
+    public Integer uniqCountOperation(EventField fieldNameBy, String value, EventField fieldNameCount) {
+        String sql = String.format("select %1$s, uniq(%2$s) as cnt " +
+                "from fraud.events_unique " +
+                "where %1$s = ? " +
+                "group by %1$s", fieldNameBy, fieldNameCount);
+        return jdbcTemplate.query(sql, new Object[]{value}, new CountExtractor());
     }
 }
