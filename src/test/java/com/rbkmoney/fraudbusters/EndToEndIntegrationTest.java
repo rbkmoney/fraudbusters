@@ -1,6 +1,8 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
+import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
+import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
@@ -22,6 +24,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
@@ -38,15 +42,22 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
+import static org.mockito.ArgumentMatchers.any;
+
 @Slf4j
 @ContextConfiguration(initializers = EndToEndIntegrationTest.Initializer.class)
 public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
-    public static final String TEMPLATE = "rule: count(\"email\", 10) >= 1 AND sum(\"email\", 10) >= 90\n" +
+    private static final String TEMPLATE =
+            "rule: count(\"email\", 10) >= 1 " +
+                    "AND sum(\"email\", 10) >= 90 " +
+                    "AND countryBy(\"ip\") = \"12345\"\n" +
             " -> decline;";
-    public static final String GLOBAL_TOPIC = "global_topic";
+    private static final String GLOBAL_TOPIC = "global_topic";
+    private static final int COUNTRY_GEO_ID = 12345;
 
     private InspectorProxySrv.Iface client;
+
 
     @LocalServerPort
     int serverPort;
@@ -73,7 +84,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     }
 
     @Before
-    public void init() throws ExecutionException, InterruptedException, SQLException {
+    public void init() throws ExecutionException, InterruptedException, SQLException, TException {
         Connection connection = getSystemConn();
         String sql = FileUtil.getFile("sql/db_init.sql");
         String[] split = sql.split(";");
@@ -96,6 +107,10 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
                 TemplateLevel.GLOBAL.toString(), ruleTemplate);
         producer.send(producerRecord).get();
         producer.close();
+
+        LocationInfo info = new LocationInfo();
+        info.setCountryGeoId(COUNTRY_GEO_ID);
+        Mockito.when(geoIpServiceSrv.getLocation(any())).thenReturn(info);
     }
 
     @Test

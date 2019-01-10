@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters;
 
+import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import com.rbkmoney.fraudbusters.serde.RuleTemplateSerializer;
 import com.rbkmoney.fraudbusters.template.pool.StreamPool;
@@ -14,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -33,6 +35,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = FraudBustersApplication.class, initializers = KafkaAbstractTest.Initializer.class)
 public abstract class KafkaAbstractTest {
+
+    @MockBean
+    GeoIpServiceSrv.Iface geoIpServiceSrv;
 
     @ClassRule
     public static KafkaContainer kafka = new KafkaContainer("5.0.1").withEmbeddedZookeeper();

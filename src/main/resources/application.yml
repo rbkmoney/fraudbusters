@@ -8,3 +8,8 @@ kafka:
   template.topic: template
 
 clickhouse.db.url: "jdbc:clickhouse://localhost:8123/default"
+
+geo:
+  ip:
+    service:
+      url: "localhost:29092/v1/columbus"

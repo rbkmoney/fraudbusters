@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.config;
 
+import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.fraud.aggragator.CountAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.aggragator.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.aggragator.UniqueValueAggregatorImpl;
@@ -42,8 +43,8 @@ public class FraudoConfig {
     }
 
     @Bean
-    public CountryResolver countryResolver() {
-        return new CountryResolverImpl();
+    public CountryResolver countryResolver(GeoIpServiceSrv.Iface geoIpServiceSrv) {
+        return new CountryResolverImpl(geoIpServiceSrv);
     }
 
     @Bean
