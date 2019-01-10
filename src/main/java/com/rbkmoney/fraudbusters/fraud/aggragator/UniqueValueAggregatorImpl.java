@@ -14,8 +14,8 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator {
     private final FieldResolver fieldResolver;
 
     @Override
-    public Integer countUniqueValue(CheckedField checkedField, FraudModel fraudModel, CheckedField checkedField1) {
-        FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
-        return eventRepository.uniqCountOperation(resolve.getName(), resolve.getValue(), fieldResolver.resolve(checkedField1));
+    public Integer countUniqueValue(CheckedField countField, FraudModel fraudModel, CheckedField onField) {
+        FieldResolver.FieldModel resolve = fieldResolver.resolve(countField, fraudModel);
+        return eventRepository.uniqCountOperation(resolve.getName(), resolve.getValue(), fieldResolver.resolve(onField));
     }
 }

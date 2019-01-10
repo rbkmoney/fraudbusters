@@ -21,26 +21,26 @@ public class SumAggregatorImpl implements SumAggregator {
     private final FieldResolver fieldResolver;
 
     @Override
-    public Double sum(CheckedField checkedField, FraudModel fraudModel, Long aLong) {
-        return getSum(checkedField, fraudModel, aLong, eventRepository::sumOperationByField);
+    public Double sum(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes) {
+        return getSum(checkedField, fraudModel, timeInMinutes, eventRepository::sumOperationByField);
     }
 
     @Override
-    public Double sumSuccess(CheckedField checkedField, FraudModel fraudModel, Long aLong) {
-        return getSum(checkedField, fraudModel, aLong, eventRepository::sumOperationSuccess);
+    public Double sumSuccess(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes) {
+        return getSum(checkedField, fraudModel, timeInMinutes, eventRepository::sumOperationSuccess);
     }
 
     @Override
-    public Double sumError(CheckedField checkedField, FraudModel fraudModel, Long aLong, String s) {
-        return getSum(checkedField, fraudModel, aLong, eventRepository::sumOperationError);
+    public Double sumError(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes, String errorCode) {
+        return getSum(checkedField, fraudModel, timeInMinutes, eventRepository::sumOperationError);
     }
 
     @NotNull
-    private Double getSum(CheckedField checkedField, FraudModel fraudModel, Long aLong,
+    private Double getSum(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes,
                           AggregateFunction<EventField, String, Long, Long, Long> aggregateFunction) {
         Instant now = Instant.now();
         FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
-        Long sum = aggregateFunction.accept(resolve.getName(), resolve.getValue(), TimestampUtil.generateTimestampMinusMinutes(now, aLong),
+        Long sum = aggregateFunction.accept(resolve.getName(), resolve.getValue(), TimestampUtil.generateTimestampMinusMinutes(now, timeInMinutes),
                 TimestampUtil.generateTimestampNow(now));
         log.debug("SumAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), sum);
         return sum != null ? sum / 100.0 : 0.0;
