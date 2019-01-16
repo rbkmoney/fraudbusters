@@ -9,7 +9,5 @@ kafka:
 
 clickhouse.db.url: "jdbc:clickhouse://localhost:8123/default"
 
-geo:
-  ip:
-    service:
-      url: "localhost:29092/v1/columbus"
+geo.ip.service.url: "localhost:29092/v1/columbus"
+wb.list.service.url: "localhost:29092/v1/wb_list"

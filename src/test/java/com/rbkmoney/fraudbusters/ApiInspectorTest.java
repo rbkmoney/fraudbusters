@@ -58,7 +58,7 @@ public class ApiInspectorTest extends KafkaAbstractTest {
     }
 
     @Test
-    public void test() throws URISyntaxException, TException, InterruptedException {
+    public void test() throws URISyntaxException, TException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);

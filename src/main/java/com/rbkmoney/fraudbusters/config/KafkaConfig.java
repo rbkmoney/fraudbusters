@@ -10,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.streams.StreamsConfig;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,7 @@ public class KafkaConfig {
     private static final String GROUP_ID = "TemplateListener-";
     private static final String EARLIEST = "earliest";
     public static final String RESULT_AGGREGATOR = "ResultAggregator";
+    public static final String MAX_POLL_RECORDS_CONFIG = "20";
 
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
@@ -46,12 +48,19 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, RuleTemplate> templateListenerFactory() {
+        String value = KeyGenerator.generateKey(GROUP_ID);
+        final Map<String, Object> props = createDefaultProperties(value);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new RuleTemplateDeserializer());
+    }
+
+    @NotNull
+    private Map<String, Object> createDefaultProperties(String value) {
         final Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, KeyGenerator.generateKey(GROUP_ID));
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, value);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, EARLIEST);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new RuleTemplateDeserializer());
+        return props;
     }
 
     @Bean
@@ -64,18 +73,11 @@ public class KafkaConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudResult> resultListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, FraudResult> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        final Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, RESULT_AGGREGATOR);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, EARLIEST);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
-
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "20");
-
+        final Map<String, Object> props = createDefaultProperties(RESULT_AGGREGATOR);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, MAX_POLL_RECORDS_CONFIG);
         DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(), new FraudoResultDeserializer());
         factory.setConsumerFactory(consumerFactory);
         return factory;
     }
-
 }
