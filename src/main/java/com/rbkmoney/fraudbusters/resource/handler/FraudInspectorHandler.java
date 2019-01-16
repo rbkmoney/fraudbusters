@@ -1,6 +1,5 @@
-package com.rbkmoney.fraudbusters.handler;
+package com.rbkmoney.fraudbusters.resource.handler;
 
-import com.rbkmoney.damsel.base.InvalidRequest;
 import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
@@ -31,7 +30,7 @@ public class FraudInspectorHandler implements InspectorProxySrv.Iface {
     private final ContextToFraudModelConverter requestConverter;
 
     @Override
-    public RiskScore inspectPayment(Context context) throws InvalidRequest, TException {
+    public RiskScore inspectPayment(Context context) throws TException {
         try {
             FraudModel model = requestConverter.convert(context);
             ProducerRecord<String, FraudModel> record = new ProducerRecord<>(requestTopic, model);

@@ -4,7 +4,7 @@ import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.converter.ContextToFraudModelConverter;
 import com.rbkmoney.fraudbusters.converter.FraudResultRiskScoreConverter;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.handler.FraudInspectorHandler;
+import com.rbkmoney.fraudbusters.resource.handler.FraudInspectorHandler;
 import com.rbkmoney.fraudo.model.FraudModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

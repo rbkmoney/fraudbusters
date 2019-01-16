@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
+import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import com.rbkmoney.fraudbusters.serde.RuleTemplateSerializer;
 import com.rbkmoney.fraudbusters.template.pool.StreamPool;
@@ -9,7 +10,6 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,16 +39,23 @@ public abstract class KafkaAbstractTest {
     @MockBean
     GeoIpServiceSrv.Iface geoIpServiceSrv;
 
+    @MockBean
+    WbListServiceSrv.Iface wbListServiceSrv;
+
+    private static final String CONFLUENT_PLATFORM_VERSION = "5.0.1";
+
     @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer("5.0.1").withEmbeddedZookeeper();
+    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION).withEmbeddedZookeeper();
 
     @Value("${kafka.template.topic}")
     public String templateTopic;
 
     @Autowired
     StreamPool pool;
+
     @Autowired
     private ReplyingKafkaTemplate replyingKafkaTemplate;
+
     @Autowired
     private KafkaListenerEndpointRegistry registry;
 
