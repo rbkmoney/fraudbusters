@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.constant.CommandType;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import com.rbkmoney.fraudbusters.serde.FraudoModelSerializer;
@@ -50,6 +51,7 @@ public class ApiInspectorTest extends KafkaAbstractTest {
         Producer<String, RuleTemplate> producer = createProducer();
         RuleTemplate ruleTemplate = new RuleTemplate();
         ruleTemplate.setLvl(TemplateLevel.GLOBAL);
+        ruleTemplate.setCommandType(CommandType.UPDATE);
         ruleTemplate.setTemplate(TEMPLATE);
         ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
                 TemplateLevel.GLOBAL.toString(), ruleTemplate);

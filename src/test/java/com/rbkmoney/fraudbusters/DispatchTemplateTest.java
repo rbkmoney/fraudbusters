@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters;
 
+import com.rbkmoney.fraudbusters.constant.CommandType;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import org.apache.kafka.clients.producer.Producer;
@@ -24,6 +25,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         RuleTemplate ruleTemplate = new RuleTemplate();
         ruleTemplate.setLvl(TemplateLevel.GLOBAL);
         ruleTemplate.setTemplate(TEMPLATE);
+        ruleTemplate.setCommandType(CommandType.UPDATE);
         ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
                 TemplateLevel.GLOBAL.toString(), ruleTemplate);
         producer.send(producerRecord).get();
@@ -40,6 +42,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         RuleTemplate ruleTemplate = new RuleTemplate();
         ruleTemplate.setLvl(TemplateLevel.CONCRETE);
         ruleTemplate.setLocalId(CONCRETE);
+        ruleTemplate.setCommandType(CommandType.UPDATE);
         ruleTemplate.setTemplate(TEMPLATE);
         ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
                 CONCRETE, ruleTemplate);

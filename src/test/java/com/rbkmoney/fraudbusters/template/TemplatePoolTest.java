@@ -51,4 +51,17 @@ public class TemplatePoolTest {
         Mockito.verify(mockStreams, Mockito.times(1)).close(any());
         Mockito.verify(mockStreamsNew, Mockito.times(1)).close(any());
     }
+
+
+
+    @Test
+    public void delete() {
+        KafkaStreams mockStreams = Mockito.mock(KafkaStreams.class);
+        Mockito.when(mockStreams.state()).thenReturn(KafkaStreams.State.RUNNING);
+        streamPool.add(TEST, mockStreams);
+        streamPool.stopAndRemove(TEST);
+        Mockito.verify(mockStreams, Mockito.times(1)).close(any());
+        KafkaStreams kafkaStreams = streamPool.get(TEST);
+        Assert.assertNull(kafkaStreams);
+    }
 }
