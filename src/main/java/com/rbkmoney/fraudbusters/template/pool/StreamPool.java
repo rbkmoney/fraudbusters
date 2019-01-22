@@ -10,4 +10,6 @@ public interface StreamPool {
 
     void clear();
 
+    void stopAndRemove(String key);
+
 }

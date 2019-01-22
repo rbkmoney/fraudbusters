@@ -15,7 +15,7 @@ public class TemplatePool implements StreamPool {
 
     @Override
     public void add(String key, KafkaStreams stream) {
-        KafkaStreams kafkaStreams = restartStream(streams.get(key), stream);
+        KafkaStreams kafkaStreams = restartStream(key, stream);
         streams.put(key, kafkaStreams);
     }
 
@@ -29,10 +29,16 @@ public class TemplatePool implements StreamPool {
         streams.forEach((key, value) -> value.close(Duration.ofSeconds(WAIT_TIME)));
     }
 
-    private KafkaStreams restartStream(KafkaStreams kafkaStreamsOld, KafkaStreams newStream) {
-        if (kafkaStreamsOld != null && kafkaStreamsOld.state().isRunning()) {
-            kafkaStreamsOld.close(Duration.ofSeconds(WAIT_TIME));
+    @Override
+    public void stopAndRemove(String key) {
+        KafkaStreams kafkaStreams = streams.get(key);
+        if (kafkaStreams != null && kafkaStreams.state().isRunning()) {
+            kafkaStreams.close(Duration.ofSeconds(WAIT_TIME));
         }
+    }
+
+    private KafkaStreams restartStream(String key, KafkaStreams newStream) {
+        stopAndRemove(key);
         newStream.start();
         return newStream;
     }

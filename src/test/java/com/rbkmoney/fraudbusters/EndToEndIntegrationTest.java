@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.constant.CommandType;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import com.rbkmoney.fraudbusters.serde.FraudoModelSerializer;
@@ -103,6 +104,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         RuleTemplate ruleTemplate = new RuleTemplate();
         ruleTemplate.setLvl(TemplateLevel.GLOBAL);
         ruleTemplate.setTemplate(TEMPLATE);
+        ruleTemplate.setCommandType(CommandType.UPDATE);
         ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
                 TemplateLevel.GLOBAL.toString(), ruleTemplate);
         producer.send(producerRecord).get();
