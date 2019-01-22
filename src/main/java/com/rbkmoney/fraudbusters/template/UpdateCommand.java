@@ -27,7 +27,8 @@ public class UpdateCommand implements TemplateCommandInterface {
 
     @Override
     public void execute(RuleTemplate ruleTemplate) {
-        switch (ruleTemplate.getLvl()) {
+        TemplateLevel lvl = ruleTemplate.getLvl();
+        switch (lvl) {
             case GLOBAL: {
                 FraudoParser.ParseContext parseContext = fraudContextParser.parse(ruleTemplate.getTemplate());
                 fraudStreamProperties.put(StreamsConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("fraud-busters-global-stream-"));
@@ -44,7 +45,7 @@ public class UpdateCommand implements TemplateCommandInterface {
                 return;
             }
             default: {
-                log.warn("This template lvl={} is not supported!", ruleTemplate.getLvl());
+                log.warn("This template lvl={} is not supported!", lvl);
             }
         }
     }
