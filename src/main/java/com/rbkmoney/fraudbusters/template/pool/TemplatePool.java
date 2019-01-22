@@ -34,6 +34,7 @@ public class TemplatePool implements StreamPool {
         KafkaStreams kafkaStreams = streams.get(key);
         if (kafkaStreams != null && kafkaStreams.state().isRunning()) {
             kafkaStreams.close(Duration.ofSeconds(WAIT_TIME));
+            streams.remove(key);
         }
     }
 

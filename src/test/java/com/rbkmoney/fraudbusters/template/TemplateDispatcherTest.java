@@ -69,5 +69,9 @@ public class TemplateDispatcherTest {
         Mockito.when(concreteTemplateStreamFactory.create(fraudStreamProperties, parseContext, LOCAL_ID)).thenReturn(kafkaStreams);
         templateDispatcher.doDispatch(ruleTemplate);
         Mockito.verify(pool, Mockito.times(1)).add(LOCAL_ID, kafkaStreams);
+
+        ruleTemplate.setCommandType(CommandType.DELETE);
+        templateDispatcher.doDispatch(ruleTemplate);
+        Mockito.verify(pool, Mockito.times(1)).stopAndRemove(LOCAL_ID);
     }
 }
