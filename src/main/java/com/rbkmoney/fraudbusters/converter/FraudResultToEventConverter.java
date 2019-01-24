@@ -27,7 +27,7 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         event.setBin(fraudModel.getBin());
         event.setEmail(fraudModel.getEmail());
         event.setEventTime(getEventTime(fraudResult));
-        event.setTimestamp(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
+        event.setTimestamp(new java.sql.Date(generateNow()));
         event.setFingerprint(fraudModel.getFingerprint());
         event.setIp(fraudModel.getIp());
         event.setPartyId(fraudModel.getPartyId());
@@ -38,12 +38,15 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
 
     @NotNull
     private Long getEventTime(FraudResult fraudResult) {
-        Long eventTime = Calendar.getInstance().getTime().getTime();
         if (fraudResult.getFraudRequest().getMetadata() != null) {
             Long timestamp = fraudResult.getFraudRequest().getMetadata().getTimestamp();
-            eventTime = timestamp != null ? timestamp : LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+            return timestamp != null ? timestamp : generateNow();
         }
-        return eventTime;
+        return generateNow();
+    }
+
+    private long generateNow() {
+        return LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
     }
 
     public List<Event> convertBatch(List<FraudResult> fraudResults) {
