@@ -7,11 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +24,7 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         event.setBin(fraudModel.getBin());
         event.setEmail(fraudModel.getEmail());
         event.setEventTime(getEventTime(fraudResult));
-        event.setTimestamp(new java.sql.Date(generateNow()));
+        event.setTimestamp(java.sql.Date.valueOf(LocalDateTime.now().toLocalDate()));
         event.setFingerprint(fraudModel.getFingerprint());
         event.setIp(fraudModel.getIp());
         event.setPartyId(fraudModel.getPartyId());
