@@ -27,7 +27,7 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         event.setBin(fraudModel.getBin());
         event.setEmail(fraudModel.getEmail());
         event.setEventTime(getEventTime(fraudResult));
-        event.setTimestamp(new java.sql.Date(generateNow()));
+        event.setTimestamp(java.sql.Date.valueOf(LocalDateTime.now().toLocalDate()));
         event.setFingerprint(fraudModel.getFingerprint());
         event.setIp(fraudModel.getIp());
         event.setPartyId(fraudModel.getPartyId());
