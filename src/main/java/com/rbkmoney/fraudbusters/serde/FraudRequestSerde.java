@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.serde;
 
-import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
@@ -9,7 +9,7 @@ import org.apache.kafka.common.serialization.Serializer;
 import java.util.Map;
 
 @Slf4j
-public class FraudoModelSerde implements Serde<FraudModel> {
+public class FraudRequestSerde implements Serde<FraudRequest> {
 
 
     @Override
@@ -23,12 +23,12 @@ public class FraudoModelSerde implements Serde<FraudModel> {
     }
 
     @Override
-    public Serializer<FraudModel> serializer() {
-        return new FraudoModelSerializer();
+    public Serializer<FraudRequest> serializer() {
+        return new FraudRequestSerializer();
     }
 
     @Override
-    public Deserializer<FraudModel> deserializer() {
-        return new FraudoModelDeserializer();
+    public Deserializer<FraudRequest> deserializer() {
+        return new FraudRequestDeserializer();
     }
 }

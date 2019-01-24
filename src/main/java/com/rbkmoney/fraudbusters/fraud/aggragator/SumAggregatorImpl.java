@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,7 +38,7 @@ public class SumAggregatorImpl implements SumAggregator {
     @NotNull
     private Double getSum(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes,
                           AggregateFunction<EventField, String, Long, Long, Long> aggregateFunction) {
-        Instant now = Instant.now();
+        LocalDateTime now = LocalDateTime.now();
         FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
         Long sum = aggregateFunction.accept(resolve.getName(), resolve.getValue(), TimestampUtil.generateTimestampMinusMinutes(now, timeInMinutes),
                 TimestampUtil.generateTimestampNow(now));

@@ -1,9 +1,9 @@
 package com.rbkmoney.fraudbusters.config;
 
+import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.serde.FraudoModelSerializer;
+import com.rbkmoney.fraudbusters.serde.FraudRequestSerializer;
 import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
-import com.rbkmoney.fraudo.model.FraudModel;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -38,7 +38,7 @@ public class ReplyTemplateConfig {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudoModelSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudRequestSerializer.class);
         return props;
     }
 
@@ -51,12 +51,12 @@ public class ReplyTemplateConfig {
     }
 
     @Bean
-    public ProducerFactory<String, FraudModel> producerFactory() {
+    public ProducerFactory<String, FraudRequest> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean
-    public KafkaTemplate<String, FraudModel> kafkaTemplate() {
+    public KafkaTemplate<String, FraudRequest> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
@@ -81,10 +81,10 @@ public class ReplyTemplateConfig {
     }
 
     @Bean
-    public ReplyingKafkaTemplate<String, FraudModel, FraudResult> replyKafkaTemplate(ProducerFactory<String, FraudModel> pf,
-                                                                                     KafkaMessageListenerContainer<String,
+    public ReplyingKafkaTemplate<String, FraudRequest, FraudResult> replyKafkaTemplate(ProducerFactory<String, FraudRequest> pf,
+                                                                                       KafkaMessageListenerContainer<String,
                                                                                              FraudResult> container) {
-        ReplyingKafkaTemplate<String, FraudModel, FraudResult> replyingKafkaTemplate = new ReplyingKafkaTemplate<>(pf, container);
+        ReplyingKafkaTemplate<String, FraudRequest, FraudResult> replyingKafkaTemplate = new ReplyingKafkaTemplate<>(pf, container);
         replyingKafkaTemplate.setReplyTimeout(30000L);
         return replyingKafkaTemplate;
     }

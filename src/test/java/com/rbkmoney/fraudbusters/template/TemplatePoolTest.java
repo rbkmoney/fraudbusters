@@ -52,8 +52,6 @@ public class TemplatePoolTest {
         Mockito.verify(mockStreamsNew, Mockito.times(1)).close(any());
     }
 
-
-
     @Test
     public void delete() {
         KafkaStreams mockStreams = Mockito.mock(KafkaStreams.class);

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FraudResult {
 
-    private FraudModel fraudModel;
+    private FraudRequest fraudRequest;
     private ResultModel resultModel;
 
 }

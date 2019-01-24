@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.converter.ContextToFraudModelConverter;
 import com.rbkmoney.fraudbusters.converter.FraudResultRiskScoreConverter;
+import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudo.model.FraudModel;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class FraudInspectorHandler implements InspectorProxySrv.Iface {
 
-    private final ReplyingKafkaTemplate<String, FraudModel, FraudResult> kafkaTemplate;
+    private final ReplyingKafkaTemplate<String, FraudRequest, FraudResult> kafkaTemplate;
     private final String requestTopic;
     private final String requestReplyTopic;
     private final FraudResultRiskScoreConverter resultConverter;
@@ -32,10 +33,10 @@ public class FraudInspectorHandler implements InspectorProxySrv.Iface {
     @Override
     public RiskScore inspectPayment(Context context) throws TException {
         try {
-            FraudModel model = requestConverter.convert(context);
-            ProducerRecord<String, FraudModel> record = new ProducerRecord<>(requestTopic, model);
+            FraudRequest model = requestConverter.convert(context);
+            ProducerRecord<String, FraudRequest> record = new ProducerRecord<>(requestTopic, model);
             record.headers().add(new RecordHeader(KafkaHeaders.REPLY_TOPIC, requestReplyTopic.getBytes()));
-            RequestReplyFuture<String, FraudModel, FraudResult> sendAndReceive = kafkaTemplate.sendAndReceive(record);
+            RequestReplyFuture<String, FraudRequest, FraudResult> sendAndReceive = kafkaTemplate.sendAndReceive(record);
             ConsumerRecord<String, FraudResult> consumerRecord = sendAndReceive.get(60L, TimeUnit.SECONDS);
             return resultConverter.convert(consumerRecord.value());
         } catch (Exception e) {
