@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.serde.FraudoModelSerde;
+import com.rbkmoney.fraudbusters.serde.FraudRequestSerde;
 import com.rbkmoney.fraudbusters.serde.FraudoResultSerde;
 import com.rbkmoney.fraudbusters.template.pool.StreamPool;
 import com.rbkmoney.fraudo.FraudoParser;
@@ -41,7 +41,7 @@ public class GlobalStreamFactory implements TemplateStreamFactory {
     private String concreteTopic;
 
     private final FraudVisitorFactory fraudVisitorFactory = new FastFraudVisitorFactory();
-    private final FraudoModelSerde fraudoModelSerde = new FraudoModelSerde();
+    private final FraudRequestSerde fraudRequestSerde = new FraudRequestSerde();
 
     private final CountAggregator countAggregator;
     private final SumAggregator sumAggregator;
@@ -55,14 +55,14 @@ public class GlobalStreamFactory implements TemplateStreamFactory {
         try {
             StreamsBuilder builder = new StreamsBuilder();
             KStream<String, FraudResult>[] branch = builder
-                    .stream(readTopic, Consumed.with(Serdes.String(), fraudoModelSerde))
-                    .filter((s, fraudModel) -> fraudModel != null)
-                    .peek((s, fraudModel) -> log.debug("Global stream check fraudModel: {}", fraudModel))
-                    .mapValues(fraudModel -> new FraudResult(fraudModel, applyRules(parseContext, fraudModel)))
-                    .branch((k, v) -> !isNormal(v) || pool.get(v.getFraudModel().getPartyId()) == null,
+                    .stream(readTopic, Consumed.with(Serdes.String(), fraudRequestSerde))
+                    .filter((s, fraudRequest) -> fraudRequest != null && fraudRequest.getFraudModel() != null)
+                    .peek((s, fraudRequest) -> log.debug("Global stream check fraudRequest: {}", fraudRequest))
+                    .mapValues(fraudRequest -> new FraudResult(fraudRequest, applyRules(parseContext, fraudRequest.getFraudModel())))
+                    .branch((k, v) -> !isNormal(v) || pool.get(v.getFraudRequest().getFraudModel().getPartyId()) == null,
                             (k, v) -> isNormal(v));
             branch[0].to(resultTopic, Produced.with(Serdes.String(), new FraudoResultSerde()));
-            branch[1].mapValues(FraudResult::getFraudModel).to(concreteTopic);
+            branch[1].mapValues(FraudResult::getFraudRequest).to(concreteTopic);
             return new KafkaStreams(builder.build(), streamsConfiguration);
         } catch (Exception e) {
             log.error("Error when GlobalStreamFactory insert e: ", e);

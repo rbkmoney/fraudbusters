@@ -1,14 +1,13 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
-import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.constant.CommandType;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
-import com.rbkmoney.fraudbusters.serde.FraudoModelSerializer;
+import com.rbkmoney.fraudbusters.serde.FraudRequestSerializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
@@ -26,7 +25,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
@@ -58,7 +56,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final int COUNTRY_GEO_ID = 12345;
 
     private InspectorProxySrv.Iface client;
-
 
     @LocalServerPort
     int serverPort;
@@ -126,7 +123,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         RiskScore riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        Thread.sleep(2000L);
+        Thread.sleep(1000L);
         context = BeanUtil.createContext("test");
         riskScore = client.inspectPayment(context);
 
@@ -138,7 +135,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("global"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudoModelSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudRequestSerializer.class.getName());
         return new KafkaProducer<>(props);
     }
 

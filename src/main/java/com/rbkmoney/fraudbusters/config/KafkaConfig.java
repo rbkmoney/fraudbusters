@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
-import com.rbkmoney.fraudbusters.serde.FraudoModelSerde;
+import com.rbkmoney.fraudbusters.serde.FraudRequestSerde;
 import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
 import com.rbkmoney.fraudbusters.serde.RuleTemplateDeserializer;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
@@ -40,7 +40,7 @@ public class KafkaConfig {
         props.put(StreamsConfig.CLIENT_ID_CONFIG, "fraud-busters-client");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, FraudoModelSerde.class);
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, FraudRequestSerde.class);
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         return props;

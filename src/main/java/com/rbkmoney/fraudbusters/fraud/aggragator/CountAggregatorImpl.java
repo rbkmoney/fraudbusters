@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class CountAggregatorImpl implements CountAggregator {
     @NotNull
     private Integer getCount(CheckedField checkedField, FraudModel fraudModel, Long aLong,
                              AggregateFunction<EventField, String, Long, Long, Integer> aggregateFunction) {
-        Instant now = Instant.now();
+        LocalDateTime now = LocalDateTime.now();
         FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
         Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(), TimestampUtil.generateTimestampMinusMinutes(now, aLong),
                 TimestampUtil.generateTimestampNow(now));

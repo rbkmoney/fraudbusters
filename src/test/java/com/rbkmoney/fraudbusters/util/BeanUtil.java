@@ -6,9 +6,12 @@ import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
 import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.geck.common.util.TypeUtil;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class BeanUtil {
-
 
     public static final String FINGERPRINT = "fingerprint";
     public static final String SHOP_ID = "shopId";
@@ -48,7 +51,7 @@ public class BeanUtil {
                                 )),
                         new com.rbkmoney.damsel.proxy_inspector.Invoice(
                                 "iId",
-                                "",
+                                TypeUtil.temporalToString(LocalDateTime.now()),
                                 "",
                                 new InvoiceDetails("drugs guns murder")),
                         new Party(pId)

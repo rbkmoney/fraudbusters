@@ -6,7 +6,7 @@ import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.constant.CommandType;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
-import com.rbkmoney.fraudbusters.serde.FraudoModelSerializer;
+import com.rbkmoney.fraudbusters.serde.FraudRequestSerializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudo.model.FraudModel;
@@ -77,7 +77,7 @@ public class ApiInspectorTest extends KafkaAbstractTest {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("global"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudoModelSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudRequestSerializer.class.getName());
         return new KafkaProducer<>(props);
     }
 }

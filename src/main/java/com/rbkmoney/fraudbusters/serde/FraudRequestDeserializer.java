@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.serde;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudo.model.FraudModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -8,7 +9,7 @@ import org.apache.kafka.common.serialization.Deserializer;
 import java.util.Map;
 
 @Slf4j
-public class FraudoModelDeserializer implements Deserializer<FraudModel> {
+public class FraudRequestDeserializer implements Deserializer<FraudRequest> {
 
     private final ObjectMapper om = new ObjectMapper();
 
@@ -18,14 +19,14 @@ public class FraudoModelDeserializer implements Deserializer<FraudModel> {
     }
 
     @Override
-    public FraudModel deserialize(String topic, byte[] data) {
-        FraudModel user = null;
+    public FraudRequest deserialize(String topic, byte[] data) {
+        FraudRequest fraudRequest = null;
         try {
-            user = om.readValue(data, FraudModel.class);
+            fraudRequest = om.readValue(data, FraudRequest.class);
         } catch (Exception e) {
-            log.error("Error when deserialize fraudModel data: {} ", data, e);
+            log.error("Error when deserialize fraudRequest data: {} ", data, e);
         }
-        return user;
+        return fraudRequest;
     }
 
     @Override
