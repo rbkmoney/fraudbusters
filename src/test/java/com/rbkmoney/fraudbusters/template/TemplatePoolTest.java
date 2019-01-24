@@ -2,20 +2,13 @@ package com.rbkmoney.fraudbusters.template;
 
 import com.rbkmoney.fraudbusters.template.pool.StreamPool;
 import com.rbkmoney.fraudbusters.template.pool.TemplatePool;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KafkaStreams;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.sql.Date;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.Calendar;
-
 import static org.mockito.ArgumentMatchers.any;
 
-@Slf4j
 public class TemplatePoolTest {
 
     public static final String TEST = "test";
