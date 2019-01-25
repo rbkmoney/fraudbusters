@@ -50,7 +50,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE =
             "rule: count(\"email\", 10) >= 1 " +
                     "AND sum(\"email\", 10) >= 90 " +
-                    "AND countryBy(\"ip\") = \"12345\"\n" +
+                    "AND countryBy(\"ip\") = \"RU\"\n" +
             " -> decline;";
     private static final String GLOBAL_TOPIC = "global_topic";
     private static final int COUNTRY_GEO_ID = 12345;
@@ -109,7 +109,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
         LocationInfo info = new LocationInfo();
         info.setCountryGeoId(COUNTRY_GEO_ID);
-        Mockito.when(geoIpServiceSrv.getLocation(any())).thenReturn(info);
+        Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RU");
     }
 
     @Test

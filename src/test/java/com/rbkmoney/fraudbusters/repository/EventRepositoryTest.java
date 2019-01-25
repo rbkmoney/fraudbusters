@@ -34,6 +34,7 @@ import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -124,7 +125,7 @@ public class EventRepositoryTest {
         FraudRequest fraudRequest = new FraudRequest();
         fraudRequest.setFraudModel(fraudModel2);
         Metadata metadata = new Metadata();
-        metadata.setTimestamp(TimestampUtil.generateTimestampNow(LocalDateTime.now()));
+        metadata.setTimestamp(TimestampUtil.generateTimestampNow(Instant.now()));
         fraudRequest.setMetadata(metadata);
         value2.setFraudRequest(fraudRequest);
         return value2;
@@ -132,7 +133,7 @@ public class EventRepositoryTest {
 
     @Test
     public void countOperationByEmailTest() throws SQLException {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         List<FraudResult> batch = createBatch();
@@ -144,7 +145,7 @@ public class EventRepositoryTest {
 
     @Test
     public void sumOperationByEmailTest() throws SQLException {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         List<FraudResult> batch = createBatch();
@@ -156,7 +157,7 @@ public class EventRepositoryTest {
 
     @Test
     public void countOperationByEmailSuccessTest() {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         List<FraudResult> batch = createBatch();
@@ -168,7 +169,7 @@ public class EventRepositoryTest {
 
     @Test
     public void sumOperationByEmailSuccessTest() {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         List<FraudResult> batch = createBatch();
@@ -180,7 +181,7 @@ public class EventRepositoryTest {
 
     @Test
     public void countOperationByEmailErrorTest() throws SQLException {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
@@ -194,7 +195,7 @@ public class EventRepositoryTest {
 
     @Test
     public void sumOperationByEmailErrorTest() throws SQLException {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());

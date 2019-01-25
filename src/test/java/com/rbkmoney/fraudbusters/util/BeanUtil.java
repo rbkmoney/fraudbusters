@@ -51,7 +51,7 @@ public class BeanUtil {
                                 )),
                         new com.rbkmoney.damsel.proxy_inspector.Invoice(
                                 "iId",
-                                TypeUtil.temporalToString(LocalDateTime.now()),
+                                TypeUtil.temporalToString(Instant.now()),
                                 "",
                                 new InvoiceDetails("drugs guns murder")),
                         new Party(pId)

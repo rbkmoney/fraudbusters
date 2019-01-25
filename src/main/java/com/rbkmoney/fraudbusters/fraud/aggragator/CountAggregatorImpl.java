@@ -39,7 +39,7 @@ public class CountAggregatorImpl implements CountAggregator {
     @NotNull
     private Integer getCount(CheckedField checkedField, FraudModel fraudModel, Long aLong,
                              AggregateFunction<EventField, String, Long, Long, Integer> aggregateFunction) {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
         Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(), TimestampUtil.generateTimestampMinusMinutes(now, aLong),
                 TimestampUtil.generateTimestampNow(now));

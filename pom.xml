@@ -22,7 +22,7 @@
         <dockerfile.base.service.tag>4f3b89c6381373923f5fdea18b08741b9bada1e6</dockerfile.base.service.tag>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools-version>7.0.0.Final</drools-version>
-        <damsel.version>1.256-2afe121</damsel.version>
+        <damsel.version>1.274-c01bded</damsel.version>
         <woody.thrift.version>1.1.15</woody.thrift.version>
         <geck.version>0.6.7</geck.version>
         <fraudo.version>0.0.2-SNAPSHOT</fraudo.version>
