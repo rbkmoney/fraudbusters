@@ -49,7 +49,7 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         try {
             country = geoIpService.getLocationIsoCode(ip);
         } catch (TException e) {
-            log.error("", e);
+            log.error("Error when getCountryCode e: ", e);
         }
         return country != null ? country : UNKNOWN;
     }
