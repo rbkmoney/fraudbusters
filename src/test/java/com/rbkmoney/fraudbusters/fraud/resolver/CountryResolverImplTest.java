@@ -15,7 +15,7 @@ import org.mockito.MockitoAnnotations;
 public class CountryResolverImplTest {
 
     public static final String TEST = "test";
-    public static final int COUNTRY_GEO_ID = 12345;
+    public static final String COUNTRY_GEO_ISO_CODE = "RU";
 
     @Mock
     GeoIpServiceSrv.Iface geoIpServiceSrv;
@@ -24,16 +24,14 @@ public class CountryResolverImplTest {
     @Before
     public void init() throws TException {
         MockitoAnnotations.initMocks(this);
-        LocationInfo locationInfo = new LocationInfo();
-        locationInfo.setCountryGeoId(COUNTRY_GEO_ID);
-        Mockito.when(geoIpServiceSrv.getLocation(TEST)).thenReturn(locationInfo);
+        Mockito.when(geoIpServiceSrv.getLocationIsoCode(TEST)).thenReturn(COUNTRY_GEO_ISO_CODE);
         countryResolver = new CountryResolverImpl(geoIpServiceSrv);
     }
 
     @Test
     public void resolveCountry() {
         String country = countryResolver.resolveCountry(CheckedField.IP, TEST);
-        Assert.assertEquals(String.valueOf(COUNTRY_GEO_ID), country);
+        Assert.assertEquals(COUNTRY_GEO_ISO_CODE, country);
     }
 
     @Test

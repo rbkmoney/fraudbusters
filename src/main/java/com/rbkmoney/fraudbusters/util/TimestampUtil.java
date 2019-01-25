@@ -1,16 +1,15 @@
 package com.rbkmoney.fraudbusters.util;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.Instant;
 
 public class TimestampUtil {
 
-    public static Long generateTimestampNow(LocalDateTime now) {
-        return now.toEpochSecond(ZoneOffset.UTC);
+    public static Long generateTimestampNow(Instant now) {
+        return now.getEpochSecond();
     }
 
-    public static Long generateTimestampMinusMinutes(LocalDateTime now, Long minutes) {
-        return now.minusMinutes(minutes).toEpochSecond(ZoneOffset.UTC);
+    public static Long generateTimestampMinusMinutes(Instant now, Long minutes) {
+        return now.minusSeconds(minutes * 60).getEpochSecond();
     }
 
 }
