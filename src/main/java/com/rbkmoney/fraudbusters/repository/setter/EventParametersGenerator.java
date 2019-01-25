@@ -21,6 +21,7 @@ public class EventParametersGenerator {
         parameters.put("resultStatus", value.getResultStatus());
         parameters.put("amount", value.getAmount());
         parameters.put("eventTime", value.getEventTime());
+        parameters.put("country", value.getCountry());
         return parameters;
     }
 

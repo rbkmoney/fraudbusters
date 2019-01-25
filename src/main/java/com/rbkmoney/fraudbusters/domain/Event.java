@@ -15,6 +15,7 @@ public class Event {
     private String shopId;
     private String partyId;
     private String resultStatus;
+    private String country;
     private Long eventTime;
     private Long amount;
 
