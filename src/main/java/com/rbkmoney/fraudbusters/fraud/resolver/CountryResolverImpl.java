@@ -14,7 +14,7 @@ public class CountryResolverImpl implements CountryResolver {
     private final GeoIpServiceSrv.Iface geoIpServiceSrv;
 
     @Override
-    public String resolveCountry(CheckedField checkedField, String ip) {
+    public String resolveCountryByIp(String ip) {
         try {
             String location = geoIpServiceSrv.getLocationIsoCode(ip);
             if (location == null) {

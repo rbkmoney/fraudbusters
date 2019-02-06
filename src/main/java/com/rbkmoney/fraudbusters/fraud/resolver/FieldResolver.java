@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 public class FieldResolver {
 
     public FieldModel resolve(CheckedField field, FraudModel fraudModel) {
+        if (field == null) {
+            throw new UnknownFieldException();
+        }
         switch (field) {
             case IP:
                 return new FieldModel(EventField.ip, fraudModel.getIp());
@@ -31,6 +34,9 @@ public class FieldResolver {
     }
 
     public EventField resolve(CheckedField field) {
+        if (field == null) {
+            throw new UnknownFieldException();
+        }
         switch (field) {
             case IP:
                 return EventField.ip;
