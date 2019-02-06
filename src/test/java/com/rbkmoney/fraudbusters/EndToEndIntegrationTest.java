@@ -50,7 +50,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE =
             "rule: count(\"email\", 10) >= 1 " +
                     "AND sum(\"email\", 10) >= 90 " +
-                    "AND countryBy(\"ip\") = \"RU\"\n" +
+                    "AND country() = \"RU\"\n" +
             " -> decline;";
     private static final String GLOBAL_TOPIC = "global_topic";
     private static final int COUNTRY_GEO_ID = 12345;
