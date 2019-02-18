@@ -7,24 +7,19 @@ import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.constant.CommandType;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
-import com.rbkmoney.fraudbusters.serde.FraudRequestSerializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
-import com.rbkmoney.fraudbusters.util.KeyGenerator;
-import com.rbkmoney.fraudo.model.FraudModel;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
@@ -38,7 +33,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -48,17 +42,27 @@ import static org.mockito.ArgumentMatchers.any;
 public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     private static final String TEMPLATE =
-            "rule: count(\"email\", 10) >= 1 " +
+            "rule: count(\"email\", 10) >= 1  AND count(\"email\", 10) < 2 " +
                     "AND sum(\"email\", 10) >= 90 " +
                     "AND country() = \"RU\"\n" +
             " -> decline;";
-    private static final String GLOBAL_TOPIC = "global_topic";
+
+    private static final String TEMPLATE_CONCRETE =
+            "rule:  sum(\"email\", 10) >= 200  -> decline;";
+
+    private static final String TEMPLATE_CONCRETE_SHOP =
+            "rule:  sum(\"email\", 10) >= 90  -> accept;";
+
     private static final int COUNTRY_GEO_ID = 12345;
+    public static final String P_ID = "test";
 
     private InspectorProxySrv.Iface client;
 
     @LocalServerPort
     int serverPort;
+
+    @Value("${kafka.global.stream.topic}")
+    public String GLOBAL_TOPIC;
 
     private static String SERVICE_URL = "http://localhost:%s/v1/fraud_inspector";
 
@@ -72,6 +76,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
             TestPropertyValues
                     .of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl())
                     .applyTo(configurableApplicationContext.getEnvironment());
+            LocationInfo info = new LocationInfo();
+            info.setCountryGeoId(COUNTRY_GEO_ID);
         }
     }
 
@@ -90,13 +96,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
             connection.createStatement().execute(exec);
         }
         connection.close();
-
-        Producer<String, FraudModel> producerNew = createProducerGlobal();
-        ProducerRecord<String, FraudModel> producerRecordNew = new ProducerRecord<>(GLOBAL_TOPIC,
-                TemplateLevel.GLOBAL.toString(), null);
-        producerNew.send(producerRecordNew).get();
-        producerNew.close();
-
         Producer<String, RuleTemplate> producer = createProducer();
         RuleTemplate ruleTemplate = new RuleTemplate();
         ruleTemplate.setLvl(TemplateLevel.GLOBAL);
@@ -107,9 +106,28 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         producer.send(producerRecord).get();
         producer.close();
 
-        LocationInfo info = new LocationInfo();
-        info.setCountryGeoId(COUNTRY_GEO_ID);
+        createRule(P_ID, TEMPLATE_CONCRETE);
+
+        createRule(P_ID + "_" + BeanUtil.ID_VALUE_SHOP, TEMPLATE_CONCRETE_SHOP);
+
+        Thread.sleep(3000L);
+
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RU");
+    }
+
+    private void createRule(String localId, String template) throws InterruptedException, ExecutionException {
+        Producer<String, RuleTemplate> producer;
+        RuleTemplate ruleTemplate;
+        ProducerRecord<String, RuleTemplate> producerRecord;
+        producer = createProducer();
+        ruleTemplate = new RuleTemplate();
+        ruleTemplate.setLvl(TemplateLevel.CONCRETE);
+        ruleTemplate.setTemplate(template);
+        ruleTemplate.setLocalId(localId);
+        ruleTemplate.setCommandType(CommandType.UPDATE);
+        producerRecord = new ProducerRecord<>(templateTopic, localId, ruleTemplate);
+        producer.send(producerRecord).get();
+        producer.close();
     }
 
     @Test
@@ -123,20 +141,13 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         RiskScore riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        Thread.sleep(1000L);
-        context = BeanUtil.createContext("test");
+        context = BeanUtil.createContext();
         riskScore = client.inspectPayment(context);
-
         Assert.assertEquals(RiskScore.fatal, riskScore);
-    }
 
-    public static Producer<String, FraudModel> createProducerGlobal() {
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("global"));
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudRequestSerializer.class.getName());
-        return new KafkaProducer<>(props);
+        context = BeanUtil.createContext(P_ID);
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.low, riskScore);
     }
 
 }

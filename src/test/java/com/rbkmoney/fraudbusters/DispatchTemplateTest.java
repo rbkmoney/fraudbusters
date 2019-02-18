@@ -3,12 +3,14 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.fraudbusters.constant.CommandType;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
+import com.rbkmoney.fraudbusters.template.pool.RuleTemplatePool;
+import com.rbkmoney.fraudo.FraudoParser;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.ExecutionException;
 
@@ -18,6 +20,8 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
     public static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
     public static final long SLEEP = 1000L;
+    @Autowired
+    private RuleTemplatePool pool;
 
     @Test
     public void testGlobal() throws ExecutionException, InterruptedException, TException {
@@ -33,8 +37,8 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
 
         Thread.sleep(SLEEP);
 
-        KafkaStreams kafkaStreams = pool.get(TemplateLevel.GLOBAL.toString());
-        Assert.assertNotNull(kafkaStreams);
+        FraudoParser.ParseContext parseContext = pool.get(TemplateLevel.GLOBAL.toString());
+        Assert.assertNotNull(parseContext);
     }
 
     @Test
@@ -51,8 +55,8 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         producer.close();
         Thread.sleep(SLEEP);
 
-        KafkaStreams kafkaStreams = pool.get(CONCRETE);
-        Assert.assertNotNull(kafkaStreams);
+        FraudoParser.ParseContext parseContext = pool.get(CONCRETE);
+        Assert.assertNotNull(parseContext);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.fraudbusters.template.pool.StreamPool;
+import com.rbkmoney.fraudbusters.listener.StartupListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,13 +15,13 @@ import javax.annotation.PreDestroy;
 public class FraudBustersApplication {
 
     @Autowired
-    private StreamPool pool;
-
-    @Autowired
     private ReplyingKafkaTemplate replyingKafkaTemplate;
 
     @Autowired
     private KafkaListenerEndpointRegistry registry;
+
+    @Autowired
+    private StartupListener startupListener;
 
     public static void main(String[] args) {
         SpringApplication.run(FraudBustersApplication.class, args);
@@ -31,6 +31,6 @@ public class FraudBustersApplication {
     public void preDestroy() {
         registry.stop();
         replyingKafkaTemplate.stop();
-        pool.clear();
+        startupListener.stop();
     }
 }
