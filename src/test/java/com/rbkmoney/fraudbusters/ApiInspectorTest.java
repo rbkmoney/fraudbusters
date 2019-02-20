@@ -5,28 +5,29 @@ import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.constant.CommandType;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
+import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
-import com.rbkmoney.fraudbusters.serde.FraudRequestSerializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
-import com.rbkmoney.fraudbusters.util.KeyGenerator;
-import com.rbkmoney.fraudo.model.FraudModel;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
-import org.apache.kafka.clients.producer.KafkaProducer;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
+
+@Slf4j
+@ContextConfiguration(initializers = ApiInspectorTest.Initializer.class)
 public class ApiInspectorTest extends KafkaAbstractTest {
 
     public static final String TEMPLATE = "rule: 12 >= 1\n" +
@@ -42,12 +43,6 @@ public class ApiInspectorTest extends KafkaAbstractTest {
 
     @Before
     public void init() throws ExecutionException, InterruptedException {
-        Producer<String, FraudModel> producerNew = createProducerGlobal();
-        ProducerRecord<String, FraudModel> producerRecordNew = new ProducerRecord<>(GLOBAL_TOPIC,
-                TemplateLevel.GLOBAL.toString(), null);
-        producerNew.send(producerRecordNew).get();
-        producerNew.close();
-
         Producer<String, RuleTemplate> producer = createProducer();
         RuleTemplate ruleTemplate = new RuleTemplate();
         ruleTemplate.setLvl(TemplateLevel.GLOBAL);
@@ -72,12 +67,4 @@ public class ApiInspectorTest extends KafkaAbstractTest {
         Assert.assertEquals(riskScore, RiskScore.low);
     }
 
-    public static Producer<String, FraudModel> createProducerGlobal() {
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("global"));
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudRequestSerializer.class.getName());
-        return new KafkaProducer<>(props);
-    }
 }

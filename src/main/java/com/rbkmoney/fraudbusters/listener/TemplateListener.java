@@ -5,6 +5,7 @@ import com.rbkmoney.fraudbusters.template.TemplateDispatcherImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -15,7 +16,7 @@ public class TemplateListener {
     private final TemplateDispatcherImpl templateDispatcherImpl;
 
     @KafkaListener(topics = "${kafka.template.topic}", containerFactory = "templateListenerContainerFactory")
-    public void listen(RuleTemplate ruleTemplate) {
+    public void listen(@Payload RuleTemplate ruleTemplate) {
         log.info("TemplateListener ruleTemplate: {}", ruleTemplate);
         templateDispatcherImpl.doDispatch(ruleTemplate);
     }

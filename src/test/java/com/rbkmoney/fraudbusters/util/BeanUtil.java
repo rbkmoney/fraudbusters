@@ -22,9 +22,11 @@ public class BeanUtil {
     public static final String SUFIX = "_2";
     public static final Long AMOUNT_SECOND = 1000L;
     public static final Long AMOUNT_FIRST = 10500L;
+    public static final String P_ID = "pId";
+    public static final String ID_VALUE_SHOP = "2035728";
 
     public static Context createContext() {
-        String pId = "pId";
+        String pId = P_ID;
         return createContext(pId);
     }
 
@@ -33,7 +35,7 @@ public class BeanUtil {
         contact_info.setEmail(EMAIL);
         return new Context(
                 new PaymentInfo(
-                        new Shop("2035728",
+                        new Shop(ID_VALUE_SHOP,
                                 new Category("pizza", "no category"),
                                 new ShopDetails("pizza-sushi"),
                                 new ShopLocation() {{
