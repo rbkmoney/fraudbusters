@@ -1,10 +1,10 @@
 package com.rbkmoney.fraudbusters.stream;
 
+import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudo.model.FraudModel;
-import com.rbkmoney.fraudo.model.ResultModel;
 
 public interface TemplateVisitor {
 
-    ResultModel visit(FraudModel fraudModel);
+    CheckedResultModel visit(FraudModel fraudModel);
 
 }

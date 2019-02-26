@@ -22,6 +22,7 @@ public class EventParametersGenerator {
         parameters.put("amount", value.getAmount());
         parameters.put("eventTime", value.getEventTime());
         parameters.put("country", value.getCountry());
+        parameters.put("checkedRule", value.getCheckedRule());
         return parameters;
     }
 

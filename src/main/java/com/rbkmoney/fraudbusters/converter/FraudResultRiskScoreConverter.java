@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.converter;
 
 import com.rbkmoney.damsel.domain.RiskScore;
+import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,8 @@ public class FraudResultRiskScoreConverter implements Converter<FraudResult, Ris
 
     @Override
     public RiskScore convert(FraudResult fraudResult) {
-        switch (fraudResult.getResultModel().getResultStatus()) {
+        CheckedResultModel checkedResultModel = fraudResult.getResultModel();
+        switch (checkedResultModel.getResultModel().getResultStatus()) {
             case ACCEPT:
                 return RiskScore.low;
             case DECLINE:

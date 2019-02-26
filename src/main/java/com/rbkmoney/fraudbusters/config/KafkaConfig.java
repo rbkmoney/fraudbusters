@@ -27,8 +27,8 @@ public class KafkaConfig {
 
     private static final String GROUP_ID = "TemplateListener-";
     private static final String EARLIEST = "earliest";
-    public static final String RESULT_AGGREGATOR = "ResultAggregator";
-    public static final String MAX_POLL_RECORDS_CONFIG = "20";
+    private static final String RESULT_AGGREGATOR = "ResultAggregator";
+    private static final String MAX_POLL_RECORDS_CONFIG = "20";
 
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;

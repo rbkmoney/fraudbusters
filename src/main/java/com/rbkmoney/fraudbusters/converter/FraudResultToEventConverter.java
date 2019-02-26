@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.converter;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
+import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudo.model.FraudModel;
@@ -39,7 +40,9 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         event.setCountry(country);
         event.setIp(ip);
         event.setPartyId(fraudModel.getPartyId());
-        event.setResultStatus(fraudResult.getResultModel().getResultStatus().name());
+        CheckedResultModel resultModel = fraudResult.getResultModel();
+        event.setResultStatus(resultModel.getResultModel().getResultStatus().name());
+        event.setCheckedRule(resultModel.getCheckedRule());
         event.setShopId(fraudModel.getShopId());
         return event;
     }

@@ -18,5 +18,6 @@ public class Event {
     private String country;
     private Long eventTime;
     private Long amount;
+    private String checkedRule;
 
 }

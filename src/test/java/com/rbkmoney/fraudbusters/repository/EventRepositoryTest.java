@@ -4,10 +4,7 @@ import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
-import com.rbkmoney.fraudbusters.domain.Event;
-import com.rbkmoney.fraudbusters.domain.FraudRequest;
-import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.domain.Metadata;
+import com.rbkmoney.fraudbusters.domain.*;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -37,7 +34,6 @@ import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -125,7 +121,10 @@ public class EventRepositoryTest {
     @NotNull
     private FraudResult createFraudResult(ResultStatus decline, FraudModel fraudModelSecond) {
         FraudResult value2 = new FraudResult();
-        value2.setResultModel(new ResultModel(decline, null));
+        CheckedResultModel resultModel = new CheckedResultModel();
+        resultModel.setResultModel(new ResultModel(decline, null));
+        resultModel.setCheckedRule("RULE");
+        value2.setResultModel(resultModel);
         FraudModel fraudModel2 = fraudModelSecond;
         FraudRequest fraudRequest = new FraudRequest();
         fraudRequest.setFraudModel(fraudModel2);

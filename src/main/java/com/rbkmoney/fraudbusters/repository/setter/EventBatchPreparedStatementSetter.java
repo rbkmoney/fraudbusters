@@ -28,6 +28,7 @@ public class EventBatchPreparedStatementSetter implements BatchPreparedStatement
         ps.setLong(l++, event.getAmount());
         ps.setLong(l++, event.getEventTime());
         ps.setString(l++, event.getCountry());
+        ps.setString(l++, event.getCheckedRule());
     }
 
     @Override
