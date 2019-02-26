@@ -24,8 +24,8 @@ public class EventRepository implements CrudRepository<Event> {
     private final JdbcTemplate jdbcTemplate;
 
     private static final String INSERT = "INSERT INTO fraud.events_unique " +
-            "(timestamp, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount, eventTime, country)" +
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "(timestamp, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount, eventTime, country, checkedRule)" +
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
     public void insert(Event value) {

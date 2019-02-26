@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
+import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.template.pool.RuleTemplatePool;
 import com.rbkmoney.fraudo.FraudoParser;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
@@ -26,6 +27,7 @@ import java.util.Optional;
 public class TemplateVisitorImpl implements TemplateVisitor {
 
     public static final String SEPARATOR = "_";
+    public static final String RULE_NOT_CHECKED = "RULE_NOT_CHECKED";
     private final FraudVisitorFactory fraudVisitorFactory = new FastFraudVisitorFactory();
     private final CountAggregator countAggregator;
     private final SumAggregator sumAggregator;
@@ -36,13 +38,21 @@ public class TemplateVisitorImpl implements TemplateVisitor {
     private final RuleTemplatePool templatePool;
 
     @Override
-    public ResultModel visit(FraudModel fraudModel) {
-        ResultModel resultModel = new ResultModel();
-        resultModel.setResultStatus(ResultStatus.THREE_DS);
+    public CheckedResultModel visit(FraudModel fraudModel) {
         return apply(fraudModel, TemplateLevel.GLOBAL.toString())
                 .orElse(apply(fraudModel, fraudModel.getPartyId())
                         .orElse(apply(fraudModel, getShopId(fraudModel))
-                                .orElse(resultModel)));
+                                .orElse(createDefaultResult())));
+    }
+
+    @NotNull
+    private CheckedResultModel createDefaultResult() {
+        ResultModel resultModel = new ResultModel();
+        resultModel.setResultStatus(ResultStatus.THREE_DS);
+        CheckedResultModel checkedResultModel = new CheckedResultModel();
+        checkedResultModel.setResultModel(resultModel);
+        checkedResultModel.setCheckedRule(RULE_NOT_CHECKED);
+        return checkedResultModel;
     }
 
     @NotNull
@@ -50,14 +60,17 @@ public class TemplateVisitorImpl implements TemplateVisitor {
         return fraudModel.getPartyId() + SEPARATOR + fraudModel.getShopId();
     }
 
-    private Optional<ResultModel> apply(FraudModel fraudModel, String templateKey) {
+    private Optional<CheckedResultModel> apply(FraudModel fraudModel, String templateKey) {
         FraudoParser.ParseContext parseContext = templatePool.get(templateKey);
         if (parseContext != null) {
             ResultModel resultModel = (ResultModel) fraudVisitorFactory.createVisitor(fraudModel, countAggregator, sumAggregator,
                     uniqueValueAggregator, countryResolver, blackListFinder, whiteListFinder).visit(parseContext);
             if (!ResultStatus.NORMAL.equals(resultModel.getResultStatus())) {
                 log.info("applyRules global resultModel: {}", resultModel);
-                return Optional.of(resultModel);
+                CheckedResultModel checkedResultModel = new CheckedResultModel();
+                checkedResultModel.setResultModel(resultModel);
+                checkedResultModel.setCheckedRule(templateKey);
+                return Optional.of(checkedResultModel);
             }
         }
         return Optional.empty();
