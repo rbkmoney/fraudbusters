@@ -44,6 +44,7 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         event.setResultStatus(resultModel.getResultModel().getResultStatus().name());
         event.setCheckedRule(resultModel.getCheckedRule());
         event.setShopId(fraudModel.getShopId());
+        event.setBankCountry(fraudModel.getBinCountryCode());
         return event;
     }
 

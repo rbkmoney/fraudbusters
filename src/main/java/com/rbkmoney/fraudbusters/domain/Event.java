@@ -19,5 +19,6 @@ public class Event {
     private Long eventTime;
     private Long amount;
     private String checkedRule;
+    private String bankCountry;
 
 }

@@ -57,12 +57,6 @@ public abstract class KafkaAbstractTest {
     @Value("${kafka.template.topic}")
     public String templateTopic;
 
-    @Autowired
-    private ReplyingKafkaTemplate replyingKafkaTemplate;
-
-    @Autowired
-    private KafkaListenerEndpointRegistry registry;
-
     public static Producer<String, RuleTemplate> createProducer() {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());

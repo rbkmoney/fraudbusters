@@ -28,7 +28,10 @@ public class ContextToFraudModelConverter implements Converter<Context, FraudReq
         PaymentInfo payment = context.getPayment();
         Party party = payment.getParty();
         fraudModel.setPartyId(party.getPartyId());
-        getBankCard(context).ifPresent(bankCard -> fraudModel.setBin(bankCard.getBin()));
+        getBankCard(context).ifPresent(bankCard -> {
+            fraudModel.setBin(bankCard.getBin());
+            fraudModel.setBinCountryCode(bankCard.getIssuerCountry().name());
+        });
         getContactInfo(context).ifPresent(contract -> fraudModel.setEmail(contract.getEmail()));
         fraudModel.setShopId(payment.getShop().getId());
         fraudModel.setAmount(payment.getPayment().getCost().getAmount());

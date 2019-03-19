@@ -32,7 +32,6 @@ public class ApiInspectorTest extends KafkaAbstractTest {
 
     public static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
-    public static final String GLOBAL_TOPIC = "global_topic";
 
     private InspectorProxySrv.Iface client;
 

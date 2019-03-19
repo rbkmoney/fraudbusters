@@ -25,7 +25,7 @@
         <damsel.version>1.274-c01bded</damsel.version>
         <woody.thrift.version>1.1.15</woody.thrift.version>
         <geck.version>0.6.7</geck.version>
-        <fraudo.version>0.0.2-SNAPSHOT</fraudo.version>
+        <fraudo.version>0.0.3-SNAPSHOT</fraudo.version>
         <damsel-utils.version>2.1.3</damsel-utils.version>
         <wb.list.proto.version>1.12-1ac2751</wb.list.proto.version>
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>

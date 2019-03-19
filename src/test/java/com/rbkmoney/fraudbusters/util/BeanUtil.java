@@ -9,7 +9,6 @@ import com.rbkmoney.fraudo.model.FraudModel;
 import com.rbkmoney.geck.common.util.TypeUtil;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 public class BeanUtil {
 
@@ -24,6 +23,7 @@ public class BeanUtil {
     public static final Long AMOUNT_FIRST = 10500L;
     public static final String P_ID = "pId";
     public static final String ID_VALUE_SHOP = "2035728";
+    public static final String BIN_COUNTRY_CODE = "RUS";
 
     public static Context createContext() {
         String pId = P_ID;
@@ -73,12 +73,14 @@ public class BeanUtil {
 
     public static PaymentTool createBankCard() {
         return new PaymentTool() {{
-            setBankCard(new BankCard(
+            BankCard value = new BankCard(
                     "477bba133c182267fe5f086924abdc5db71f77bfc27f01f2843f2cdc69d89f05",
                     BankCardPaymentSystem.mastercard,
                     "424242",
                     "4242"
-            ));
+            );
+            value.setIssuerCountry(Residence.RUS);
+            setBankCard(value);
         }};
     }
 
@@ -91,6 +93,7 @@ public class BeanUtil {
         fraudModel.setEmail(EMAIL);
         fraudModel.setBin(BIN);
         fraudModel.setAmount(AMOUNT_FIRST);
+        fraudModel.setBinCountryCode(BIN_COUNTRY_CODE);
         return fraudModel;
     }
 
@@ -103,6 +106,7 @@ public class BeanUtil {
         fraudModel.setEmail(EMAIL + SUFIX);
         fraudModel.setBin(BIN + SUFIX);
         fraudModel.setAmount(AMOUNT_SECOND);
+        fraudModel.setBinCountryCode(BIN_COUNTRY_CODE);
         return fraudModel;
     }
 }
