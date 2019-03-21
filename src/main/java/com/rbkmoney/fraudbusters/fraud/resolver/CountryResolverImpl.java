@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.fraud.resolver;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
+import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.resolver.CountryResolver;
 import lombok.RequiredArgsConstructor;
@@ -14,17 +15,23 @@ public class CountryResolverImpl implements CountryResolver {
     private final GeoIpServiceSrv.Iface geoIpServiceSrv;
 
     @Override
-    public String resolveCountryByIp(String ip) {
+    public String resolveCountry(CheckedField checkedField, String fieldValue) {
         try {
-            String location = geoIpServiceSrv.getLocationIsoCode(ip);
+            String location = null;
+            if (CheckedField.IP.equals(checkedField)) {
+                location = geoIpServiceSrv.getLocationIsoCode(fieldValue);
+            } else if (CheckedField.COUNTRY_BANK.equals(checkedField)) {
+                location = fieldValue;
+            }
             if (location == null) {
                 return UNKNOWN_VALUE;
             }
-            log.debug("CountryResolverImpl resolve ip: {} country_id: {}", ip, location);
+            log.debug("CountryResolverImpl resolve ip: {} country_id: {}", fieldValue, location);
             return location;
         } catch (TException e) {
-            log.error("CountryResolverImpl resolve ip: {} e: ", ip, e);
-            return UNKNOWN_VALUE;
+            log.warn("CountryResolverImpl error when resolveCountry e: ", e);
+            throw new RuleFunctionException(e);
         }
     }
+
 }

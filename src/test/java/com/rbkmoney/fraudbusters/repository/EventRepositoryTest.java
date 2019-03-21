@@ -221,7 +221,10 @@ public class EventRepositoryTest {
         FraudResult value4 = createFraudResult(ResultStatus.DECLINE, fraudModel);
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3, value4)));
 
-        Integer sum = eventRepository.uniqCountOperation(EventField.email, BeanUtil.EMAIL, EventField.fingerprint);
+        Instant now = Instant.now();
+        Long to = TimestampUtil.generateTimestampNow(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        Integer sum = eventRepository.uniqCountOperation(EventField.email, BeanUtil.EMAIL, EventField.fingerprint, from, to);
         Assert.assertEquals(Integer.valueOf(2), sum);
     }
 

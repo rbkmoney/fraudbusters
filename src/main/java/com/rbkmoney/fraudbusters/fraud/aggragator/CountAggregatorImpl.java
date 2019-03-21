@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.fraud.aggragator;
 
 import com.rbkmoney.fraudbusters.constant.EventField;
+import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -12,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,11 +39,16 @@ public class CountAggregatorImpl implements CountAggregator {
     @NotNull
     private Integer getCount(CheckedField checkedField, FraudModel fraudModel, Long aLong,
                              AggregateFunction<EventField, String, Long, Long, Integer> aggregateFunction) {
-        Instant now = Instant.now();
-        FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
-        Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(), TimestampUtil.generateTimestampMinusMinutes(now, aLong),
-                TimestampUtil.generateTimestampNow(now));
-        log.debug("CountAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), count);
-        return count;
+        try {
+            Instant now = Instant.now();
+            FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
+            Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(), TimestampUtil.generateTimestampMinusMinutes(now, aLong),
+                    TimestampUtil.generateTimestampNow(now));
+            log.debug("CountAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), count);
+            return count;
+        } catch (Exception e) {
+            log.warn("CountAggregatorImpl error when getCount e: ", e);
+            throw new RuleFunctionException(e);
+        }
     }
 }

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class EventParametersGenerator {
 
@@ -23,6 +24,11 @@ public class EventParametersGenerator {
         parameters.put("eventTime", value.getEventTime());
         parameters.put("country", value.getCountry());
         parameters.put("checkedRule", value.getCheckedRule());
+        parameters.put("bankCountry", value.getBankCountry());
+        Optional.ofNullable(value.getCurrency()).ifPresent(v -> parameters.put("currency", v));
+        Optional.ofNullable(value.getInvoiceId()).ifPresent(v -> parameters.put("invoiceId", v));
+        Optional.ofNullable(value.getMaskedPan()).ifPresent(v -> parameters.put("maskedPan", v));
+        Optional.ofNullable(value.getMaskedPan()).ifPresent(v -> parameters.put("bankName", v));
         return parameters;
     }
 

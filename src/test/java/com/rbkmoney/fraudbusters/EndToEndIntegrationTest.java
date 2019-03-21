@@ -44,7 +44,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE =
             "rule: count(\"email\", 10) >= 1  AND count(\"email\", 10) < 2 " +
                     "AND sum(\"email\", 10) >= 90 " +
-                    "AND country() = \"RU\"\n" +
+                    "AND countryBy(\"country_bank\") = \"RUS\"\n" +
             " -> decline;";
 
     private static final String TEMPLATE_CONCRETE =
@@ -112,7 +112,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
         Thread.sleep(3000L);
 
-        Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RU");
+        Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
     }
 
     private void createRule(String localId, String template) throws InterruptedException, ExecutionException {
