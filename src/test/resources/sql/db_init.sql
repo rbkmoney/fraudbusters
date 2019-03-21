@@ -15,5 +15,9 @@ create table fraud.events_unique (
   eventTime UInt64,
   country String,
   checkedRule String,
-  bankCountry String
+  bankCountry String,
+  currency String,
+  invoiceId String,
+  maskedPan String,
+  bankName String
 ) ENGINE = MergeTree(timestamp, (shopId, partyId, ip, email, bin, fingerprint, resultStatus), 8192);

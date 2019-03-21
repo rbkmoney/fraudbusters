@@ -3,11 +3,10 @@ package com.rbkmoney.fraudbusters.resource.handler;
 import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.converter.ContextToFraudModelConverter;
+import com.rbkmoney.fraudbusters.converter.ContextToFraudRequestConverter;
 import com.rbkmoney.fraudbusters.converter.FraudResultRiskScoreConverter;
 import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudo.model.FraudModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -28,7 +27,7 @@ public class FraudInspectorHandler implements InspectorProxySrv.Iface {
     private final String requestTopic;
     private final String requestReplyTopic;
     private final FraudResultRiskScoreConverter resultConverter;
-    private final ContextToFraudModelConverter requestConverter;
+    private final ContextToFraudRequestConverter requestConverter;
 
     @Override
     public RiskScore inspectPayment(Context context) throws TException {

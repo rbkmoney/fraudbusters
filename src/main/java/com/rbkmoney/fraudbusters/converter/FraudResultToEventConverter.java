@@ -4,6 +4,7 @@ import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
+import com.rbkmoney.fraudbusters.domain.Metadata;
 import com.rbkmoney.fraudo.model.FraudModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,14 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         event.setCheckedRule(resultModel.getCheckedRule());
         event.setShopId(fraudModel.getShopId());
         event.setBankCountry(fraudModel.getBinCountryCode());
+
+        Metadata metadata = fraudResult.getFraudRequest().getMetadata();
+        if (metadata != null) {
+            event.setBankName(metadata.getBankName());
+            event.setCurrency(metadata.getCurrency());
+            event.setInvoiceId(metadata.getInvoiceId());
+            event.setMaskedPan(metadata.getMaskedPan());
+        }
         return event;
     }
 

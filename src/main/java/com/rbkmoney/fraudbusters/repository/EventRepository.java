@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.repository;
 
+import com.google.common.collect.Lists;
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
@@ -24,16 +25,19 @@ public class EventRepository implements CrudRepository<Event> {
     private final JdbcTemplate jdbcTemplate;
 
     private static final String INSERT = "INSERT INTO fraud.events_unique " +
-            "(timestamp, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount, eventTime, country, checkedRule, bankCountry)" +
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "(timestamp, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount, eventTime, " +
+            "country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName)" +
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
     public void insert(Event value) {
         if (value != null) {
             Map<String, Object> parameters = EventParametersGenerator.generateParamsByFraudModel(value);
-            new SimpleJdbcInsert(jdbcTemplate.getDataSource())
+            SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
                     .withSchemaName("fraud")
-                    .withTableName("events_unique")
+                    .withTableName("events_unique");
+            simpleJdbcInsert.setColumnNames(Lists.newArrayList(parameters.keySet()));
+            simpleJdbcInsert
                     .execute(parameters);
         }
     }

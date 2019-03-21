@@ -10,5 +10,9 @@ import lombok.Data;
 public class Metadata {
 
     private Long timestamp;
+    private String currency;
+    private String invoiceId;
+    private String maskedPan;
+    private String bankName;
 
 }
