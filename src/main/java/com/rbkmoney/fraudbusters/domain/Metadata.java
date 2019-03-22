@@ -12,6 +12,7 @@ public class Metadata {
     private Long timestamp;
     private String currency;
     private String invoiceId;
+    private String paymentId;
     private String maskedPan;
     private String bankName;
 

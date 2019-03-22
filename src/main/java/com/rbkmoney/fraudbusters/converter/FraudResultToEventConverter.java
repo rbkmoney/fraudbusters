@@ -46,13 +46,14 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         event.setCheckedRule(resultModel.getCheckedRule());
         event.setShopId(fraudModel.getShopId());
         event.setBankCountry(fraudModel.getBinCountryCode());
-
+        event.setCardToken(fraudModel.getCardToken());
         Metadata metadata = fraudResult.getFraudRequest().getMetadata();
         if (metadata != null) {
             event.setBankName(metadata.getBankName());
             event.setCurrency(metadata.getCurrency());
             event.setInvoiceId(metadata.getInvoiceId());
             event.setMaskedPan(metadata.getMaskedPan());
+            event.setPaymentId(metadata.getPaymentId());
         }
         return event;
     }

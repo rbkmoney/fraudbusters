@@ -44,7 +44,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE =
             "rule: count(\"email\", 10) >= 1  AND count(\"email\", 10) < 2 " +
                     "AND sum(\"email\", 10) >= 90 " +
-                    "AND countryBy(\"country_bank\") = \"RUS\"\n" +
+                    "AND count(\"card_token\", 10) >= 1 " +
+                    "AND in(countryBy(\"country_bank\"), \"RUS\") \n" +
             " -> decline;";
 
     private static final String TEMPLATE_CONCRETE =

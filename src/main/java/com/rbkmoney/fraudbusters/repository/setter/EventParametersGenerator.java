@@ -29,6 +29,8 @@ public class EventParametersGenerator {
         Optional.ofNullable(value.getInvoiceId()).ifPresent(v -> parameters.put("invoiceId", v));
         Optional.ofNullable(value.getMaskedPan()).ifPresent(v -> parameters.put("maskedPan", v));
         Optional.ofNullable(value.getMaskedPan()).ifPresent(v -> parameters.put("bankName", v));
+        Optional.ofNullable(value.getCardToken()).ifPresent(v -> parameters.put("cardToken", v));
+        Optional.ofNullable(value.getPaymentId()).ifPresent(v -> parameters.put("paymentId", v));
         return parameters;
     }
 

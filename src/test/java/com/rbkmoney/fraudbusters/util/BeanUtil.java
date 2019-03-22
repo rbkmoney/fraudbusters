@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.domain.*;
+import com.rbkmoney.damsel.proxy_inspector.Invoice;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
@@ -33,31 +34,32 @@ public class BeanUtil {
     public static Context createContext(String pId) {
         ContactInfo contact_info = new ContactInfo();
         contact_info.setEmail(EMAIL);
+        PaymentInfo payment = new PaymentInfo(
+                new Shop(ID_VALUE_SHOP,
+                        new Category("pizza", "no category"),
+                        new ShopDetails("pizza-sushi"),
+                        new ShopLocation() {{
+                            setUrl("http://www.pizza-sushi.com/");
+                        }}
+                ),
+                new InvoicePayment(pId,
+                        "",
+                        Payer.customer(
+                                new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(),
+                                        contact_info)),
+                        new Cash(
+                                9000L,
+                                new CurrencyRef("RUB")
+                        )),
+                new Invoice(
+                        "iId",
+                        TypeUtil.temporalToString(Instant.now()),
+                        "",
+                        new InvoiceDetails("drugs guns murder")),
+                new Party(pId)
+        );
         return new Context(
-                new PaymentInfo(
-                        new Shop(ID_VALUE_SHOP,
-                                new Category("pizza", "no category"),
-                                new ShopDetails("pizza-sushi"),
-                                new ShopLocation() {{
-                                    setUrl("http://www.pizza-sushi.com/");
-                                }}
-                        ),
-                        new InvoicePayment(pId,
-                                "",
-                                Payer.customer(
-                                        new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(),
-                                                contact_info)),
-                                new Cash(
-                                        9000L,
-                                        new CurrencyRef("RUB")
-                                )),
-                        new com.rbkmoney.damsel.proxy_inspector.Invoice(
-                                "iId",
-                                TypeUtil.temporalToString(Instant.now()),
-                                "",
-                                new InvoiceDetails("drugs guns murder")),
-                        new Party(pId)
-                )
+                payment
         );
 
     }
