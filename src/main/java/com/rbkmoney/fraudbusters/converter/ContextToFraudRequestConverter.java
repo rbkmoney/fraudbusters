@@ -32,6 +32,7 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
         getBankCard(context).ifPresent(bankCard -> {
             fraudModel.setBin(bankCard.getBin());
             fraudModel.setBinCountryCode(bankCard.getIssuerCountry().name());
+            fraudModel.setCardToken(bankCard.getToken());
         });
         getContactInfo(context).ifPresent(contract -> fraudModel.setEmail(contract.getEmail()));
         fraudModel.setShopId(payment.getShop().getId());
@@ -56,6 +57,7 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
         metadata.setTimestamp(localDateTime.toEpochSecond(ZoneOffset.UTC));
         metadata.setCurrency(payment.getPayment().getCost().getCurrency().symbolic_code);
         metadata.setInvoiceId(payment.getInvoice().getId());
+        metadata.setPaymentId(payment.getPayment().getId());
         getBankCard(context).ifPresent(bankCard -> {
             metadata.setMaskedPan(bankCard.getMaskedPan());
             metadata.setBankName(bankCard.getBankName());

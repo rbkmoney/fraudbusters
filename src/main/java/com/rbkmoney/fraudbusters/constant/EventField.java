@@ -11,6 +11,11 @@ public enum EventField {
     partyId,
     resultStatus,
     amount,
-    eventTime
+    eventTime,
+    currency,
+    invoiceId,
+    maskedPan,
+    bankName,
+    cardToken
 
 }

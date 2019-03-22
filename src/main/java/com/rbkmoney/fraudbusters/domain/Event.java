@@ -24,5 +24,7 @@ public class Event {
     private String invoiceId;
     private String maskedPan;
     private String bankName;
+    private String cardToken;
+    private String paymentId;
 
 }

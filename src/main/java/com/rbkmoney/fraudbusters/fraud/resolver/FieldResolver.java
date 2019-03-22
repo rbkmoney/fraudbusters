@@ -28,6 +28,8 @@ public class FieldResolver {
                 return new FieldModel(EventField.partyId, fraudModel.getPartyId());
             case SHOP_ID:
                 return new FieldModel(EventField.shopId, fraudModel.getShopId());
+            case CARD_TOKEN:
+                return new FieldModel(EventField.cardToken, fraudModel.getCardToken());
             default:
                 throw new UnknownFieldException();
         }
@@ -50,6 +52,8 @@ public class FieldResolver {
                 return EventField.partyId;
             case SHOP_ID:
                 return EventField.shopId;
+            case CARD_TOKEN:
+                return EventField.cardToken;
             default:
                 throw new UnknownFieldException();
         }

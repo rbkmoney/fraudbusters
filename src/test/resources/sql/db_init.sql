@@ -19,5 +19,7 @@ create table fraud.events_unique (
   currency String,
   invoiceId String,
   maskedPan String,
-  bankName String
-) ENGINE = MergeTree(timestamp, (shopId, partyId, ip, email, bin, fingerprint, resultStatus), 8192);
+  bankName String,
+  cardToken String,
+  paymentId String
+) ENGINE = MergeTree(timestamp, (shopId, partyId, ip, email, bin, fingerprint, resultStatus, cardToken), 8192);
