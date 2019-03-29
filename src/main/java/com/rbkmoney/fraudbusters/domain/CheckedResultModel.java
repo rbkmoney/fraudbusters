@@ -11,6 +11,6 @@ import lombok.Data;
 public class CheckedResultModel {
 
     private ResultModel resultModel;
-    private String checkedRule;
+    private String checkedTemplate;
 
 }

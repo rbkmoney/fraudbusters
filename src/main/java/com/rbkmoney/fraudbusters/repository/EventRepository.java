@@ -26,8 +26,8 @@ public class EventRepository implements CrudRepository<Event> {
 
     private static final String INSERT = "INSERT INTO fraud.events_unique " +
             "(timestamp, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount, eventTime, " +
-            "country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName, cardToken, paymentId)" +
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName, cardToken, paymentId, checkedTemplate)" +
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
     public void insert(Event value) {

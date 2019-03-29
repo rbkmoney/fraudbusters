@@ -26,5 +26,6 @@ public class Event {
     private String bankName;
     private String cardToken;
     private String paymentId;
+    private String checkedTemplate;
 
 }
