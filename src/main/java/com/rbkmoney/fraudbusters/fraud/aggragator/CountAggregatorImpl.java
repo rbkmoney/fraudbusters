@@ -18,6 +18,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class CountAggregatorImpl implements CountAggregator {
 
+    private static final int CURRENT_ONE = 1;
     private final EventRepository eventRepository;
     private final FieldResolver fieldResolver;
 
@@ -45,7 +46,7 @@ public class CountAggregatorImpl implements CountAggregator {
             Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(), TimestampUtil.generateTimestampMinusMinutes(now, aLong),
                     TimestampUtil.generateTimestampNow(now));
             log.debug("CountAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), count);
-            return count;
+            return count + CURRENT_ONE;
         } catch (Exception e) {
             log.warn("CountAggregatorImpl error when getCount e: ", e);
             throw new RuleFunctionException(e);

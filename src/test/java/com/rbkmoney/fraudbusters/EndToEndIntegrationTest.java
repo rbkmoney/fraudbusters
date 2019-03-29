@@ -42,17 +42,17 @@ import static org.mockito.ArgumentMatchers.any;
 public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     private static final String TEMPLATE =
-            "rule: count(\"email\", 10) >= 1  AND count(\"email\", 10) < 2 " +
-                    "AND sum(\"email\", 10) >= 90 " +
-                    "AND count(\"card_token\", 10) >= 1 " +
+            "rule: count(\"email\", 10) > 1  AND count(\"email\", 10) < 3 " +
+                    "AND sum(\"email\", 10) >= 9000 " +
+                    "AND count(\"card_token\", 10) > 1 " +
                     "AND in(countryBy(\"country_bank\"), \"RUS\") \n" +
             " -> decline;";
 
     private static final String TEMPLATE_CONCRETE =
-            "rule:  sum(\"email\", 10) >= 200  -> decline;";
+            "rule:  sum(\"email\", 10) >= 20000  -> decline;";
 
     private static final String TEMPLATE_CONCRETE_SHOP =
-            "rule:  sum(\"email\", 10) >= 90  -> accept;";
+            "rule:  sum(\"email\", 10) >= 9000  -> accept;";
 
     private static final int COUNTRY_GEO_ID = 12345;
     public static final String P_ID = "test";
