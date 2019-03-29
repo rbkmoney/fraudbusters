@@ -43,10 +43,12 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         event.setIp(ip);
         event.setPartyId(fraudModel.getPartyId());
         CheckedResultModel resultModel = fraudResult.getResultModel();
-        event.setResultStatus(resultModel.getResultModel().getResultStatus().name());
         event.setCheckedTemplate(resultModel.getCheckedTemplate());
         Optional.ofNullable(resultModel.getResultModel())
-                .ifPresent(result -> event.setCheckedRule(result.getRuleChecked()));
+                .ifPresent(result -> {
+                    event.setCheckedRule(result.getRuleChecked());
+                    event.setResultStatus(result.getResultStatus().name());
+                });
         event.setShopId(fraudModel.getShopId());
         event.setBankCountry(fraudModel.getBinCountryCode());
         event.setCardToken(fraudModel.getCardToken());
