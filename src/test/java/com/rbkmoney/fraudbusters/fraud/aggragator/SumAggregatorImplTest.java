@@ -29,7 +29,7 @@ public class SumAggregatorImplTest {
         MockitoAnnotations.initMocks(this);
 
         Mockito.when(fieldResolver.resolve(any(), any())).thenReturn(modelMock);
-        Mockito.when(eventRepository.sumOperationByField(any(), any(), any(), any())).thenReturn(10501L);
+        Mockito.when(eventRepository.sumOperationByField(any(), any(), any(), any())).thenReturn(1050100L);
 
         sumAggregator = new SumAggregatorImpl(eventRepository, fieldResolver);
     }
@@ -38,20 +38,20 @@ public class SumAggregatorImplTest {
     public void sum() {
         Double some = sumAggregator.sum(CheckedField.BIN, new FraudModel(), 1444L);
 
-        Assert.assertEquals(Double.valueOf(105.01), some);
+        Assert.assertEquals(Double.valueOf(1050100), some);
     }
 
     @Test
     public void sumSuccess() {
         Double some = sumAggregator.sum(CheckedField.BIN, new FraudModel(), 1444L);
 
-        Assert.assertEquals(Double.valueOf(105.01), some);
+        Assert.assertEquals(Double.valueOf(1050100), some);
     }
 
     @Test
     public void sumError() {
         Double some = sumAggregator.sum(CheckedField.BIN, new FraudModel(), 1444L);
 
-        Assert.assertEquals(Double.valueOf(105.01), some);
+        Assert.assertEquals(some, Double.valueOf(1050100));
     }
 }
