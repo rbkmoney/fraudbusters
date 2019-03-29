@@ -51,7 +51,7 @@ public class TemplateVisitorImpl implements TemplateVisitor {
         resultModel.setResultStatus(ResultStatus.THREE_DS);
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setResultModel(resultModel);
-        checkedResultModel.setCheckedRule(RULE_NOT_CHECKED);
+        checkedResultModel.setCheckedTemplate(RULE_NOT_CHECKED);
         return checkedResultModel;
     }
 
@@ -69,7 +69,7 @@ public class TemplateVisitorImpl implements TemplateVisitor {
                 log.info("applyRules global resultModel: {}", resultModel);
                 CheckedResultModel checkedResultModel = new CheckedResultModel();
                 checkedResultModel.setResultModel(resultModel);
-                checkedResultModel.setCheckedRule(templateKey);
+                checkedResultModel.setCheckedTemplate(templateKey);
                 return Optional.of(checkedResultModel);
             }
         }

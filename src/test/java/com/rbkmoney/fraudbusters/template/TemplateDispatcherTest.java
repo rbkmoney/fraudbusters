@@ -22,7 +22,8 @@ public class TemplateDispatcherTest {
 
     private static final String TEMPLATE = "rule: 3 > 2 AND 1 = 1\n" +
             "-> accept;";
-    public static final String LOCAL_ID = "localId";
+    private static final String LOCAL_ID = "localId";
+
     @Mock
     private Properties fraudStreamProperties;
     @Mock
@@ -34,7 +35,7 @@ public class TemplateDispatcherTest {
     @Mock
     private KafkaStreams kafkaStreams;
 
-    private RuleTemplatePool templatePool = new RuleTemplatePoolImpl();
+    private RuleTemplatePool templatePool;
 
     TemplateDispatcher templateDispatcher;
 
@@ -42,6 +43,7 @@ public class TemplateDispatcherTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
         Mockito.when(fraudContextParser.parse(TEMPLATE)).thenReturn(parseContext);
+        templatePool = new RuleTemplatePoolImpl();
         templateDispatcher = new TemplateDispatcherImpl(fraudContextParser, templatePool);
     }
 

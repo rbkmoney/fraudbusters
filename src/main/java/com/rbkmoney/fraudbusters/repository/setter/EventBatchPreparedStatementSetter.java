@@ -35,7 +35,8 @@ public class EventBatchPreparedStatementSetter implements BatchPreparedStatement
         ps.setString(l++, event.getMaskedPan());
         ps.setString(l++, event.getBankName());
         ps.setString(l++, event.getCardToken());
-        ps.setString(l, event.getPaymentId());
+        ps.setString(l++, event.getPaymentId());
+        ps.setString(l, event.getCheckedTemplate());
     }
 
     @Override

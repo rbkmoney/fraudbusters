@@ -122,8 +122,9 @@ public class EventRepositoryTest {
     private FraudResult createFraudResult(ResultStatus decline, FraudModel fraudModelSecond) {
         FraudResult value2 = new FraudResult();
         CheckedResultModel resultModel = new CheckedResultModel();
-        resultModel.setResultModel(new ResultModel(decline, null));
-        resultModel.setCheckedRule("RULE");
+        resultModel.setResultModel(new ResultModel(decline, "test",null));
+        resultModel.setCheckedTemplate("RULE");
+
         value2.setResultModel(resultModel);
         FraudModel fraudModel2 = fraudModelSecond;
         FraudRequest fraudRequest = new FraudRequest();

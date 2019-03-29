@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FraudResultToEventConverter implements Converter<FraudResult, Event> {
 
-    public static final String UNKNOWN = "UNKNOWN";
+    private static final String UNKNOWN = "UNKNOWN";
     private final GeoIpServiceSrv.Iface geoIpService;
 
     @Override
@@ -42,8 +43,12 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         event.setIp(ip);
         event.setPartyId(fraudModel.getPartyId());
         CheckedResultModel resultModel = fraudResult.getResultModel();
-        event.setResultStatus(resultModel.getResultModel().getResultStatus().name());
-        event.setCheckedRule(resultModel.getCheckedRule());
+        event.setCheckedTemplate(resultModel.getCheckedTemplate());
+        Optional.ofNullable(resultModel.getResultModel())
+                .ifPresent(result -> {
+                    event.setCheckedRule(result.getRuleChecked());
+                    event.setResultStatus(result.getResultStatus().name());
+                });
         event.setShopId(fraudModel.getShopId());
         event.setBankCountry(fraudModel.getBinCountryCode());
         event.setCardToken(fraudModel.getCardToken());
