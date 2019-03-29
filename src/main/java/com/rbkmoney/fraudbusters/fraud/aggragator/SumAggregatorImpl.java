@@ -45,7 +45,7 @@ public class SumAggregatorImpl implements SumAggregator {
             Long sum = aggregateFunction.accept(resolve.getName(), resolve.getValue(), TimestampUtil.generateTimestampMinusMinutes(now, timeInMinutes),
                     TimestampUtil.generateTimestampNow(now));
             log.debug("SumAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), sum);
-            return sum != null ? sum / 100.0 : 0.0;
+            return sum != null ? Double.valueOf(sum) : 0.0;
         } catch (Exception e) {
             log.warn("SumAggregatorImpl error when getCount e: ", e);
             throw new RuleFunctionException(e);
