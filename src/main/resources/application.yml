@@ -1,5 +1,11 @@
 server.port: @server.port@
 
+spring:
+  cache:
+    cache-names: resolveCountry
+    caffeine:
+      spec: maximumSize=500,expireAfterAccess=100s
+
 kafka:
   bootstrap.servers: "localhost:29092"
   global.stream.topic: global_topic
