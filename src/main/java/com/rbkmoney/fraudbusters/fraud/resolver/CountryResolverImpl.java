@@ -7,6 +7,7 @@ import com.rbkmoney.fraudo.resolver.CountryResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
+import org.springframework.cache.annotation.Cacheable;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -15,6 +16,7 @@ public class CountryResolverImpl implements CountryResolver {
     private final GeoIpServiceSrv.Iface geoIpServiceSrv;
 
     @Override
+    @Cacheable("resolveCountry")
     public String resolveCountry(CheckedField checkedField, String fieldValue) {
         try {
             String location = null;
