@@ -1,10 +1,11 @@
 package com.rbkmoney.fraudbusters.config;
 
+import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.RuleTemplate;
+import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.serde.FraudRequestSerde;
 import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
-import com.rbkmoney.fraudbusters.serde.RuleTemplateDeserializer;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
@@ -26,6 +27,7 @@ import java.util.Properties;
 public class KafkaConfig {
 
     private static final String GROUP_ID = "TemplateListener-";
+    private static final String REFERENCE_GROUP_ID = "ReferenceListener-";
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "ResultAggregator";
     private static final String MAX_POLL_RECORDS_CONFIG = "20";
@@ -47,10 +49,17 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, RuleTemplate> templateListenerFactory() {
+    public ConsumerFactory<String, Command> templateListenerFactory() {
         String value = KeyGenerator.generateKey(GROUP_ID);
         final Map<String, Object> props = createDefaultProperties(value);
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new RuleTemplateDeserializer());
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new CommandDeserializer());
+    }
+
+    @Bean
+    public ConsumerFactory<String, Command> referenceListenerFactory() {
+        String value = KeyGenerator.generateKey(REFERENCE_GROUP_ID);
+        final Map<String, Object> props = createDefaultProperties(value);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new CommandDeserializer());
     }
 
     @NotNull
@@ -64,9 +73,16 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, RuleTemplate> templateListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, RuleTemplate> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, Command> templateListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(templateListenerFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> referenceListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(referenceListenerFactory());
         return factory;
     }
 

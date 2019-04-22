@@ -1,9 +1,11 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.fraudbusters.constant.CommandType;
+import com.rbkmoney.damsel.fraudbusters.Command;
+import com.rbkmoney.damsel.fraudbusters.CommandBody;
+import com.rbkmoney.damsel.fraudbusters.Template;
+import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
-import com.rbkmoney.fraudbusters.domain.RuleTemplate;
-import com.rbkmoney.fraudbusters.template.pool.RuleTemplatePool;
+import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudo.FraudoParser;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -12,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class DispatchTemplateTest extends KafkaAbstractTest {
@@ -21,41 +24,66 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
             " -> accept;";
     public static final long SLEEP = 1000L;
     @Autowired
-    private RuleTemplatePool pool;
+    private Pool<FraudoParser.ParseContext> pool;
+    @Autowired
+    private Pool<String> referencePoolImpl;
 
     @Test
-    public void testGlobal() throws ExecutionException, InterruptedException, TException {
-        Producer<String, RuleTemplate> producer = createProducer();
-        RuleTemplate ruleTemplate = new RuleTemplate();
-        ruleTemplate.setLvl(TemplateLevel.GLOBAL);
-        ruleTemplate.setTemplate(TEMPLATE);
-        ruleTemplate.setCommandType(CommandType.UPDATE);
-        ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
-                TemplateLevel.GLOBAL.toString(), ruleTemplate);
+    public void testGlobal() throws ExecutionException, InterruptedException {
+        Producer<String, Command> producer = createProducer();
+        Command command = new Command();
+        Template template = new Template();
+        String id = UUID.randomUUID().toString();
+        template.setId(id);
+        template.setTemplate(TEMPLATE.getBytes());
+        command.setCommandBody(CommandBody.template(template));
+        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(templateTopic,
+                id, command);
         producer.send(producerRecord).get();
         producer.close();
 
         Thread.sleep(SLEEP);
 
-        FraudoParser.ParseContext parseContext = pool.get(TemplateLevel.GLOBAL.toString());
+        FraudoParser.ParseContext parseContext = pool.get(id);
         Assert.assertNotNull(parseContext);
+
+        producer = createProducer();
+        command = new Command();
+        TemplateReference value = new TemplateReference();
+        value.setIsGlobal(true);
+        value.setTemplateId(id);
+        command.setCommandBody(CommandBody.reference(value));
+        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        producerRecord = new ProducerRecord<>(referenceTopic,
+                TemplateLevel.GLOBAL.name(), command);
+        producer.send(producerRecord).get();
+        producer.close();
+
+        Thread.sleep(SLEEP);
+
+        String result = referencePoolImpl.get(TemplateLevel.GLOBAL.name());
+
+        Assert.assertEquals(id, result);
     }
 
     @Test
     public void testConcrete() throws ExecutionException, InterruptedException, TException {
-        RuleTemplate ruleTemplate = new RuleTemplate();
-        ruleTemplate.setLvl(TemplateLevel.CONCRETE);
-        ruleTemplate.setLocalId(CONCRETE);
-        ruleTemplate.setCommandType(CommandType.UPDATE);
-        ruleTemplate.setTemplate(TEMPLATE);
-        ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
-                CONCRETE, ruleTemplate);
-        Producer<String, RuleTemplate> producer = createProducer();
+        Command command = new Command();
+        Template template = new Template();
+        String id = UUID.randomUUID().toString();
+        template.setId(id);
+        template.setTemplate(TEMPLATE.getBytes());
+        command.setCommandBody(CommandBody.template(template));
+        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(templateTopic,
+                id, command);
+        Producer<String, Command> producer = createProducer();
         producer.send(producerRecord).get();
         producer.close();
         Thread.sleep(SLEEP);
 
-        FraudoParser.ParseContext parseContext = pool.get(CONCRETE);
+        FraudoParser.ParseContext parseContext = pool.get(id);
         Assert.assertNotNull(parseContext);
     }
 

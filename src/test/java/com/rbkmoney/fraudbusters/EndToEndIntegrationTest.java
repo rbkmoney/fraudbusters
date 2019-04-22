@@ -1,19 +1,19 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.constant.CommandType;
-import com.rbkmoney.fraudbusters.constant.TemplateLevel;
-import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
+import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.thrift.TException;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -33,6 +33,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -97,38 +98,60 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
             connection.createStatement().execute(exec);
         }
         connection.close();
-        Producer<String, RuleTemplate> producer = createProducer();
-        RuleTemplate ruleTemplate = new RuleTemplate();
-        ruleTemplate.setLvl(TemplateLevel.GLOBAL);
-        ruleTemplate.setTemplate(TEMPLATE);
-        ruleTemplate.setCommandType(CommandType.UPDATE);
-        ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
-                TemplateLevel.GLOBAL.toString(), ruleTemplate);
-        producer.send(producerRecord).get();
-        producer.close();
 
-        createRule(P_ID, TEMPLATE_CONCRETE);
+        String globalRef = UUID.randomUUID().toString();
+        produceTemplate(globalRef, TEMPLATE);
+        produceReference(true, null, null, globalRef);
 
-        createRule(P_ID + "_" + BeanUtil.ID_VALUE_SHOP, TEMPLATE_CONCRETE_SHOP);
+        String partyTemplate = UUID.randomUUID().toString();
+        produceTemplate(partyTemplate, TEMPLATE_CONCRETE);
+        produceReference(false, P_ID, null, partyTemplate);
+
+        String shopRef = UUID.randomUUID().toString();
+        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP);
+        produceReference(false, P_ID, BeanUtil.ID_VALUE_SHOP, shopRef);
 
         Thread.sleep(3000L);
 
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
     }
 
-    private void createRule(String localId, String template) throws InterruptedException, ExecutionException {
-        Producer<String, RuleTemplate> producer;
-        RuleTemplate ruleTemplate;
-        ProducerRecord<String, RuleTemplate> producerRecord;
+    private void produceTemplate(String localId, String templateString) throws InterruptedException, ExecutionException {
+        Producer<String, Command> producer;
+        ProducerRecord<String, Command> producerRecord;
         producer = createProducer();
-        ruleTemplate = new RuleTemplate();
-        ruleTemplate.setLvl(TemplateLevel.CONCRETE);
-        ruleTemplate.setTemplate(template);
-        ruleTemplate.setLocalId(localId);
-        ruleTemplate.setCommandType(CommandType.UPDATE);
-        producerRecord = new ProducerRecord<>(templateTopic, localId, ruleTemplate);
+        Command command = crateCommandTemplate(localId, templateString);
+        producerRecord = new ProducerRecord<>(templateTopic, localId, command);
         producer.send(producerRecord).get();
         producer.close();
+    }
+
+    private void produceReference(boolean isGlobal, String party, String shopId, String idTemplate) throws InterruptedException, ExecutionException {
+        Producer<String, Command> producer = createProducer();
+        ProducerRecord<String, Command> producerRecord;
+        Command command = new Command();
+        command.setCommandType(CommandType.CREATE);
+        TemplateReference value = new TemplateReference();
+        value.setTemplateId(idTemplate);
+        value.setPartyId(party);
+        value.setShopId(shopId);
+        value.setIsGlobal(isGlobal);
+        command.setCommandBody(CommandBody.reference(value));
+        String key = ReferenceKeyGenerator.generateTemplateKey(value);
+        producerRecord = new ProducerRecord<>(referenceTopic, key, command);
+        producer.send(producerRecord).get();
+        producer.close();
+    }
+
+    @NotNull
+    private Command crateCommandTemplate(String localId, String templateString) {
+        Command command = new Command();
+        Template template = new Template();
+        template.setId(localId);
+        template.setTemplate(templateString.getBytes());
+        command.setCommandBody(CommandBody.template(template));
+        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        return command;
     }
 
     @Test

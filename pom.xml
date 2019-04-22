@@ -140,7 +140,17 @@
             <artifactId>clickhouse-jdbc</artifactId>
             <version>0.1.48</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>fraudbusters-proto</artifactId>
+            <version>1.10-ebbe9be</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>kafka-common-lib</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        
         <!-- Test libs -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
