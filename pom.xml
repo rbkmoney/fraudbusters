@@ -16,10 +16,11 @@
 
     <properties>
         <project.maintainer>Struzhkin Konstantin &lt;k.struzhkin@rbkmoney.com&gt;</project.maintainer>
-        <shared.resources.version>0.3.2</shared.resources.version>
+        <shared.resources.version>0.3.6</shared.resources.version>
         <server.port>8022</server.port>
         <exposed.ports>${server.port}</exposed.ports>
-        <dockerfile.base.service.tag>4f3b89c6381373923f5fdea18b08741b9bada1e6</dockerfile.base.service.tag>
+        <dockerfile.base.service.tag>bc95d0d6dc13c693acd2b274531a7d604b877bf3</dockerfile.base.service.tag>
+        <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools-version>7.0.0.Final</drools-version>
         <damsel.version>1.274-c01bded</damsel.version>
