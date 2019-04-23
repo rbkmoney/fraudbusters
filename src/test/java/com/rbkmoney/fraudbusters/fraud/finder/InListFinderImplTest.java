@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.fraud.finder;
 
+import com.rbkmoney.damsel.wb_list.ListType;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
-import com.rbkmoney.fraudbusters.constant.ListType;
 import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import org.apache.thrift.TException;
@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 
 public class InListFinderImplTest {
 
@@ -27,12 +27,12 @@ public class InListFinderImplTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        listFinder = new InListFinderImpl(wbListServiceSrv, ListType.BLACK);
+        listFinder = new InListFinderImpl(wbListServiceSrv, ListType.black);
     }
 
     @Test
     public void findInList() throws TException {
-        Mockito.when(wbListServiceSrv.isExist(anyString(), anyString(), anyString(), anyString())).thenReturn(true);
+        Mockito.when(wbListServiceSrv.isExist(any())).thenReturn(true);
         Boolean isInList = listFinder.findInList(PARTY_ID, SHOP_ID, CheckedField.IP, VALUE);
         Assert.assertTrue(isInList);
     }

@@ -1,7 +1,8 @@
 package com.rbkmoney.fraudbusters.fraud.finder;
 
+import com.rbkmoney.damsel.wb_list.ListType;
+import com.rbkmoney.damsel.wb_list.Row;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
-import com.rbkmoney.fraudbusters.constant.ListType;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.finder.InListFinder;
@@ -20,11 +21,22 @@ public class InListFinderImpl implements InListFinder {
     @Override
     public Boolean findInList(String partyId, String shopId, CheckedField field, String value) {
         try {
-            return wbListServiceSrv.isExist(partyId, shopId, listType.getPrefix() + field.name(), value);
+            Row row = createRow(partyId, shopId, field, value);
+            return wbListServiceSrv.isExist(row);
         } catch (Exception e) {
             log.warn("InListFinderImpl error when findInList e: ", e);
             throw new RuleFunctionException(e);
         }
+    }
+
+    private Row createRow(String partyId, String shopId, CheckedField field, String value) {
+        Row row = new Row();
+        row.setPartyId(partyId);
+        row.setShopId(shopId);
+        row.setListType(listType);
+        row.setListName(field.name());
+        row.setValue(value);
+        return row;
     }
 
     @Override

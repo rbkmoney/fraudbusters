@@ -11,7 +11,8 @@ kafka:
   global.stream.topic: global_topic
   concrete.stream.topic: concrete
   result.stream.topic: result
-  template.topic: template
+  topic.template: template
+  topic.reference: template_reference
 
 clickhouse.db.url: "jdbc:clickhouse://localhost:8123/default"
 

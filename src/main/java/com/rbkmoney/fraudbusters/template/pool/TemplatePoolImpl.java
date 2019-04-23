@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class RuleTemplatePoolImpl implements RuleTemplatePool {
+public class TemplatePoolImpl implements Pool<FraudoParser.ParseContext> {
 
     private Map<String, FraudoParser.ParseContext> templates = new ConcurrentHashMap<>();
 
@@ -18,7 +18,7 @@ public class RuleTemplatePoolImpl implements RuleTemplatePool {
 
     @Override
     public FraudoParser.ParseContext get(String key) {
-        return templates.get(key);
+        return key != null ? templates.get(key) : null;
     }
 
     @Override

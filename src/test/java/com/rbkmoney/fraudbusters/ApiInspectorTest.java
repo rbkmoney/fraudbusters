@@ -1,6 +1,10 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
+import com.rbkmoney.damsel.fraudbusters.Command;
+import com.rbkmoney.damsel.fraudbusters.CommandBody;
+import com.rbkmoney.damsel.fraudbusters.Template;
+import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.constant.CommandType;
@@ -23,6 +27,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 
@@ -42,19 +47,46 @@ public class ApiInspectorTest extends KafkaAbstractTest {
 
     @Before
     public void init() throws ExecutionException, InterruptedException {
-        Producer<String, RuleTemplate> producer = createProducer();
-        RuleTemplate ruleTemplate = new RuleTemplate();
-        ruleTemplate.setLvl(TemplateLevel.GLOBAL);
-        ruleTemplate.setCommandType(CommandType.UPDATE);
-        ruleTemplate.setTemplate(TEMPLATE);
-        ProducerRecord<String, RuleTemplate> producerRecord = new ProducerRecord<>(templateTopic,
-                TemplateLevel.GLOBAL.toString(), ruleTemplate);
+        String id = createTemplate();
+        createGlobalReferenceToTemplate(id);
+    }
+
+    private void createGlobalReferenceToTemplate(String id) throws InterruptedException, ExecutionException {
+        Producer<String, Command> producer;
+        Command command;
+        ProducerRecord<String, Command> producerRecord;
+
+        producer = createProducer();
+        command = new Command();
+        TemplateReference value = new TemplateReference();
+        value.setIsGlobal(true);
+        value.setTemplateId(id);
+        command.setCommandBody(CommandBody.reference(value));
+        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        producerRecord = new ProducerRecord<>(referenceTopic,
+                TemplateLevel.GLOBAL.name(), command);
         producer.send(producerRecord).get();
         producer.close();
     }
 
+    private String createTemplate() throws InterruptedException, ExecutionException {
+        Producer<String, Command> producer = createProducer();
+        Command command = new Command();
+        Template template = new Template();
+        String id = UUID.randomUUID().toString();
+        template.setId(id);
+        template.setTemplate(TEMPLATE.getBytes());
+        command.setCommandBody(CommandBody.template(template));
+        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(templateTopic,
+                id, command);
+        producer.send(producerRecord).get();
+        producer.close();
+        return id;
+    }
+
     @Test
-    public void test() throws URISyntaxException, TException {
+    public void inspectPaymentTest() throws URISyntaxException, TException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);

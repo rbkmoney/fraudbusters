@@ -1,8 +1,8 @@
 package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
+import com.rbkmoney.damsel.wb_list.ListType;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
-import com.rbkmoney.fraudbusters.constant.ListType;
 import com.rbkmoney.fraudbusters.fraud.aggragator.CountAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.aggragator.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.aggragator.UniqueValueAggregatorImpl;
@@ -50,13 +50,13 @@ public class FraudoConfig {
 
     @Bean
     public InListFinder blackListFinder(WbListServiceSrv.Iface wbListServiceSrv) {
-        return new InListFinderImpl(wbListServiceSrv, ListType.BLACK);
+        return new InListFinderImpl(wbListServiceSrv, ListType.black);
 
     }
 
     @Bean
     public InListFinder whiteListFinder(WbListServiceSrv.Iface wbListServiceSrv) {
-        return new InListFinderImpl(wbListServiceSrv, ListType.WHITE);
+        return new InListFinderImpl(wbListServiceSrv, ListType.white);
     }
 
 }
