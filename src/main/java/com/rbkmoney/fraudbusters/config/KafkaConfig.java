@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.serde.FraudRequestSerde;
 import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
@@ -26,7 +25,7 @@ import java.util.Properties;
 @Configuration
 public class KafkaConfig {
 
-    private static final String GROUP_ID = "TemplateListener-";
+    private static final String TEMPLATE_GROUP_ID = "TemplateListener-";
     private static final String REFERENCE_GROUP_ID = "ReferenceListener-";
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "ResultAggregator";
@@ -50,7 +49,7 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, Command> templateListenerFactory() {
-        String value = KeyGenerator.generateKey(GROUP_ID);
+        String value = KeyGenerator.generateKey(TEMPLATE_GROUP_ID);
         final Map<String, Object> props = createDefaultProperties(value);
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new CommandDeserializer());
     }

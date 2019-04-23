@@ -47,18 +47,14 @@ public class ApiInspectorTest extends KafkaAbstractTest {
 
     @Before
     public void init() throws ExecutionException, InterruptedException {
-        Producer<String, Command> producer = createProducer();
-        Command command = new Command();
-        Template template = new Template();
-        String id = UUID.randomUUID().toString();
-        template.setId(id);
-        template.setTemplate(TEMPLATE.getBytes());
-        command.setCommandBody(CommandBody.template(template));
-        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
-        ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(templateTopic,
-                id, command);
-        producer.send(producerRecord).get();
-        producer.close();
+        String id = createTemplate();
+        createGlobalReferenceToTemplate(id);
+    }
+
+    private void createGlobalReferenceToTemplate(String id) throws InterruptedException, ExecutionException {
+        Producer<String, Command> producer;
+        Command command;
+        ProducerRecord<String, Command> producerRecord;
 
         producer = createProducer();
         command = new Command();
@@ -71,11 +67,26 @@ public class ApiInspectorTest extends KafkaAbstractTest {
                 TemplateLevel.GLOBAL.name(), command);
         producer.send(producerRecord).get();
         producer.close();
+    }
 
+    private String createTemplate() throws InterruptedException, ExecutionException {
+        Producer<String, Command> producer = createProducer();
+        Command command = new Command();
+        Template template = new Template();
+        String id = UUID.randomUUID().toString();
+        template.setId(id);
+        template.setTemplate(TEMPLATE.getBytes());
+        command.setCommandBody(CommandBody.template(template));
+        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(templateTopic,
+                id, command);
+        producer.send(producerRecord).get();
+        producer.close();
+        return id;
     }
 
     @Test
-    public void test() throws URISyntaxException, TException {
+    public void inspectPaymentTest() throws URISyntaxException, TException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
