@@ -19,6 +19,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.LoggingErrorHandler;
+import org.springframework.retry.RetryPolicy;
+import org.springframework.retry.backoff.BackOffPolicy;
+import org.springframework.retry.backoff.ExponentialBackOffPolicy;
+import org.springframework.retry.policy.SimpleRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
 
 import java.io.File;
 import java.util.HashMap;
@@ -32,7 +38,7 @@ public class KafkaConfig {
     private static final String REFERENCE_GROUP_ID = "ReferenceListener-";
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "ResultAggregator";
-    private static final String MAX_POLL_RECORDS_CONFIG = "20";
+    private static final String MAX_POLL_RECORDS_CONFIG = "100";
     private static final String PKCS_12 = "PKCS12";
     private static final String SSL = "SSL";
     private static final String FRAUD_BUSTERS = "fraud-busters";
@@ -102,6 +108,9 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, Command> templateListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(templateListenerFactory());
+        factory.setConcurrency(1);
+        factory.setRetryTemplate(retryTemplate());
+        factory.setErrorHandler(new LoggingErrorHandler());
         return factory;
     }
 
@@ -109,7 +118,32 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, Command> referenceListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(referenceListenerFactory());
+        factory.setConcurrency(1);
+        factory.setRetryTemplate(retryTemplate());
+        factory.setErrorHandler(new LoggingErrorHandler());
         return factory;
+    }
+
+    /*
+     * Retry template.
+     */
+    private RetryPolicy retryPolicy() {
+        SimpleRetryPolicy policy = new SimpleRetryPolicy();
+        policy.setMaxAttempts(3);
+        return policy;
+    }
+
+    private BackOffPolicy backOffPolicy() {
+        ExponentialBackOffPolicy policy = new ExponentialBackOffPolicy();
+        policy.setInitialInterval(1000);
+        return policy;
+    }
+
+    private RetryTemplate retryTemplate() {
+        RetryTemplate template = new RetryTemplate();
+        template.setRetryPolicy(retryPolicy());
+        template.setBackOffPolicy(backOffPolicy());
+        return template;
     }
 
     @Bean

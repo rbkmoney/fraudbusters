@@ -1,6 +1,18 @@
 server.port: @server.port@
-
+management:
+  security:
+    flag: false
+  metrics:
+    export:
+      statsd:
+        flavor: etsy
+        enabled: false
 spring:
+  application:
+    name: @project.name@
+  output:
+    ansi:
+      enabled: always
   cache:
     cache-names: resolveCountry
     caffeine:
