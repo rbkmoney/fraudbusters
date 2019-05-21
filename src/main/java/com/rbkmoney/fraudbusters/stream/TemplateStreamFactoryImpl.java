@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.domain.FraudResult;
+import com.rbkmoney.fraudbusters.exception.StreamInitializationException;
 import com.rbkmoney.fraudbusters.serde.FraudRequestSerde;
 import com.rbkmoney.fraudbusters.serde.FraudoResultSerde;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +23,13 @@ public class TemplateStreamFactoryImpl implements TemplateStreamFactory {
 
     @Value("${kafka.global.stream.topic}")
     private String readTopic;
+
     @Value("${kafka.result.stream.topic}")
     private String resultTopic;
 
     private final FraudRequestSerde fraudRequestSerde = new FraudRequestSerde();
     private final TemplateVisitorImpl templateVisitor;
+
     @Override
     public KafkaStreams create(final Properties streamsConfiguration) {
         try {
@@ -41,7 +44,7 @@ public class TemplateStreamFactoryImpl implements TemplateStreamFactory {
             return kafkaStreams;
         } catch (Exception e) {
             log.error("Error when GlobalStreamFactory insert e: ", e);
-            throw new RuntimeException(e);
+            throw new StreamInitializationException(e);
         }
     }
 

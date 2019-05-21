@@ -9,12 +9,21 @@ spring:
 kafka:
   bootstrap.servers: "localhost:29092"
   global.stream.topic: global_topic
-  concrete.stream.topic: concrete
   result.stream.topic: result
   topic.template: template
   topic.reference: template_reference
+  ssl:
+    enable: false
+    keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12
+    keystore-password: kenny
+    key-password: kenny
+    server-password: kenny12
+    server-keystore-location: src/main/resources/cert/truststore.p12
 
-clickhouse.db.url: "jdbc:clickhouse://localhost:8123/default"
+clickhouse.db:
+  url: "jdbc:clickhouse://localhost:8123/default"
+  user: "user"
+  password: "password"
 
 geo.ip.service.url: "localhost:29092/v1/columbus"
 wb.list.service.url: "localhost:29092/v1/wb_list"

@@ -75,8 +75,9 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            TestPropertyValues
-                    .of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl())
+            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
+                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword())
                     .applyTo(configurableApplicationContext.getEnvironment());
             LocationInfo info = new LocationInfo();
             info.setCountryGeoId(COUNTRY_GEO_ID);

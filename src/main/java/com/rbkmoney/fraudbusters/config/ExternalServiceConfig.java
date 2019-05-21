@@ -36,4 +36,5 @@ public class ExternalServiceConfig {
             throw new RuntimeException(e);
         }
     }
+
 }

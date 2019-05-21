@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.serde;
 
 
 import com.rbkmoney.damsel.fraudbusters.Command;
-import com.rbkmoney.deserializer.AbstractDeserializerAdapter;
+import com.rbkmoney.kafka.common.deserializer.AbstractDeserializerAdapter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

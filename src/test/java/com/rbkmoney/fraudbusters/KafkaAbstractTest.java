@@ -7,7 +7,7 @@ import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.serde.FraudRequestSerializer;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
-import com.rbkmoney.serializer.ThriftSerializer;
+import com.rbkmoney.kafka.common.serializer.ThriftSerializer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
