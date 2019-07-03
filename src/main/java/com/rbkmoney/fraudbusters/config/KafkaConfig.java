@@ -6,9 +6,8 @@ import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.serde.FraudRequestSerde;
 import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
-import org.apache.kafka.clients.CommonClientConfigs;
+import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.streams.StreamsConfig;
@@ -26,7 +25,6 @@ import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -38,8 +36,6 @@ public class KafkaConfig {
     private static final String REFERENCE_GROUP_ID = "ReferenceListener-";
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "ResultAggregator";
-    private static final String PKCS_12 = "PKCS12";
-    private static final String SSL = "SSL";
     private static final String FRAUD_BUSTERS = "fraud-busters";
     private static final String FRAUD_BUSTERS_CLIENT = "fraud-busters-client";
 
@@ -83,7 +79,8 @@ public class KafkaConfig {
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, FraudRequestSerde.class);
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
-        props.putAll(sslConfigure());
+        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
+                clientStoreCertPath, keyStorePassword, keyPassword));
         return props;
     }
 
@@ -108,7 +105,8 @@ public class KafkaConfig {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, value);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, EARLIEST);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
-        props.putAll(sslConfigure());
+        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
+                clientStoreCertPath, keyStorePassword, keyPassword));
         return props;
     }
 
@@ -165,18 +163,4 @@ public class KafkaConfig {
         return factory;
     }
 
-    private Map<String, Object> sslConfigure() {
-        Map<String, Object> configProps = new HashMap<>();
-        if (kafkaSslEnable) {
-            configProps.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SSL);
-            configProps.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, new File(serverStoreCertPath).getAbsolutePath());
-            configProps.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, serverStorePassword);
-            configProps.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, PKCS_12);
-            configProps.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, PKCS_12);
-            configProps.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, new File(clientStoreCertPath).getAbsolutePath());
-            configProps.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, keyStorePassword);
-            configProps.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, keyPassword);
-        }
-        return configProps;
-    }
 }
