@@ -15,10 +15,10 @@ import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 @Configuration
 public class ResourceConfig {
 
-    @Value("${kafka.global.stream.topic}")
+    @Value("${kafka.topic.global}")
     private String requestTopic;
 
-    @Value("${kafka.result.stream.topic}")
+    @Value("${kafka.topic.result}")
     private String requestReplyTopic;
 
     @Bean

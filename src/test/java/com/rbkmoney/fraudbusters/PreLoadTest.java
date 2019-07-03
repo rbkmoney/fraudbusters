@@ -42,7 +42,7 @@ public class PreLoadTest extends KafkaAbstractTest {
     @LocalServerPort
     int serverPort;
 
-    private static String SERVICE_URL = "http://localhost:%s/v1/fraud_inspector";
+    private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override

@@ -21,10 +21,10 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class TemplateStreamFactoryImpl implements TemplateStreamFactory {
 
-    @Value("${kafka.global.stream.topic}")
+    @Value("${kafka.topic.global}")
     private String readTopic;
 
-    @Value("${kafka.result.stream.topic}")
+    @Value("${kafka.topic.result}")
     private String resultTopic;
 
     private final FraudRequestSerde fraudRequestSerde = new FraudRequestSerde();

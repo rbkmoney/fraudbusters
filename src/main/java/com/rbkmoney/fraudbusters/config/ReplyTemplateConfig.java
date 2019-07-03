@@ -30,7 +30,7 @@ public class ReplyTemplateConfig {
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
 
-    @Value("${kafka.result.stream.topic}")
+    @Value("${kafka.topic.result}")
     private String replyTopic;
 
     @Bean

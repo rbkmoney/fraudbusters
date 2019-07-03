@@ -63,10 +63,10 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @LocalServerPort
     int serverPort;
 
-    @Value("${kafka.global.stream.topic}")
+    @Value("${kafka.topic.global}")
     public String GLOBAL_TOPIC;
 
-    private static String SERVICE_URL = "http://localhost:%s/v1/fraud_inspector";
+    private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer();

@@ -43,7 +43,7 @@ public class ApiInspectorTest extends KafkaAbstractTest {
     @LocalServerPort
     int serverPort;
 
-    private static String SERVICE_URL = "http://localhost:%s/v1/fraud_inspector";
+    private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
     @Before
     public void init() throws ExecutionException, InterruptedException {
