@@ -30,7 +30,7 @@
         <damsel-utils.version>2.1.3</damsel-utils.version>
         <wb.list.proto.version>1.20-2c2fb6a</wb.list.proto.version>
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
-        <kafka.common.lib.version>0.0.4-SNAPSHOT</kafka.common.lib.version>
+        <kafka.common.lib.version>0.0.9</kafka.common.lib.version>
     </properties>
     <dependencies>
         <dependency>
