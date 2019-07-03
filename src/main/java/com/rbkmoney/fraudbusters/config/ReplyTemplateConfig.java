@@ -4,6 +4,7 @@ import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.serde.FraudRequestSerializer;
 import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
+import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -30,27 +31,49 @@ public class ReplyTemplateConfig {
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
 
+    @Value("${kafka.ssl.server-password}")
+    private String serverStorePassword;
+
+    @Value("${kafka.ssl.server-keystore-location}")
+    private String serverStoreCertPath;
+
+    @Value("${kafka.ssl.keystore-password}")
+    private String keyStorePassword;
+
+    @Value("${kafka.ssl.key-password}")
+    private String keyPassword;
+
+    @Value("${kafka.ssl.keystore-location}")
+    private String clientStoreCertPath;
+
+    @Value("${kafka.ssl.enable}")
+    private boolean kafkaSslEnable;
+
     @Value("${kafka.topic.result}")
     private String replyTopic;
 
-    @Bean
-    public Map<String, Object> producerConfigs() {
+    @Value("${kafka.reply.timeout}")
+    private Long replyTimeout;
+
+    private Map<String, Object> producerConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudRequestSerializer.class);
+        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
+                clientStoreCertPath, keyStorePassword, keyPassword));
         return props;
     }
 
-    @Bean
-    public Map<String, Object> consumerConfigs() {
+    private Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, REPLY_CONSUMER);
+        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
+                clientStoreCertPath, keyStorePassword, keyPassword));
         return props;
     }
 
-    @Bean
     public ProducerFactory<String, FraudRequest> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
@@ -59,7 +82,6 @@ public class ReplyTemplateConfig {
     public KafkaTemplate<String, FraudRequest> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
-
 
     @Bean
     public KafkaMessageListenerContainer<String, FraudResult> replyContainer() {
@@ -81,12 +103,11 @@ public class ReplyTemplateConfig {
     }
 
     @Bean
-    public ReplyingKafkaTemplate<String, FraudRequest, FraudResult> replyKafkaTemplate(ProducerFactory<String, FraudRequest> pf,
-                                                                                       KafkaMessageListenerContainer<String,
+    public ReplyingKafkaTemplate<String, FraudRequest, FraudResult> replyKafkaTemplate(KafkaMessageListenerContainer<String,
                                                                                              FraudResult> container) {
-        ReplyingKafkaTemplate<String, FraudRequest, FraudResult> replyingKafkaTemplate = new ReplyingKafkaTemplate<>(pf, container);
-        replyingKafkaTemplate.setReplyTimeout(30000L);
+        ProducerFactory<String, FraudRequest> producerFactory = producerFactory();
+        ReplyingKafkaTemplate<String, FraudRequest, FraudResult> replyingKafkaTemplate = new ReplyingKafkaTemplate<>(producerFactory, container);
+        replyingKafkaTemplate.setReplyTimeout(replyTimeout);
         return replyingKafkaTemplate;
     }
-
 }
