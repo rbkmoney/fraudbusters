@@ -20,6 +20,10 @@ spring:
 
 kafka:
   bootstrap.servers: "localhost:29092"
+  backoff.interval: 1000
+  max:
+    retry.attempts: 3
+    poll.records: 100
   topic:
     global: global_topic
     result: result

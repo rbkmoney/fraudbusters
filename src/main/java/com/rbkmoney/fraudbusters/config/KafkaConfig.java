@@ -38,11 +38,19 @@ public class KafkaConfig {
     private static final String REFERENCE_GROUP_ID = "ReferenceListener-";
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "ResultAggregator";
-    private static final String MAX_POLL_RECORDS_CONFIG = "100";
     private static final String PKCS_12 = "PKCS12";
     private static final String SSL = "SSL";
     private static final String FRAUD_BUSTERS = "fraud-busters";
     private static final String FRAUD_BUSTERS_CLIENT = "fraud-busters-client";
+
+    @Value("${kafka.max.poll.records}")
+    private String maxPollRecords;
+
+    @Value("${kafka.max.retry.attempts}")
+    private int maxRetryAttempts;
+
+    @Value("${kafka.backoff.interval}")
+    private int backoffInterval;
 
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
@@ -129,13 +137,13 @@ public class KafkaConfig {
      */
     private RetryPolicy retryPolicy() {
         SimpleRetryPolicy policy = new SimpleRetryPolicy();
-        policy.setMaxAttempts(3);
+        policy.setMaxAttempts(maxRetryAttempts);
         return policy;
     }
 
     private BackOffPolicy backOffPolicy() {
         ExponentialBackOffPolicy policy = new ExponentialBackOffPolicy();
-        policy.setInitialInterval(1000);
+        policy.setInitialInterval(backoffInterval);
         return policy;
     }
 
@@ -150,7 +158,7 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, FraudResult> resultListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, FraudResult> factory = new ConcurrentKafkaListenerContainerFactory<>();
         final Map<String, Object> props = createDefaultProperties(RESULT_AGGREGATOR);
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, MAX_POLL_RECORDS_CONFIG);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(), new FraudoResultDeserializer());
         factory.setConsumerFactory(consumerFactory);
