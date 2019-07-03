@@ -7,10 +7,7 @@ import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.constant.CommandType;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
-import com.rbkmoney.fraudbusters.domain.FraudRequest;
-import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +17,7 @@ import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -32,11 +30,12 @@ import java.util.concurrent.ExecutionException;
 
 
 @Slf4j
-@ContextConfiguration(initializers = ApiInspectorTest.Initializer.class)
-public class ApiInspectorTest extends KafkaAbstractTest {
+@ContextConfiguration(initializers = PreLoadTest.Initializer.class)
+public class PreLoadTest extends KafkaAbstractTest {
 
-    public static final String TEMPLATE = "rule: 12 >= 1\n" +
+    private static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
+    private static final String TEST = "test";
 
     private InspectorProxySrv.Iface client;
 
@@ -45,10 +44,41 @@ public class ApiInspectorTest extends KafkaAbstractTest {
 
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            TestPropertyValues
+                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
+                    .applyTo(configurableApplicationContext.getEnvironment());
+            try {
+                createTemplate();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private static String createTemplate() throws InterruptedException, ExecutionException {
+            Producer<String, Command> producer = createProducer();
+            Command command = new Command();
+            Template template = new Template();
+            String id = TEST;
+            template.setId(id);
+            template.setTemplate(TEMPLATE.getBytes());
+            command.setCommandBody(CommandBody.template(template));
+            command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>("template",
+                    id, command);
+            producer.send(producerRecord).get();
+            producer.close();
+            return id;
+        }
+    }
+
     @Before
     public void init() throws ExecutionException, InterruptedException {
-        String id = createTemplate();
-        createGlobalReferenceToTemplate(id);
+        createGlobalReferenceToTemplate(TEST);
     }
 
     private void createGlobalReferenceToTemplate(String id) throws InterruptedException, ExecutionException {
@@ -69,28 +99,13 @@ public class ApiInspectorTest extends KafkaAbstractTest {
         producer.close();
     }
 
-    private String createTemplate() throws InterruptedException, ExecutionException {
-        Producer<String, Command> producer = createProducer();
-        Command command = new Command();
-        Template template = new Template();
-        String id = UUID.randomUUID().toString();
-        template.setId(id);
-        template.setTemplate(TEMPLATE.getBytes());
-        command.setCommandBody(CommandBody.template(template));
-        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
-        ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(templateTopic,
-                id, command);
-        producer.send(producerRecord).get();
-        producer.close();
-        return id;
-    }
-
     @Test
-    public void inspectPaymentTest() throws URISyntaxException, TException {
+    public void inspectPaymentTest() throws URISyntaxException, TException, ExecutionException, InterruptedException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
         client = clientBuilder.build(InspectorProxySrv.Iface.class);
+        createGlobalReferenceToTemplate(TEST);
 
         Context context = BeanUtil.createContext();
         RiskScore riskScore = client.inspectPayment(context);

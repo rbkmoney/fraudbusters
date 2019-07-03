@@ -56,7 +56,6 @@ public class TemplateVisitorImpl implements TemplateVisitor {
         return checkedResultModel;
     }
 
-
     private Optional<CheckedResultModel> apply(FraudModel fraudModel, String templateKey) {
         FraudoParser.ParseContext parseContext = templatePool.get(templateKey);
         if (parseContext != null) {
