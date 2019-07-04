@@ -13,7 +13,7 @@ import javax.annotation.PreDestroy;
 
 @ServletComponentScan
 @SpringBootApplication
-public class FraudBustersApplication {
+public class FraudBustersApplication extends SpringApplication {
 
     @Autowired
     private ReplyingKafkaTemplate replyingKafkaTemplate;

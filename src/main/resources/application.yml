@@ -6,10 +6,10 @@ management:
     export:
       statsd:
         flavor: etsy
-        enabled: false
+---
 spring:
   application:
-    name: @project.name@
+    name: @name@
   output:
     ansi:
       enabled: always
@@ -17,7 +17,7 @@ spring:
     cache-names: resolveCountry
     caffeine:
       spec: maximumSize=500,expireAfterAccess=100s
-
+---
 kafka:
   bootstrap.servers: "localhost:29092"
   backoff.interval: 1000
@@ -43,6 +43,8 @@ clickhouse.db:
   url: "jdbc:clickhouse://localhost:8123/default"
   user: "user"
   password: "password"
+  connection.timeout: 50000
+  compress: false
 
 geo.ip.service.url: "localhost:29092/v1/columbus"
 wb.list.service.url: "localhost:29092/v1/wb_list"
