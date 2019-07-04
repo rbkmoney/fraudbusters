@@ -10,7 +10,8 @@
         <version>2.1.1.RELEASE</version>
     </parent>
 
-    <groupId>com.rbkmoney</groupId>
+    <name>fraudbusters</name>
+
     <artifactId>fraudbusters</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -31,8 +32,18 @@
         <wb.list.proto.version>1.20-2c2fb6a</wb.list.proto.version>
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
         <kafka.common.lib.version>0.0.9</kafka.common.lib.version>
+        <clickhouse-jdbc.version>0.1.54</clickhouse-jdbc.version>
     </properties>
     <dependencies>
+        <!--spring-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -151,7 +162,7 @@
         <dependency>
             <groupId>ru.yandex.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
-            <version>0.1.48</version>
+            <version>${clickhouse-jdbc.version}</version>
         </dependency>
         
         <!-- Test libs -->
@@ -175,7 +186,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>clickhouse</artifactId>
-            <version>1.10.3</version>
+            <version>1.11.3</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

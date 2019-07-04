@@ -23,11 +23,19 @@ public class ClickhouseConfig {
     @Value("${clickhouse.db.password}")
     private String password;
 
+    @Value("${clickhouse.db.connection.timeout}")
+    private String connectionTimeout;
+
+    @Value("${clickhouse.db.compress}")
+    private String compress;
+
     @Bean
     public ClickHouseDataSource clickHouseDataSource() {
         Properties info = new Properties();
         info.setProperty(ClickHouseQueryParam.USER.getKey(), user);
         info.setProperty(ClickHouseQueryParam.PASSWORD.getKey(), password);
+        info.setProperty(ClickHouseQueryParam.COMPRESS.getKey(), compress);
+        info.setProperty(ClickHouseQueryParam.CONNECT_TIMEOUT.getKey(), connectionTimeout);
         return new ClickHouseDataSource(dbUrl, info);
     }
 
