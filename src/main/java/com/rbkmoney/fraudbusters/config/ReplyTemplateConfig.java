@@ -4,7 +4,9 @@ import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.serde.FraudRequestSerializer;
 import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
+import com.rbkmoney.fraudbusters.service.ConsumerGroupIdService;
 import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -24,9 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
 public class ReplyTemplateConfig {
 
-    private static final String REPLY_CONSUMER = "ReplyConsumer";
+    private static final String REPLY_CONSUMER = "reply-consumer";
 
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
@@ -55,6 +58,8 @@ public class ReplyTemplateConfig {
     @Value("${kafka.reply.timeout}")
     private Long replyTimeout;
 
+    private final ConsumerGroupIdService consumerGroupIdService;
+
     private Map<String, Object> producerConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -68,7 +73,7 @@ public class ReplyTemplateConfig {
     private Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, REPLY_CONSUMER);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupIdService.generateGroupId(REPLY_CONSUMER));
         props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
                 clientStoreCertPath, keyStorePassword, keyPassword));
         return props;

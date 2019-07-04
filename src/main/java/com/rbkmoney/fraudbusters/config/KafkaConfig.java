@@ -5,8 +5,9 @@ import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.serde.FraudRequestSerde;
 import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
-import com.rbkmoney.fraudbusters.util.KeyGenerator;
+import com.rbkmoney.fraudbusters.service.ConsumerGroupIdService;
 import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -30,12 +31,13 @@ import java.util.Map;
 import java.util.Properties;
 
 @Configuration
+@RequiredArgsConstructor
 public class KafkaConfig {
 
-    private static final String TEMPLATE_GROUP_ID = "TemplateListener-";
-    private static final String REFERENCE_GROUP_ID = "ReferenceListener-";
+    private static final String TEMPLATE_GROUP_ID = "template-listener";
+    private static final String REFERENCE_GROUP_ID = "reference-listener";
     private static final String EARLIEST = "earliest";
-    private static final String RESULT_AGGREGATOR = "ResultAggregator";
+    private static final String RESULT_AGGREGATOR = "result-aggregator";
     private static final String FRAUD_BUSTERS = "fraud-busters";
     private static final String FRAUD_BUSTERS_CLIENT = "fraud-busters-client";
 
@@ -69,6 +71,8 @@ public class KafkaConfig {
     @Value("${kafka.ssl.enable}")
     private boolean kafkaSslEnable;
 
+    private final ConsumerGroupIdService consumerGroupIdService;
+
     @Bean
     public Properties fraudStreamProperties() {
         final Properties props = new Properties();
@@ -86,14 +90,14 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, Command> templateListenerFactory() {
-        String value = KeyGenerator.generateKey(TEMPLATE_GROUP_ID);
+        String value = consumerGroupIdService.generateRandomGroupId(TEMPLATE_GROUP_ID);
         final Map<String, Object> props = createDefaultProperties(value);
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new CommandDeserializer());
     }
 
     @Bean
     public ConsumerFactory<String, Command> referenceListenerFactory() {
-        String value = KeyGenerator.generateKey(REFERENCE_GROUP_ID);
+        String value = consumerGroupIdService.generateRandomGroupId(REFERENCE_GROUP_ID);
         final Map<String, Object> props = createDefaultProperties(value);
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new CommandDeserializer());
     }
@@ -155,7 +159,8 @@ public class KafkaConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudResult> resultListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, FraudResult> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        final Map<String, Object> props = createDefaultProperties(RESULT_AGGREGATOR);
+        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
+        final Map<String, Object> props = createDefaultProperties(consumerGroup);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(), new FraudoResultDeserializer());
