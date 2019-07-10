@@ -38,8 +38,9 @@ public class KafkaConfig {
     private static final String REFERENCE_GROUP_ID = "reference-listener";
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "result-aggregator";
-    private static final String FRAUD_BUSTERS = "fraud-busters";
+
     private static final String FRAUD_BUSTERS_CLIENT = "fraud-busters-client";
+    public static final String APP_POSTFIX = "app";
 
     @Value("${kafka.max.poll.records}")
     private String maxPollRecords;
@@ -76,7 +77,7 @@ public class KafkaConfig {
     @Bean
     public Properties fraudStreamProperties() {
         final Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, FRAUD_BUSTERS);
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, consumerGroupIdService.generateGroupId(APP_POSTFIX));
         props.put(StreamsConfig.CLIENT_ID_CONFIG, FRAUD_BUSTERS_CLIENT);
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
