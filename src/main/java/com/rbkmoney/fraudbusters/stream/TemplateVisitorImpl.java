@@ -2,7 +2,8 @@ package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.template.pool.RuleTemplatePool;
+import com.rbkmoney.fraudbusters.template.pool.Pool;
+import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.FraudoParser;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
@@ -26,7 +27,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TemplateVisitorImpl implements TemplateVisitor {
 
-    public static final String SEPARATOR = "_";
     public static final String RULE_NOT_CHECKED = "RULE_NOT_CHECKED";
     private final FraudVisitorFactory fraudVisitorFactory = new FastFraudVisitorFactory();
     private final CountAggregator countAggregator;
@@ -35,13 +35,14 @@ public class TemplateVisitorImpl implements TemplateVisitor {
     private final CountryResolver countryResolver;
     private final InListFinder blackListFinder;
     private final InListFinder whiteListFinder;
-    private final RuleTemplatePool templatePool;
+    private final Pool<FraudoParser.ParseContext> templatePool;
+    private final Pool<String> referencePoolImpl;
 
     @Override
     public CheckedResultModel visit(FraudModel fraudModel) {
-        return apply(fraudModel, TemplateLevel.GLOBAL.toString())
-                .orElse(apply(fraudModel, fraudModel.getPartyId())
-                        .orElse(apply(fraudModel, getShopId(fraudModel))
+        return apply(fraudModel, referencePoolImpl.get(TemplateLevel.GLOBAL.name()))
+                .orElse(apply(fraudModel, referencePoolImpl.get(fraudModel.getPartyId()))
+                        .orElse(apply(fraudModel, referencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKey(fraudModel.getPartyId(), fraudModel.getShopId())))
                                 .orElse(createDefaultResult())));
     }
 
@@ -53,11 +54,6 @@ public class TemplateVisitorImpl implements TemplateVisitor {
         checkedResultModel.setResultModel(resultModel);
         checkedResultModel.setCheckedTemplate(RULE_NOT_CHECKED);
         return checkedResultModel;
-    }
-
-    @NotNull
-    private String getShopId(FraudModel fraudModel) {
-        return fraudModel.getPartyId() + SEPARATOR + fraudModel.getShopId();
     }
 
     private Optional<CheckedResultModel> apply(FraudModel fraudModel, String templateKey) {

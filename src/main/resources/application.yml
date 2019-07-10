@@ -1,19 +1,50 @@
 server.port: @server.port@
-
+management:
+  security:
+    flag: false
+  metrics:
+    export:
+      statsd:
+        flavor: etsy
+---
 spring:
+  application:
+    name: @name@
+  output:
+    ansi:
+      enabled: always
   cache:
     cache-names: resolveCountry
     caffeine:
       spec: maximumSize=500,expireAfterAccess=100s
-
+---
 kafka:
   bootstrap.servers: "localhost:29092"
-  global.stream.topic: global_topic
-  concrete.stream.topic: concrete
-  result.stream.topic: result
-  template.topic: template
+  backoff.interval: 1000
+  reply.timeout: 30000
+  consumer.prefix: fraudbusters
+  max:
+    retry.attempts: 3
+    poll.records: 100
+  topic:
+    global: global_topic
+    result: result
+    template: template
+    reference: template_reference
+  ssl:
+    enable: false
+    keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12
+    keystore-password: kenny
+    key-password: kenny
+    server-password: kenny12
+    server-keystore-location: src/main/resources/cert/truststore.p12
 
-clickhouse.db.url: "jdbc:clickhouse://localhost:8123/default"
+clickhouse.db:
+  url: "jdbc:clickhouse://localhost:8123/default"
+  user: "user"
+  password: "password"
+  connection.timeout: 50000
+  compress: false
 
 geo.ip.service.url: "localhost:29092/v1/columbus"
 wb.list.service.url: "localhost:29092/v1/wb_list"
