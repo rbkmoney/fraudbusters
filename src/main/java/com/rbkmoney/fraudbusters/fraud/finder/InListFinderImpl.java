@@ -9,6 +9,7 @@ import com.rbkmoney.fraudo.finder.InListFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -30,29 +31,27 @@ public class InListFinderImpl implements InListFinder {
     }
 
     private Row createRow(String partyId, String shopId, CheckedField field, String value) {
-        Row row = new Row();
-        row.setPartyId(partyId);
-        row.setShopId(shopId);
-        row.setListType(listType);
-        row.setListName(field.name());
-        row.setValue(value);
-        return row;
+        return new Row()
+                .setPartyId(partyId)
+                .setShopId(shopId)
+                .setListType(listType)
+                .setListName(field.name())
+                .setValue(value);
     }
 
     @Override
     public Boolean findInList(String partyId, String shopId, List<CheckedField> fields, List<String> value) {
         try {
+            List<Row> rows = new ArrayList<>();
             for (int i = 0; i < fields.size(); i++) {
-                Boolean inList = findInList(partyId, shopId, fields.get(i), value.get(i));
-                if (inList) {
-                    return inList;
-                }
+                Row row = createRow(partyId, shopId, fields.get(i), value.get(i));
+                rows.add(row);
             }
+            return wbListServiceSrv.isAnyExist(rows);
         } catch (Exception e) {
             log.warn("InListFinderImpl error when findInList e: ", e);
             throw new RuleFunctionException(e);
         }
-        return false;
     }
 
 }
