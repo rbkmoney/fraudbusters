@@ -36,9 +36,11 @@ public class SumAggregatorImplTest {
 
     @Test
     public void sum() {
-        Double some = sumAggregator.sum(CheckedField.BIN, new FraudModel(), 1444L);
+        FraudModel fraudModel = new FraudModel();
+        fraudModel.setAmount(1L);
+        Double some = sumAggregator.sum(CheckedField.BIN, fraudModel, 1444L);
 
-        Assert.assertEquals(Double.valueOf(1050100), some);
+        Assert.assertEquals(Double.valueOf(1050101), some);
     }
 
     @Test
