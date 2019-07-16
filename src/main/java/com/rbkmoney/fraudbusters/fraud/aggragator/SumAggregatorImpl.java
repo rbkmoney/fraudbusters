@@ -44,11 +44,16 @@ public class SumAggregatorImpl implements SumAggregator {
             FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
             Long sum = aggregateFunction.accept(resolve.getName(), resolve.getValue(), TimestampUtil.generateTimestampMinusMinutes(now, timeInMinutes),
                     TimestampUtil.generateTimestampNow(now));
-            log.debug("SumAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), sum);
-            return sum != null ? Double.valueOf(sum) : 0.0;
+            double resultSum = (double) checkedLong(sum) + checkedLong(fraudModel.getAmount());
+            log.debug("SumAggregatorImpl field: {} value: {}  sum: {}", resolve.getName(), resolve.getValue(), resultSum);
+            return resultSum;
         } catch (Exception e) {
             log.warn("SumAggregatorImpl error when getCount e: ", e);
             throw new RuleFunctionException(e);
         }
+    }
+
+    private Long checkedLong(Long entry) {
+        return entry != null ? entry : 0L;
     }
 }
