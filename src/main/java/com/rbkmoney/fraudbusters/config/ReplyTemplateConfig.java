@@ -29,8 +29,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReplyTemplateConfig {
 
-    private static final String REPLY_CONSUMER = "reply-consumer";
-
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
 
@@ -58,6 +56,9 @@ public class ReplyTemplateConfig {
     @Value("${kafka.reply.timeout}")
     private Long replyTimeout;
 
+    @Value("${kafka.reply.consumer.group}")
+    private String replyConsumerGroup;
+
     private final ConsumerGroupIdService consumerGroupIdService;
 
     private Map<String, Object> producerConfigs() {
@@ -73,7 +74,7 @@ public class ReplyTemplateConfig {
     private Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupIdService.generateGroupId(REPLY_CONSUMER));
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupIdService.generateGroupId(replyConsumerGroup));
         props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
                 clientStoreCertPath, keyStorePassword, keyPassword));
         return props;

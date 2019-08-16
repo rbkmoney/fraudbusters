@@ -21,7 +21,9 @@ spring:
 kafka:
   bootstrap.servers: "localhost:29092"
   backoff.interval: 1000
-  reply.timeout: 30000
+  reply:
+    timeout: 15000
+    consumer.group: reply-consumer
   consumer.prefix: fraudbusters
   max:
     retry.attempts: 3

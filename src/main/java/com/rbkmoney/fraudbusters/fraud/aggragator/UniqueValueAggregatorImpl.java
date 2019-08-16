@@ -16,6 +16,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class UniqueValueAggregatorImpl implements UniqueValueAggregator {
 
+    private static final int CURRENT_ONE = 1;
     private final EventRepository eventRepository;
     private final FieldResolver fieldResolver;
 
@@ -24,8 +25,9 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator {
         try {
             Instant now = Instant.now();
             FieldResolver.FieldModel resolve = fieldResolver.resolve(countField, fraudModel);
-            return eventRepository.uniqCountOperation(resolve.getName(), resolve.getValue(), fieldResolver.resolve(onField), TimestampUtil.generateTimestampMinusMinutes(now, time),
+            Integer uniqCountOperation = eventRepository.uniqCountOperation(resolve.getName(), resolve.getValue(), fieldResolver.resolve(onField), TimestampUtil.generateTimestampMinusMinutes(now, time),
                     TimestampUtil.generateTimestampNow(now));
+            return uniqCountOperation + CURRENT_ONE;
         } catch (Exception e) {
             log.warn("UniqueValueAggregatorImpl error when getCount e: ", e);
             throw new RuleFunctionException(e);

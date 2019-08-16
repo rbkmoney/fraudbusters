@@ -36,8 +36,9 @@ public class TemplateStreamFactoryImpl implements TemplateStreamFactory {
             StreamsBuilder builder = new StreamsBuilder();
             builder.stream(readTopic, Consumed.with(Serdes.String(), fraudRequestSerde))
                     .filter((s, fraudRequest) -> fraudRequest != null && fraudRequest.getFraudModel() != null)
-                    .peek((s, fraudRequest) -> log.info("Global stream check fraudRequest: {}", fraudRequest))
+                    .peek((s, fraudRequest) -> log.info("Check fraudRequest: {}", fraudRequest))
                     .mapValues(fraudRequest -> new FraudResult(fraudRequest, templateVisitor.visit(fraudRequest.getFraudModel())))
+                    .peek((s, fraudResult) -> log.info("Checked fraudResult: {}", fraudResult))
                     .to(resultTopic, Produced.with(Serdes.String(), new FraudoResultSerde()));
             KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), streamsConfiguration);
             kafkaStreams.start();

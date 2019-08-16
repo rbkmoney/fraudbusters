@@ -27,7 +27,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TemplateVisitorImpl implements TemplateVisitor {
 
-    public static final String RULE_NOT_CHECKED = "RULE_NOT_CHECKED";
+    private static final String RULE_NOT_CHECKED = "RULE_NOT_CHECKED";
     private final FraudVisitorFactory fraudVisitorFactory = new FastFraudVisitorFactory();
     private final CountAggregator countAggregator;
     private final SumAggregator sumAggregator;
@@ -62,7 +62,7 @@ public class TemplateVisitorImpl implements TemplateVisitor {
             ResultModel resultModel = (ResultModel) fraudVisitorFactory.createVisitor(fraudModel, countAggregator, sumAggregator,
                     uniqueValueAggregator, countryResolver, blackListFinder, whiteListFinder).visit(parseContext);
             if (!ResultStatus.NORMAL.equals(resultModel.getResultStatus())) {
-                log.info("applyRules global resultModel: {}", resultModel);
+                log.info("applyRules resultModel: {}", resultModel);
                 CheckedResultModel checkedResultModel = new CheckedResultModel();
                 checkedResultModel.setResultModel(resultModel);
                 checkedResultModel.setCheckedTemplate(templateKey);
