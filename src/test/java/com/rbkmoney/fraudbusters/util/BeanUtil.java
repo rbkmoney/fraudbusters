@@ -43,7 +43,7 @@ public class BeanUtil {
                         }}
                 ),
                 new InvoicePayment(pId,
-                        "",
+                        TypeUtil.temporalToString(Instant.now()),
                         Payer.customer(
                                 new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(),
                                         contact_info)),
