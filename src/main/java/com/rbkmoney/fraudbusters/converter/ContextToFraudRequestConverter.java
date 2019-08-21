@@ -53,7 +53,7 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
     private Metadata initMetadata(Context context) {
         Metadata metadata = new Metadata();
         PaymentInfo payment = context.getPayment();
-        LocalDateTime localDateTime = TypeUtil.stringToLocalDateTime(payment.getInvoice().getCreatedAt());
+        LocalDateTime localDateTime = TypeUtil.stringToLocalDateTime(payment.getPayment().getCreatedAt());
         metadata.setTimestamp(localDateTime.toEpochSecond(ZoneOffset.UTC));
         metadata.setCurrency(payment.getPayment().getCost().getCurrency().symbolic_code);
         metadata.setInvoiceId(payment.getInvoice().getId());
