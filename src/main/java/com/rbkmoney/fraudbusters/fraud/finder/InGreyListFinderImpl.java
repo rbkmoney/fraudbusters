@@ -1,9 +1,6 @@
 package com.rbkmoney.fraudbusters.fraud.finder;
 
-import com.rbkmoney.damsel.wb_list.ListType;
-import com.rbkmoney.damsel.wb_list.Row;
-import com.rbkmoney.damsel.wb_list.RowInfo;
-import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
+import com.rbkmoney.damsel.wb_list.*;
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
@@ -31,8 +28,9 @@ public class InGreyListFinderImpl implements InListFinder {
     public Boolean findInList(String partyId, String shopId, CheckedField field, String value) {
         try {
             Row row = createRow(partyId, shopId, field, value);
-            RowInfo rowInfo = wbListServiceSrv.getRowInfo(row);
-            if (rowInfo.isSetCountInfo()) {
+            Result result = wbListServiceSrv.getRowInfo(row);
+            if (result.getRowInfo() != null && result.getRowInfo().isSetCountInfo()) {
+                RowInfo rowInfo = result.getRowInfo();
                 String startCountTime = rowInfo.getCountInfo().getStartCountTime();
                 String ttl = rowInfo.getCountInfo().getTimeToLive();
                 EventField resolve = fieldResolver.resolve(field);
