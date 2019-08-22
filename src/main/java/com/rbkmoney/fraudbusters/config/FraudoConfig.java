@@ -6,6 +6,7 @@ import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.fraud.aggragator.CountAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.aggragator.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.aggragator.UniqueValueAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.finder.InGreyListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.finder.InListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
@@ -51,12 +52,16 @@ public class FraudoConfig {
     @Bean
     public InListFinder blackListFinder(WbListServiceSrv.Iface wbListServiceSrv) {
         return new InListFinderImpl(wbListServiceSrv, ListType.black);
-
     }
 
     @Bean
     public InListFinder whiteListFinder(WbListServiceSrv.Iface wbListServiceSrv) {
         return new InListFinderImpl(wbListServiceSrv, ListType.white);
+    }
+
+    @Bean
+    public InListFinder greyListFinder(WbListServiceSrv.Iface wbListServiceSrv, EventRepository eventRepository, FieldResolver fieldResolver) {
+        return new InGreyListFinderImpl(wbListServiceSrv, ListType.grey, eventRepository, fieldResolver);
     }
 
 }

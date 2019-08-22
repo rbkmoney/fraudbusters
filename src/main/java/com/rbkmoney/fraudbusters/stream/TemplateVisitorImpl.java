@@ -35,6 +35,7 @@ public class TemplateVisitorImpl implements TemplateVisitor {
     private final CountryResolver countryResolver;
     private final InListFinder blackListFinder;
     private final InListFinder whiteListFinder;
+    private final InListFinder greyListFinder;
     private final Pool<FraudoParser.ParseContext> templatePool;
     private final Pool<String> referencePoolImpl;
 
@@ -60,7 +61,7 @@ public class TemplateVisitorImpl implements TemplateVisitor {
         FraudoParser.ParseContext parseContext = templatePool.get(templateKey);
         if (parseContext != null) {
             ResultModel resultModel = (ResultModel) fraudVisitorFactory.createVisitor(fraudModel, countAggregator, sumAggregator,
-                    uniqueValueAggregator, countryResolver, blackListFinder, whiteListFinder).visit(parseContext);
+                    uniqueValueAggregator, countryResolver, blackListFinder, greyListFinder, whiteListFinder).visit(parseContext);
             if (!ResultStatus.NORMAL.equals(resultModel.getResultStatus())) {
                 log.info("applyRules resultModel: {}", resultModel);
                 CheckedResultModel checkedResultModel = new CheckedResultModel();
