@@ -1,9 +1,6 @@
 package com.rbkmoney.fraudbusters.fraud.finder;
 
-import com.rbkmoney.damsel.wb_list.CountInfo;
-import com.rbkmoney.damsel.wb_list.ListType;
-import com.rbkmoney.damsel.wb_list.RowInfo;
-import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
+import com.rbkmoney.damsel.wb_list.*;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudo.constant.CheckedField;
@@ -39,18 +36,18 @@ public class InGreyListFinderImplTest {
 
     @Test
     public void findInList() throws TException {
-        Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(new RowInfo());
+        Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(new Result().setRowInfo(new RowInfo()));
         Boolean inList = inGreyListFinder.findInList(PARTY_ID, SHOP_ID, CheckedField.CARD_TOKEN, VALUE);
 
         Assert.assertFalse(inList);
         Instant now = Instant.now();
-        RowInfo rowInfo = RowInfo
+        Result result = new Result().setRowInfo(RowInfo
                 .count_info(new CountInfo()
                         .setCount(5L)
                         .setTimeToLive(now.plusSeconds(10L).toString())
-                        .setStartCountTime(now.toString()));
+                        .setStartCountTime(now.toString())));
 
-        Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(rowInfo);
+        Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(result);
         Mockito.when(eventRepository.countOperationByField(any(), any(), any(), any())).thenReturn(6);
 
         inList = inGreyListFinder.findInList(PARTY_ID, SHOP_ID, CheckedField.CARD_TOKEN, VALUE);
@@ -65,12 +62,12 @@ public class InGreyListFinderImplTest {
     @Test
     public void testFindInList() throws TException {
         Instant now = Instant.now();
-        RowInfo rowInfo = RowInfo
+        Result result = new Result().setRowInfo(RowInfo
                 .count_info(new CountInfo()
                         .setCount(5L)
                         .setTimeToLive(now.plusSeconds(10L).toString())
-                        .setStartCountTime(now.toString()));
-        Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(rowInfo);
+                        .setStartCountTime(now.toString())));
+        Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(result);
         Mockito.when(eventRepository.countOperationByField(any(), any(), any(), any())).thenReturn(4);
         Boolean inList = inGreyListFinder.findInList(PARTY_ID, SHOP_ID, List.of(CheckedField.CARD_TOKEN), List.of(VALUE));
 
