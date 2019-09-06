@@ -5,9 +5,11 @@ import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.*;
+import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
+import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.FraudModel;
 import com.rbkmoney.fraudo.model.ResultModel;
@@ -40,7 +42,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = {EventRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class}, initializers = EventRepositoryTest.Initializer.class)
+@ContextConfiguration(classes = {EventRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class, FieldResolver.class}, initializers = EventRepositoryTest.Initializer.class)
 public class EventRepositoryTest {
 
     public static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_unique";
@@ -55,6 +57,9 @@ public class EventRepositoryTest {
 
     @Autowired
     FraudResultToEventConverter fraudResultToEventConverter;
+
+    @Autowired
+    FieldResolver fieldResolver;
 
     @MockBean
     GeoIpServiceSrv.Iface iface;
@@ -151,6 +156,28 @@ public class EventRepositoryTest {
     }
 
     @Test
+    public void countOperationByEmailTestWithGroupBy() throws SQLException {
+        Instant now = Instant.now();
+        Long to = TimestampUtil.generateTimestampNow(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
+        FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
+        FraudModel fraudModelSecond = BeanUtil.createFraudModelSecond();
+        fraudModelSecond.setPartyId("test");
+        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, fraudModelSecond);
+
+        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3)));
+
+        FieldResolver.FieldModel email = fieldResolver.resolve(CheckedField.EMAIL, fraudModelSecond);
+        int count = eventRepository.countOperationByFieldWithGroupBy(EventField.email, email.getValue(), from, to, List.of());
+        Assert.assertEquals(2, count);
+
+        FieldResolver.FieldModel resolve = fieldResolver.resolve(CheckedField.PARTY_ID, fraudModelSecond);
+        count = eventRepository.countOperationByFieldWithGroupBy(EventField.email, email.getValue(), from, to, List.of(resolve));
+        Assert.assertEquals(1, count);
+    }
+
+    @Test
     public void sumOperationByEmailTest() throws SQLException {
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
@@ -158,7 +185,7 @@ public class EventRepositoryTest {
         List<FraudResult> batch = createBatch();
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
 
-        Long sum = eventRepository.sumOperationByField(EventField.email, BeanUtil.EMAIL, from, to);
+        Long sum = eventRepository.sumOperationByFieldWithGroupBy(EventField.email, BeanUtil.EMAIL, from, to, List.of());
         Assert.assertEquals(BeanUtil.AMOUNT_FIRST, sum);
     }
 
@@ -215,6 +242,39 @@ public class EventRepositoryTest {
     }
 
     @Test
+    public void sumOperationByEmailGroupByPartyIdErrorTest() throws SQLException {
+        Instant now = Instant.now();
+        Long to = TimestampUtil.generateTimestampNow(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        FraudModel fraudModel = BeanUtil.createFraudModel();
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, fraudModel);
+        FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
+        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, fraudModel);
+        FraudModel fraudModelTest = BeanUtil.createFraudModel();
+        fraudModelTest.setShopId("test");
+        FraudResult value4 = createFraudResult(ResultStatus.DECLINE, fraudModelTest);
+        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3, value4)));
+
+        FieldResolver.FieldModel partyId = fieldResolver.resolve(CheckedField.PARTY_ID, fraudModel);
+        Long sum = eventRepository.sumOperationErrorWithGroupBy(EventField.email, BeanUtil.EMAIL, from, to, List.of(partyId));
+
+        Assert.assertEquals(BeanUtil.AMOUNT_FIRST * 2, sum.longValue());
+
+        FieldResolver.FieldModel shopId = fieldResolver.resolve(CheckedField.SHOP_ID, fraudModel);
+
+        sum = eventRepository.sumOperationErrorWithGroupBy(EventField.email, BeanUtil.EMAIL, from, to, List.of(partyId, shopId));
+
+        Assert.assertEquals(BeanUtil.AMOUNT_FIRST, sum);
+
+        fraudModel.setShopId("test_2");
+        shopId = fieldResolver.resolve(CheckedField.SHOP_ID, fraudModel);
+
+        sum = eventRepository.sumOperationErrorWithGroupBy(EventField.email, BeanUtil.EMAIL, from, to, List.of(partyId, shopId));
+
+        Assert.assertEquals(0L, sum.longValue());
+    }
+
+    @Test
     public void countUniqOperationTest() {
         FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
         FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
@@ -229,6 +289,29 @@ public class EventRepositoryTest {
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         Integer sum = eventRepository.uniqCountOperation(EventField.email, BeanUtil.EMAIL, EventField.fingerprint, from, to);
         Assert.assertEquals(Integer.valueOf(2), sum);
+    }
+
+    @Test
+    public void countUniqOperationWithGroupByTest() {
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
+        FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
+        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModel());
+        FraudModel fraudModel = BeanUtil.createFraudModel();
+        fraudModel.setFingerprint("test");
+        fraudModel.setPartyId("party");
+        FraudResult value4 = createFraudResult(ResultStatus.DECLINE, fraudModel);
+
+        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3, value4)));
+
+        Instant now = Instant.now();
+        Long to = TimestampUtil.generateTimestampNow(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        Integer sum = eventRepository.uniqCountOperationWithGroupBy(EventField.email, BeanUtil.EMAIL, EventField.fingerprint, from, to, List.of());
+        Assert.assertEquals(Integer.valueOf(2), sum);
+
+        FieldResolver.FieldModel resolve = fieldResolver.resolve(CheckedField.PARTY_ID, fraudModel);
+        sum = eventRepository.uniqCountOperationWithGroupBy(EventField.email, BeanUtil.EMAIL, EventField.fingerprint, from, to, List.of(resolve));
+        Assert.assertEquals(Integer.valueOf(1), sum);
     }
 
 }

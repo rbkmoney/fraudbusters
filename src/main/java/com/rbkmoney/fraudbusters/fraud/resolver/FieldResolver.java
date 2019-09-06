@@ -8,8 +8,23 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class FieldResolver {
+
+    @NotNull
+    public List<FieldModel> resolveListFields(FraudModel fraudModel, List<CheckedField> list) {
+        if (list != null) {
+            return list.stream()
+                    .map(field -> resolve(field, fraudModel))
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
 
     public FieldModel resolve(CheckedField field, FraudModel fraudModel) {
         if (field == null) {
