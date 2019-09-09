@@ -8,6 +8,7 @@ import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
+import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
@@ -25,7 +27,6 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 
@@ -38,6 +39,9 @@ public class PreLoadTest extends KafkaAbstractTest {
     private static final String TEST = "test";
 
     private InspectorProxySrv.Iface client;
+
+    @MockBean
+    EventRepository eventRepository;
 
     @LocalServerPort
     int serverPort;
@@ -97,6 +101,8 @@ public class PreLoadTest extends KafkaAbstractTest {
                 TemplateLevel.GLOBAL.name(), command);
         producer.send(producerRecord).get();
         producer.close();
+
+        Thread.sleep(3000L);
     }
 
     @Test

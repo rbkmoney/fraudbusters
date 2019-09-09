@@ -35,6 +35,8 @@ import java.util.Properties;
 public class KafkaConfig {
 
     private static final String TEMPLATE_GROUP_ID = "template-listener";
+    private static final String GROUP_LIST_GROUP_ID = "group-listener";
+    private static final String GROUP_LIST_REFERENCE_GROUP_ID = "group-reference-listener";
     private static final String REFERENCE_GROUP_ID = "reference-listener";
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "result-aggregator";
@@ -97,8 +99,22 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ConsumerFactory<String, Command> groupListenerFactory() {
+        String value = consumerGroupIdService.generateRandomGroupId(GROUP_LIST_GROUP_ID);
+        final Map<String, Object> props = createDefaultProperties(value);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new CommandDeserializer());
+    }
+
+    @Bean
     public ConsumerFactory<String, Command> referenceListenerFactory() {
         String value = consumerGroupIdService.generateRandomGroupId(REFERENCE_GROUP_ID);
+        final Map<String, Object> props = createDefaultProperties(value);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new CommandDeserializer());
+    }
+
+    @Bean
+    public ConsumerFactory<String, Command> groupReferenceListenerFactory() {
+        String value = consumerGroupIdService.generateRandomGroupId(GROUP_LIST_REFERENCE_GROUP_ID);
         final Map<String, Object> props = createDefaultProperties(value);
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new CommandDeserializer());
     }
@@ -126,7 +142,27 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> groupListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(templateListenerFactory());
+        factory.setConcurrency(1);
+        factory.setRetryTemplate(retryTemplate());
+        factory.setErrorHandler(new LoggingErrorHandler());
+        return factory;
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Command> referenceListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(referenceListenerFactory());
+        factory.setConcurrency(1);
+        factory.setRetryTemplate(retryTemplate());
+        factory.setErrorHandler(new LoggingErrorHandler());
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> referenceGroupListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(referenceListenerFactory());
         factory.setConcurrency(1);

@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.domain.*;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.proxy_inspector.Invoice;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
@@ -8,8 +9,10 @@ import com.rbkmoney.damsel.proxy_inspector.Shop;
 import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.fraudo.model.FraudModel;
 import com.rbkmoney.geck.common.util.TypeUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.util.List;
 
 public class BeanUtil {
 
@@ -110,5 +113,49 @@ public class BeanUtil {
         fraudModel.setAmount(AMOUNT_SECOND);
         fraudModel.setBinCountryCode(BIN_COUNTRY_CODE);
         return fraudModel;
+    }
+
+    @NotNull
+    public static Command createGroupCommand(String localId, List<PriorityId> priorityIds) {
+        Command command = new Command();
+        Group group = new Group();
+        group.setGroupId(localId);
+        group.setTemplateIds(priorityIds);
+        command.setCommandBody(CommandBody.group(group));
+        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        return command;
+    }
+
+    @NotNull
+    public static Command deleteGroupCommand(String localId, List<PriorityId> priorityIds) {
+        Command command = new Command();
+        Group group = new Group();
+        group.setGroupId(localId);
+        group.setTemplateIds(priorityIds);
+        command.setCommandBody(CommandBody.group(group));
+        command.setCommandType(CommandType.DELETE);
+        return command;
+    }
+
+    @NotNull
+    public static Command createGroupReferenceCommand(String party, String shopId, String idGroup) {
+        Command command = new Command();
+        command.setCommandType(CommandType.CREATE);
+        command.setCommandBody(CommandBody.group_reference(new GroupReference()
+                .setGroupId(idGroup)
+                .setPartyId(party)
+                .setShopId(shopId)));
+        return command;
+    }
+
+    @NotNull
+    public static Command createDeleteGroupReferenceCommand(String party, String shopId, String idGroup) {
+        Command command = new Command();
+        command.setCommandType(CommandType.DELETE);
+        command.setCommandBody(CommandBody.group_reference(new GroupReference()
+                .setGroupId(idGroup)
+                .setPartyId(party)
+                .setShopId(shopId)));
+        return command;
     }
 }

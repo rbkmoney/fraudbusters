@@ -40,7 +40,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @ContextConfiguration(classes = FraudBustersApplication.class, initializers = KafkaAbstractTest.Initializer.class)
 public abstract class KafkaAbstractTest {
 
@@ -59,6 +59,10 @@ public abstract class KafkaAbstractTest {
     public String templateTopic;
     @Value("${kafka.topic.reference}")
     public String referenceTopic;
+    @Value("${kafka.topic.group.list}")
+    public String groupTopic;
+    @Value("${kafka.topic.group.reference}")
+    public String groupReferenceTopic;
 
     public static Producer<String, Command> createProducer() {
         Properties props = new Properties();
@@ -87,6 +91,8 @@ public abstract class KafkaAbstractTest {
             initTopic("template");
             initTopic("global_topic");
             initTopic("template_reference");
+            initTopic("group_list");
+            initTopic("group_reference");
         }
 
         @NotNull
