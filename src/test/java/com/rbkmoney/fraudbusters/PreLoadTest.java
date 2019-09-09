@@ -102,7 +102,7 @@ public class PreLoadTest extends KafkaAbstractTest {
         producer.send(producerRecord).get();
         producer.close();
 
-        Thread.sleep(3000L);
+        Thread.sleep(4000L);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class PreLoadTest extends KafkaAbstractTest {
         Context context = BeanUtil.createContext();
         RiskScore riskScore = client.inspectPayment(context);
 
-        Assert.assertEquals(riskScore, RiskScore.low);
+        Assert.assertEquals(RiskScore.low, riskScore);
     }
 
 }
