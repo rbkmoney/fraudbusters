@@ -1,7 +1,6 @@
 package com.rbkmoney.fraudbusters.util;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -19,7 +18,7 @@ public class TimestampUtil {
     }
 
     public static Long generateTimestampMinusMinutes(Instant now, Long minutes) {
-        return now.minusSeconds(minutes * 60).getEpochSecond();
+        return minutes != null ? now.minusSeconds(minutes * 60).getEpochSecond() : now.getEpochSecond();
     }
 
 }

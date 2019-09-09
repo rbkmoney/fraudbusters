@@ -114,6 +114,7 @@ public class ReplyTemplateConfig {
         ProducerFactory<String, FraudRequest> producerFactory = producerFactory();
         ReplyingKafkaTemplate<String, FraudRequest, FraudResult> replyingKafkaTemplate = new ReplyingKafkaTemplate<>(producerFactory, container);
         replyingKafkaTemplate.setReplyTimeout(replyTimeout);
+        replyingKafkaTemplate.setSharedReplyTopic(true);
         return replyingKafkaTemplate;
     }
 }
