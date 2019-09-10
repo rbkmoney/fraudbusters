@@ -17,6 +17,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -24,6 +25,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.containers.KafkaContainer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -102,11 +104,13 @@ public class PreLoadTest extends KafkaAbstractTest {
         producer.send(producerRecord).get();
         producer.close();
 
-        Thread.sleep(4000L);
+
     }
 
     @Test
     public void inspectPaymentTest() throws URISyntaxException, TException, ExecutionException, InterruptedException {
+        Thread.sleep(6000L);
+
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);

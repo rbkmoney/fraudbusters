@@ -50,7 +50,7 @@ public abstract class KafkaAbstractTest {
     @MockBean
     WbListServiceSrv.Iface wbListServiceSrv;
 
-    private static final String CONFLUENT_PLATFORM_VERSION = "5.0.1";
+    public static final String CONFLUENT_PLATFORM_VERSION = "5.0.1";
 
     @ClassRule
     public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION).withEmbeddedZookeeper();
