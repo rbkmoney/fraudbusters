@@ -5,8 +5,10 @@ import com.rbkmoney.damsel.fraudbusters.CommandBody;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
+import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudo.FraudoParser;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.thrift.TException;
@@ -14,6 +16,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -43,7 +46,10 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         producer.send(producerRecord).get();
         producer.close();
 
-        Thread.sleep(SLEEP);
+        Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
+        consumer.subscribe(List.of(templateTopic));
+        recurPolling(consumer);
+        consumer.close();
 
         FraudoParser.ParseContext parseContext = pool.get(id);
         Assert.assertNotNull(parseContext);
@@ -60,7 +66,10 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         producer.send(producerRecord).get();
         producer.close();
 
-        Thread.sleep(SLEEP);
+        consumer = createConsumer(CommandDeserializer.class);
+        consumer.subscribe(List.of(referenceTopic));
+        recurPolling(consumer);
+        consumer.close();
 
         String result = referencePoolImpl.get(TemplateLevel.GLOBAL.name());
 
@@ -81,7 +90,11 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         Producer<String, Command> producer = createProducer();
         producer.send(producerRecord).get();
         producer.close();
-        Thread.sleep(SLEEP);
+
+        Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
+        consumer.subscribe(List.of(templateTopic));
+        recurPolling(consumer);
+        consumer.close();
 
         FraudoParser.ParseContext parseContext = pool.get(id);
         Assert.assertNotNull(parseContext);

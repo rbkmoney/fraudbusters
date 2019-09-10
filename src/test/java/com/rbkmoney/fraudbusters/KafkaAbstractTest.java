@@ -120,7 +120,7 @@ public abstract class KafkaAbstractTest {
         return new KafkaConsumer<>(props);
     }
 
-    protected void recurPolling(Consumer<String, Object> consumer) {
+    protected static void recurPolling(Consumer<String, Object> consumer) {
         ConsumerRecords<String, Object> poll = consumer.poll(Duration.ofSeconds(5));
         if (poll.isEmpty()) {
             recurPolling(consumer);

@@ -73,6 +73,7 @@ public class ApiInspectorTest extends KafkaAbstractTest {
 
         Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
         consumer.subscribe(List.of(referenceTopic));
+        recurPolling(consumer);
         consumer.close();
     }
 
@@ -91,7 +92,8 @@ public class ApiInspectorTest extends KafkaAbstractTest {
         producer.close();
 
         Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
-        consumer.subscribe(List.of(TEMPLATE));
+        consumer.subscribe(List.of(templateTopic));
+        recurPolling(consumer);
         consumer.close();
         return id;
     }

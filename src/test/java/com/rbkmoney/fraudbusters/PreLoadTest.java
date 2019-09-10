@@ -55,8 +55,6 @@ public class PreLoadTest extends KafkaAbstractTest {
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-        public static final String TEMPLATE = "template";
-
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             TestPropertyValues
@@ -80,13 +78,16 @@ public class PreLoadTest extends KafkaAbstractTest {
             template.setTemplate(PreLoadTest.TEMPLATE.getBytes());
             command.setCommandBody(CommandBody.template(template));
             command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(TEMPLATE,
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>("template",
                     id, command);
             producer.send(producerRecord).get();
             producer.close();
 
             Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
-            consumer.subscribe(List.of(TEMPLATE));
+            consumer.subscribe(List.of("template"));
+
+            recurPolling(consumer);
+
             consumer.close();
             return id;
         }
@@ -124,6 +125,8 @@ public class PreLoadTest extends KafkaAbstractTest {
 
     @Test
     public void inspectPaymentTest() throws URISyntaxException, TException, ExecutionException, InterruptedException {
+        Thread.sleep(4000L);
+
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
