@@ -9,15 +9,17 @@ import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
+import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -25,10 +27,11 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.containers.KafkaContainer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
@@ -51,6 +54,9 @@ public class PreLoadTest extends KafkaAbstractTest {
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+        public static final String TEMPLATE = "template";
+
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             TestPropertyValues
@@ -71,13 +77,17 @@ public class PreLoadTest extends KafkaAbstractTest {
             Template template = new Template();
             String id = TEST;
             template.setId(id);
-            template.setTemplate(TEMPLATE.getBytes());
+            template.setTemplate(PreLoadTest.TEMPLATE.getBytes());
             command.setCommandBody(CommandBody.template(template));
             command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>("template",
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(TEMPLATE,
                     id, command);
             producer.send(producerRecord).get();
             producer.close();
+
+            Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
+            consumer.subscribe(List.of(TEMPLATE));
+            consumer.close();
             return id;
         }
     }
@@ -104,13 +114,23 @@ public class PreLoadTest extends KafkaAbstractTest {
         producer.send(producerRecord).get();
         producer.close();
 
+        Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
+        consumer.subscribe(List.of(referenceTopic));
 
+        recurePolling(consumer);
+
+        consumer.close();
+    }
+
+    private void recurePolling(Consumer<String, Object> consumer) {
+        ConsumerRecords<String, Object> poll = consumer.poll(Duration.ofSeconds(5));
+        if (poll.isEmpty()) {
+            recurePolling(consumer);
+        }
     }
 
     @Test
     public void inspectPaymentTest() throws URISyntaxException, TException, ExecutionException, InterruptedException {
-        Thread.sleep(6000L);
-
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
