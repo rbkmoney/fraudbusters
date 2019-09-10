@@ -66,10 +66,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         producer.send(producerRecord).get();
         producer.close();
 
-        consumer = createConsumer(CommandDeserializer.class);
-        consumer.subscribe(List.of(referenceTopic));
-        recurPolling(consumer);
-        consumer.close();
+        Thread.sleep(5000L);
 
         String result = referencePoolImpl.get(TemplateLevel.GLOBAL.name());
 
