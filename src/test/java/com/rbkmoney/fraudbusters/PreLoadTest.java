@@ -117,16 +117,9 @@ public class PreLoadTest extends KafkaAbstractTest {
         Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
         consumer.subscribe(List.of(referenceTopic));
 
-        recurePolling(consumer);
+        recurPolling(consumer);
 
         consumer.close();
-    }
-
-    private void recurePolling(Consumer<String, Object> consumer) {
-        ConsumerRecords<String, Object> poll = consumer.poll(Duration.ofSeconds(5));
-        if (poll.isEmpty()) {
-            recurePolling(consumer);
-        }
     }
 
     @Test

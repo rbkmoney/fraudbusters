@@ -7,14 +7,13 @@ import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.constant.CommandType;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
-import com.rbkmoney.fraudbusters.domain.FraudRequest;
-import com.rbkmoney.fraudbusters.domain.RuleTemplate;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
+import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.thrift.TException;
@@ -23,12 +22,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -72,6 +70,10 @@ public class ApiInspectorTest extends KafkaAbstractTest {
                 TemplateLevel.GLOBAL.name(), command);
         producer.send(producerRecord).get();
         producer.close();
+
+        Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
+        consumer.subscribe(List.of(referenceTopic));
+        consumer.close();
     }
 
     private String createTemplate() throws InterruptedException, ExecutionException {
@@ -87,6 +89,10 @@ public class ApiInspectorTest extends KafkaAbstractTest {
                 id, command);
         producer.send(producerRecord).get();
         producer.close();
+
+        Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
+        consumer.subscribe(List.of(TEMPLATE));
+        consumer.close();
         return id;
     }
 
@@ -100,7 +106,7 @@ public class ApiInspectorTest extends KafkaAbstractTest {
         Context context = BeanUtil.createContext();
         RiskScore riskScore = client.inspectPayment(context);
 
-        Assert.assertEquals(riskScore, RiskScore.low);
+        Assert.assertEquals(RiskScore.low, riskScore);
     }
 
 }

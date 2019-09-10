@@ -11,6 +11,7 @@ import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -118,4 +119,12 @@ public abstract class KafkaAbstractTest {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return new KafkaConsumer<>(props);
     }
+
+    protected void recurPolling(Consumer<String, Object> consumer) {
+        ConsumerRecords<String, Object> poll = consumer.poll(Duration.ofSeconds(5));
+        if (poll.isEmpty()) {
+            recurPolling(consumer);
+        }
+    }
+
 }
