@@ -124,11 +124,6 @@ public abstract class KafkaAbstractTest {
         ConsumerRecords<String, Object> poll = consumer.poll(Duration.ofSeconds(5));
         if (poll.isEmpty()) {
             recurPolling(consumer);
-            try {
-                Thread.sleep(5000L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 
