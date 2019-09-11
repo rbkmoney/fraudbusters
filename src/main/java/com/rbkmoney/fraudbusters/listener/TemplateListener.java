@@ -17,11 +17,12 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TemplateListener {
+public class TemplateListener implements CommandListener {
 
     private final FraudContextParser fraudContextParser;
     private final Pool<FraudoParser.ParseContext> templatePoolImpl;
 
+    @Override
     @KafkaListener(topics = "${kafka.topic.template}", containerFactory = "templateListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("TemplateListener command: {}", command);

@@ -13,10 +13,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TemplateReferenceListener {
+public class TemplateReferenceListener implements CommandListener {
 
     private final Pool<String> referencePoolImpl;
 
+    @Override
     @KafkaListener(topics = "${kafka.topic.reference}", containerFactory = "referenceListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("TemplateReferenceListener command: {}", command);

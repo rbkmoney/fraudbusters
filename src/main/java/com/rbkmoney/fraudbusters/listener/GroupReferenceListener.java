@@ -13,10 +13,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GroupReferenceListener {
+public class GroupReferenceListener implements CommandListener {
 
     private final Pool<String> groupReferencePoolImpl;
 
+    @Override
     @KafkaListener(topics = "${kafka.topic.group.reference}", containerFactory = "referenceGroupListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("GroupReferenceListener command: {}", command);

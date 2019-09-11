@@ -3,7 +3,6 @@ package com.rbkmoney.fraudbusters.listener;
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.Group;
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
-import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +18,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GroupListener {
+public class GroupListener implements CommandListener {
 
     private final Pool<List<String>> groupPoolImpl;
 
+    @Override
     @KafkaListener(topics = "${kafka.topic.group.list}", containerFactory = "groupListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("GroupListener command: {}", command);

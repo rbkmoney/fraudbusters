@@ -53,13 +53,13 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
             long startPreloadTime = System.currentTimeMillis();
-            Thread threadTemplate = new Thread(this::waitForLoadTemplates);
+            Thread threadTemplate = new Thread(() -> waitPreLoad(templateListenerFactory, topic, templateListener));
             threadTemplate.start();
-            Thread threadReference = new Thread(this::waitForLoadReferences);
+            Thread threadReference = new Thread(() -> waitPreLoad(referenceListenerFactory, topicReference, templateReferenceListener));
             threadReference.start();
-            Thread threadGroup = new Thread(this::waitForLoadGroups);
+            Thread threadGroup = new Thread(() -> waitPreLoad(groupListenerFactory, topicGroup, groupListener));
             threadGroup.start();
-            Thread threadGroupReference = new Thread(this::waitForLoadGroupReferences);
+            Thread threadGroupReference = new Thread(() -> waitPreLoad(groupReferenceListenerFactory, topicGroupReference, groupReferenceListener));
             threadGroupReference.start();
             threadTemplate.join(PRELOAD_TIMEOUT);
             threadReference.join(PRELOAD_TIMEOUT);
@@ -78,27 +78,9 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
         kafkaStreams.close(Duration.ofSeconds(10L));
     }
 
-    private void waitForLoadTemplates() {
-        Consumer<String, Command> consumer = templateListenerFactory.createConsumer();
-        preloadListener.preloadToLastOffsetInPartition(consumer, topic, 0, templateListener::listen);
-        consumer.close();
-    }
-
-    private void waitForLoadGroups() {
+    private void waitPreLoad(ConsumerFactory<String, Command> groupListenerFactory, String topic, CommandListener listener) {
         Consumer<String, Command> consumer = groupListenerFactory.createConsumer();
-        preloadListener.preloadToLastOffsetInPartition(consumer, topicGroup, 0, groupListener::listen);
-        consumer.close();
-    }
-
-    private void waitForLoadReferences() {
-        Consumer<String, Command> consumer = referenceListenerFactory.createConsumer();
-        preloadListener.preloadToLastOffsetInPartition(consumer, topicReference, 0, templateReferenceListener::listen);
-        consumer.close();
-    }
-
-    private void waitForLoadGroupReferences() {
-        Consumer<String, Command> consumer = groupReferenceListenerFactory.createConsumer();
-        preloadListener.preloadToLastOffsetInPartition(consumer, topicGroupReference, 0, groupReferenceListener::listen);
+        preloadListener.preloadToLastOffsetInPartition(consumer, topic, 0, listener::listen);
         consumer.close();
     }
 }
