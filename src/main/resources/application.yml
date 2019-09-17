@@ -33,6 +33,9 @@ kafka:
     result: result
     template: template
     reference: template_reference
+    event.sink:
+      clean: event_sink
+      aggregated: aggregated_event_sink
     group:
       list: group_list
       reference: group_reference

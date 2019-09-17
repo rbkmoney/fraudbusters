@@ -6,8 +6,12 @@ import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.serde.FraudRequestSerializer;
+import com.rbkmoney.fraudbusters.serde.MachineEventSerializer;
+import com.rbkmoney.fraudbusters.serde.SinkEventDeserializer;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
+import com.rbkmoney.machinegun.eventsink.MachineEvent;
+import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -64,6 +68,10 @@ public abstract class KafkaAbstractTest {
     public String groupTopic;
     @Value("${kafka.topic.group.reference}")
     public String groupReferenceTopic;
+    @Value("${kafka.topic.event.sink.clean}")
+    public String eventSinkTopic;
+    @Value("${kafka.topic.event.sink.aggregated}")
+    public String aggregatedEventSink;
 
     public static Producer<String, Command> createProducer() {
         Properties props = new Properties();
@@ -83,6 +91,15 @@ public abstract class KafkaAbstractTest {
         return new KafkaProducer<>(props);
     }
 
+    public static Producer<String, SinkEvent> createProducerAggr() {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("aggr"));
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class.getName());
+        return new KafkaProducer<>(props);
+    }
+
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
@@ -94,6 +111,8 @@ public abstract class KafkaAbstractTest {
             initTopic("template_reference");
             initTopic("group_list");
             initTopic("group_reference");
+            initTopic("event_sink");
+            initTopic("aggregated_event_sink");
         }
 
         @NotNull
