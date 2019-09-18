@@ -34,6 +34,7 @@ public class MgEventAggregator implements Aggregator<String, MgEventSinkRow, MgE
         aggregate.setAmount(changeIfNotNull(aggregate.getAmount(), value.getAmount()));
         aggregate.setCountry(changeIfNotNull(aggregate.getCountry(), value.getCountry()));
         aggregate.setTimestamp(changeIfNotNull(aggregate.getTimestamp(), value.getTimestamp()));
+        aggregate.setEventTime(changeIfNotNull(aggregate.getEventTime(), value.getEventTime()));
         log.info("Merge result={}", aggregate);
         return aggregate;
     }

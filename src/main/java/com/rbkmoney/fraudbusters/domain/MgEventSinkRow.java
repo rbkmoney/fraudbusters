@@ -1,6 +1,8 @@
 package com.rbkmoney.fraudbusters.domain;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 
@@ -8,6 +10,7 @@ import java.sql.Date;
 public class MgEventSinkRow {
 
     private Date timestamp;
+    private Long eventTime;
     private String ip;
     private String email;
     private String bin;

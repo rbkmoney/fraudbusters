@@ -38,6 +38,7 @@ public class KafkaConfig {
     private static final String REFERENCE_GROUP_ID = "reference-listener";
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "result-aggregator";
+    private static final String MG_EVENT_SINK_AGGREGATOR = "mg-event-sink-aggregator";
 
     private static final String FRAUD_BUSTERS_CLIENT = "fraud-busters-client";
     public static final String APP_POSTFIX = "app";
@@ -200,6 +201,18 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, FraudResult> resultListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, FraudResult> factory = new ConcurrentKafkaListenerContainerFactory<>();
         String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
+        final Map<String, Object> props = createDefaultProperties(consumerGroup);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
+        DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
+                new StringDeserializer(), new FraudoResultDeserializer());
+        factory.setConsumerFactory(consumerFactory);
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, FraudResult> mgEventSinkListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, FraudResult> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        String consumerGroup = consumerGroupIdService.generateGroupId(MG_EVENT_SINK_AGGREGATOR);
         final Map<String, Object> props = createDefaultProperties(consumerGroup);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,

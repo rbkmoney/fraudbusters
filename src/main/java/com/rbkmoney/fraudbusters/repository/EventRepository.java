@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.repository;
 
 import com.google.common.collect.Lists;
+import com.rbkmoney.fraudbusters.constant.ClickhouseSchemeNames;
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
@@ -36,8 +37,8 @@ public class EventRepository implements CrudRepository<Event> {
         if (value != null) {
             Map<String, Object> parameters = EventParametersGenerator.generateParamsByFraudModel(value);
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
-                    .withSchemaName("fraud")
-                    .withTableName("events_unique");
+                    .withSchemaName(ClickhouseSchemeNames.FRAUD)
+                    .withTableName(ClickhouseSchemeNames.EVENTS_UNIQUE);
             simpleJdbcInsert.setColumnNames(Lists.newArrayList(parameters.keySet()));
             simpleJdbcInsert
                     .execute(parameters);

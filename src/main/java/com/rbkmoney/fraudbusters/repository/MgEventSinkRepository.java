@@ -1,13 +1,15 @@
 package com.rbkmoney.fraudbusters.repository;
 
 import com.google.common.collect.Lists;
-import com.rbkmoney.fraudbusters.constant.EventField;
-import com.rbkmoney.fraudbusters.domain.Event;
+import com.rbkmoney.fraudbusters.constant.ClickhouseSchemeNames;
+import com.rbkmoney.fraudbusters.constant.MgEventSinkField;
+import com.rbkmoney.fraudbusters.constant.MgEventSinkField;
+import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
-import com.rbkmoney.fraudbusters.repository.setter.EventBatchPreparedStatementSetter;
-import com.rbkmoney.fraudbusters.repository.setter.EventParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.setter.MgEventSinkBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.repository.setter.MgEventSinkParametersGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,22 +24,17 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EventSinkMgRepository implements CrudRepository<Event> {
+public class MgEventSinkRepository implements CrudRepository<MgEventSinkRow> {
 
     private final JdbcTemplate jdbcTemplate;
 
-    private static final String INSERT = "INSERT INTO fraud.events_unique " +
-            "(timestamp, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount, eventTime, " +
-            "country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName, cardToken, paymentId, checkedTemplate)" +
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
     @Override
-    public void insert(Event value) {
+    public void insert(MgEventSinkRow value) {
         if (value != null) {
-            Map<String, Object> parameters = EventParametersGenerator.generateParamsByFraudModel(value);
+            Map<String, Object> parameters = MgEventSinkParametersGenerator.generateParamsByFraudModel(value);
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
-                    .withSchemaName("fraud")
-                    .withTableName("events_unique");
+                    .withSchemaName(ClickhouseSchemeNames.FRAUD)
+                    .withTableName(ClickhouseSchemeNames.EVENTS_SINK_MG);
             simpleJdbcInsert.setColumnNames(Lists.newArrayList(parameters.keySet()));
             simpleJdbcInsert
                     .execute(parameters);
@@ -45,24 +42,24 @@ public class EventSinkMgRepository implements CrudRepository<Event> {
     }
 
     @Override
-    public void insertBatch(List<Event> events) {
-        if (events != null && !events.isEmpty()) {
-            jdbcTemplate.batchUpdate(INSERT, new EventBatchPreparedStatementSetter(events));
+    public void insertBatch(List<MgEventSinkRow> mgEventSinkRows) {
+        if (mgEventSinkRows != null && !mgEventSinkRows.isEmpty()) {
+            jdbcTemplate.batchUpdate(MgEventSinkBatchPreparedStatementSetter.INSERT, new MgEventSinkBatchPreparedStatementSetter(mgEventSinkRows));
         }
     }
 
-    public Integer countOperationByField(EventField fieldName, String value, Long from, Long to) {
+    public Integer countOperationByField(MgEventSinkField fieldName, String value, Long from, Long to) {
         String sql = String.format("select %1$s, count() as cnt " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ?)" +
                 "group by %1$s", fieldName.name());
         return jdbcTemplate.query(sql, new Object[]{from, to, value}, new CountExtractor());
     }
 
-    public Integer countOperationByFieldWithGroupBy(EventField fieldName, String value, Long from, Long to,
+    public Integer countOperationByFieldWithGroupBy(MgEventSinkField fieldName, String value, Long from, Long to,
                                                     List<FieldResolver.FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format("select %1$s, count() as cnt " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where eventTime >= ? and eventTime <= ? and %1$s = ? ", fieldName.name()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format(" group by %1$s ", fieldName.name()));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
@@ -80,19 +77,19 @@ public class EventSinkMgRepository implements CrudRepository<Event> {
         return sql.append(sqlGroupBy.toString());
     }
 
-    public Integer countOperationSuccess(EventField fieldName, String value, Long from, Long to) {
+    public Integer countOperationSuccess(MgEventSinkField fieldName, String value, Long from, Long to) {
         String sql = String.format("select %1$s, count() as cnt " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus in (?, ?, ?))" +
                 "group by %1$s", fieldName.name());
         return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.ACCEPT.toString(),
                 ResultStatus.NORMAL.toString(), ResultStatus.THREE_DS.toString()}, new CountExtractor());
     }
 
-    public Integer countOperationSuccessWithGroupBy(EventField fieldName, String value, Long from, Long to,
+    public Integer countOperationSuccessWithGroupBy(MgEventSinkField fieldName, String value, Long from, Long to,
                                                     List<FieldResolver.FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format("select %1$s, count() as cnt " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus in (?, ?, ?) ", fieldName.name()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName.name()));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
@@ -101,18 +98,18 @@ public class EventSinkMgRepository implements CrudRepository<Event> {
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
-    public Integer countOperationError(EventField fieldName, String value, Long from, Long to) {
+    public Integer countOperationError(MgEventSinkField fieldName, String value, Long from, Long to) {
         String sql = String.format("select %1$s, count() as cnt " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ?)" +
                 "group by %1$s", fieldName.name());
         return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.DECLINE.toString()}, new CountExtractor());
     }
 
-    public Integer countOperationErrorWithGroupBy(EventField fieldName, String value, Long from, Long to,
+    public Integer countOperationErrorWithGroupBy(MgEventSinkField fieldName, String value, Long from, Long to,
                                                   List<FieldResolver.FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format("select %1$s, count() as cnt " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ? ", fieldName.name()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName.name()));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
@@ -120,18 +117,18 @@ public class EventSinkMgRepository implements CrudRepository<Event> {
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
-    public Long sumOperationByField(EventField fieldName, String value, Long from, Long to) {
+    public Long sumOperationByField(MgEventSinkField fieldName, String value, Long from, Long to) {
         String sql = String.format("select %1$s, sum(amount) as sum " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ?)" +
                 "group by %1$s", fieldName.name());
         return jdbcTemplate.query(sql, new Object[]{from, to, value}, new SumExtractor());
     }
 
-    public Long sumOperationByFieldWithGroupBy(EventField fieldName, String value, Long from, Long to,
+    public Long sumOperationByFieldWithGroupBy(MgEventSinkField fieldName, String value, Long from, Long to,
                                                List<FieldResolver.FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format("select %1$s, sum(amount) as sum " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where eventTime >= ? and eventTime <= ? and %1$s = ? ", fieldName.name()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName.name()));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
@@ -139,19 +136,19 @@ public class EventSinkMgRepository implements CrudRepository<Event> {
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
-    public Long sumOperationSuccess(EventField fieldName, String value, Long from, Long to) {
+    public Long sumOperationSuccess(MgEventSinkField fieldName, String value, Long from, Long to) {
         String sql = String.format("select %1$s, sum(amount) as sum " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where  (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus in (?, ?, ?))" +
                 "group by %1$s", fieldName.name());
         return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.ACCEPT.toString(),
                 ResultStatus.NORMAL.toString(), ResultStatus.THREE_DS.toString()}, new SumExtractor());
     }
 
-    public Long sumOperationSuccessWithGroupBy(EventField fieldName, String value, Long from, Long to,
+    public Long sumOperationSuccessWithGroupBy(MgEventSinkField fieldName, String value, Long from, Long to,
                                                List<FieldResolver.FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format("select %1$s, sum(amount) as sum " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus in (?, ?, ?))", fieldName.name()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName.name()));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
@@ -160,19 +157,19 @@ public class EventSinkMgRepository implements CrudRepository<Event> {
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
-    public Long sumOperationError(EventField fieldName, String value, Long from, Long to) {
+    public Long sumOperationError(MgEventSinkField fieldName, String value, Long from, Long to) {
         String sql = String.format("select %1$s, sum(amount) as sum " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where  (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ?)" +
                 "group by %1$s", fieldName);
         return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.DECLINE.toString()},
                 new SumExtractor());
     }
 
-    public Long sumOperationErrorWithGroupBy(EventField fieldName, String value, Long from, Long to,
+    public Long sumOperationErrorWithGroupBy(MgEventSinkField fieldName, String value, Long from, Long to,
                                              List<FieldResolver.FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format("select %1$s, sum(amount) as sum " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ?)", fieldName));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
@@ -180,18 +177,18 @@ public class EventSinkMgRepository implements CrudRepository<Event> {
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
-    public Integer uniqCountOperation(EventField fieldNameBy, String value, EventField fieldNameCount, Long from, Long to) {
+    public Integer uniqCountOperation(MgEventSinkField fieldNameBy, String value, MgEventSinkField fieldNameCount, Long from, Long to) {
         String sql = String.format("select %1$s, uniq(%2$s) as cnt " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ?) " +
                 "group by %1$s", fieldNameBy, fieldNameCount);
         return jdbcTemplate.query(sql, new Object[]{from, to, value}, new CountExtractor());
     }
 
-    public Integer uniqCountOperationWithGroupBy(EventField fieldNameBy, String value, EventField fieldNameCount,
+    public Integer uniqCountOperationWithGroupBy(MgEventSinkField fieldNameBy, String value, MgEventSinkField fieldNameCount,
                                                  Long from, Long to, List<FieldResolver.FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format("select %1$s, uniq(%2$s) as cnt " +
-                "from fraud.events_unique " +
+                "from fraud.events_sink_mg " +
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ?) ", fieldNameBy, fieldNameCount));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldNameBy));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);

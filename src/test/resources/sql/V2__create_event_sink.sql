@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS fraud.events_sink_mg;
 
 create table fraud.events_sink_mg (
   timestamp Date,
+  eventTime UInt64,
   shopId String,
   partyId String,
   ip String,
@@ -12,7 +13,6 @@ create table fraud.events_sink_mg (
   errorCode String,
   errorMessage String,
   amount UInt64,
-  eventTime UInt64,
   country String,
   bankCountry String,
   currency String,
