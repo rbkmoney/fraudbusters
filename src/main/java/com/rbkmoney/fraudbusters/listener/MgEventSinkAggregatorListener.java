@@ -19,7 +19,7 @@ public class MgEventSinkAggregatorListener {
 
     @KafkaListener(topics = "${kafka.topic.event.sink.aggregated}", containerFactory = "mgEventSinkListenerContainerFactory")
     public void listen(List<MgEventSinkRow> batch) {
-        log.info("MgEventSinkAggregatorListener listen result: {}", batch);
+        log.info("MgEventSinkAggregatorListener listen batch.size: {}", batch.size());
         mgEventSinkRepository.insertBatch(batch);
     }
 }

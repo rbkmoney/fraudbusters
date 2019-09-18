@@ -80,46 +80,6 @@ public class EventRepository implements CrudRepository<Event> {
         return sql.append(sqlGroupBy.toString());
     }
 
-    public Integer countOperationSuccess(String fieldName, String value, Long from, Long to) {
-        String sql = String.format("select %1$s, count() as cnt " +
-                "from fraud.events_unique " +
-                "where (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus in (?, ?, ?))" +
-                "group by %1$s", fieldName);
-        return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.ACCEPT.toString(),
-                ResultStatus.NORMAL.toString(), ResultStatus.THREE_DS.toString()}, new CountExtractor());
-    }
-
-    public Integer countOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to,
-                                                    List<FieldResolver.FieldModel> fieldModels) {
-        StringBuilder sql = new StringBuilder(String.format("select %1$s, count() as cnt " +
-                "from fraud.events_unique " +
-                "where eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus in (?, ?, ?) ", fieldName));
-        StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsUtils.initParams(fieldModels, from, to, value, ResultStatus.ACCEPT.toString(),
-                ResultStatus.NORMAL.toString(), ResultStatus.THREE_DS.toString());
-        return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
-    }
-
-    public Integer countOperationError(String fieldName, String value, Long from, Long to) {
-        String sql = String.format("select %1$s, count() as cnt " +
-                "from fraud.events_unique " +
-                "where (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ?)" +
-                "group by %1$s", fieldName);
-        return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.DECLINE.toString()}, new CountExtractor());
-    }
-
-    public Integer countOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
-                                                  List<FieldResolver.FieldModel> fieldModels) {
-        StringBuilder sql = new StringBuilder(String.format("select %1$s, count() as cnt " +
-                "from fraud.events_unique " +
-                "where eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ? ", fieldName));
-        StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsUtils.initParams(fieldModels, from, to, value, ResultStatus.DECLINE.toString());
-        return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
-    }
-
     public Long sumOperationByField(String fieldName, String value, Long from, Long to) {
         String sql = String.format("select %1$s, sum(amount) as sum " +
                 "from fraud.events_unique " +
@@ -136,47 +96,6 @@ public class EventRepository implements CrudRepository<Event> {
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
         ArrayList<Object> params = ParamsUtils.initParams(fieldModels, from, to, value);
-        return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
-    }
-
-    public Long sumOperationSuccess(String fieldName, String value, Long from, Long to) {
-        String sql = String.format("select %1$s, sum(amount) as sum " +
-                "from fraud.events_unique " +
-                "where  (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus in (?, ?, ?))" +
-                "group by %1$s", fieldName);
-        return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.ACCEPT.toString(),
-                ResultStatus.NORMAL.toString(), ResultStatus.THREE_DS.toString()}, new SumExtractor());
-    }
-
-    public Long sumOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to,
-                                               List<FieldResolver.FieldModel> fieldModels) {
-        StringBuilder sql = new StringBuilder(String.format("select %1$s, sum(amount) as sum " +
-                "from fraud.events_unique " +
-                "where (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus in (?, ?, ?))", fieldName));
-        StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsUtils.initParams(fieldModels, from, to, value, ResultStatus.ACCEPT.toString(),
-                ResultStatus.NORMAL.toString(), ResultStatus.THREE_DS.toString());
-        return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
-    }
-
-    public Long sumOperationError(String fieldName, String value, Long from, Long to) {
-        String sql = String.format("select %1$s, sum(amount) as sum " +
-                "from fraud.events_unique " +
-                "where  (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ?)" +
-                "group by %1$s", fieldName);
-        return jdbcTemplate.query(sql, new Object[]{from, to, value, ResultStatus.DECLINE.toString()},
-                new SumExtractor());
-    }
-
-    public Long sumOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
-                                             List<FieldResolver.FieldModel> fieldModels) {
-        StringBuilder sql = new StringBuilder(String.format("select %1$s, sum(amount) as sum " +
-                "from fraud.events_unique " +
-                "where (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ?)", fieldName));
-        StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsUtils.initParams(fieldModels, from, to, value, ResultStatus.DECLINE.toString());
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
