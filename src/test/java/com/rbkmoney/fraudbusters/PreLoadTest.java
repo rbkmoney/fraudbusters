@@ -180,6 +180,8 @@ public class PreLoadTest extends KafkaAbstractTest {
 
         Assert.assertFalse(poll.isEmpty());
         Iterator<ConsumerRecord<String, MgEventSinkRow>> iterator = poll.iterator();
+        Assert.assertEquals(1, poll.count());
+
         ConsumerRecord<String, MgEventSinkRow> record = iterator.next();
         MgEventSinkRow value = record.value();
         Assert.assertEquals(ResultStatus.CAPTURED.name(), value.getResultStatus());
