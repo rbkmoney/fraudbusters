@@ -204,7 +204,7 @@ public class MgEventSinkRepositoryTest {
         Long to = TimestampUtil.generateTimestampNow(now);
         mgEventSinkRow.setTimestamp(new Date(to));
         mgEventSinkRow.setEventTime(to);
-        mgEventSinkRow.setBin("1234");
+        mgEventSinkRow.setBin(BeanUtil.BIN);
         return mgEventSinkRow;
     }
 

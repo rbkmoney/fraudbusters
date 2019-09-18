@@ -2,10 +2,8 @@ package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
-import com.rbkmoney.fraudbusters.serde.FraudRequestSerde;
-import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
-import com.rbkmoney.fraudbusters.serde.MgEventSinkRowSerde;
+import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
+import com.rbkmoney.fraudbusters.serde.*;
 import com.rbkmoney.fraudbusters.service.ConsumerGroupIdService;
 import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
 import lombok.RequiredArgsConstructor;
@@ -217,13 +215,13 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, FraudResult> mgEventSinkListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, FraudResult> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, MgEventSinkRow> mgEventSinkListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, MgEventSinkRow> factory = new ConcurrentKafkaListenerContainerFactory<>();
         String consumerGroup = consumerGroupIdService.generateGroupId(MG_EVENT_SINK_AGGREGATOR);
         final Map<String, Object> props = createDefaultProperties(consumerGroup);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
-        DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
-                new StringDeserializer(), new FraudoResultDeserializer());
+        DefaultKafkaConsumerFactory<String, MgEventSinkRow> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
+                new StringDeserializer(), new MgEventSinkRowDeserializer());
         factory.setConsumerFactory(consumerFactory);
         return factory;
     }

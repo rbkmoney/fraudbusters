@@ -29,7 +29,7 @@ public class BeanUtil {
     public static final String PARTY_ID = "partyId";
     public static final String IP = "ip";
     public static final String EMAIL = "email";
-    public static final String BIN = "bin";
+    public static final String BIN = "666";
     public static final String SUFIX = "_2";
     public static final Long AMOUNT_SECOND = 1000L;
     public static final Long AMOUNT_FIRST = 10500L;
@@ -94,7 +94,7 @@ public class BeanUtil {
             BankCard value = new BankCard(
                     "477bba133c182267fe5f086924abdc5db71f77bfc27f01f2843f2cdc69d89f05",
                     BankCardPaymentSystem.mastercard,
-                    "424242",
+                    BIN,
                     "4242"
             );
             value.setIssuerCountry(Residence.RUS);

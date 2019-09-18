@@ -57,7 +57,6 @@ public class PreLoadTest extends KafkaAbstractTest {
     private static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
     private static final String TEST = "test";
-    public static final String BIN = "1234";
 
     private InspectorProxySrv.Iface client;
 
@@ -185,7 +184,7 @@ public class PreLoadTest extends KafkaAbstractTest {
         ConsumerRecord<String, MgEventSinkRow> record = iterator.next();
         MgEventSinkRow value = record.value();
         Assert.assertEquals(ResultStatus.CAPTURED.name(), value.getResultStatus());
-        Assert.assertEquals(BIN, value.getBin());
+        Assert.assertEquals(BeanUtil.SHOP_ID, value.getShopId());
 
         kafkaStreams.close();
     }
