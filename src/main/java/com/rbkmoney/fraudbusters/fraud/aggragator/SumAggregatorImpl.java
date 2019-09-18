@@ -1,9 +1,9 @@
 package com.rbkmoney.fraudbusters.fraud.aggragator;
 
-import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
+import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.constant.CheckedField;
@@ -21,6 +21,7 @@ import java.util.List;
 public class SumAggregatorImpl implements SumAggregator {
 
     private final EventRepository eventRepository;
+    private final MgEventSinkRepository mgEventSinkRepository;
     private final FieldResolver fieldResolver;
 
     @Override
@@ -35,27 +36,27 @@ public class SumAggregatorImpl implements SumAggregator {
 
     @Override
     public Double sumSuccess(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes) {
-        return getSum(checkedField, fraudModel, timeInMinutes, eventRepository::sumOperationSuccess);
+        return getSum(checkedField, fraudModel, timeInMinutes, mgEventSinkRepository::sumOperationSuccess);
     }
 
     @Override
     public Double sumSuccess(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list) {
-        return getSum(checkedField, fraudModel, timeWindow, list, eventRepository::sumOperationSuccessWithGroupBy);
+        return getSum(checkedField, fraudModel, timeWindow, list, mgEventSinkRepository::sumOperationSuccessWithGroupBy);
     }
 
     @Override
     public Double sumError(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes, String errorCode) {
-        return getSum(checkedField, fraudModel, timeInMinutes, eventRepository::sumOperationError);
+        return getSum(checkedField, fraudModel, timeInMinutes, mgEventSinkRepository::sumOperationError);
     }
 
     @Override
     public Double sumError(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, String s, List<CheckedField> list) {
-        return getSum(checkedField, fraudModel, timeWindow, list, eventRepository::sumOperationErrorWithGroupBy);
+        return getSum(checkedField, fraudModel, timeWindow, list, mgEventSinkRepository::sumOperationErrorWithGroupBy);
     }
 
     @NotNull
     private Double getSum(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes,
-                          AggregateFunction<EventField, String, Long, Long, Long> aggregateFunction) {
+                          AggregateFunction<String, String, Long, Long, Long> aggregateFunction) {
         try {
             Instant now = Instant.now();
             FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
@@ -73,7 +74,7 @@ public class SumAggregatorImpl implements SumAggregator {
 
     @NotNull
     private Double getSum(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list,
-                          AggregateGroupingFunction<EventField, String, Long, Long, List<FieldResolver.FieldModel>, Long> aggregateFunction) {
+                          AggregateGroupingFunction<String, String, Long, Long, List<FieldResolver.FieldModel>, Long> aggregateFunction) {
         try {
             Instant now = Instant.now();
             FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);

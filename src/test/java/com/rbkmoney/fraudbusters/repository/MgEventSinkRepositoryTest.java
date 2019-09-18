@@ -155,7 +155,7 @@ public class MgEventSinkRepositoryTest {
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         Long to = TimestampUtil.generateTimestampNow(now);
 
-        int count = mgEventSinkRepository.countOperationByField(MgEventSinkField.email, TEST_MAIL_RU, from, to);
+        int count = mgEventSinkRepository.countOperationByField(MgEventSinkField.email.name(), TEST_MAIL_RU, from, to);
         Assert.assertEquals(2, count);
     }
 
@@ -171,7 +171,7 @@ public class MgEventSinkRepositoryTest {
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         Long to = TimestampUtil.generateTimestampNow(now);
 
-        int count = mgEventSinkRepository.countOperationByFieldWithGroupBy(MgEventSinkField.email, defaultMgEvent.getEmail(), from, to, List.of());
+        int count = mgEventSinkRepository.countOperationByFieldWithGroupBy(MgEventSinkField.email.name(), defaultMgEvent.getEmail(), from, to, List.of());
         Assert.assertEquals(3, count);
 
         FraudModel fraudModelSecond = BeanUtil.createFraudModelSecond();
@@ -179,7 +179,7 @@ public class MgEventSinkRepositoryTest {
         fraudModelSecond.setPartyId(PARTY_ID + "_1");
 
         FieldResolver.FieldModel resolve = fieldResolver.resolve(CheckedField.PARTY_ID, fraudModelSecond);
-        count = mgEventSinkRepository.countOperationByFieldWithGroupBy(MgEventSinkField.email, fraudModelSecond.getEmail(), from, to, List.of(resolve));
+        count = mgEventSinkRepository.countOperationByFieldWithGroupBy(MgEventSinkField.email.name(), fraudModelSecond.getEmail(), from, to, List.of(resolve));
         Assert.assertEquals(1, count);
     }
 

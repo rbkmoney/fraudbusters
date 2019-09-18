@@ -33,7 +33,7 @@ public class InGreyListFinderImpl implements InListFinder {
                 RowInfo rowInfo = result.getRowInfo();
                 String startCountTime = rowInfo.getCountInfo().getStartCountTime();
                 String ttl = rowInfo.getCountInfo().getTimeToLive();
-                EventField resolve = fieldResolver.resolve(field);
+                String resolve = fieldResolver.resolve(field);
                 Long to = TimestampUtil.generateTimestampWithParse(ttl);
                 Long from = TimestampUtil.generateTimestampWithParse(startCountTime);
                 if (Instant.now().getEpochSecond() > to || from >= to) {
