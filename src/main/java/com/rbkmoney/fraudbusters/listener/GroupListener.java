@@ -27,20 +27,15 @@ public class GroupListener implements CommandListener {
     public void listen(@Payload Command command) {
         log.info("GroupListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetGroup()) {
-            Group group = command.getCommandBody().getGroup();
-            List<String> sortedListTemplates = group.template_ids.stream()
-                    .sorted(Comparator.comparing(PriorityId::getPriority))
-                    .map(PriorityId::getId)
-                    .collect(Collectors.toList());
-            execCommand(command, sortedListTemplates);
+            execCommand(command);
         }
     }
 
-    private void execCommand(Command command, List<String> sortedListTemplates) {
+    private void execCommand(Command command) {
         Group group = command.getCommandBody().getGroup();
         switch (command.command_type) {
             case CREATE:
-                groupPoolImpl.add(group.getGroupId(), sortedListTemplates);
+                createGroup(group);
                 return;
             case DELETE:
                 groupPoolImpl.remove(group.getGroupId());
@@ -49,4 +44,13 @@ public class GroupListener implements CommandListener {
                 log.error("Unknown command: {}", command);
         }
     }
+
+    private void createGroup(Group group) {
+        List<String> sortedListTemplates = group.template_ids.stream()
+                .sorted(Comparator.comparing(PriorityId::getPriority))
+                .map(PriorityId::getId)
+                .collect(Collectors.toList());
+        groupPoolImpl.add(group.getGroupId(), sortedListTemplates);
+    }
+
 }

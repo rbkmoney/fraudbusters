@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.listener;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
+import com.rbkmoney.fraudbusters.exception.StartException;
 import com.rbkmoney.fraudbusters.stream.TemplateStreamFactoryImpl;
 import com.rbkmoney.kafka.common.loader.PreloadListener;
 import com.rbkmoney.kafka.common.loader.PreloadListenerImpl;
@@ -15,14 +16,20 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    public static final long PRELOAD_TIMEOUT = 30000L;
+    public static final long PRELOAD_TIMEOUT = 30L;
+    public static final int COUNT_PRELOAD_TASKS = 4;
     private final TemplateStreamFactoryImpl templateStreamFactoryImpl;
     private final Properties fraudStreamProperties;
     private final ConsumerFactory<String, Command> templateListenerFactory;
@@ -38,7 +45,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private PreloadListener<String, Command> preloadListener = new PreloadListenerImpl<>();
 
     @Value("${kafka.topic.template}")
-    private String topic;
+    private String topicTemplate;
 
     @Value("${kafka.topic.reference}")
     private String topicReference;
@@ -53,18 +60,23 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
             long startPreloadTime = System.currentTimeMillis();
-            Thread threadTemplate = new Thread(() -> waitPreLoad(templateListenerFactory, topic, templateListener));
-            threadTemplate.start();
-            Thread threadReference = new Thread(() -> waitPreLoad(referenceListenerFactory, topicReference, templateReferenceListener));
-            threadReference.start();
-            Thread threadGroup = new Thread(() -> waitPreLoad(groupListenerFactory, topicGroup, groupListener));
-            threadGroup.start();
-            Thread threadGroupReference = new Thread(() -> waitPreLoad(groupReferenceListenerFactory, topicGroupReference, groupReferenceListener));
-            threadGroupReference.start();
-            threadTemplate.join(PRELOAD_TIMEOUT);
-            threadReference.join(PRELOAD_TIMEOUT);
-            threadGroup.join(PRELOAD_TIMEOUT);
-            threadGroupReference.join(PRELOAD_TIMEOUT);
+
+            ExecutorService executorService = Executors.newFixedThreadPool(COUNT_PRELOAD_TASKS);
+            CountDownLatch latch = new CountDownLatch(COUNT_PRELOAD_TASKS);
+            List<Runnable> tasks = List.of(
+                    () -> waitPreLoad(latch, templateListenerFactory, topicTemplate, templateListener),
+                    () -> waitPreLoad(latch, referenceListenerFactory, topicReference, templateReferenceListener),
+                    () -> waitPreLoad(latch, groupListenerFactory, topicGroup, groupListener),
+                    () -> waitPreLoad(latch, groupReferenceListenerFactory, topicGroupReference, groupReferenceListener)
+            );
+            tasks.forEach(executorService::submit);
+            long timeout = PRELOAD_TIMEOUT * COUNT_PRELOAD_TASKS;
+            boolean await = latch.await(timeout, TimeUnit.SECONDS);
+
+            if (!await) {
+                throw new StartException("Cant load all rules by timeout: " + timeout);
+            }
+
             kafkaStreams = templateStreamFactoryImpl.create(fraudStreamProperties);
             log.info("StartupListener start stream preloadTime: {} ms kafkaStreams: {}", System.currentTimeMillis() - startPreloadTime,
                     kafkaStreams.allMetadata());
@@ -78,9 +90,11 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
         kafkaStreams.close(Duration.ofSeconds(10L));
     }
 
-    private void waitPreLoad(ConsumerFactory<String, Command> groupListenerFactory, String topic, CommandListener listener) {
+    private void waitPreLoad(CountDownLatch latch, ConsumerFactory<String, Command> groupListenerFactory, String topic, CommandListener listener) {
         Consumer<String, Command> consumer = groupListenerFactory.createConsumer();
         preloadListener.preloadToLastOffsetInPartition(consumer, topic, 0, listener::listen);
         consumer.close();
+        latch.countDown();
     }
+
 }

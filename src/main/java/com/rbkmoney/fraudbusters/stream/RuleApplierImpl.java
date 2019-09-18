@@ -51,7 +51,7 @@ public class RuleApplierImpl implements RuleApplier {
         return Optional.empty();
     }
 
-    public Optional<CheckedResultModel> applyForList(FraudModel fraudModel, List<String> templateKeys) {
+    public Optional<CheckedResultModel> applyForAny(FraudModel fraudModel, List<String> templateKeys) {
         if (templateKeys != null) {
             for (String templateKey : templateKeys) {
                 Optional<CheckedResultModel> result = apply(fraudModel, templateKey);

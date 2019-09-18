@@ -61,12 +61,12 @@ public class TemplateVisitorImplTest {
         groupReferencePoolImpl.add(key, GROUP_1);
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setCheckedTemplate(TRUE_TEMPL);
-        Mockito.when(ruleApplier.applyForList(fraudModel, templateIds)).thenReturn(Optional.of(checkedResultModel));
+        Mockito.when(ruleApplier.applyForAny(fraudModel, templateIds)).thenReturn(Optional.of(checkedResultModel));
 
         visit = templateVisitor.visit(fraudModel);
         Assert.assertEquals(TRUE_TEMPL, visit.getCheckedTemplate());
 
-        Mockito.when(ruleApplier.applyForList(fraudModel, templateIds)).thenReturn(Optional.empty());
+        Mockito.when(ruleApplier.applyForAny(fraudModel, templateIds)).thenReturn(Optional.empty());
 
         visit = templateVisitor.visit(fraudModel);
         Assert.assertEquals("RULE_NOT_CHECKED", visit.getCheckedTemplate());

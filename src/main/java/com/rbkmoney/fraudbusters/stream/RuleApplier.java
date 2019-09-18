@@ -10,6 +10,6 @@ public interface RuleApplier {
 
     Optional<CheckedResultModel> apply(FraudModel fraudModel, String templateKey);
 
-    Optional<CheckedResultModel> applyForList(FraudModel fraudModel, List<String> templateKeys);
+    Optional<CheckedResultModel> applyForAny(FraudModel fraudModel, List<String> templateKeys);
 
 }

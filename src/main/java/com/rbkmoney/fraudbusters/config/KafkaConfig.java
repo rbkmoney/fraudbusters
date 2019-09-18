@@ -2,7 +2,10 @@ package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.serde.*;
+import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
+import com.rbkmoney.fraudbusters.serde.FraudRequestSerde;
+import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
+import com.rbkmoney.fraudbusters.serde.MgEventSinkRowSerde;
 import com.rbkmoney.fraudbusters.service.ConsumerGroupIdService;
 import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
 import lombok.RequiredArgsConstructor;
@@ -146,23 +149,27 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Command> templateListenerContainerFactory() {
-        return createDefaultFactory(templateListenerFactory());
+    public ConcurrentKafkaListenerContainerFactory<String, Command> templateListenerContainerFactory(
+            ConsumerFactory<String, Command> templateListenerFactory) {
+        return createDefaultFactory(templateListenerFactory);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Command> groupListenerContainerFactory() {
-        return createDefaultFactory(templateListenerFactory());
+    public ConcurrentKafkaListenerContainerFactory<String, Command> groupListenerContainerFactory(
+            ConsumerFactory<String, Command> groupListenerFactory) {
+        return createDefaultFactory(groupListenerFactory);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Command> referenceListenerContainerFactory() {
-        return createDefaultFactory(referenceListenerFactory());
+    public ConcurrentKafkaListenerContainerFactory<String, Command> referenceListenerContainerFactory(
+            ConsumerFactory<String, Command> referenceListenerFactory) {
+        return createDefaultFactory(referenceListenerFactory);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Command> referenceGroupListenerContainerFactory() {
-        return createDefaultFactory(referenceListenerFactory());
+    public ConcurrentKafkaListenerContainerFactory<String, Command> referenceGroupListenerContainerFactory(
+            ConsumerFactory<String, Command> groupReferenceListenerFactory) {
+        return createDefaultFactory(groupReferenceListenerFactory);
     }
 
     @NotNull

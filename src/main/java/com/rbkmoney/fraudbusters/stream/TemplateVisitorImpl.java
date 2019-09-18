@@ -31,8 +31,8 @@ public class TemplateVisitorImpl implements TemplateVisitor {
         String partyId = fraudModel.getPartyId();
         String partyShopKey = ReferenceKeyGenerator.generateTemplateKey(partyId, fraudModel.getShopId());
         return ruleApplier.apply(fraudModel, referencePoolImpl.get(TemplateLevel.GLOBAL.name()))
-                .orElse(ruleApplier.applyForList(fraudModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyId)))
-                        .orElse(ruleApplier.applyForList(fraudModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyShopKey)))
+                .orElse(ruleApplier.applyForAny(fraudModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyId)))
+                        .orElse(ruleApplier.applyForAny(fraudModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyShopKey)))
                                 .orElse(ruleApplier.apply(fraudModel, referencePoolImpl.get(partyId))
                                         .orElse(ruleApplier.apply(fraudModel, referencePoolImpl.get(partyShopKey))
                                                 .orElse(createDefaultResult())))));
