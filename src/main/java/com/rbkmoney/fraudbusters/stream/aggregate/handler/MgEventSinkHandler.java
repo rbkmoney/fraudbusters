@@ -3,7 +3,6 @@ package com.rbkmoney.fraudbusters.stream.aggregate.handler;
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
-import com.rbkmoney.fraudbusters.listener.event.sink.SourceEventParser;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
