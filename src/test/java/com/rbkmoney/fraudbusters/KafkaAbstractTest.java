@@ -65,7 +65,7 @@ public abstract class KafkaAbstractTest {
     public String groupTopic;
     @Value("${kafka.topic.group.reference}")
     public String groupReferenceTopic;
-    @Value("${kafka.topic.event.sink.clean}")
+    @Value("${kafka.topic.event.sink.initial}")
     public String eventSinkTopic;
     @Value("${kafka.topic.event.sink.aggregated}")
     public String aggregatedEventSink;
