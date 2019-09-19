@@ -21,4 +21,6 @@ create table fraud.events_sink_mg (
   bankName String,
   cardToken String,
   paymentId String
-) ENGINE = MergeTree(timestamp, (shopId, partyId, ip, email, bin, fingerprint, resultStatus, cardToken), 8192);
+) ENGINE = MergeTree()
+PARTITION BY toYYYYMM(timestamp)
+ORDER BY (eventTime, shopId, partyId, ip, email, bin, fingerprint, resultStatus, cardToken);

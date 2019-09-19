@@ -85,8 +85,7 @@ public class KafkaConfig {
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, FraudRequestSerde.class);
-        props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);
-        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
+        props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
         props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
                 clientStoreCertPath, keyStorePassword, keyPassword));
         return props;
@@ -100,8 +99,7 @@ public class KafkaConfig {
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, MgEventSinkRowSerde.class);
-        props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);
-        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
+        props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
         props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
                 clientStoreCertPath, keyStorePassword, keyPassword));
         return props;
@@ -165,7 +163,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Command> referenceGroupListenerContainerFactory(
+    public ConcurrentKafkaListenerContainerFactory<String, Command> groupReferenceListenerContainerFactory(
             ConsumerFactory<String, Command> groupReferenceListenerFactory) {
         return createDefaultFactory(groupReferenceListenerFactory);
     }
