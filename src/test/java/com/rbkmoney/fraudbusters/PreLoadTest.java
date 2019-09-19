@@ -27,6 +27,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StreamsConfig;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
@@ -170,12 +171,14 @@ public class PreLoadTest extends KafkaAbstractTest {
         produceMessageToEventSink(BeanUtil.createMessagePaymentStared(BeanUtil.SOURCE_ID + "_2"));
         produceMessageToEventSink(BeanUtil.createMessageInvoiceCaptured(BeanUtil.SOURCE_ID));
 
+        eventSinkStreamProperties.setProperty(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000 + "");
+        eventSinkStreamProperties.setProperty(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0 + "");
         KafkaStreams kafkaStreams = eventSinkAggregationStreamFactory.create(eventSinkStreamProperties);
 
         Consumer<String, MgEventSinkRow> consumer = createConsumer(MgEventSinkRowDeserializer.class);
         consumer.subscribe(List.of(aggregatedEventSink));
 
-        ConsumerRecords<String, MgEventSinkRow> poll = pollWithWaitingTimeout(consumer, Duration.ofSeconds(6L));
+        ConsumerRecords<String, MgEventSinkRow> poll = pollWithWaitingTimeout(consumer, Duration.ofSeconds(10L));
 
         Assert.assertFalse(poll.isEmpty());
         Iterator<ConsumerRecord<String, MgEventSinkRow>> iterator = poll.iterator();
