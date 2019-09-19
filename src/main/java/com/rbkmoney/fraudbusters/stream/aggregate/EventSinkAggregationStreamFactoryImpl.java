@@ -24,8 +24,8 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class EventSinkAggregationStreamFactoryImpl implements TemplateStreamFactory {
 
-    @Value("${kafka.topic.event.sink.clean}")
-    private String cleanEventSink;
+    @Value("${kafka.topic.event.sink.initial}")
+    private String initialEventSink;
 
     @Value("${kafka.topic.event.sink.aggregated}")
     private String aggregatedSinkTopic;
@@ -42,7 +42,7 @@ public class EventSinkAggregationStreamFactoryImpl implements TemplateStreamFact
             log.info("Create stream aggregation!");
             StreamsBuilder builder = new StreamsBuilder();
 
-            builder.stream(cleanEventSink, Consumed.with(Serdes.String(), sinkEventSerde))
+            builder.stream(initialEventSink, Consumed.with(Serdes.String(), sinkEventSerde))
                     .peek((key, value) -> log.info("Aggregate key={} value={}", key, value))
                     .map(mgEventSinkRowMapper)
                     .groupByKey()

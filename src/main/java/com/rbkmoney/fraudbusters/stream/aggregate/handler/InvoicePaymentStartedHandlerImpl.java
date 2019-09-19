@@ -37,14 +37,12 @@ public class InvoicePaymentStartedHandlerImpl implements InvoiceChangeHandler {
         mgEventSinkRow.setAmount(cost.getAmount());
         mgEventSinkRow.setCurrency(cost.getCurrency().getSymbolicCode());
         if (payer.isSetPaymentResource()) {
-            if (payment.getPayer().getPaymentResource().isSetResource()) {
-                ClientInfo clientInfo = payment.getPayer().getPaymentResource().getResource().getClientInfo();
+            if (payer.getPaymentResource().isSetResource()) {
+                ClientInfo clientInfo = payer.getPaymentResource().getResource().getClientInfo();
                 mgEventSinkRow.setIp(clientInfo.getIpAddress());
                 mgEventSinkRow.setFingerprint(clientInfo.getFingerprint());
-                if (payment.getPayer().getPaymentResource().isSetResource()
-                        && payment.getPayer().getPaymentResource().getResource().isSetPaymentTool()
-                        && payment.getPayer().getPaymentResource().getResource().getPaymentTool().isSetBankCard()) {
-                    BankCard bankCard = payment.getPayer().getPaymentResource().getResource().getPaymentTool().getBankCard();
+                if (isBankCard(payer)) {
+                    BankCard bankCard = payer.getPaymentResource().getResource().getPaymentTool().getBankCard();
                     mgEventSinkRow.setBankCountry(bankCard.getIssuerCountry().name());
                     mgEventSinkRow.setBin(bankCard.getBin());
                     mgEventSinkRow.setMaskedPan(bankCard.getMaskedPan());
@@ -55,5 +53,11 @@ public class InvoicePaymentStartedHandlerImpl implements InvoiceChangeHandler {
             mgEventSinkRow.setEmail(payer.getPaymentResource().getContactInfo().getEmail());
         }
         return mgEventSinkRow;
+    }
+
+    private boolean isBankCard(Payer payer) {
+        return payer.getPaymentResource().isSetResource()
+                && payer.getPaymentResource().getResource().isSetPaymentTool()
+                && payer.getPaymentResource().getResource().getPaymentTool().isSetBankCard();
     }
 }
