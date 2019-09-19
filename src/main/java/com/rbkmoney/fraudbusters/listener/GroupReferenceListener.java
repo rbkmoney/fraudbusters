@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.listener;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
-import com.rbkmoney.damsel.fraudbusters.TemplateReference;
+import com.rbkmoney.damsel.fraudbusters.GroupReference;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import lombok.RequiredArgsConstructor;
@@ -13,17 +13,17 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TemplateReferenceListener implements CommandListener {
+public class GroupReferenceListener implements CommandListener {
 
-    private final Pool<String> referencePoolImpl;
+    private final Pool<String> groupReferencePoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.reference}", containerFactory = "referenceListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.group.reference}", containerFactory = "groupReferenceListenerContainerFactory")
     public void listen(@Payload Command command) {
-        log.info("TemplateReferenceListener command: {}", command);
-        if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetReference()) {
-            TemplateReference reference = command.getCommandBody().getReference();
-            String key = ReferenceKeyGenerator.generateTemplateKey(reference);
+        log.info("GroupReferenceListener command: {}", command);
+        if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetGroupReference()) {
+            GroupReference reference = command.getCommandBody().getGroupReference();
+            String key = ReferenceKeyGenerator.generateTemplateKey(reference.getPartyId(), reference.getShopId());
             execCommand(command, key);
         }
     }
@@ -31,10 +31,10 @@ public class TemplateReferenceListener implements CommandListener {
     private void execCommand(Command command, String key) {
         switch (command.command_type) {
             case CREATE:
-                referencePoolImpl.add(key, command.getCommandBody().getReference().template_id);
+                groupReferencePoolImpl.add(key, command.getCommandBody().getGroupReference().getGroupId());
                 return;
             case DELETE:
-                referencePoolImpl.remove(key);
+                groupReferencePoolImpl.remove(key);
                 return;
             default:
                 log.error("Unknown command: {}", command);

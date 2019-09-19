@@ -2,9 +2,8 @@ package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
-import com.rbkmoney.fraudbusters.serde.FraudRequestSerde;
-import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
+import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
+import com.rbkmoney.fraudbusters.serde.*;
 import com.rbkmoney.fraudbusters.service.ConsumerGroupIdService;
 import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
 import lombok.RequiredArgsConstructor;
@@ -35,12 +34,16 @@ import java.util.Properties;
 public class KafkaConfig {
 
     private static final String TEMPLATE_GROUP_ID = "template-listener";
+    private static final String GROUP_LIST_GROUP_ID = "group-listener";
+    private static final String GROUP_LIST_REFERENCE_GROUP_ID = "group-reference-listener";
     private static final String REFERENCE_GROUP_ID = "reference-listener";
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "result-aggregator";
+    private static final String MG_EVENT_SINK_AGGREGATOR = "mg-event-sink-aggregator";
 
     private static final String FRAUD_BUSTERS_CLIENT = "fraud-busters-client";
     public static final String APP_POSTFIX = "app";
+    public static final String EVENT_SINK_CLIENT_FRAUDBUSTERS = "event-sink-client-fraudbusters";
 
     @Value("${kafka.max.poll.records}")
     private String maxPollRecords;
@@ -82,8 +85,19 @@ public class KafkaConfig {
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, FraudRequestSerde.class);
-        props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);
-        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
+        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
+                clientStoreCertPath, keyStorePassword, keyPassword));
+        return props;
+    }
+
+    @Bean
+    public Properties eventSinkStreamProperties() {
+        final Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, consumerGroupIdService.generateGroupId("event-sink-fraud"));
+        props.put(StreamsConfig.CLIENT_ID_CONFIG, EVENT_SINK_CLIENT_FRAUDBUSTERS);
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, MgEventSinkRowSerde.class);
         props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
                 clientStoreCertPath, keyStorePassword, keyPassword));
         return props;
@@ -91,14 +105,27 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, Command> templateListenerFactory() {
-        String value = consumerGroupIdService.generateRandomGroupId(TEMPLATE_GROUP_ID);
-        final Map<String, Object> props = createDefaultProperties(value);
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new CommandDeserializer());
+        return createDefaultConsumerFactory(TEMPLATE_GROUP_ID);
+    }
+
+    @Bean
+    public ConsumerFactory<String, Command> groupListenerFactory() {
+        return createDefaultConsumerFactory(GROUP_LIST_GROUP_ID);
     }
 
     @Bean
     public ConsumerFactory<String, Command> referenceListenerFactory() {
-        String value = consumerGroupIdService.generateRandomGroupId(REFERENCE_GROUP_ID);
+        return createDefaultConsumerFactory(REFERENCE_GROUP_ID);
+    }
+
+    @Bean
+    public ConsumerFactory<String, Command> groupReferenceListenerFactory() {
+        return createDefaultConsumerFactory(GROUP_LIST_REFERENCE_GROUP_ID);
+    }
+
+    @NotNull
+    private ConsumerFactory<String, Command> createDefaultConsumerFactory(String groupListReferenceGroupId) {
+        String value = consumerGroupIdService.generateRandomGroupId(groupListReferenceGroupId);
         final Map<String, Object> props = createDefaultProperties(value);
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new CommandDeserializer());
     }
@@ -116,19 +143,33 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Command> templateListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(templateListenerFactory());
-        factory.setConcurrency(1);
-        factory.setRetryTemplate(retryTemplate());
-        factory.setErrorHandler(new LoggingErrorHandler());
-        return factory;
+    public ConcurrentKafkaListenerContainerFactory<String, Command> templateListenerContainerFactory(
+            ConsumerFactory<String, Command> templateListenerFactory) {
+        return createDefaultFactory(templateListenerFactory);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Command> referenceListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, Command> groupListenerContainerFactory(
+            ConsumerFactory<String, Command> groupListenerFactory) {
+        return createDefaultFactory(groupListenerFactory);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> referenceListenerContainerFactory(
+            ConsumerFactory<String, Command> referenceListenerFactory) {
+        return createDefaultFactory(referenceListenerFactory);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> groupReferenceListenerContainerFactory(
+            ConsumerFactory<String, Command> groupReferenceListenerFactory) {
+        return createDefaultFactory(groupReferenceListenerFactory);
+    }
+
+    @NotNull
+    private ConcurrentKafkaListenerContainerFactory<String, Command> createDefaultFactory(ConsumerFactory<String, Command> stringCommandConsumerFactory) {
         ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(referenceListenerFactory());
+        factory.setConsumerFactory(stringCommandConsumerFactory);
         factory.setConcurrency(1);
         factory.setRetryTemplate(retryTemplate());
         factory.setErrorHandler(new LoggingErrorHandler());
@@ -165,6 +206,18 @@ public class KafkaConfig {
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(), new FraudoResultDeserializer());
+        factory.setConsumerFactory(consumerFactory);
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, MgEventSinkRow> mgEventSinkListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, MgEventSinkRow> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        String consumerGroup = consumerGroupIdService.generateGroupId(MG_EVENT_SINK_AGGREGATOR);
+        final Map<String, Object> props = createDefaultProperties(consumerGroup);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
+        DefaultKafkaConsumerFactory<String, MgEventSinkRow> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
+                new StringDeserializer(), new MgEventSinkRowDeserializer());
         factory.setConsumerFactory(consumerFactory);
         return factory;
     }

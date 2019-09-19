@@ -4,6 +4,7 @@ import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
+import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.constant.CheckedField;
@@ -22,6 +23,7 @@ public class CountAggregatorImpl implements CountAggregator {
 
     private static final int CURRENT_ONE = 1;
     private final EventRepository eventRepository;
+    private final MgEventSinkRepository mgEventSinkRepository;
     private final FieldResolver fieldResolver;
 
     @Override
@@ -36,27 +38,27 @@ public class CountAggregatorImpl implements CountAggregator {
 
     @Override
     public Integer countSuccess(CheckedField checkedField, FraudModel fraudModel, Long aLong) {
-        return getCount(checkedField, fraudModel, aLong, eventRepository::countOperationSuccess);
+        return getCount(checkedField, fraudModel, aLong, mgEventSinkRepository::countOperationSuccess);
     }
 
     @Override
     public Integer countSuccess(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list) {
-        return getCount(checkedField, fraudModel, timeWindow, list, eventRepository::countOperationSuccessWithGroupBy);
+        return getCount(checkedField, fraudModel, timeWindow, list, mgEventSinkRepository::countOperationSuccessWithGroupBy);
     }
 
     @Override
     public Integer countError(CheckedField checkedField, FraudModel fraudModel, Long aLong, String s) {
-        return getCount(checkedField, fraudModel, aLong, eventRepository::countOperationError);
+        return getCount(checkedField, fraudModel, aLong, mgEventSinkRepository::countOperationError);
     }
 
     @Override
     public Integer countError(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, String s, List<CheckedField> list) {
-        return getCount(checkedField, fraudModel, timeWindow, list, eventRepository::countOperationErrorWithGroupBy);
+        return getCount(checkedField, fraudModel, timeWindow, list, mgEventSinkRepository::countOperationErrorWithGroupBy);
     }
 
     @NotNull
     private Integer getCount(CheckedField checkedField, FraudModel fraudModel, Long aLong,
-                             AggregateFunction<EventField, String, Long, Long, Integer> aggregateFunction) {
+                             AggregateFunction<String, String, Long, Long, Integer> aggregateFunction) {
         try {
             Instant now = Instant.now();
             FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
@@ -73,7 +75,7 @@ public class CountAggregatorImpl implements CountAggregator {
 
     @NotNull
     private Integer getCount(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list,
-                             AggregateGroupingFunction<EventField, String, Long, Long, List<FieldResolver.FieldModel>, Integer> aggregateFunction) {
+                             AggregateGroupingFunction<String, String, Long, Long, List<FieldResolver.FieldModel>, Integer> aggregateFunction) {
         try {
             Instant now = Instant.now();
             FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);

@@ -11,6 +11,7 @@ import com.rbkmoney.fraudbusters.fraud.finder.InListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
+import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
@@ -30,13 +31,13 @@ public class FraudoConfig {
     }
 
     @Bean
-    public CountAggregator countAggregator(EventRepository eventRepository, FieldResolver fieldResolver) {
-        return new CountAggregatorImpl(eventRepository, fieldResolver);
+    public CountAggregator countAggregator(EventRepository eventRepository, MgEventSinkRepository mgEventSinkRepository, FieldResolver fieldResolver) {
+        return new CountAggregatorImpl(eventRepository, mgEventSinkRepository, fieldResolver);
     }
 
     @Bean
-    public SumAggregator sumAggregator(EventRepository eventRepository, FieldResolver fieldResolver) {
-        return new SumAggregatorImpl(eventRepository, fieldResolver);
+    public SumAggregator sumAggregator(EventRepository eventRepository, MgEventSinkRepository mgEventSinkRepository, FieldResolver fieldResolver) {
+        return new SumAggregatorImpl(eventRepository, mgEventSinkRepository, fieldResolver);
     }
 
     @Bean

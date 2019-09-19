@@ -8,9 +8,11 @@ import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.serde.FraudRequestSerializer;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
+import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -40,7 +42,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @ContextConfiguration(classes = FraudBustersApplication.class, initializers = KafkaAbstractTest.Initializer.class)
 public abstract class KafkaAbstractTest {
 
@@ -50,7 +52,7 @@ public abstract class KafkaAbstractTest {
     @MockBean
     WbListServiceSrv.Iface wbListServiceSrv;
 
-    private static final String CONFLUENT_PLATFORM_VERSION = "5.0.1";
+    public static final String CONFLUENT_PLATFORM_VERSION = "5.0.1";
 
     @ClassRule
     public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION).withEmbeddedZookeeper();
@@ -59,6 +61,14 @@ public abstract class KafkaAbstractTest {
     public String templateTopic;
     @Value("${kafka.topic.reference}")
     public String referenceTopic;
+    @Value("${kafka.topic.group.list}")
+    public String groupTopic;
+    @Value("${kafka.topic.group.reference}")
+    public String groupReferenceTopic;
+    @Value("${kafka.topic.event.sink.initial}")
+    public String eventSinkTopic;
+    @Value("${kafka.topic.event.sink.aggregated}")
+    public String aggregatedEventSink;
 
     public static Producer<String, Command> createProducer() {
         Properties props = new Properties();
@@ -78,6 +88,15 @@ public abstract class KafkaAbstractTest {
         return new KafkaProducer<>(props);
     }
 
+    public static Producer<String, SinkEvent> createProducerAggr() {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("aggr"));
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class.getName());
+        return new KafkaProducer<>(props);
+    }
+
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
@@ -87,6 +106,10 @@ public abstract class KafkaAbstractTest {
             initTopic("template");
             initTopic("global_topic");
             initTopic("template_reference");
+            initTopic("group_list");
+            initTopic("group_reference");
+            initTopic("event_sink");
+            initTopic("aggregated_event_sink");
         }
 
         @NotNull
@@ -112,4 +135,12 @@ public abstract class KafkaAbstractTest {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return new KafkaConsumer<>(props);
     }
+
+    protected static void recurPolling(Consumer<String, Object> consumer) {
+        ConsumerRecords<String, Object> poll = consumer.poll(Duration.ofSeconds(5));
+        if (poll.isEmpty()) {
+            recurPolling(consumer);
+        }
+    }
+
 }

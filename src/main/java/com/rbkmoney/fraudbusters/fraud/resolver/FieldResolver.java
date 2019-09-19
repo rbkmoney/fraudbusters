@@ -32,43 +32,43 @@ public class FieldResolver {
         }
         switch (field) {
             case IP:
-                return new FieldModel(EventField.ip, fraudModel.getIp());
+                return new FieldModel(EventField.ip.name(), fraudModel.getIp());
             case EMAIL:
-                return new FieldModel(EventField.email, fraudModel.getEmail());
+                return new FieldModel(EventField.email.name(), fraudModel.getEmail());
             case BIN:
-                return new FieldModel(EventField.bin, fraudModel.getBin());
+                return new FieldModel(EventField.bin.name(), fraudModel.getBin());
             case FINGERPRINT:
-                return new FieldModel(EventField.fingerprint, fraudModel.getFingerprint());
+                return new FieldModel(EventField.fingerprint.name(), fraudModel.getFingerprint());
             case PARTY_ID:
-                return new FieldModel(EventField.partyId, fraudModel.getPartyId());
+                return new FieldModel(EventField.partyId.name(), fraudModel.getPartyId());
             case SHOP_ID:
-                return new FieldModel(EventField.shopId, fraudModel.getShopId());
+                return new FieldModel(EventField.shopId.name(), fraudModel.getShopId());
             case CARD_TOKEN:
-                return new FieldModel(EventField.cardToken, fraudModel.getCardToken());
+                return new FieldModel(EventField.cardToken.name(), fraudModel.getCardToken());
             default:
                 throw new UnknownFieldException();
         }
     }
 
-    public EventField resolve(CheckedField field) {
+    public String resolve(CheckedField field) {
         if (field == null) {
             throw new UnknownFieldException();
         }
         switch (field) {
             case IP:
-                return EventField.ip;
+                return EventField.ip.name();
             case EMAIL:
-                return EventField.email;
+                return EventField.email.name();
             case BIN:
-                return EventField.bin;
+                return EventField.bin.name();
             case FINGERPRINT:
-                return EventField.fingerprint;
+                return EventField.fingerprint.name();
             case PARTY_ID:
-                return EventField.partyId;
+                return EventField.partyId.name();
             case SHOP_ID:
-                return EventField.shopId;
+                return EventField.shopId.name();
             case CARD_TOKEN:
-                return EventField.cardToken;
+                return EventField.cardToken.name();
             default:
                 throw new UnknownFieldException();
         }
@@ -77,7 +77,7 @@ public class FieldResolver {
     @Data
     @AllArgsConstructor
     public class FieldModel {
-        private EventField name;
+        private String name;
         private String value;
     }
 }

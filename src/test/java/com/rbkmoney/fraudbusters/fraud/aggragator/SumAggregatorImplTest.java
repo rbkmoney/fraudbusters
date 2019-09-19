@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.fraud.aggragator;
 
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
+import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.model.FraudModel;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -19,6 +20,8 @@ public class SumAggregatorImplTest {
     @Mock
     private EventRepository eventRepository;
     @Mock
+    private MgEventSinkRepository mgEventSinkRepository;
+    @Mock
     private FieldResolver fieldResolver;
     @Mock
     private FieldResolver.FieldModel modelMock;
@@ -32,7 +35,7 @@ public class SumAggregatorImplTest {
         Mockito.when(fieldResolver.resolve(any(), any())).thenReturn(modelMock);
         Mockito.when(eventRepository.sumOperationByField(any(), any(), any(), any())).thenReturn(1050100L);
 
-        sumAggregator = new SumAggregatorImpl(eventRepository, fieldResolver);
+        sumAggregator = new SumAggregatorImpl(eventRepository, mgEventSinkRepository, fieldResolver);
     }
 
     @Test

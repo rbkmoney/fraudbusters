@@ -1,8 +1,9 @@
 package com.rbkmoney.fraudbusters.constant;
 
-public enum EventField {
+public enum MgEventSinkField {
 
     timestamp,
+    eventTime,
     ip,
     email,
     bin,
@@ -11,16 +12,15 @@ public enum EventField {
     partyId,
     resultStatus,
     amount,
-    eventTime,
     country,
-    checkedRule,
     bankCountry,
     currency,
     invoiceId,
     maskedPan,
     bankName,
     paymentId,
-    checkedTemplate,
+    errorCode,
+    errorMessage,
     cardToken
 
 }
