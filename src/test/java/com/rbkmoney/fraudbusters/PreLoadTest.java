@@ -178,7 +178,7 @@ public class PreLoadTest extends KafkaAbstractTest {
         Consumer<String, MgEventSinkRow> consumer = createConsumer(MgEventSinkRowDeserializer.class);
         consumer.subscribe(List.of(aggregatedEventSink));
 
-        ConsumerRecords<String, MgEventSinkRow> poll = pollWithWaitingTimeout(consumer, Duration.ofSeconds(10L));
+        ConsumerRecords<String, MgEventSinkRow> poll = pollWithWaitingTimeout(consumer, Duration.ofSeconds(30L));
 
         Assert.assertFalse(poll.isEmpty());
         Iterator<ConsumerRecord<String, MgEventSinkRow>> iterator = poll.iterator();
