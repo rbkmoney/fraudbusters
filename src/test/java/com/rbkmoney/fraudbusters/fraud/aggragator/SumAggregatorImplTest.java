@@ -2,8 +2,10 @@ package com.rbkmoney.fraudbusters.fraud.aggragator;
 
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
+import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.fraudo.model.TimeWindow;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +20,8 @@ public class SumAggregatorImplTest {
     @Mock
     private EventRepository eventRepository;
     @Mock
+    private MgEventSinkRepository mgEventSinkRepository;
+    @Mock
     private FieldResolver fieldResolver;
     @Mock
     private FieldResolver.FieldModel modelMock;
@@ -31,7 +35,7 @@ public class SumAggregatorImplTest {
         Mockito.when(fieldResolver.resolve(any(), any())).thenReturn(modelMock);
         Mockito.when(eventRepository.sumOperationByField(any(), any(), any(), any())).thenReturn(1050100L);
 
-        sumAggregator = new SumAggregatorImpl(eventRepository, fieldResolver);
+        sumAggregator = new SumAggregatorImpl(eventRepository, mgEventSinkRepository, fieldResolver);
     }
 
     @Test
@@ -39,6 +43,25 @@ public class SumAggregatorImplTest {
         FraudModel fraudModel = new FraudModel();
         fraudModel.setAmount(1L);
         Double some = sumAggregator.sum(CheckedField.BIN, fraudModel, 1444L);
+
+        Assert.assertEquals(Double.valueOf(1050101), some);
+    }
+
+    @Test
+    public void sumTimeWindow() {
+        FraudModel fraudModel = new FraudModel();
+        fraudModel.setAmount(1L);
+        TimeWindow.TimeWindowBuilder timeWindowBuilder = TimeWindow.builder().startWindowTime(1444L)
+                .endWindowTime(400L);
+        Mockito.when(eventRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
+
+        Double some = sumAggregator.sum(CheckedField.BIN, fraudModel, timeWindowBuilder.build(), null);
+
+        Assert.assertEquals(Double.valueOf(1050101), some);
+
+        timeWindowBuilder = TimeWindow.builder().startWindowTime(1444L)
+                .endWindowTime(null);
+        some = sumAggregator.sum(CheckedField.BIN, fraudModel, timeWindowBuilder.build(), null);
 
         Assert.assertEquals(Double.valueOf(1050101), some);
     }

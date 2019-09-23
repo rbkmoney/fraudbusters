@@ -33,6 +33,12 @@ kafka:
     result: result
     template: template
     reference: template_reference
+    event.sink:
+      initial: event_sink
+      aggregated: aggregated_event_sink
+    group:
+      list: group_list
+      reference: group_reference
   ssl:
     enable: false
     keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12

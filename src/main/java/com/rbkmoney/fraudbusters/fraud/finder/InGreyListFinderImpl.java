@@ -33,13 +33,13 @@ public class InGreyListFinderImpl implements InListFinder {
                 RowInfo rowInfo = result.getRowInfo();
                 String startCountTime = rowInfo.getCountInfo().getStartCountTime();
                 String ttl = rowInfo.getCountInfo().getTimeToLive();
-                EventField resolve = fieldResolver.resolve(field);
+                String resolveField = fieldResolver.resolve(field);
                 Long to = TimestampUtil.generateTimestampWithParse(ttl);
                 Long from = TimestampUtil.generateTimestampWithParse(startCountTime);
                 if (Instant.now().getEpochSecond() > to || from >= to) {
                     return false;
                 }
-                int currentCount = eventRepository.countOperationByField(resolve, value, from, to);
+                int currentCount = eventRepository.countOperationByField(resolveField, value, from, to);
                 return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
             }
             return false;

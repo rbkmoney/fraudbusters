@@ -12,10 +12,15 @@ public enum EventField {
     resultStatus,
     amount,
     eventTime,
+    country,
+    checkedRule,
+    bankCountry,
     currency,
     invoiceId,
     maskedPan,
     bankName,
+    paymentId,
+    checkedTemplate,
     cardToken
 
 }

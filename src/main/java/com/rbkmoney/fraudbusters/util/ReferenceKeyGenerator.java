@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.util;
 
+import com.rbkmoney.damsel.fraudbusters.GroupReference;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.exception.UnknownReferenceException;

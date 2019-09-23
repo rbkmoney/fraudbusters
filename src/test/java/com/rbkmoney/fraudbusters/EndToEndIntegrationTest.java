@@ -33,6 +33,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -52,11 +53,18 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE_CONCRETE =
             "rule:  sum(\"email\", 10) >= 29000  -> decline;";
 
+    private static final String GROUP_DECLINE =
+            "rule:  1 >= 0  -> decline;";
+
+    private static final String GROUP_NORMAL =
+            "rule:  1 < 0  -> decline;";
+
     private static final String TEMPLATE_CONCRETE_SHOP =
             "rule:  sum(\"email\", 10) >= 18000  -> accept;";
 
     private static final int COUNTRY_GEO_ID = 12345;
     public static final String P_ID = "test";
+    public static final String GROUP_P_ID = "group_1";
 
     private InspectorProxySrv.Iface client;
 
@@ -112,6 +120,18 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP);
         produceReference(false, P_ID, BeanUtil.ID_VALUE_SHOP, shopRef);
 
+        String groupTemplateDecline = UUID.randomUUID().toString();
+        produceTemplate(groupTemplateDecline, GROUP_DECLINE);
+        String groupTemplateNormal = UUID.randomUUID().toString();
+        produceTemplate(groupTemplateNormal, GROUP_NORMAL);
+
+        String groupId = UUID.randomUUID().toString();
+        produceGroup(groupId, List.of(new PriorityId()
+                .setId(groupTemplateDecline)
+                .setPriority(2L), new PriorityId()
+                .setId(groupTemplateNormal)
+                .setPriority(1L)));
+        produceGroupReference(GROUP_P_ID, null, groupId);
         Thread.sleep(3000L);
 
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
@@ -123,6 +143,16 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         producer = createProducer();
         Command command = crateCommandTemplate(localId, templateString);
         producerRecord = new ProducerRecord<>(templateTopic, localId, command);
+        producer.send(producerRecord).get();
+        producer.close();
+    }
+
+    private void produceGroup(String localId, List<PriorityId> priorityIds) throws InterruptedException, ExecutionException {
+        Producer<String, Command> producer;
+        ProducerRecord<String, Command> producerRecord;
+        producer = createProducer();
+        Command command = BeanUtil.createGroupCommand(localId, priorityIds);
+        producerRecord = new ProducerRecord<>(groupTopic, localId, command);
         producer.send(producerRecord).get();
         producer.close();
     }
@@ -140,6 +170,16 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         command.setCommandBody(CommandBody.reference(value));
         String key = ReferenceKeyGenerator.generateTemplateKey(value);
         producerRecord = new ProducerRecord<>(referenceTopic, key, command);
+        producer.send(producerRecord).get();
+        producer.close();
+    }
+
+    private void produceGroupReference(String party, String shopId, String idGroup) throws InterruptedException, ExecutionException {
+        Producer<String, Command> producer = createProducer();
+        ProducerRecord<String, Command> producerRecord;
+        Command command = BeanUtil.createGroupReferenceCommand(party, shopId, idGroup);
+        String key = ReferenceKeyGenerator.generateTemplateKey(party, shopId);
+        producerRecord = new ProducerRecord<>(groupReferenceTopic, key, command);
         producer.send(producerRecord).get();
         producer.close();
     }
@@ -173,6 +213,11 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         context = BeanUtil.createContext(P_ID);
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.low, riskScore);
+
+        //test groups templates
+        context = BeanUtil.createContext(GROUP_P_ID);
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.fatal, riskScore);
     }
 
 }
