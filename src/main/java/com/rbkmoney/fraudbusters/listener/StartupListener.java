@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.listener;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.exception.StartException;
+import com.rbkmoney.fraudbusters.stream.TemplateStreamFactory;
 import com.rbkmoney.fraudbusters.stream.TemplateStreamFactoryImpl;
 import com.rbkmoney.kafka.common.loader.PreloadListener;
 import com.rbkmoney.kafka.common.loader.PreloadListenerImpl;
@@ -28,10 +29,13 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    public static final long PRELOAD_TIMEOUT = 30L;
-    public static final int COUNT_PRELOAD_TASKS = 4;
-    private final TemplateStreamFactoryImpl templateStreamFactoryImpl;
+    private static final long PRELOAD_TIMEOUT = 30L;
+    private static final int COUNT_PRELOAD_TASKS = 4;
+
+    private final TemplateStreamFactory templateStreamFactoryImpl;
+    private final TemplateStreamFactory eventSinkAggregationStreamFactoryImpl;
     private final Properties fraudStreamProperties;
+    private final Properties eventSinkStreamProperties;
     private final ConsumerFactory<String, Command> templateListenerFactory;
     private final ConsumerFactory<String, Command> groupListenerFactory;
     private final ConsumerFactory<String, Command> referenceListenerFactory;
@@ -42,6 +46,8 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private final TemplateReferenceListener templateReferenceListener;
 
     private KafkaStreams kafkaStreams;
+    private KafkaStreams eventSinkStream;
+
     private PreloadListener<String, Command> preloadListener = new PreloadListenerImpl<>();
 
     @Value("${kafka.topic.template}")
@@ -78,6 +84,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
             }
 
             kafkaStreams = templateStreamFactoryImpl.create(fraudStreamProperties);
+            eventSinkStream = eventSinkAggregationStreamFactoryImpl.create(eventSinkStreamProperties);
             log.info("StartupListener start stream preloadTime: {} ms kafkaStreams: {}", System.currentTimeMillis() - startPreloadTime,
                     kafkaStreams.allMetadata());
         } catch (InterruptedException e) {
@@ -88,6 +95,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
     public void stop() {
         kafkaStreams.close(Duration.ofSeconds(10L));
+        eventSinkStream.close(Duration.ofSeconds(10L));
     }
 
     private void waitPreLoad(CountDownLatch latch, ConsumerFactory<String, Command> groupListenerFactory, String topic, CommandListener listener) {
