@@ -5,11 +5,14 @@ import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.thrift.TException;
@@ -18,13 +21,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
 import ru.yandex.clickhouse.ClickHouseDataSource;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
@@ -36,10 +44,15 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @Slf4j
+@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class)
 @ContextConfiguration(initializers = EndToEndIntegrationTest.Initializer.class)
 public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
@@ -63,8 +76,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
             "rule:  sum(\"email\", 10) >= 18000  -> accept;";
 
     private static final int COUNTRY_GEO_ID = 12345;
-    public static final String P_ID = "test";
-    public static final String GROUP_P_ID = "group_1";
+    private static final String P_ID = "test";
+    private static final String GROUP_P_ID = "group_1";
 
     private InspectorProxySrv.Iface client;
 
@@ -100,13 +113,13 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
-        Connection connection = getSystemConn();
-        String sql = FileUtil.getFile("sql/db_init.sql");
-        String[] split = sql.split(";");
-        for (String exec : split) {
-            connection.createStatement().execute(exec);
+        try (Connection connection = getSystemConn()) {
+            String sql = FileUtil.getFile("sql/db_init.sql");
+            String[] split = sql.split(";");
+            for (String exec : split) {
+                connection.createStatement().execute(exec);
+            }
         }
-        connection.close();
 
         String globalRef = UUID.randomUUID().toString();
         produceTemplate(globalRef, TEMPLATE);
@@ -132,68 +145,18 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
                 .setId(groupTemplateNormal)
                 .setPriority(1L)));
         produceGroupReference(GROUP_P_ID, null, groupId);
-        Thread.sleep(3000L);
+
+        try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
+            consumer.subscribe(List.of(groupTopic));
+            Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
+                ConsumerRecords<String, Object> records = consumer.poll(100);
+                return !records.isEmpty();
+            });
+        }
 
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
     }
 
-    private void produceTemplate(String localId, String templateString) throws InterruptedException, ExecutionException {
-        Producer<String, Command> producer;
-        ProducerRecord<String, Command> producerRecord;
-        producer = createProducer();
-        Command command = crateCommandTemplate(localId, templateString);
-        producerRecord = new ProducerRecord<>(templateTopic, localId, command);
-        producer.send(producerRecord).get();
-        producer.close();
-    }
-
-    private void produceGroup(String localId, List<PriorityId> priorityIds) throws InterruptedException, ExecutionException {
-        Producer<String, Command> producer;
-        ProducerRecord<String, Command> producerRecord;
-        producer = createProducer();
-        Command command = BeanUtil.createGroupCommand(localId, priorityIds);
-        producerRecord = new ProducerRecord<>(groupTopic, localId, command);
-        producer.send(producerRecord).get();
-        producer.close();
-    }
-
-    private void produceReference(boolean isGlobal, String party, String shopId, String idTemplate) throws InterruptedException, ExecutionException {
-        Producer<String, Command> producer = createProducer();
-        ProducerRecord<String, Command> producerRecord;
-        Command command = new Command();
-        command.setCommandType(CommandType.CREATE);
-        TemplateReference value = new TemplateReference();
-        value.setTemplateId(idTemplate);
-        value.setPartyId(party);
-        value.setShopId(shopId);
-        value.setIsGlobal(isGlobal);
-        command.setCommandBody(CommandBody.reference(value));
-        String key = ReferenceKeyGenerator.generateTemplateKey(value);
-        producerRecord = new ProducerRecord<>(referenceTopic, key, command);
-        producer.send(producerRecord).get();
-        producer.close();
-    }
-
-    private void produceGroupReference(String party, String shopId, String idGroup) throws InterruptedException, ExecutionException {
-        Producer<String, Command> producer = createProducer();
-        ProducerRecord<String, Command> producerRecord;
-        Command command = BeanUtil.createGroupReferenceCommand(party, shopId, idGroup);
-        String key = ReferenceKeyGenerator.generateTemplateKey(party, shopId);
-        producerRecord = new ProducerRecord<>(groupReferenceTopic, key, command);
-        producer.send(producerRecord).get();
-        producer.close();
-    }
-
-    @NotNull
-    private Command crateCommandTemplate(String localId, String templateString) {
-        Command command = new Command();
-        Template template = new Template();
-        template.setId(localId);
-        template.setTemplate(templateString.getBytes());
-        command.setCommandBody(CommandBody.template(template));
-        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
-        return command;
-    }
 
     @Test
     public void test() throws URISyntaxException, TException, InterruptedException {

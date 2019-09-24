@@ -45,7 +45,8 @@ import java.util.stream.Collectors;
 @ContextConfiguration(classes = {EventRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class, FieldResolver.class}, initializers = EventRepositoryTest.Initializer.class)
 public class EventRepositoryTest {
 
-    public static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_unique";
+    private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_unique";
+
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer();
 

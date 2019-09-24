@@ -9,92 +9,82 @@ import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudo.FraudoParser;
 import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StringUtils;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
+@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class)
 public class DispatchTemplateTest extends KafkaAbstractTest {
 
-    public static final String CONCRETE = "concrete";
     public static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
-    public static final long SLEEP = 1000L;
+
     @Autowired
     private Pool<FraudoParser.ParseContext> pool;
     @Autowired
     private Pool<String> referencePoolImpl;
 
     @Test
-    public void testGlobal() throws ExecutionException, InterruptedException {
-        Producer<String, Command> producer = createProducer();
-        Command command = new Command();
-        Template template = new Template();
+    public void testPools() throws ExecutionException, InterruptedException {
+
         String id = UUID.randomUUID().toString();
-        template.setId(id);
-        template.setTemplate(TEMPLATE.getBytes());
-        command.setCommandBody(CommandBody.template(template));
-        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
-        ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(templateTopic,
-                id, command);
-        producer.send(producerRecord).get();
-        producer.close();
 
-        Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
-        consumer.subscribe(List.of(templateTopic));
-        recurPolling(consumer);
-        consumer.close();
+        produceTemplate(id, TEMPLATE);
 
+        //check message in topic
+        try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
+            consumer.subscribe(List.of(templateTopic));
+            Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
+                ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
+                return !records.isEmpty();
+            });
+        }
+
+        //check parse context created
         FraudoParser.ParseContext parseContext = pool.get(id);
         Assert.assertNotNull(parseContext);
 
-        producer = createProducer();
-        command = new Command();
-        TemplateReference value = new TemplateReference();
-        value.setIsGlobal(true);
-        value.setTemplateId(id);
-        command.setCommandBody(CommandBody.reference(value));
-        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
-        producerRecord = new ProducerRecord<>(referenceTopic,
-                TemplateLevel.GLOBAL.name(), command);
-        producer.send(producerRecord).get();
-        producer.close();
+        //create global template reference
+        try (Producer<String, Command> producer = createProducer()) {
+            Command command = new Command();
+            TemplateReference value = new TemplateReference();
+            value.setIsGlobal(true);
+            value.setTemplateId(id);
+            command.setCommandBody(CommandBody.reference(value));
+            command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(referenceTopic,
+                    TemplateLevel.GLOBAL.name(), command);
+            producer.send(producerRecord).get();
+        }
 
-        Thread.sleep(5000L);
-
-        String result = referencePoolImpl.get(TemplateLevel.GLOBAL.name());
-
-        Assert.assertEquals(id, result);
-    }
-
-    @Test
-    public void testConcrete() throws ExecutionException, InterruptedException, TException {
-        Command command = new Command();
-        Template template = new Template();
-        String id = UUID.randomUUID().toString();
-        template.setId(id);
-        template.setTemplate(TEMPLATE.getBytes());
-        command.setCommandBody(CommandBody.template(template));
-        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
-        ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(templateTopic,
-                id, command);
-        Producer<String, Command> producer = createProducer();
-        producer.send(producerRecord).get();
-        producer.close();
-
-        Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
-        consumer.subscribe(List.of(templateTopic));
-        recurPolling(consumer);
-        consumer.close();
-
-        FraudoParser.ParseContext parseContext = pool.get(id);
-        Assert.assertNotNull(parseContext);
+        //check that global reference created
+        Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
+            String result = referencePoolImpl.get(TemplateLevel.GLOBAL.name());
+            if (StringUtils.isEmpty(result)) {
+                return false;
+            }
+            Assert.assertEquals(id, result);
+            return true;
+        });
     }
 
 }

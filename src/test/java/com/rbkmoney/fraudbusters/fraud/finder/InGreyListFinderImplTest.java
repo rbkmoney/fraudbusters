@@ -19,10 +19,12 @@ import static org.mockito.ArgumentMatchers.any;
 
 public class InGreyListFinderImplTest {
 
-    public static final String PARTY_ID = "partyId";
-    public static final String SHOP_ID = "shopId";
-    public static final String VALUE = "1234123";
+    private static final String PARTY_ID = "partyId";
+    private static final String SHOP_ID = "shopId";
+    private static final String VALUE = "1234123";
+
     private InGreyListFinderImpl inGreyListFinder;
+
     @Mock
     private WbListServiceSrv.Iface wbListServiceSrv;
     @Mock
@@ -40,6 +42,7 @@ public class InGreyListFinderImplTest {
         Boolean inList = inGreyListFinder.findInList(PARTY_ID, SHOP_ID, CheckedField.CARD_TOKEN, VALUE);
 
         Assert.assertFalse(inList);
+
         Instant now = Instant.now();
         Result result = new Result().setRowInfo(RowInfo
                 .count_info(new CountInfo()
@@ -56,7 +59,6 @@ public class InGreyListFinderImplTest {
         Mockito.when(eventRepository.countOperationByField(any(), any(), any(), any())).thenReturn(4);
         inList = inGreyListFinder.findInList(PARTY_ID, SHOP_ID, CheckedField.CARD_TOKEN, VALUE);
         Assert.assertTrue(inList);
-
     }
 
     @Test
@@ -69,6 +71,7 @@ public class InGreyListFinderImplTest {
                         .setStartCountTime(now.toString())));
         Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(result);
         Mockito.when(eventRepository.countOperationByField(any(), any(), any(), any())).thenReturn(4);
+
         Boolean inList = inGreyListFinder.findInList(PARTY_ID, SHOP_ID, List.of(CheckedField.CARD_TOKEN), List.of(VALUE));
 
         Assert.assertTrue(inList);

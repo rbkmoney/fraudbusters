@@ -4,18 +4,14 @@ import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.CommandBody;
 import com.rbkmoney.damsel.fraudbusters.Template;
-import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.config.KafkaConfig;
 import com.rbkmoney.fraudbusters.constant.ResultStatus;
-import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.serde.MgEventSinkRowDeserializer;
 import com.rbkmoney.fraudbusters.stream.aggregate.EventSinkAggregationStreamFactoryImpl;
-import com.rbkmoney.fraudbusters.stream.aggregate.handler.MgEventSinkHandler;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
@@ -33,13 +29,19 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import ru.yandex.clickhouse.ClickHouseDataSource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -48,11 +50,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 
 @Slf4j
-@ContextConfiguration(classes = {KafkaConfig.class, EventSinkAggregationStreamFactoryImpl.class, MgEventSinkHandler.class},
-        initializers = PreLoadTest.Initializer.class)
+@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class)
+@ContextConfiguration(initializers = PreLoadTest.Initializer.class)
 public class PreLoadTest extends KafkaAbstractTest {
 
     private static final String TEMPLATE = "rule: 12 >= 1\n" +
@@ -60,6 +67,12 @@ public class PreLoadTest extends KafkaAbstractTest {
     private static final String TEST = "test";
 
     private InspectorProxySrv.Iface client;
+
+    @MockBean
+    ClickHouseDataSource clickHouseDataSource;
+
+    @MockBean
+    JdbcTemplate jdbcTemplate;
 
     @MockBean
     EventRepository eventRepository;
@@ -79,81 +92,49 @@ public class PreLoadTest extends KafkaAbstractTest {
 
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            TestPropertyValues
-                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
-                    .applyTo(configurableApplicationContext.getEnvironment());
             try {
                 createTemplate();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
 
-        private static String createTemplate() throws InterruptedException, ExecutionException {
-            Producer<String, Command> producer = createProducer();
-            Command command = new Command();
-            Template template = new Template();
-            String id = TEST;
-            template.setId(id);
-            template.setTemplate(PreLoadTest.TEMPLATE.getBytes());
-            command.setCommandBody(CommandBody.template(template));
-            command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>("template",
-                    id, command);
-            producer.send(producerRecord).get();
-            producer.close();
+        private static void createTemplate() throws InterruptedException, ExecutionException {
 
-            Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
-            consumer.subscribe(List.of("template"));
+            try (Producer<String, Command> producer = createProducer()) {
+                Command command = new Command();
+                Template template = new Template();
+                String id = TEST;
+                template.setId(id);
+                template.setTemplate(PreLoadTest.TEMPLATE.getBytes());
+                command.setCommandBody(CommandBody.template(template));
+                command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+                ProducerRecord<String, Command> producerRecord = new ProducerRecord<>("template",
+                        id, command);
+                producer.send(producerRecord).get();
+            }
 
-            recurPolling(consumer);
-
-            consumer.close();
-            return id;
+            try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
+                consumer.subscribe(List.of("template"));
+                Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
+                    ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
+                    return !records.isEmpty();
+                });
+            }
         }
     }
 
     @Before
     public void init() throws ExecutionException, InterruptedException {
-        createGlobalReferenceToTemplate(TEST);
-    }
-
-    private void createGlobalReferenceToTemplate(String id) throws InterruptedException, ExecutionException {
-        Producer<String, Command> producer;
-        Command command;
-        ProducerRecord<String, Command> producerRecord;
-
-        producer = createProducer();
-        command = new Command();
-        TemplateReference value = new TemplateReference();
-        value.setIsGlobal(true);
-        value.setTemplateId(id);
-        command.setCommandBody(CommandBody.reference(value));
-        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
-        producerRecord = new ProducerRecord<>(referenceTopic,
-                TemplateLevel.GLOBAL.name(), command);
-        producer.send(producerRecord).get();
-        producer.close();
-
-        Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class);
-        consumer.subscribe(List.of(referenceTopic));
-
-        recurPolling(consumer);
-
-        consumer.close();
+        produceReferenceWithWait(true, null, null, TEST, 10);
     }
 
     @Test
     public void inspectPaymentTest() throws URISyntaxException, TException, ExecutionException, InterruptedException {
-        Thread.sleep(4000L);
-
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
         client = clientBuilder.build(InspectorProxySrv.Iface.class);
-        createGlobalReferenceToTemplate(TEST);
 
         Context context = BeanUtil.createContext();
         RiskScore riskScore = client.inspectPayment(context);
@@ -173,21 +154,23 @@ public class PreLoadTest extends KafkaAbstractTest {
 
         eventSinkStreamProperties.setProperty(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000 + "");
         eventSinkStreamProperties.setProperty(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0 + "");
+
         KafkaStreams kafkaStreams = eventSinkAggregationStreamFactory.create(eventSinkStreamProperties);
 
-        Consumer<String, MgEventSinkRow> consumer = createConsumer(MgEventSinkRowDeserializer.class);
-        consumer.subscribe(List.of(aggregatedEventSink));
+        try (Consumer<String, MgEventSinkRow> consumer = createConsumer(MgEventSinkRowDeserializer.class)) {
+            consumer.subscribe(List.of(aggregatedEventSink));
+            ConsumerRecords<String, MgEventSinkRow> poll = pollWithWaitingTimeout(consumer, Duration.ofSeconds(30L));
 
-        ConsumerRecords<String, MgEventSinkRow> poll = pollWithWaitingTimeout(consumer, Duration.ofSeconds(10L));
+            Assert.assertFalse(poll.isEmpty());
+            Iterator<ConsumerRecord<String, MgEventSinkRow>> iterator = poll.iterator();
 
-        Assert.assertFalse(poll.isEmpty());
-        Iterator<ConsumerRecord<String, MgEventSinkRow>> iterator = poll.iterator();
-        Assert.assertEquals(1, poll.count());
+            Assert.assertEquals(1, poll.count());
+            ConsumerRecord<String, MgEventSinkRow> record = iterator.next();
 
-        ConsumerRecord<String, MgEventSinkRow> record = iterator.next();
-        MgEventSinkRow value = record.value();
-        Assert.assertEquals(ResultStatus.CAPTURED.name(), value.getResultStatus());
-        Assert.assertEquals(BeanUtil.SHOP_ID, value.getShopId());
+            MgEventSinkRow value = record.value();
+            Assert.assertEquals(ResultStatus.CAPTURED.name(), value.getResultStatus());
+            Assert.assertEquals(BeanUtil.SHOP_ID, value.getShopId());
+        }
 
         kafkaStreams.close();
     }
@@ -206,14 +189,12 @@ public class PreLoadTest extends KafkaAbstractTest {
     }
 
     private void produceMessageToEventSink(MachineEvent machineEvent) throws InterruptedException, ExecutionException {
-        ProducerRecord<String, SinkEvent> producerRecord;
-        Producer<String, SinkEvent> producer = createProducerAggr();
-        SinkEvent sinkEvent = new SinkEvent();
-        sinkEvent.setEvent(machineEvent);
-        producerRecord = new ProducerRecord<>(eventSinkTopic,
-                sinkEvent.getEvent().getSourceId(), sinkEvent);
-        producer.send(producerRecord).get();
-        producer.close();
+        try (Producer<String, SinkEvent> producer = createProducerAggr()) {
+            SinkEvent sinkEvent = new SinkEvent();
+            sinkEvent.setEvent(machineEvent);
+            ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(eventSinkTopic,
+                    sinkEvent.getEvent().getSourceId(), sinkEvent);
+            producer.send(producerRecord).get();
+        }
     }
-
 }

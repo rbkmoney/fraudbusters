@@ -45,13 +45,14 @@ import java.util.List;
 @ContextConfiguration(classes = {MgEventSinkRepository.class, ClickhouseConfig.class, FieldResolver.class}, initializers = MgEventSinkRepositoryTest.Initializer.class)
 public class MgEventSinkRepositoryTest {
 
-    public static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from " +
+    private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from " +
             ClickhouseSchemeNames.FRAUD + "." + ClickhouseSchemeNames.EVENTS_SINK_MG;
-    public static final String PARTY_ID = "partyId";
-    public static final String SHOP_ID = "shopId";
-    public static final String TEST_MAIL_RU = "test@mail.ru";
-    public static final String MY_EMAIL_TEST = "my@email.test";
-    public static final long AMOUNT = 1200L;
+
+    private static final String PARTY_ID = "partyId";
+    private static final String SHOP_ID = "shopId";
+    private static final String TEST_MAIL_RU = "test@mail.ru";
+    private static final String MY_EMAIL_TEST = "my@email.test";
+    private static final long AMOUNT = 1200L;
 
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer();

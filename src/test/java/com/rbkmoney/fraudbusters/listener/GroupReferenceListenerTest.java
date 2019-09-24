@@ -13,8 +13,9 @@ import java.util.List;
 public class GroupReferenceListenerTest {
 
     private static final String GROUP_REF_1 = "group_ref_1";
-    public static final String PARTY = "party";
-    public static final String SHOP_ID = "shopId";
+    private static final String PARTY = "party";
+    private static final String SHOP_ID = "shopId";
+
     private Pool<String> groupReferencePoolImpl;
     private GroupReferenceListener groupReferenceListener;
 

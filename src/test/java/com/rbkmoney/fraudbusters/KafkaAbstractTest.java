@@ -1,12 +1,12 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.damsel.fraudbusters.Command;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
-import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
-import com.rbkmoney.fraudbusters.serde.FraudRequestSerializer;
+import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
+import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -17,33 +17,29 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.junit.ClassRule;
-import org.junit.runner.RunWith;
+import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
-
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-@ContextConfiguration(classes = FraudBustersApplication.class, initializers = KafkaAbstractTest.Initializer.class)
+@ContextConfiguration(initializers = KafkaAbstractTest.Initializer.class)
 public abstract class KafkaAbstractTest {
 
     @MockBean
@@ -76,15 +72,6 @@ public abstract class KafkaAbstractTest {
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class.getName());
-        return new KafkaProducer<>(props);
-    }
-
-    public static Producer<String, FraudRequest> createProducerGlobal() {
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("global"));
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, FraudRequestSerializer.class.getName());
         return new KafkaProducer<>(props);
     }
 
@@ -126,7 +113,7 @@ public abstract class KafkaAbstractTest {
         }
     }
 
-    public static <T> Consumer<String, T> createConsumer(Class clazz) {
+    static <T> Consumer<String, T> createConsumer(Class clazz) {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -136,11 +123,67 @@ public abstract class KafkaAbstractTest {
         return new KafkaConsumer<>(props);
     }
 
-    protected static void recurPolling(Consumer<String, Object> consumer) {
-        ConsumerRecords<String, Object> poll = consumer.poll(Duration.ofSeconds(5));
-        if (poll.isEmpty()) {
-            recurPolling(consumer);
+    void produceTemplate(String localId, String templateString) throws InterruptedException, ExecutionException {
+        try (Producer<String, Command> producer = createProducer()) {
+            Command command = crateCommandTemplate(localId, templateString);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(templateTopic, localId, command);
+            producer.send(producerRecord).get();
         }
+    }
+
+    void produceGroup(String localId, List<PriorityId> priorityIds) throws InterruptedException, ExecutionException {
+        try (Producer<String, Command> producer = createProducer()) {
+            Command command = BeanUtil.createGroupCommand(localId, priorityIds);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(groupTopic, localId, command);
+            producer.send(producerRecord).get();
+        }
+    }
+
+    void produceReference(boolean isGlobal, String party, String shopId, String idTemplate) throws InterruptedException, ExecutionException {
+        try (Producer<String, Command> producer = createProducer()) {
+            Command command = new Command();
+            command.setCommandType(CommandType.CREATE);
+            TemplateReference value = new TemplateReference();
+            value.setTemplateId(idTemplate);
+            value.setPartyId(party);
+            value.setShopId(shopId);
+            value.setIsGlobal(isGlobal);
+            command.setCommandBody(CommandBody.reference(value));
+            String key = ReferenceKeyGenerator.generateTemplateKey(value);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(referenceTopic, key, command);
+            producer.send(producerRecord).get();
+        }
+    }
+
+    void produceReferenceWithWait(boolean isGlobal, String party, String shopId, String idTemplate, int timeout) throws InterruptedException, ExecutionException {
+        produceReference(isGlobal, party, shopId, idTemplate);
+        try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
+            consumer.subscribe(List.of(referenceTopic));
+            Unreliables.retryUntilTrue(timeout, TimeUnit.SECONDS, () -> {
+                ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
+                return !records.isEmpty();
+            });
+        }
+    }
+
+    void produceGroupReference(String party, String shopId, String idGroup) throws InterruptedException, ExecutionException {
+        try (Producer<String, Command> producer = createProducer()) {
+            Command command = BeanUtil.createGroupReferenceCommand(party, shopId, idGroup);
+            String key = ReferenceKeyGenerator.generateTemplateKey(party, shopId);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(groupReferenceTopic, key, command);
+            producer.send(producerRecord).get();
+        }
+    }
+
+    @NotNull
+    private Command crateCommandTemplate(String localId, String templateString) {
+        Command command = new Command();
+        Template template = new Template();
+        template.setId(localId);
+        template.setTemplate(templateString.getBytes());
+        command.setCommandBody(CommandBody.template(template));
+        command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        return command;
     }
 
 }
