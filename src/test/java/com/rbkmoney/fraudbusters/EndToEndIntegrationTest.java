@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.listener.StartupListener;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
@@ -14,17 +15,21 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
+import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
 import ru.yandex.clickhouse.ClickHouseDataSource;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
@@ -38,8 +43,12 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @Slf4j
+@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class)
 @ContextConfiguration(initializers = EndToEndIntegrationTest.Initializer.class)
 public class EndToEndIntegrationTest extends KafkaAbstractTest {
 

@@ -7,7 +7,6 @@ import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.config.KafkaConfig;
 import com.rbkmoney.fraudbusters.constant.ResultStatus;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
@@ -15,7 +14,6 @@ import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.serde.MgEventSinkRowDeserializer;
 import com.rbkmoney.fraudbusters.stream.aggregate.EventSinkAggregationStreamFactoryImpl;
-import com.rbkmoney.fraudbusters.stream.aggregate.handler.MgEventSinkHandler;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
@@ -33,13 +31,18 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import ru.yandex.clickhouse.ClickHouseDataSource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -49,10 +52,14 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
 
 @Slf4j
-@ContextConfiguration(classes = {KafkaConfig.class, EventSinkAggregationStreamFactoryImpl.class, MgEventSinkHandler.class},
-        initializers = PreLoadTest.Initializer.class)
+@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class)
+@ContextConfiguration(initializers = PreLoadTest.Initializer.class)
 public class PreLoadTest extends KafkaAbstractTest {
 
     private static final String TEMPLATE = "rule: 12 >= 1\n" +
@@ -60,6 +67,12 @@ public class PreLoadTest extends KafkaAbstractTest {
     private static final String TEST = "test";
 
     private InspectorProxySrv.Iface client;
+
+    @MockBean
+    ClickHouseDataSource clickHouseDataSource;
+
+    @MockBean
+    JdbcTemplate jdbcTemplate;
 
     @MockBean
     EventRepository eventRepository;
@@ -79,9 +92,6 @@ public class PreLoadTest extends KafkaAbstractTest {
 
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            TestPropertyValues
-                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
-                    .applyTo(configurableApplicationContext.getEnvironment());
             try {
                 createTemplate();
             } catch (InterruptedException e) {
@@ -183,6 +193,7 @@ public class PreLoadTest extends KafkaAbstractTest {
         Assert.assertFalse(poll.isEmpty());
         Iterator<ConsumerRecord<String, MgEventSinkRow>> iterator = poll.iterator();
         Assert.assertEquals(1, poll.count());
+        consumer.close();
 
         ConsumerRecord<String, MgEventSinkRow> record = iterator.next();
         MgEventSinkRow value = record.value();
@@ -215,5 +226,4 @@ public class PreLoadTest extends KafkaAbstractTest {
         producer.send(producerRecord).get();
         producer.close();
     }
-
 }

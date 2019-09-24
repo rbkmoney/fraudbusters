@@ -20,30 +20,22 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
+import org.junit.AfterClass;
 import org.junit.ClassRule;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-
 @Slf4j
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-@ContextConfiguration(classes = FraudBustersApplication.class, initializers = KafkaAbstractTest.Initializer.class)
+@ContextConfiguration(initializers = KafkaAbstractTest.Initializer.class)
 public abstract class KafkaAbstractTest {
 
     @MockBean
