@@ -1,22 +1,18 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
-import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
-import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.thrift.TException;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -57,7 +53,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     private static final String TEMPLATE =
-            "rule: count(\"email\", 10) > 1  AND count(\"email\", 10) < 3 " +
+            "rule: count(\"email\", 10, 0, \"party_id\", \"shop_id\") > 1  AND count(\"email\", 10) < 3 " +
                     "AND sum(\"email\", 10) >= 18000 " +
                     "AND count(\"card_token\", 10) > 1 " +
                     "AND in(countryBy(\"country_bank\"), \"RUS\") \n" +
