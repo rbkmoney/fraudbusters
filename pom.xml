@@ -211,6 +211,12 @@
             <artifactId>wb-list-proto</artifactId>
             <version>${wb.list.proto.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.rnorth.duct-tape</groupId>
+            <artifactId>duct-tape</artifactId>
+            <version>1.0.8</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
