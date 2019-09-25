@@ -5,12 +5,17 @@ import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.constant.ResultStatus;
+import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
+import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
+import com.rbkmoney.fraudbusters.serde.MgEventSinkRowDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.thrift.TException;
 import org.junit.Assert;
@@ -20,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -37,6 +43,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -71,6 +80,9 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE_CONCRETE_SHOP =
             "rule:  sum(\"email\", 10) >= 18000  -> accept;";
 
+    private static final String TEMPLATE_SUCCESS =
+            "rule:  countSuccess(\"shop\", 10) >= 1  -> accept;";
+
     private static final int COUNTRY_GEO_ID = 12345;
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
@@ -84,6 +96,9 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     public String GLOBAL_TOPIC;
 
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
+
+    @Autowired
+    private MgEventSinkRepository mgEventSinkRepository;
 
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer();
@@ -112,6 +127,11 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         try (Connection connection = getSystemConn()) {
             String sql = FileUtil.getFile("sql/db_init.sql");
             String[] split = sql.split(";");
+            for (String exec : split) {
+                connection.createStatement().execute(exec);
+            }
+            sql = FileUtil.getFile("sql/V2__create_event_sink.sql");
+            split = sql.split(";");
             for (String exec : split) {
                 connection.createStatement().execute(exec);
             }
@@ -151,11 +171,12 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         }
 
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
+
     }
 
 
     @Test
-    public void test() throws URISyntaxException, TException, InterruptedException {
+    public void test() throws URISyntaxException, TException, InterruptedException, ExecutionException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
@@ -177,6 +198,11 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         context = BeanUtil.createContext(GROUP_P_ID);
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
+
+        produceMessageToEventSink(BeanUtil.createMessageCreateInvoice(BeanUtil.SOURCE_ID));
+        produceMessageToEventSink(BeanUtil.createMessagePaymentStared(BeanUtil.SOURCE_ID));
+        produceMessageToEventSink(BeanUtil.createMessageInvoiceCaptured(BeanUtil.SOURCE_ID));
+
     }
 
 }

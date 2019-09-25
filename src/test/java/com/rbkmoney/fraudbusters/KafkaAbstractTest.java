@@ -8,6 +8,7 @@ import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
+import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -186,4 +187,13 @@ public abstract class KafkaAbstractTest {
         return command;
     }
 
+    void produceMessageToEventSink(MachineEvent machineEvent) throws InterruptedException, ExecutionException {
+        try (Producer<String, SinkEvent> producer = createProducerAggr()) {
+            SinkEvent sinkEvent = new SinkEvent();
+            sinkEvent.setEvent(machineEvent);
+            ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(eventSinkTopic,
+                    sinkEvent.getEvent().getSourceId(), sinkEvent);
+            producer.send(producerRecord).get();
+        }
+    }
 }

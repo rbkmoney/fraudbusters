@@ -188,13 +188,5 @@ public class PreLoadTest extends KafkaAbstractTest {
         return poll;
     }
 
-    private void produceMessageToEventSink(MachineEvent machineEvent) throws InterruptedException, ExecutionException {
-        try (Producer<String, SinkEvent> producer = createProducerAggr()) {
-            SinkEvent sinkEvent = new SinkEvent();
-            sinkEvent.setEvent(machineEvent);
-            ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(eventSinkTopic,
-                    sinkEvent.getEvent().getSourceId(), sinkEvent);
-            producer.send(producerRecord).get();
-        }
-    }
+
 }
