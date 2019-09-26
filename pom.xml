@@ -39,7 +39,7 @@
         <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
         <sonar.issue.ignore.multicriteria.e1.ruleKey>squid:S2095</sonar.issue.ignore.multicriteria.e1.ruleKey>
         <sonar.issue.ignore.multicriteria.e1.resourceKey>
-            **/TemplateStreamFactoryImpl.java
+            **/;StreamFactoryImpl.java
         </sonar.issue.ignore.multicriteria.e1.resourceKey>
     </properties>
     <dependencies>
