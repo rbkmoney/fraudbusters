@@ -35,6 +35,13 @@
         <clickhouse-jdbc.version>0.1.54</clickhouse-jdbc.version>
         <fraudbusters-proto.version>1.12-0668b74</fraudbusters-proto.version>
         <machinegun-proto.version>1.12-ebae56f</machinegun-proto.version>
+
+        <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
+        <sonar.issue.ignore.multicriteria.e1.ruleKey>squid:S2095</sonar.issue.ignore.multicriteria.e1.ruleKey>
+        <sonar.issue.ignore.multicriteria.e1.resourceKey>
+            **/TemplateStreamFactoryImpl.java,
+            **/EventSinkAggregationStreamFactoryImpl.java
+        </sonar.issue.ignore.multicriteria.e1.resourceKey>
     </properties>
     <dependencies>
         <!--spring-->
@@ -280,10 +287,6 @@
                 <configuration>
                     <destFile>${sonar.jacoco.reportPath}</destFile>
                     <append>true</append>
-                    <excludes>
-                        <exclude>**/EventSinkAggregationStreamFactoryImpl.java</exclude>
-                        <exclude>**/TemplateStreamFactoryImpl.java</exclude>
-                    </excludes>
                 </configuration>
                 <executions>
                     <execution>
