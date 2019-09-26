@@ -155,24 +155,24 @@ public class PreLoadTest extends KafkaAbstractTest {
         eventSinkStreamProperties.setProperty(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000 + "");
         eventSinkStreamProperties.setProperty(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0 + "");
 
-        KafkaStreams kafkaStreams = eventSinkAggregationStreamFactory.create(eventSinkStreamProperties);
+        try (KafkaStreams kafkaStreams = eventSinkAggregationStreamFactory.create(eventSinkStreamProperties)) {
 
-        try (Consumer<String, MgEventSinkRow> consumer = createConsumer(MgEventSinkRowDeserializer.class)) {
-            consumer.subscribe(List.of(aggregatedEventSink));
-            ConsumerRecords<String, MgEventSinkRow> poll = pollWithWaitingTimeout(consumer, Duration.ofSeconds(30L));
+            try (Consumer<String, MgEventSinkRow> consumer = createConsumer(MgEventSinkRowDeserializer.class)) {
+                consumer.subscribe(List.of(aggregatedEventSink));
+                ConsumerRecords<String, MgEventSinkRow> poll = pollWithWaitingTimeout(consumer, Duration.ofSeconds(30L));
 
-            Assert.assertFalse(poll.isEmpty());
-            Iterator<ConsumerRecord<String, MgEventSinkRow>> iterator = poll.iterator();
+                Assert.assertFalse(poll.isEmpty());
+                Iterator<ConsumerRecord<String, MgEventSinkRow>> iterator = poll.iterator();
 
-            Assert.assertEquals(1, poll.count());
-            ConsumerRecord<String, MgEventSinkRow> record = iterator.next();
+                Assert.assertEquals(1, poll.count());
+                ConsumerRecord<String, MgEventSinkRow> record = iterator.next();
 
-            MgEventSinkRow value = record.value();
-            Assert.assertEquals(ResultStatus.CAPTURED.name(), value.getResultStatus());
-            Assert.assertEquals(BeanUtil.SHOP_ID, value.getShopId());
+                MgEventSinkRow value = record.value();
+                Assert.assertEquals(ResultStatus.CAPTURED.name(), value.getResultStatus());
+                Assert.assertEquals(BeanUtil.SHOP_ID, value.getShopId());
+            }
+
         }
-
-        kafkaStreams.close();
     }
 
     @NotNull
