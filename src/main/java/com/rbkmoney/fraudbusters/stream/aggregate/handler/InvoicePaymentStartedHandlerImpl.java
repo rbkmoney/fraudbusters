@@ -31,8 +31,9 @@ public class InvoicePaymentStartedHandlerImpl implements InvoiceChangeHandler {
         Payer payer = invoicePaymentStarted.getPayment().getPayer();
         InvoicePayment payment = invoicePaymentStarted.getPayment();
         LocalDateTime localDateTime = TypeUtil.stringToLocalDateTime(payment.getCreatedAt());
-        long timestamp = localDateTime.toEpochSecond(ZoneOffset.UTC);
+        long timestamp = localDateTime.atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
         mgEventSinkRow.setTimestamp(new Date(timestamp));
+        mgEventSinkRow.setEventTime(timestamp);
         Cash cost = payment.getCost();
         mgEventSinkRow.setAmount(cost.getAmount());
         mgEventSinkRow.setCurrency(cost.getCurrency().getSymbolicCode());
