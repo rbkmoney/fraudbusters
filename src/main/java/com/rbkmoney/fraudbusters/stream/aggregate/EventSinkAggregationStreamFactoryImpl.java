@@ -14,6 +14,7 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.state.Stores;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class EventSinkAggregationStreamFactoryImpl implements TemplateStreamFactory {
 
+    public static final String IN_MEMORY = "in-memory-aggregates";
     @Value("${kafka.topic.event.sink.initial}")
     private String initialEventSink;
 
@@ -41,12 +43,13 @@ public class EventSinkAggregationStreamFactoryImpl implements TemplateStreamFact
         try {
             log.info("Create stream aggregation!");
             StreamsBuilder builder = new StreamsBuilder();
-
             builder.stream(initialEventSink, Consumed.with(Serdes.String(), sinkEventSerde))
                     .peek((key, value) -> log.info("Aggregate key={} value={}", key, value))
                     .map(mgEventSinkRowMapper)
                     .groupByKey()
-                    .aggregate(MgEventSinkRow::new, mgEventAggregator, Materialized.with(stringSerde, mgEventSinkRowSerde))
+                    .aggregate(MgEventSinkRow::new, mgEventAggregator, Materialized
+                            .as(Stores.inMemoryKeyValueStore(IN_MEMORY))
+                            .with(stringSerde, mgEventSinkRowSerde))
                     .toStream()
                     .filter((key, value) -> value.getResultStatus() != null)
                     .peek((key, value) -> log.info("Filtered key={} value={}", key, value))
