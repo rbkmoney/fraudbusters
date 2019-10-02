@@ -53,6 +53,11 @@ public class EventSinkAggregationStreamFactoryImpl implements TemplateStreamFact
                     .to(aggregatedSinkTopic, Produced.with(stringSerde, mgEventSinkRowSerde));
 
             KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), streamsConfiguration);
+            kafkaStreams.setUncaughtExceptionHandler((t, e) -> {
+                log.error("Caught unhandled Kafka Streams Exception:", e);
+                // Do some exception handling.
+                kafkaStreams.close();
+            });
             kafkaStreams.start();
             log.info("Stream aggregation is started!");
             return kafkaStreams;
