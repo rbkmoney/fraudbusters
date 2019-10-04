@@ -37,6 +37,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
 
     public static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
+    public static final int TIMEOUT = 20;
 
     @Autowired
     private Pool<FraudoParser.ParseContext> pool;
@@ -53,7 +54,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         //check message in topic
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
             consumer.subscribe(List.of(templateTopic));
-            Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
+            Unreliables.retryUntilTrue(TIMEOUT, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
                 return !records.isEmpty();
             });
@@ -77,7 +78,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         }
 
         //check that global reference created
-        Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
+        Unreliables.retryUntilTrue(TIMEOUT, TimeUnit.SECONDS, () -> {
             String result = referencePoolImpl.get(TemplateLevel.GLOBAL.name());
             if (StringUtils.isEmpty(result)) {
                 return false;
