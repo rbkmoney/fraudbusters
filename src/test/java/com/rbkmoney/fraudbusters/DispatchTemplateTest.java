@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.CommandBody;
-import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
@@ -37,6 +36,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
 
     public static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
+    public static final int TIMEOUT = 20;
 
     @Autowired
     private Pool<FraudoParser.ParseContext> pool;
@@ -53,15 +53,17 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         //check message in topic
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
             consumer.subscribe(List.of(templateTopic));
-            Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
+            Unreliables.retryUntilTrue(TIMEOUT, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
                 return !records.isEmpty();
             });
         }
 
         //check parse context created
-        FraudoParser.ParseContext parseContext = pool.get(id);
-        Assert.assertNotNull(parseContext);
+        Unreliables.retryUntilTrue(TIMEOUT, TimeUnit.SECONDS, () -> {
+            FraudoParser.ParseContext parseContext = pool.get(id);
+            return parseContext != null;
+        });
 
         //create global template reference
         try (Producer<String, Command> producer = createProducer()) {
@@ -77,7 +79,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         }
 
         //check that global reference created
-        Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
+        Unreliables.retryUntilTrue(TIMEOUT, TimeUnit.SECONDS, () -> {
             String result = referencePoolImpl.get(TemplateLevel.GLOBAL.name());
             if (StringUtils.isEmpty(result)) {
                 return false;

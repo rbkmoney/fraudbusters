@@ -45,6 +45,12 @@ public class KafkaConfig {
     public static final String APP_POSTFIX = "app";
     public static final String EVENT_SINK_CLIENT_FRAUDBUSTERS = "event-sink-client-fraudbusters";
 
+    @Value("${kafka.state.cache.size:10}")
+    private int cacheSizeStateStoreMb;
+
+    @Value("${kafka.state.dir}")
+    private String stateDir;
+
     @Value("${kafka.max.poll.records}")
     private String maxPollRecords;
 
@@ -98,6 +104,8 @@ public class KafkaConfig {
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, MgEventSinkRowSerde.class);
+        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, cacheSizeStateStoreMb * 1024 * 1024L);
+        props.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
         props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
                 clientStoreCertPath, keyStorePassword, keyPassword));
         return props;
