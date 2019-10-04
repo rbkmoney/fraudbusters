@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.CommandBody;
-import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
@@ -61,8 +60,10 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         }
 
         //check parse context created
-        FraudoParser.ParseContext parseContext = pool.get(id);
-        Assert.assertNotNull(parseContext);
+        Unreliables.retryUntilTrue(TIMEOUT, TimeUnit.SECONDS, () -> {
+            FraudoParser.ParseContext parseContext = pool.get(id);
+            return parseContext != null;
+        });
 
         //create global template reference
         try (Producer<String, Command> producer = createProducer()) {
