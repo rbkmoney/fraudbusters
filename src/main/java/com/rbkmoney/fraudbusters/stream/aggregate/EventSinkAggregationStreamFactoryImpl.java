@@ -14,7 +14,6 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.state.Stores;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -42,14 +41,13 @@ public class EventSinkAggregationStreamFactoryImpl implements TemplateStreamFact
     public KafkaStreams create(final Properties streamsConfiguration) {
         try {
             log.info("Create stream aggregation!");
+
             StreamsBuilder builder = new StreamsBuilder();
             builder.stream(initialEventSink, Consumed.with(Serdes.String(), sinkEventSerde))
                     .peek((key, value) -> log.info("Aggregate key={} value={}", key, value))
                     .map(mgEventSinkRowMapper)
                     .groupByKey()
-                    .aggregate(MgEventSinkRow::new, mgEventAggregator, Materialized
-                            .as(Stores.inMemoryKeyValueStore(IN_MEMORY))
-                            .with(stringSerde, mgEventSinkRowSerde))
+                    .aggregate(MgEventSinkRow::new, mgEventAggregator, Materialized.with(stringSerde, mgEventSinkRowSerde))
                     .toStream()
                     .filter((key, value) -> value.getResultStatus() != null)
                     .peek((key, value) -> log.info("Filtered key={} value={}", key, value))
@@ -58,7 +56,6 @@ public class EventSinkAggregationStreamFactoryImpl implements TemplateStreamFact
             KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), streamsConfiguration);
             kafkaStreams.setUncaughtExceptionHandler((t, e) -> {
                 log.error("Caught unhandled Kafka Streams Exception:", e);
-                // Do some exception handling.
                 kafkaStreams.close();
             });
             kafkaStreams.start();
