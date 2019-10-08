@@ -8,6 +8,7 @@ import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +45,10 @@ public class InListFinderImpl implements InListFinder {
         try {
             List<Row> rows = new ArrayList<>();
             for (int i = 0; i < fields.size(); i++) {
-                Row row = createRow(partyId, shopId, fields.get(i), value.get(i));
-                rows.add(row);
+                if (!StringUtils.isEmpty(value.get(i))) {
+                    Row row = createRow(partyId, shopId, fields.get(i), value.get(i));
+                    rows.add(row);
+                }
             }
             return wbListServiceSrv.isAnyExist(rows);
         } catch (Exception e) {

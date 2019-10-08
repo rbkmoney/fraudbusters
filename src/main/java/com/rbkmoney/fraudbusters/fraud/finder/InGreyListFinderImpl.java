@@ -1,7 +1,6 @@
 package com.rbkmoney.fraudbusters.fraud.finder;
 
 import com.rbkmoney.damsel.wb_list.*;
-import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
@@ -10,6 +9,7 @@ import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -62,7 +62,7 @@ public class InGreyListFinderImpl implements InListFinder {
     public Boolean findInList(String partyId, String shopId, List<CheckedField> fields, List<String> value) {
         try {
             for (int i = 0; i < fields.size(); i++) {
-                if (findInList(partyId, shopId, fields.get(i), value.get(i))) {
+                if (!StringUtils.isEmpty(value.get(i)) && findInList(partyId, shopId, fields.get(i), value.get(i))) {
                     return true;
                 }
             }
