@@ -23,8 +23,11 @@ public class InListFinderImpl implements InListFinder {
     @Override
     public Boolean findInList(String partyId, String shopId, CheckedField field, String value) {
         try {
-            Row row = createRow(partyId, shopId, field, value);
-            return wbListServiceSrv.isExist(row);
+            if (!StringUtils.isEmpty(value)) {
+                Row row = createRow(partyId, shopId, field, value);
+                return wbListServiceSrv.isExist(row);
+            }
+            return false;
         } catch (Exception e) {
             log.warn("InListFinderImpl error when findInList e: ", e);
             throw new RuleFunctionException(e);

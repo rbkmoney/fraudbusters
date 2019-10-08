@@ -27,20 +27,22 @@ public class InGreyListFinderImpl implements InListFinder {
     @Override
     public Boolean findInList(String partyId, String shopId, CheckedField field, String value) {
         try {
-            Row row = createRow(partyId, shopId, field, value);
-            Result result = wbListServiceSrv.getRowInfo(row);
-            if (result.getRowInfo() != null && result.getRowInfo().isSetCountInfo()) {
-                RowInfo rowInfo = result.getRowInfo();
-                String startCountTime = rowInfo.getCountInfo().getStartCountTime();
-                String ttl = rowInfo.getCountInfo().getTimeToLive();
-                String resolveField = fieldResolver.resolve(field);
-                Long to = TimestampUtil.generateTimestampWithParse(ttl);
-                Long from = TimestampUtil.generateTimestampWithParse(startCountTime);
-                if (Instant.now().getEpochSecond() > to || from >= to) {
-                    return false;
+            if (!StringUtils.isEmpty(value)) {
+                Row row = createRow(partyId, shopId, field, value);
+                Result result = wbListServiceSrv.getRowInfo(row);
+                if (result.getRowInfo() != null && result.getRowInfo().isSetCountInfo()) {
+                    RowInfo rowInfo = result.getRowInfo();
+                    String startCountTime = rowInfo.getCountInfo().getStartCountTime();
+                    String ttl = rowInfo.getCountInfo().getTimeToLive();
+                    String resolveField = fieldResolver.resolve(field);
+                    Long to = TimestampUtil.generateTimestampWithParse(ttl);
+                    Long from = TimestampUtil.generateTimestampWithParse(startCountTime);
+                    if (Instant.now().getEpochSecond() > to || from >= to) {
+                        return false;
+                    }
+                    int currentCount = eventRepository.countOperationByField(resolveField, value, from, to);
+                    return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
                 }
-                int currentCount = eventRepository.countOperationByField(resolveField, value, from, to);
-                return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
             }
             return false;
         } catch (Exception e) {
