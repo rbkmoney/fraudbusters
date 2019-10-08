@@ -8,6 +8,7 @@ import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +23,11 @@ public class InListFinderImpl implements InListFinder {
     @Override
     public Boolean findInList(String partyId, String shopId, CheckedField field, String value) {
         try {
-            Row row = createRow(partyId, shopId, field, value);
-            return wbListServiceSrv.isExist(row);
+            if (!StringUtils.isEmpty(value)) {
+                Row row = createRow(partyId, shopId, field, value);
+                return wbListServiceSrv.isExist(row);
+            }
+            return false;
         } catch (Exception e) {
             log.warn("InListFinderImpl error when findInList e: ", e);
             throw new RuleFunctionException(e);
@@ -40,12 +44,14 @@ public class InListFinderImpl implements InListFinder {
     }
 
     @Override
-    public Boolean findInList(String partyId, String shopId, List<CheckedField> fields, List<String> value) {
+    public Boolean findInList(String partyId, String shopId, List<CheckedField> fields, List<String> values) {
         try {
             List<Row> rows = new ArrayList<>();
             for (int i = 0; i < fields.size(); i++) {
-                Row row = createRow(partyId, shopId, fields.get(i), value.get(i));
-                rows.add(row);
+                if (!StringUtils.isEmpty(values.get(i))) {
+                    Row row = createRow(partyId, shopId, fields.get(i), values.get(i));
+                    rows.add(row);
+                }
             }
             return wbListServiceSrv.isAnyExist(rows);
         } catch (Exception e) {
