@@ -41,12 +41,12 @@ public class InListFinderImpl implements InListFinder {
     }
 
     @Override
-    public Boolean findInList(String partyId, String shopId, List<CheckedField> fields, List<String> value) {
+    public Boolean findInList(String partyId, String shopId, List<CheckedField> fields, List<String> values) {
         try {
             List<Row> rows = new ArrayList<>();
             for (int i = 0; i < fields.size(); i++) {
-                if (!StringUtils.isEmpty(value.get(i))) {
-                    Row row = createRow(partyId, shopId, fields.get(i), value.get(i));
+                if (!StringUtils.isEmpty(values.get(i))) {
+                    Row row = createRow(partyId, shopId, fields.get(i), values.get(i));
                     rows.add(row);
                 }
             }

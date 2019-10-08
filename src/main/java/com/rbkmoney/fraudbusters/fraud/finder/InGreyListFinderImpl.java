@@ -59,10 +59,10 @@ public class InGreyListFinderImpl implements InListFinder {
     }
 
     @Override
-    public Boolean findInList(String partyId, String shopId, List<CheckedField> fields, List<String> value) {
+    public Boolean findInList(String partyId, String shopId, List<CheckedField> fields, List<String> values) {
         try {
             for (int i = 0; i < fields.size(); i++) {
-                if (!StringUtils.isEmpty(value.get(i)) && findInList(partyId, shopId, fields.get(i), value.get(i))) {
+                if (!StringUtils.isEmpty(values.get(i)) && findInList(partyId, shopId, fields.get(i), values.get(i))) {
                     return true;
                 }
             }
