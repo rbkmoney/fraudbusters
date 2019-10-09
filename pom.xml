@@ -21,6 +21,8 @@
         <server.port>8022</server.port>
         <exposed.ports>${server.port}</exposed.ports>
         <dockerfile.base.service.tag>bc95d0d6dc13c693acd2b274531a7d604b877bf3</dockerfile.base.service.tag>
+        <dockerfile.build.tag>bdc05544014b3475c8e0726d3b3d6fc81b09db96</dockerfile.build.tag>
+
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools-version>7.0.0.Final</drools-version>
