@@ -23,6 +23,8 @@ import java.util.Optional;
 @Component
 public class ContextToFraudRequestConverter implements Converter<Context, FraudRequest> {
 
+    public static final String UNKNOWN = "UNKNOWN";
+
     @Override
     public FraudRequest convert(Context context) {
         FraudModel fraudModel = new FraudModel();
@@ -31,7 +33,7 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
         fraudModel.setPartyId(party.getPartyId());
         getBankCard(context).ifPresent(bankCard -> {
             fraudModel.setBin(bankCard.getBin());
-            fraudModel.setBinCountryCode(bankCard.getIssuerCountry().name());
+            fraudModel.setBinCountryCode(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : UNKNOWN);
             fraudModel.setCardToken(bankCard.getToken());
         });
         getContactInfo(context).ifPresent(contract -> fraudModel.setEmail(contract.getEmail()));
