@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentChange;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentChangePayload;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentStarted;
+import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import org.springframework.stereotype.Component;
@@ -44,7 +45,7 @@ public class InvoicePaymentStartedHandlerImpl implements InvoiceChangeHandler {
                 mgEventSinkRow.setFingerprint(clientInfo.getFingerprint());
                 if (isBankCard(payer)) {
                     BankCard bankCard = payer.getPaymentResource().getResource().getPaymentTool().getBankCard();
-                    mgEventSinkRow.setBankCountry(bankCard.getIssuerCountry().name());
+                    mgEventSinkRow.setBankCountry(bankCard.getIssuerCountry() != null ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
                     mgEventSinkRow.setBin(bankCard.getBin());
                     mgEventSinkRow.setMaskedPan(bankCard.getMaskedPan());
                     mgEventSinkRow.setCardToken(bankCard.getToken());

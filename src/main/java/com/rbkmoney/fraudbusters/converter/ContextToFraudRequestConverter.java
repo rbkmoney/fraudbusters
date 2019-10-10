@@ -7,6 +7,7 @@ import com.rbkmoney.damsel.domain.Payer;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.PaymentInfo;
+import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.Metadata;
 import com.rbkmoney.fraudo.model.FraudModel;
@@ -23,8 +24,6 @@ import java.util.Optional;
 @Component
 public class ContextToFraudRequestConverter implements Converter<Context, FraudRequest> {
 
-    public static final String UNKNOWN = "UNKNOWN";
-
     @Override
     public FraudRequest convert(Context context) {
         FraudModel fraudModel = new FraudModel();
@@ -33,7 +32,7 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
         fraudModel.setPartyId(party.getPartyId());
         getBankCard(context).ifPresent(bankCard -> {
             fraudModel.setBin(bankCard.getBin());
-            fraudModel.setBinCountryCode(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : UNKNOWN);
+            fraudModel.setBinCountryCode(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
             fraudModel.setCardToken(bankCard.getToken());
         });
         getContactInfo(context).ifPresent(contract -> fraudModel.setEmail(contract.getEmail()));

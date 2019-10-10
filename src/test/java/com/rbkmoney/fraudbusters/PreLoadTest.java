@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -85,6 +86,9 @@ public class PreLoadTest extends KafkaAbstractTest {
 
     @LocalServerPort
     int serverPort;
+
+    @Value("${kafka.state.dir}")
+    private String stateDir;
 
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
@@ -152,7 +156,7 @@ public class PreLoadTest extends KafkaAbstractTest {
         produceMessageToEventSink(BeanUtil.createMessagePaymentStared(BeanUtil.SOURCE_ID + "_2"));
         produceMessageToEventSink(BeanUtil.createMessageInvoiceCaptured(BeanUtil.SOURCE_ID));
 
-        eventSinkStreamProperties.setProperty(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000 + "");
+        eventSinkStreamProperties.setProperty(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000 + "");
         eventSinkStreamProperties.setProperty(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0 + "");
 
         try (KafkaStreams kafkaStreams = eventSinkAggregationStreamFactory.create(eventSinkStreamProperties)) {

@@ -92,7 +92,6 @@ public abstract class KafkaAbstractTest {
                     .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
                     .applyTo(configurableApplicationContext.getEnvironment());
             initTopic("template");
-            initTopic("global_topic");
             initTopic("template_reference");
             initTopic("group_list");
             initTopic("group_reference");

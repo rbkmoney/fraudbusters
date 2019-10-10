@@ -3,7 +3,10 @@ package com.rbkmoney.fraudbusters.config;
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
-import com.rbkmoney.fraudbusters.serde.*;
+import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
+import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
+import com.rbkmoney.fraudbusters.serde.MgEventSinkRowDeserializer;
+import com.rbkmoney.fraudbusters.serde.MgEventSinkRowSerde;
 import com.rbkmoney.fraudbusters.service.ConsumerGroupIdService;
 import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
 import lombok.RequiredArgsConstructor;
@@ -40,10 +43,7 @@ public class KafkaConfig {
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "result-aggregator";
     private static final String MG_EVENT_SINK_AGGREGATOR = "mg-event-sink-aggregator";
-
-    private static final String FRAUD_BUSTERS_CLIENT = "fraud-busters-client";
-    public static final String APP_POSTFIX = "app";
-    public static final String EVENT_SINK_CLIENT_FRAUDBUSTERS = "event-sink-client-fraudbusters";
+    private static final String EVENT_SINK_CLIENT_FRAUDBUSTERS = "event-sink-client-fraudbusters";
 
     @Value("${kafka.state.cache.size:10}")
     private int cacheSizeStateStoreMb;
@@ -82,19 +82,6 @@ public class KafkaConfig {
     private boolean kafkaSslEnable;
 
     private final ConsumerGroupIdService consumerGroupIdService;
-
-    @Bean
-    public Properties fraudStreamProperties() {
-        final Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, consumerGroupIdService.generateGroupId(APP_POSTFIX));
-        props.put(StreamsConfig.CLIENT_ID_CONFIG, FRAUD_BUSTERS_CLIENT);
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, FraudRequestSerde.class);
-        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
-                clientStoreCertPath, keyStorePassword, keyPassword));
-        return props;
-    }
 
     @Bean
     public Properties eventSinkStreamProperties() {
@@ -207,7 +194,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, FraudResult> resultListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, FraudResult> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, FraudResult> factory = new ConcurrentKafkaListenerContainerFactory<>();
         String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
         final Map<String, Object> props = createDefaultProperties(consumerGroup);

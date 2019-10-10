@@ -18,7 +18,7 @@ public class ResultAggregatorListener {
     private final EventRepository eventRepository;
     private final FraudResultToEventConverter fraudResultToEventConverter;
 
-    @KafkaListener(topics = "${kafka.topic.result}", containerFactory = "resultListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.result}", containerFactory = "kafkaListenerContainerFactory")
     public void listen(List<FraudResult> batch) {
         log.info("ResultAggregatorListener listen result: {}", batch);
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
