@@ -29,7 +29,6 @@ kafka:
     retry.attempts: 3
     poll.records: 100
   topic:
-    global: global_topic
     result: result
     template: template
     reference: template_reference

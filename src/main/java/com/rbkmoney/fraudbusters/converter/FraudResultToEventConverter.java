@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.converter;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
+import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
@@ -24,7 +25,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FraudResultToEventConverter implements Converter<FraudResult, Event> {
 
-    private static final String UNKNOWN = "UNKNOWN";
     private final GeoIpServiceSrv.Iface geoIpService;
 
     @Override
@@ -70,7 +70,7 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         } catch (TException e) {
             log.error("Error when getCountryCode e: ", e);
         }
-        return country != null ? country : UNKNOWN;
+        return country != null ? country : ClickhouseUtilsValue.UNKNOWN;
     }
 
     @NotNull

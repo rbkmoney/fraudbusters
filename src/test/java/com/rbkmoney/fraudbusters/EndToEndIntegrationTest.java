@@ -5,17 +5,13 @@ import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.constant.ResultStatus;
-import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
-import com.rbkmoney.fraudbusters.serde.MgEventSinkRowDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.thrift.TException;
 import org.junit.Assert;
@@ -26,7 +22,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -43,9 +38,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -80,20 +72,15 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE_CONCRETE_SHOP =
             "rule:  sum(\"email\", 10) >= 18000  -> accept;";
 
-    private static final String TEMPLATE_SUCCESS =
-            "rule:  countSuccess(\"shop\", 10) >= 1  -> accept;";
-
     private static final int COUNTRY_GEO_ID = 12345;
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
+    public static final long TIMEOUT = 2000L;
 
     private InspectorProxySrv.Iface client;
 
     @LocalServerPort
     int serverPort;
-
-    @Value("${kafka.topic.global}")
-    public String GLOBAL_TOPIC;
 
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
@@ -182,17 +169,26 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
                 .withNetworkTimeout(300000);
         client = clientBuilder.build(InspectorProxySrv.Iface.class);
 
+        Thread.sleep(TIMEOUT);
+
         Context context = BeanUtil.createContext();
         RiskScore riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
+
+        Thread.sleep(TIMEOUT);
 
         context = BeanUtil.createContext();
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
 
+        Thread.sleep(TIMEOUT);
+
+
         context = BeanUtil.createContext(P_ID);
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.low, riskScore);
+
+        Thread.sleep(TIMEOUT);
 
         //test groups templates
         context = BeanUtil.createContext(GROUP_P_ID);

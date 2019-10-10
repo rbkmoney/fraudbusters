@@ -14,15 +14,13 @@ public class FraudResultRiskScoreConverter implements Converter<FraudResult, Ris
         CheckedResultModel checkedResultModel = fraudResult.getResultModel();
         switch (checkedResultModel.getResultModel().getResultStatus()) {
             case ACCEPT:
+            case NOTIFY:
                 return RiskScore.low;
             case DECLINE:
                 return RiskScore.fatal;
-            case THREE_DS:
-                return RiskScore.high;
-            case NOTIFY:
-                return RiskScore.low;
             default:
                 return RiskScore.high;
         }
     }
+
 }
