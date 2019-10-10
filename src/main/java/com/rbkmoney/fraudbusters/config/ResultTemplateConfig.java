@@ -17,7 +17,7 @@ import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
-public class ReplyTemplateConfig {
+public class ResultTemplateConfig {
 
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
