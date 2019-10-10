@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class InvoicePaymentStatusChangedHandlerImpl implements InvoiceChangeHandler {
 
+    public static final String OPERATION_TIMEOUT = "operation_timeout";
+
     @Override
     public boolean filter(InvoiceChange invoiceChange) {
         return invoiceChange.isSetInvoicePaymentChange()
@@ -28,9 +30,13 @@ public class InvoicePaymentStatusChangedHandlerImpl implements InvoiceChangeHand
             mgEventSinkRow.setResultStatus(ResultStatus.CAPTURED.name());
         } else if (invoicePaymentStatusChanged.getStatus().isSetFailed()) {
             mgEventSinkRow.setResultStatus(ResultStatus.FAILED.name());
-            Failure failure = invoicePaymentStatusChanged.getStatus().getFailed().getFailure().getFailure();
-            mgEventSinkRow.setErrorMessage(failure.getReason());
-            mgEventSinkRow.setErrorCode(failure.getCode());
+            if (invoicePaymentStatusChanged.getStatus().getFailed().getFailure().isSetFailure()) {
+                Failure failure = invoicePaymentStatusChanged.getStatus().getFailed().getFailure().getFailure();
+                mgEventSinkRow.setErrorMessage(failure.getReason());
+                mgEventSinkRow.setErrorCode(failure.getCode());
+            } else if (invoicePaymentStatusChanged.getStatus().getFailed().getFailure().isSetOperationTimeout()) {
+                mgEventSinkRow.setErrorCode(OPERATION_TIMEOUT);
+            }
         } else if (invoicePaymentStatusChanged.getStatus().isSetCancelled()) {
             mgEventSinkRow.setResultStatus(ResultStatus.CANCELLED.name());
         } else if (invoicePaymentStatusChanged.getStatus().isSetRefunded()) {
