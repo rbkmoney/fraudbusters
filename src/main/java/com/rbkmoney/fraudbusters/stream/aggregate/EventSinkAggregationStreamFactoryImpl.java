@@ -45,13 +45,13 @@ public class EventSinkAggregationStreamFactoryImpl implements TemplateStreamFact
 
             StreamsBuilder builder = new StreamsBuilder();
             builder.stream(initialEventSink, Consumed.with(Serdes.String(), sinkEventSerde))
-                    .peek((key, value) -> log.info("Aggregate key={} value={}", key, value))
+                    .peek((key, value) -> log.debug("Aggregate key={} value={}", key, value))
                     .map(mgEventSinkRowMapper)
                     .groupByKey()
                     .aggregate(MgEventSinkRow::new, mgEventAggregator, Materialized.with(stringSerde, mgEventSinkRowSerde))
                     .toStream()
                     .filter((key, value) -> value.getResultStatus() != null)
-                    .peek((key, value) -> log.info("Filtered key={} value={}", key, value))
+                    .peek((key, value) -> log.debug("Filtered key={} value={}", key, value))
                     .to(aggregatedSinkTopic, Produced.with(stringSerde, mgEventSinkRowSerde));
 
             KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), streamsConfiguration);
