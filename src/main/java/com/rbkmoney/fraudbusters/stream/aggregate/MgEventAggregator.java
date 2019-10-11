@@ -14,7 +14,7 @@ public class MgEventAggregator implements Aggregator<String, MgEventSinkRow, MgE
 
     @Override
     public MgEventSinkRow apply(String key, MgEventSinkRow value, MgEventSinkRow aggregate) {
-        log.info("Merge aggValue={} and value={}", aggregate, value);
+        log.debug("Merge aggValue={} and value={}", aggregate, value);
         aggregate.setInvoiceId(changeIfNotNull(aggregate.getInvoiceId(), value.getInvoiceId()));
         aggregate.setResultStatus(value.getResultStatus());
         aggregate.setPaymentId(changeIfNotNull(aggregate.getPaymentId(), value.getPaymentId()));
@@ -35,7 +35,7 @@ public class MgEventAggregator implements Aggregator<String, MgEventSinkRow, MgE
         aggregate.setCountry(changeIfNotNull(aggregate.getCountry(), value.getCountry()));
         aggregate.setTimestamp(changeIfNotNull(aggregate.getTimestamp(), value.getTimestamp()));
         aggregate.setEventTime(changeIfNotNull(aggregate.getEventTime(), value.getEventTime()));
-        log.info("Merge result={}", aggregate);
+        log.debug("Merge result={}", aggregate);
         return aggregate;
     }
 
