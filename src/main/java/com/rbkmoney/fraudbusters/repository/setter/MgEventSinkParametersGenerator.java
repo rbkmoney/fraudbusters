@@ -15,15 +15,15 @@ public class MgEventSinkParametersGenerator {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(MgEventSinkField.timestamp.name(), mgEventSinkRow.getTimestamp());
         parameters.put(MgEventSinkField.eventTime.name(), mgEventSinkRow.getEventTime());
-        Optional.ofNullable(mgEventSinkRow.getPartyId())
+        Optional.ofNullable(mgEventSinkRow.getIp())
                 .ifPresent(v -> parameters.put(MgEventSinkField.ip.name(), v));
-        Optional.ofNullable(mgEventSinkRow.getPartyId())
+        Optional.ofNullable(mgEventSinkRow.getEmail())
                 .ifPresent(v -> parameters.put(MgEventSinkField.email.name(), v));
-        Optional.ofNullable(mgEventSinkRow.getPartyId())
+        Optional.ofNullable(mgEventSinkRow.getBin())
                 .ifPresent(v -> parameters.put(MgEventSinkField.bin.name(), v));
-        Optional.ofNullable(mgEventSinkRow.getPartyId())
+        Optional.ofNullable(mgEventSinkRow.getFingerprint())
                 .ifPresent(v -> parameters.put(MgEventSinkField.fingerprint.name(), v));
-        Optional.ofNullable(mgEventSinkRow.getPartyId())
+        Optional.ofNullable(mgEventSinkRow.getShopId())
                 .ifPresent(v -> parameters.put(MgEventSinkField.shopId.name(), v));
         Optional.ofNullable(mgEventSinkRow.getPartyId())
                 .ifPresent(v -> parameters.put(MgEventSinkField.partyId.name(), v));
@@ -41,7 +41,7 @@ public class MgEventSinkParametersGenerator {
                 .ifPresent(v -> parameters.put(MgEventSinkField.invoiceId.name(), v));
         Optional.ofNullable(mgEventSinkRow.getMaskedPan())
                 .ifPresent(v -> parameters.put(MgEventSinkField.maskedPan.name(), v));
-        Optional.ofNullable(mgEventSinkRow.getMaskedPan())
+        Optional.ofNullable(mgEventSinkRow.getBankName())
                 .ifPresent(v -> parameters.put(MgEventSinkField.bankName.name(), v));
         Optional.ofNullable(mgEventSinkRow.getCardToken())
                 .ifPresent(v -> parameters.put(MgEventSinkField.cardToken.name(), v));
