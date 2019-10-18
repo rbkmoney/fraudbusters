@@ -40,9 +40,11 @@ public class InvoicePaymentStartedHandlerImpl implements InvoiceChangeHandler {
         mgEventSinkRow.setCurrency(cost.getCurrency().getSymbolicCode());
         if (payer.isSetPaymentResource()) {
             if (payer.getPaymentResource().isSetResource()) {
-                ClientInfo clientInfo = payer.getPaymentResource().getResource().getClientInfo();
-                mgEventSinkRow.setIp(clientInfo.getIpAddress());
-                mgEventSinkRow.setFingerprint(clientInfo.getFingerprint());
+                if (payer.getPaymentResource().getResource().isSetClientInfo()) {
+                    ClientInfo clientInfo = payer.getPaymentResource().getResource().getClientInfo();
+                    mgEventSinkRow.setIp(clientInfo.getIpAddress());
+                    mgEventSinkRow.setFingerprint(clientInfo.getFingerprint());
+                }
                 if (isBankCard(payer)) {
                     BankCard bankCard = payer.getPaymentResource().getResource().getPaymentTool().getBankCard();
                     mgEventSinkRow.setBankCountry(bankCard.getIssuerCountry() != null ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);

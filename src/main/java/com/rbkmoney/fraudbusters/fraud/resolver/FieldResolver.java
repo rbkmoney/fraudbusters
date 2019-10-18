@@ -45,6 +45,8 @@ public class FieldResolver {
                 return new FieldModel(EventField.shopId.name(), fraudModel.getShopId());
             case CARD_TOKEN:
                 return new FieldModel(EventField.cardToken.name(), fraudModel.getCardToken());
+            case PAN:
+                return new FieldModel(EventField.maskedPan.name(), fraudModel.getPan());
             default:
                 throw new UnknownFieldException();
         }
@@ -61,6 +63,8 @@ public class FieldResolver {
                 return EventField.email.name();
             case BIN:
                 return EventField.bin.name();
+            case PAN:
+                return EventField.maskedPan.name();
             case FINGERPRINT:
                 return EventField.fingerprint.name();
             case PARTY_ID:
