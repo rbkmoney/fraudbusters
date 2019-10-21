@@ -59,6 +59,9 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     @Value("${kafka.topic.group.reference}")
     private String topicGroupReference;
 
+    @Value("${kafka.stream.event.sink.enable}")
+    private boolean enableEventSinkStream;
+
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
@@ -80,9 +83,11 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
                 throw new StartException("Cant load all rules by timeout: " + timeout);
             }
 
-            eventSinkStream = eventSinkAggregationStreamFactoryImpl.create(eventSinkStreamProperties);
-            log.info("StartupListener start stream preloadTime: {} ms eventSinkStream: {}", System.currentTimeMillis() - startPreloadTime,
-                    eventSinkStream.allMetadata());
+            if (enableEventSinkStream) {
+                eventSinkStream = eventSinkAggregationStreamFactoryImpl.create(eventSinkStreamProperties);
+                log.info("StartupListener start stream preloadTime: {} ms eventSinkStream: {}", System.currentTimeMillis() - startPreloadTime,
+                        eventSinkStream.allMetadata());
+            }
         } catch (InterruptedException e) {
             log.error("StartupListener onApplicationEvent e: ", e);
             Thread.currentThread().interrupt();
@@ -90,7 +95,9 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     }
 
     public void stop() {
-        eventSinkStream.close(Duration.ofSeconds(CLOSE_STREAM_TIMEOUT_SECONDS));
+        if (eventSinkStream != null) {
+            eventSinkStream.close(Duration.ofSeconds(CLOSE_STREAM_TIMEOUT_SECONDS));
+        }
     }
 
     private void waitPreLoad(CountDownLatch latch, ConsumerFactory<String, Command> groupListenerFactory, String topic, CommandListener listener) {

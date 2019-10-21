@@ -28,6 +28,10 @@ kafka:
   max:
     retry.attempts: 3
     poll.records: 100
+  stream:
+    event.sink:
+      enable: false
+      num.thread: 1
   topic:
     result: result
     template: template

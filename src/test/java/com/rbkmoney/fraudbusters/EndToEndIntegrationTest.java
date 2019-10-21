@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.listener.StartupListener;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
@@ -13,6 +14,7 @@ import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.streams.KafkaStreams;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,6 +36,7 @@ import org.testcontainers.containers.ClickHouseContainer;
 import ru.yandex.clickhouse.ClickHouseDataSource;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -86,6 +89,9 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Autowired
     private MgEventSinkRepository mgEventSinkRepository;
+
+    @Autowired
+    private StartupListener startupListener;
 
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer();
@@ -163,7 +169,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
 
     @Test
-    public void test() throws URISyntaxException, TException, InterruptedException, ExecutionException {
+    public void test() throws URISyntaxException, TException, InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
@@ -199,6 +205,11 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceMessageToEventSink(BeanUtil.createMessagePaymentStared(BeanUtil.SOURCE_ID));
         produceMessageToEventSink(BeanUtil.createMessageInvoiceCaptured(BeanUtil.SOURCE_ID));
 
+        Field eventSinkStream = startupListener.getClass().getDeclaredField("eventSinkStream");
+        eventSinkStream.setAccessible(true);
+        KafkaStreams streams = (KafkaStreams) eventSinkStream.get(startupListener);
+
+        Assert.assertNull(streams);
     }
 
 }
