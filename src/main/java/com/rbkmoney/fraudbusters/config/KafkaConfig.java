@@ -81,6 +81,9 @@ public class KafkaConfig {
     @Value("${kafka.ssl.enable}")
     private boolean kafkaSslEnable;
 
+    @Value("${kafka.stream.event.sink.num.thread}")
+    private int eventSinkStreamThreads;
+
     private final ConsumerGroupIdService consumerGroupIdService;
 
     @Bean
@@ -93,6 +96,7 @@ public class KafkaConfig {
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, MgEventSinkRowSerde.class);
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, cacheSizeStateStoreMb * 1024 * 1024L);
         props.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
+        props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, eventSinkStreamThreads);
         props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
                 clientStoreCertPath, keyStorePassword, keyPassword));
         return props;

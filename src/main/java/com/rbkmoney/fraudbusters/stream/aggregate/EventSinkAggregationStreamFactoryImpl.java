@@ -25,7 +25,6 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class EventSinkAggregationStreamFactoryImpl implements TemplateStreamFactory {
 
-    public static final String IN_MEMORY = "in-memory-aggregates";
     @Value("${kafka.topic.event.sink.initial}")
     private String initialEventSink;
 
