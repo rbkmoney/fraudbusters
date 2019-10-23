@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.fraud.finder;
 
 import com.rbkmoney.damsel.wb_list.ListType;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
+import com.rbkmoney.fraudbusters.service.MetricService;
 import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import org.apache.thrift.TException;
@@ -24,10 +25,13 @@ public class InListFinderImplTest {
     @Mock
     private WbListServiceSrv.Iface wbListServiceSrv;
 
+    @Mock
+    private MetricService metricService;
+
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        listFinder = new InListFinderImpl(wbListServiceSrv, ListType.black);
+        listFinder = new InListFinderImpl(wbListServiceSrv, ListType.black, metricService);
     }
 
     @Test

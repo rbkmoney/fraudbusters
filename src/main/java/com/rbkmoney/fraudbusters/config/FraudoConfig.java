@@ -12,6 +12,7 @@ import com.rbkmoney.fraudbusters.fraud.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
+import com.rbkmoney.fraudbusters.service.MetricService;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
@@ -51,18 +52,21 @@ public class FraudoConfig {
     }
 
     @Bean
-    public InListFinder blackListFinder(WbListServiceSrv.Iface wbListServiceSrv) {
-        return new InListFinderImpl(wbListServiceSrv, ListType.black);
+    public InListFinder blackListFinder(WbListServiceSrv.Iface wbListServiceSrv, MetricService metricService) {
+        return new InListFinderImpl(wbListServiceSrv, ListType.black, metricService);
     }
 
     @Bean
-    public InListFinder whiteListFinder(WbListServiceSrv.Iface wbListServiceSrv) {
-        return new InListFinderImpl(wbListServiceSrv, ListType.white);
+    public InListFinder whiteListFinder(WbListServiceSrv.Iface wbListServiceSrv, MetricService metricService) {
+        return new InListFinderImpl(wbListServiceSrv, ListType.white, metricService);
     }
 
     @Bean
-    public InListFinder greyListFinder(WbListServiceSrv.Iface wbListServiceSrv, EventRepository eventRepository, FieldResolver fieldResolver) {
-        return new InGreyListFinderImpl(wbListServiceSrv, ListType.grey, eventRepository, fieldResolver);
+    public InListFinder greyListFinder(WbListServiceSrv.Iface wbListServiceSrv,
+                                       EventRepository eventRepository,
+                                       FieldResolver fieldResolver,
+                                       MetricService metricService) {
+        return new InGreyListFinderImpl(wbListServiceSrv, ListType.grey, eventRepository, fieldResolver, metricService);
     }
 
 }

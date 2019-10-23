@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters.fraud.finder;
 import com.rbkmoney.damsel.wb_list.*;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
+import com.rbkmoney.fraudbusters.service.MetricService;
 import com.rbkmoney.fraudo.constant.CheckedField;
 import org.apache.thrift.TException;
 import org.junit.Assert;
@@ -29,11 +30,13 @@ public class InGreyListFinderImplTest {
     private WbListServiceSrv.Iface wbListServiceSrv;
     @Mock
     private EventRepository eventRepository;
+    @Mock
+    private MetricService metricService;
 
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        inGreyListFinder = new InGreyListFinderImpl(wbListServiceSrv, ListType.grey, eventRepository, new FieldResolver());
+        inGreyListFinder = new InGreyListFinderImpl(wbListServiceSrv, ListType.grey, eventRepository, new FieldResolver(), metricService);
     }
 
     @Test

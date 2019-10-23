@@ -59,5 +59,21 @@ clickhouse.db:
   connection.timeout: 50000
   compress: false
 
+metrics:
+  count:
+    functions:
+      count: true
+      uniq: true
+      inList: true
+      sum: true
+      country: true
+  timer:
+    functions:
+      count: true
+      uniq: true
+      inList: true
+      sum: true
+      country: true
+
 geo.ip.service.url: "localhost:29092/v1/columbus"
 wb.list.service.url: "localhost:29092/v1/wb_list"
