@@ -1,19 +1,15 @@
 package com.rbkmoney.fraudbusters.fraud.aggragator;
 
-import com.rbkmoney.fraudbusters.constant.EventField;
+import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
-import com.rbkmoney.fraudbusters.service.MetricService;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.model.FraudModel;
 import com.rbkmoney.fraudo.model.TimeWindow;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -61,6 +57,7 @@ public class CountAggregatorImpl implements CountAggregator {
     }
 
     @NotNull
+    @BasicMetric("getCount")
     private Integer getCount(CheckedField checkedField, FraudModel fraudModel, Long aLong,
                              AggregateFunction<String, String, Long, Long, Integer> aggregateFunction) {
         try {
@@ -80,6 +77,7 @@ public class CountAggregatorImpl implements CountAggregator {
     }
 
     @NotNull
+    @BasicMetric("getCountWindowed")
     private Integer getCount(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list,
                              AggregateGroupingFunction<String, String, Long, Long, List<FieldResolver.FieldModel>, Integer> aggregateFunction) {
         try {

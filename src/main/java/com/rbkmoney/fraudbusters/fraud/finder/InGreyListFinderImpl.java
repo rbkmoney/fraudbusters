@@ -1,13 +1,14 @@
 package com.rbkmoney.fraudbusters.fraud.finder;
 
 import com.rbkmoney.damsel.wb_list.*;
+import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
-import com.rbkmoney.fraudbusters.service.MetricService;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.finder.InListFinder;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,25 +21,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InGreyListFinderImpl implements InListFinder {
 
-    private static final String IN_GREY_LIST = "inGreyList";
-
-    @Value("${metrics.count.functions.inList}")
-    private boolean isEnableMetric;
-
     private final WbListServiceSrv.Iface wbListServiceSrv;
     private final ListType listType;
     private final EventRepository eventRepository;
     private final FieldResolver fieldResolver;
     private static final int CURRENT_ONE = 1;
 
-    private final MetricService metricService;
-
     @Override
+    @BasicMetric("findInGreyListConcrete")
     public Boolean findInList(String partyId, String shopId, CheckedField field, String value) {
         try {
             if (!StringUtils.isEmpty(value)) {
                 Row row = createRow(partyId, shopId, field, value);
-                Result result = metricService.invokeWithMetrics(isEnableMetric, IN_GREY_LIST + listType.name(), wbListServiceSrv::getRowInfo, row);
+                Result result = wbListServiceSrv.getRowInfo(row);
                 if (result.getRowInfo() != null && result.getRowInfo().isSetCountInfo()) {
                     RowInfo rowInfo = result.getRowInfo();
                     String startCountTime = rowInfo.getCountInfo().getStartCountTime();
@@ -70,6 +65,7 @@ public class InGreyListFinderImpl implements InListFinder {
     }
 
     @Override
+    @BasicMetric("findGreyInListSome")
     public Boolean findInList(String partyId, String shopId, List<CheckedField> fields, List<String> values) {
         try {
             for (int i = 0; i < fields.size(); i++) {

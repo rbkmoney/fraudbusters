@@ -6,6 +6,18 @@ management:
     export:
       statsd:
         flavor: etsy
+    enable:
+      resolveCountry: true
+      findInListSome: true
+      findInListConcrete: true
+      findInGreyListConcrete: true
+      findGreyInListSome: true
+      countUniqueValue: true
+      countUniqueValueWindowed: true
+      getSum: true
+      getSumWindowed: true
+      getCount: true
+      getCountWindowed: true
 ---
 spring:
   application:
@@ -58,22 +70,6 @@ clickhouse.db:
   password: "password"
   connection.timeout: 50000
   compress: false
-
-metrics:
-  count:
-    functions:
-      count: true
-      uniq: true
-      inList: true
-      sum: true
-      country: true
-  timer:
-    functions:
-      count: true
-      uniq: true
-      inList: true
-      sum: true
-      country: true
 
 geo.ip.service.url: "localhost:29092/v1/columbus"
 wb.list.service.url: "localhost:29092/v1/wb_list"
