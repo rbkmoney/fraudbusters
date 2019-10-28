@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.fraud.aggragator;
 
+import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
@@ -23,6 +24,7 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator {
     private final FieldResolver fieldResolver;
 
     @Override
+    @BasicMetric("countUniqueValue")
     public Integer countUniqueValue(CheckedField countField, FraudModel fraudModel, CheckedField onField, Long time) {
         try {
             Instant now = Instant.now();
@@ -37,6 +39,7 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator {
     }
 
     @Override
+    @BasicMetric("countUniqueValueWindowed")
     public Integer countUniqueValue(CheckedField countField, FraudModel fraudModel, CheckedField onField, TimeWindow timeWindow, List<CheckedField> list) {
         try {
             Instant now = Instant.now();

@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.fraud.resolver;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
+import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudo.constant.CheckedField;
 import com.rbkmoney.fraudo.resolver.CountryResolver;
@@ -17,6 +18,7 @@ public class CountryResolverImpl implements CountryResolver {
 
     @Override
     @Cacheable("resolveCountry")
+    @BasicMetric("resolveCountry")
     public String resolveCountry(CheckedField checkedField, String fieldValue) {
         try {
             String location = null;

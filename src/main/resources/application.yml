@@ -6,6 +6,18 @@ management:
     export:
       statsd:
         flavor: etsy
+    enable:
+      resolveCountry: true
+      findInListSome: true
+      findInListConcrete: true
+      findInGreyListConcrete: true
+      findGreyInListSome: true
+      countUniqueValue: true
+      countUniqueValueWindowed: true
+      getSum: true
+      getSumWindowed: true
+      getCount: true
+      getCountWindowed: true
 ---
 spring:
   application:

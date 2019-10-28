@@ -61,7 +61,9 @@ public class FraudoConfig {
     }
 
     @Bean
-    public InListFinder greyListFinder(WbListServiceSrv.Iface wbListServiceSrv, EventRepository eventRepository, FieldResolver fieldResolver) {
+    public InListFinder greyListFinder(WbListServiceSrv.Iface wbListServiceSrv,
+                                       EventRepository eventRepository,
+                                       FieldResolver fieldResolver) {
         return new InGreyListFinderImpl(wbListServiceSrv, ListType.grey, eventRepository, fieldResolver);
     }
 

@@ -17,7 +17,7 @@ public class MgEventAggregator implements Aggregator<String, MgEventSinkRow, MgE
         log.debug("Merge aggValue={} and value={}", aggregate, value);
         aggregate.setInvoiceId(changeIfNotNull(aggregate.getInvoiceId(), value.getInvoiceId()));
         aggregate.setResultStatus(value.getResultStatus());
-        aggregate.setPaymentId(changeIfNotNull(aggregate.getPaymentId(), value.getPaymentId()));
+        aggregate.setPaymentId(value.getPaymentId());
         aggregate.setEmail(changeIfNotNull(aggregate.getEmail(), value.getEmail()));
         aggregate.setFingerprint(changeIfNotNull(aggregate.getFingerprint(), value.getFingerprint()));
         aggregate.setIp(changeIfNotNull(aggregate.getIp(), value.getIp()));

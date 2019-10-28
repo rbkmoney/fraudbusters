@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.fraud.aggragator;
 
+import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
@@ -55,6 +56,7 @@ public class SumAggregatorImpl implements SumAggregator {
     }
 
     @NotNull
+    @BasicMetric("getSum")
     private Double getSum(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes,
                           AggregateFunction<String, String, Long, Long, Long> aggregateFunction) {
         try {
@@ -73,6 +75,7 @@ public class SumAggregatorImpl implements SumAggregator {
     }
 
     @NotNull
+    @BasicMetric("getSumWindowed")
     private Double getSum(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list,
                           AggregateGroupingFunction<String, String, Long, Long, List<FieldResolver.FieldModel>, Long> aggregateFunction) {
         try {

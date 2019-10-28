@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.fraud.aggragator;
 
-import com.rbkmoney.fraudbusters.constant.EventField;
+import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
@@ -57,14 +57,17 @@ public class CountAggregatorImpl implements CountAggregator {
     }
 
     @NotNull
+    @BasicMetric("getCount")
     private Integer getCount(CheckedField checkedField, FraudModel fraudModel, Long aLong,
                              AggregateFunction<String, String, Long, Long, Integer> aggregateFunction) {
         try {
             Instant now = Instant.now();
             FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
+
             Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutes(now, aLong),
                     TimestampUtil.generateTimestampNow(now));
+
             log.debug("CountAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), count);
             return count + CURRENT_ONE;
         } catch (Exception e) {
@@ -74,16 +77,19 @@ public class CountAggregatorImpl implements CountAggregator {
     }
 
     @NotNull
+    @BasicMetric("getCountWindowed")
     private Integer getCount(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list,
                              AggregateGroupingFunction<String, String, Long, Long, List<FieldResolver.FieldModel>, Integer> aggregateFunction) {
         try {
             Instant now = Instant.now();
             FieldResolver.FieldModel resolve = fieldResolver.resolve(checkedField, fraudModel);
             List<FieldResolver.FieldModel> eventFields = fieldResolver.resolveListFields(fraudModel, list);
+
             Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getStartWindowTime()),
                     TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getEndWindowTime()),
                     eventFields);
+
             log.debug("CountAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), count);
             return count + CURRENT_ONE;
         } catch (Exception e) {
