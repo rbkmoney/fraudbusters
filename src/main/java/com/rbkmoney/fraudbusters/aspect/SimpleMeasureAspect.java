@@ -47,14 +47,14 @@ public class SimpleMeasureAspect {
     }
 
     @Around("execution (@com.rbkmoney.fraudbusters.aspect.BasicMetric * *.*(..))")
-    public Object timedMethod(ProceedingJoinPoint pjp) throws Throwable {
-        Method method = ((MethodSignature) pjp.getSignature()).getMethod();
+    public Object timedMethod(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        Method method = ((MethodSignature) proceedingJoinPoint.getSignature()).getMethod();
         BasicMetric basicMetric = method.getAnnotation(BasicMetric.class);
         final String metricName = basicMetric.value().isEmpty() ? DEFAULT_METRIC_NAME : basicMetric.value();
         Timer.Sample sample = Timer.start(registry);
 
         try {
-            return pjp.proceed();
+            return proceedingJoinPoint.proceed();
         } finally {
             try {
                 registry.counter(metricName + COUNT, basicMetric.extraTags())
