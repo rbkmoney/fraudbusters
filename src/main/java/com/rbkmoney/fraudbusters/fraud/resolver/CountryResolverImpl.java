@@ -3,7 +3,7 @@ package com.rbkmoney.fraudbusters.fraud.resolver;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
-import com.rbkmoney.fraudo.constant.CheckedField;
+import com.rbkmoney.fraudo.constant.PaymentCheckedField;
 import com.rbkmoney.fraudo.resolver.CountryResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,19 +12,19 @@ import org.springframework.cache.annotation.Cacheable;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CountryResolverImpl implements CountryResolver {
+public class CountryResolverImpl implements CountryResolver<PaymentCheckedField> {
 
     private final GeoIpServiceSrv.Iface geoIpServiceSrv;
 
     @Override
     @Cacheable("resolveCountry")
     @BasicMetric("resolveCountry")
-    public String resolveCountry(CheckedField checkedField, String fieldValue) {
+    public String resolveCountry(PaymentCheckedField checkedField, String fieldValue) {
         try {
             String location = null;
-            if (CheckedField.IP.equals(checkedField)) {
+            if (PaymentCheckedField.IP.equals(checkedField)) {
                 location = geoIpServiceSrv.getLocationIsoCode(fieldValue);
-            } else if (CheckedField.COUNTRY_BANK.equals(checkedField)) {
+            } else if (PaymentCheckedField.COUNTRY_BANK.equals(checkedField)) {
                 location = fieldValue;
             }
             if (location == null) {

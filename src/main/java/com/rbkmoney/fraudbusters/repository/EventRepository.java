@@ -3,12 +3,11 @@ package com.rbkmoney.fraudbusters.repository;
 import com.google.common.collect.Lists;
 import com.rbkmoney.fraudbusters.constant.ClickhouseSchemeNames;
 import com.rbkmoney.fraudbusters.domain.Event;
-import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
+import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.EventBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.setter.EventParametersGenerator;
-import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -60,7 +59,7 @@ public class EventRepository implements CrudRepository<Event> {
     }
 
     public Integer countOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to,
-                                                    List<FieldResolver.FieldModel> fieldModels) {
+                                                    List<DBPaymentFieldResolver.FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format("select %1$s, count() as cnt " +
                 "from fraud.events_unique " +
                 "where eventTime >= ? and eventTime <= ? and %1$s = ? ", fieldName));
@@ -70,9 +69,9 @@ public class EventRepository implements CrudRepository<Event> {
         return jdbcTemplate.query(resultSql.toString(), objects.toArray(), new CountExtractor());
     }
 
-    private StringBuilder appendGroupingFields(List<FieldResolver.FieldModel> fieldModels, StringBuilder sql, StringBuilder sqlGroupBy) {
+    private StringBuilder appendGroupingFields(List<DBPaymentFieldResolver.FieldModel> fieldModels, StringBuilder sql, StringBuilder sqlGroupBy) {
         if (fieldModels != null) {
-            for (FieldResolver.FieldModel fieldModel : fieldModels) {
+            for (DBPaymentFieldResolver.FieldModel fieldModel : fieldModels) {
                 sql.append(" and ").append(fieldModel.getName()).append("=? ");
                 sqlGroupBy.append(", ").append(fieldModel.getName());
             }
@@ -89,7 +88,7 @@ public class EventRepository implements CrudRepository<Event> {
     }
 
     public Long sumOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to,
-                                               List<FieldResolver.FieldModel> fieldModels) {
+                                               List<DBPaymentFieldResolver.FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format("select %1$s, sum(amount) as sum " +
                 "from fraud.events_unique " +
                 "where eventTime >= ? and eventTime <= ? and %1$s = ? ", fieldName));
@@ -108,7 +107,7 @@ public class EventRepository implements CrudRepository<Event> {
     }
 
     public Integer uniqCountOperationWithGroupBy(String fieldNameBy, String value, String fieldNameCount,
-                                                 Long from, Long to, List<FieldResolver.FieldModel> fieldModels) {
+                                                 Long from, Long to, List<DBPaymentFieldResolver.FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format("select %1$s, uniq(%2$s) as cnt " +
                 "from fraud.events_unique " +
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ?) ", fieldNameBy, fieldNameCount));

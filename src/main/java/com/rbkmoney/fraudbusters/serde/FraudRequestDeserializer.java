@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters.serde;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbkmoney.fraudbusters.domain.FraudRequest;
-import com.rbkmoney.fraudo.model.FraudModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Deserializer;
 

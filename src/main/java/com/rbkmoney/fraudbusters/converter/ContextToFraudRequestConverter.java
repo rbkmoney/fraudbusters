@@ -10,7 +10,7 @@ import com.rbkmoney.damsel.proxy_inspector.PaymentInfo;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.Metadata;
-import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.fraudo.model.PaymentModel;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
@@ -26,7 +26,7 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
 
     @Override
     public FraudRequest convert(Context context) {
-        FraudModel fraudModel = new FraudModel();
+        PaymentModel fraudModel = new PaymentModel();
         PaymentInfo payment = context.getPayment();
         Party party = payment.getParty();
         fraudModel.setPartyId(party.getPartyId());
@@ -44,7 +44,7 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
             fraudModel.setFingerprint(info.getFingerprint());
         });
         FraudRequest fraudRequest = new FraudRequest();
-        fraudRequest.setFraudModel(fraudModel);
+        fraudRequest.setPaymentModel(fraudModel);
         Metadata metadata = initMetadata(context);
         fraudRequest.setMetadata(metadata);
         return fraudRequest;

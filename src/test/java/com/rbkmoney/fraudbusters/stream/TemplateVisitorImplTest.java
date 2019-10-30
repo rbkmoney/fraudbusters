@@ -6,7 +6,7 @@ import com.rbkmoney.fraudbusters.template.pool.GroupReferencePoolImpl;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
-import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.fraudo.model.PaymentModel;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class TemplateVisitorImplTest {
     @Test
     public void visit() {
         //check empty pools
-        FraudModel fraudModel = new FraudModel();
+        PaymentModel fraudModel = new PaymentModel();
         fraudModel.setPartyId(PARTY_ID);
         CheckedResultModel visit = templateVisitor.visit(fraudModel);
 

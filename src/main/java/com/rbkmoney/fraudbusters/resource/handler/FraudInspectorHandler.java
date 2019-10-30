@@ -29,7 +29,7 @@ public class FraudInspectorHandler implements InspectorProxySrv.Iface {
             FraudRequest model = requestConverter.convert(context);
             if (model != null) {
                 log.info("Check fraudRequest: {}", model);
-                FraudResult fraudResult = new FraudResult(model, templateVisitor.visit(model.getFraudModel()));
+                FraudResult fraudResult = new FraudResult(model, templateVisitor.visit(model.getPaymentModel()));
                 kafkaFraudResultTemplate.send(resultTopic, fraudResult);
                 log.info("Checked fraudResult: {}", fraudResult);
                 return resultConverter.convert(fraudResult);

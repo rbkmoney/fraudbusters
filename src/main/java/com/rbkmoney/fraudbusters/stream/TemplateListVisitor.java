@@ -1,12 +1,9 @@
 package com.rbkmoney.fraudbusters.stream;
 
-import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudo.model.FraudModel;
-
 import java.util.Map;
 
-public interface TemplateListVisitor {
+public interface TemplateListVisitor<T, U> {
 
-    Map<String, CheckedResultModel> visit(FraudModel fraudModel);
+    Map<String, U> visit(T fraudModel);
 
 }

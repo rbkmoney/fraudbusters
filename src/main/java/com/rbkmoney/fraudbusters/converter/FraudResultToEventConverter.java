@@ -6,7 +6,7 @@ import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.Metadata;
-import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.fraudo.model.PaymentModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -30,18 +30,18 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
     @Override
     public Event convert(FraudResult fraudResult) {
         Event event = new Event();
-        FraudModel fraudModel = fraudResult.getFraudRequest().getFraudModel();
-        event.setAmount(fraudModel.getAmount());
-        event.setBin(fraudModel.getBin());
-        event.setEmail(fraudModel.getEmail());
+        PaymentModel paymentModel = fraudResult.getFraudRequest().getPaymentModel();
+        event.setAmount(paymentModel.getAmount());
+        event.setBin(paymentModel.getBin());
+        event.setEmail(paymentModel.getEmail());
         event.setEventTime(getEventTime(fraudResult));
         event.setTimestamp(java.sql.Date.valueOf(LocalDateTime.now().toLocalDate()));
-        event.setFingerprint(fraudModel.getFingerprint());
-        String ip = fraudModel.getIp();
+        event.setFingerprint(paymentModel.getFingerprint());
+        String ip = paymentModel.getIp();
         String country = getCountryCode(ip);
         event.setCountry(country);
         event.setIp(ip);
-        event.setPartyId(fraudModel.getPartyId());
+        event.setPartyId(paymentModel.getPartyId());
         CheckedResultModel resultModel = fraudResult.getResultModel();
         event.setCheckedTemplate(resultModel.getCheckedTemplate());
         Optional.ofNullable(resultModel.getResultModel())
@@ -49,9 +49,9 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
                     event.setCheckedRule(result.getRuleChecked());
                     event.setResultStatus(result.getResultStatus().name());
                 });
-        event.setShopId(fraudModel.getShopId());
-        event.setBankCountry(fraudModel.getBinCountryCode());
-        event.setCardToken(fraudModel.getCardToken());
+        event.setShopId(paymentModel.getShopId());
+        event.setBankCountry(paymentModel.getBinCountryCode());
+        event.setCardToken(paymentModel.getCardToken());
         Metadata metadata = fraudResult.getFraudRequest().getMetadata();
         if (metadata != null) {
             event.setBankName(metadata.getBankName());

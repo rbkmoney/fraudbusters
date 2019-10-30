@@ -1,9 +1,15 @@
 package com.rbkmoney.fraudbusters.fraud.finder;
 
-import com.rbkmoney.damsel.wb_list.*;
-import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
+import com.rbkmoney.damsel.wb_list.CountInfo;
+import com.rbkmoney.damsel.wb_list.Result;
+import com.rbkmoney.damsel.wb_list.RowInfo;
+import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
+import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
-import com.rbkmoney.fraudo.constant.CheckedField;
+import com.rbkmoney.fraudo.constant.PaymentCheckedField;
+import com.rbkmoney.fraudo.finder.InListFinder;
+import com.rbkmoney.fraudo.model.Pair;
+import com.rbkmoney.fraudo.model.PaymentModel;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,7 +29,7 @@ public class InGreyListFinderImplTest {
     private static final String SHOP_ID = "shopId";
     private static final String VALUE = "1234123";
 
-    private InGreyListFinderImpl inGreyListFinder;
+    private InListFinder<PaymentModel, PaymentCheckedField> inGreyListFinder;
 
     @Mock
     private WbListServiceSrv.Iface wbListServiceSrv;
@@ -33,13 +39,17 @@ public class InGreyListFinderImplTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        inGreyListFinder = new InGreyListFinderImpl(wbListServiceSrv, ListType.grey, eventRepository, new FieldResolver());
+        inGreyListFinder = new PaymentInListFinderImpl(wbListServiceSrv, new DBPaymentFieldResolver(), eventRepository);
     }
 
     @Test
     public void findInList() throws TException {
         Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(new Result().setRowInfo(new RowInfo()));
-        Boolean inList = inGreyListFinder.findInList(PARTY_ID, SHOP_ID, CheckedField.CARD_TOKEN, VALUE);
+
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setPartyId(PARTY_ID);
+        paymentModel.setShopId(SHOP_ID);
+        Boolean inList = inGreyListFinder.findInGreyList(List.of(new Pair<>(PaymentCheckedField.CARD_TOKEN, VALUE)), paymentModel);
 
         Assert.assertFalse(inList);
 
@@ -53,11 +63,11 @@ public class InGreyListFinderImplTest {
         Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(result);
         Mockito.when(eventRepository.countOperationByField(any(), any(), any(), any())).thenReturn(6);
 
-        inList = inGreyListFinder.findInList(PARTY_ID, SHOP_ID, CheckedField.CARD_TOKEN, VALUE);
+        inList = inGreyListFinder.findInGreyList(List.of(new Pair<>(PaymentCheckedField.CARD_TOKEN, VALUE)), paymentModel);
         Assert.assertFalse(inList);
 
         Mockito.when(eventRepository.countOperationByField(any(), any(), any(), any())).thenReturn(4);
-        inList = inGreyListFinder.findInList(PARTY_ID, SHOP_ID, CheckedField.CARD_TOKEN, VALUE);
+        inList = inGreyListFinder.findInGreyList(List.of(new Pair<>(PaymentCheckedField.CARD_TOKEN, VALUE)), paymentModel);
         Assert.assertTrue(inList);
     }
 
@@ -71,8 +81,10 @@ public class InGreyListFinderImplTest {
                         .setStartCountTime(now.toString())));
         Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(result);
         Mockito.when(eventRepository.countOperationByField(any(), any(), any(), any())).thenReturn(4);
-
-        Boolean inList = inGreyListFinder.findInList(PARTY_ID, SHOP_ID, List.of(CheckedField.CARD_TOKEN), List.of(VALUE));
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setPartyId(PARTY_ID);
+        paymentModel.setShopId(SHOP_ID);
+        Boolean inList = inGreyListFinder.findInGreyList(List.of(new Pair<>(PaymentCheckedField.CARD_TOKEN, VALUE)), paymentModel);
 
         Assert.assertTrue(inList);
     }

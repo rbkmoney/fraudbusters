@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.fraud.resolver;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
-import com.rbkmoney.fraudo.constant.CheckedField;
+import com.rbkmoney.fraudo.constant.PaymentCheckedField;
 import com.rbkmoney.fraudo.resolver.CountryResolver;
 import org.apache.thrift.TException;
 import org.junit.Assert;
@@ -29,21 +29,21 @@ public class CountryResolverImplTest {
 
     @Test
     public void resolveCountry() {
-        String country = countryResolver.resolveCountry(CheckedField.IP, TEST);
+        String country = countryResolver.resolveCountry(PaymentCheckedField.IP, TEST);
         Assert.assertEquals(COUNTRY_GEO_ISO_CODE, country);
     }
 
     @Test
     public void resolveCountryUnknownLocationTest() throws TException {
         Mockito.when(geoIpServiceSrv.getLocation(TEST)).thenReturn(null);
-        String result = countryResolver.resolveCountry(CheckedField.IP, "123.123.123.123");
+        String result = countryResolver.resolveCountry(PaymentCheckedField.IP, "123.123.123.123");
         Assert.assertEquals(result, CountryResolver.UNKNOWN_VALUE);
     }
 
     @Test
     public void resolveCountryExceptionInvocationTest() throws TException {
         Mockito.when(geoIpServiceSrv.getLocation(TEST)).thenThrow(new TException());
-        String result = countryResolver.resolveCountry(CheckedField.IP, "123.123.123.123");
+        String result = countryResolver.resolveCountry(PaymentCheckedField.IP, "123.123.123.123");
         Assert.assertEquals(result, CountryResolver.UNKNOWN_VALUE);
     }
 }

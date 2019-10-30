@@ -1,7 +1,6 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.base.Content;
-import com.rbkmoney.damsel.domain.Invoice;
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.payment_processing.*;
@@ -9,7 +8,7 @@ import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
 import com.rbkmoney.damsel.proxy_inspector.*;
-import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.fraudo.model.PaymentModel;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
@@ -102,8 +101,8 @@ public class BeanUtil {
         }};
     }
 
-    public static FraudModel createFraudModel() {
-        FraudModel fraudModel = new FraudModel();
+    public static PaymentModel createFraudModel() {
+        PaymentModel fraudModel = new PaymentModel();
         fraudModel.setFingerprint(FINGERPRINT);
         fraudModel.setShopId(SHOP_ID);
         fraudModel.setPartyId(PARTY_ID);
@@ -115,8 +114,8 @@ public class BeanUtil {
         return fraudModel;
     }
 
-    public static FraudModel createFraudModelSecond() {
-        FraudModel fraudModel = new FraudModel();
+    public static PaymentModel createFraudModelSecond() {
+        PaymentModel fraudModel = new PaymentModel();
         fraudModel.setFingerprint(FINGERPRINT + SUFIX);
         fraudModel.setShopId(SHOP_ID + SUFIX);
         fraudModel.setPartyId(PARTY_ID + SUFIX);

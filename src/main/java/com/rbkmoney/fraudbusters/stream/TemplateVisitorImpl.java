@@ -5,7 +5,7 @@ import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
-import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.fraudo.model.PaymentModel;
 import com.rbkmoney.fraudo.model.ResultModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TemplateVisitorImpl implements TemplateVisitor {
+public class TemplateVisitorImpl implements TemplateVisitor<PaymentModel, CheckedResultModel> {
 
     private static final String RULE_NOT_CHECKED = "RULE_NOT_CHECKED";
 
@@ -27,14 +27,14 @@ public class TemplateVisitorImpl implements TemplateVisitor {
     private final Pool<String> groupReferencePoolImpl;
 
     @Override
-    public CheckedResultModel visit(FraudModel fraudModel) {
-        String partyId = fraudModel.getPartyId();
-        String partyShopKey = ReferenceKeyGenerator.generateTemplateKey(partyId, fraudModel.getShopId());
-        return ruleApplier.apply(fraudModel, referencePoolImpl.get(TemplateLevel.GLOBAL.name()))
-                .orElse(ruleApplier.applyForAny(fraudModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyId)))
-                        .orElse(ruleApplier.applyForAny(fraudModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyShopKey)))
-                                .orElse(ruleApplier.apply(fraudModel, referencePoolImpl.get(partyId))
-                                        .orElse(ruleApplier.apply(fraudModel, referencePoolImpl.get(partyShopKey))
+    public CheckedResultModel visit(PaymentModel paymentModel) {
+        String partyId = paymentModel.getPartyId();
+        String partyShopKey = ReferenceKeyGenerator.generateTemplateKey(partyId, paymentModel.getShopId());
+        return ruleApplier.apply(paymentModel, referencePoolImpl.get(TemplateLevel.GLOBAL.name()))
+                .orElse(ruleApplier.applyForAny(paymentModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyId)))
+                        .orElse(ruleApplier.applyForAny(paymentModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyShopKey)))
+                                .orElse(ruleApplier.apply(paymentModel, referencePoolImpl.get(partyId))
+                                        .orElse(ruleApplier.apply(paymentModel, referencePoolImpl.get(partyShopKey))
                                                 .orElse(createDefaultResult())))));
     }
 
