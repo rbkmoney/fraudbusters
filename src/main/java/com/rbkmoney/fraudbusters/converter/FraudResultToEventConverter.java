@@ -11,19 +11,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FraudResultToEventConverter implements Converter<FraudResult, Event> {
+public class FraudResultToEventConverter implements BatchConverter<FraudResult, Event> {
 
     private final GeoIpServiceSrv.Iface geoIpService;
 
@@ -86,9 +83,4 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         return LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
     }
 
-    public List<Event> convertBatch(List<FraudResult> fraudResults) {
-        return fraudResults.stream()
-                .map(this::convert)
-                .collect(Collectors.toList());
-    }
 }

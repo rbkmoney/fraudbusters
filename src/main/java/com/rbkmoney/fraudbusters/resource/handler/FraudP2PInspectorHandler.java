@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters.resource.handler;
 import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.p2p_insp.InspectResult;
 import com.rbkmoney.damsel.p2p_insp.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.constant.ScoresType;
 import com.rbkmoney.fraudbusters.converter.CheckedResultToRiskScoreConverter;
 import com.rbkmoney.fraudbusters.converter.P2PContextToP2PModelConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
@@ -23,7 +24,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FraudP2PInspectorHandler implements InspectorProxySrv.Iface {
 
-    public static final String FRAUD = "fraud";
     private final String resultTopic;
     private final CheckedResultToRiskScoreConverter resultConverter;
     private final P2PContextToP2PModelConverter requestConverter;
@@ -37,16 +37,16 @@ public class FraudP2PInspectorHandler implements InspectorProxySrv.Iface {
 
             P2PModel model = requestConverter.convert(context);
             if (model != null) {
-                log.info("Check model: {}", model);
+                log.info("Check p2p model: {}", model);
 
                 CheckedResultModel visit = templateVisitor.visit(model);
 
                 HashMap<String, CheckedResultModel> scoresCheck = new HashMap<>();
-                scoresCheck.put(FRAUD, visit);
+                scoresCheck.put(ScoresType.FRAUD, visit);
                 ScoresResult<P2PModel> scoresResult = new ScoresResult<>(model, scoresCheck);
 
                 kafkaFraudResultTemplate.send(resultTopic, scoresResult);
-                log.info("Checked scoresResult: {}", scoresResult);
+                log.info("Checked p2p scoresResult: {}", scoresResult);
 
                 scores = scoresResult.getScores().entrySet().stream()
                         .collect(Collectors.toMap(
@@ -57,8 +57,8 @@ public class FraudP2PInspectorHandler implements InspectorProxySrv.Iface {
 
             return new InspectResult(scores);
         } catch (Exception e) {
-            log.error("Error when inspectPayment() e: ", e);
-            throw new TException("Error when inspectPayment() e: ", e);
+            log.error("Error when inspectPayment() p2p e: ", e);
+            throw new TException("Error when inspectPayment() p2p e: ", e);
         }
     }
 }

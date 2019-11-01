@@ -3,8 +3,8 @@ package com.rbkmoney.fraudbusters.resource.handler;
 import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.converter.CheckedResultToRiskScoreConverter;
 import com.rbkmoney.fraudbusters.converter.ContextToFraudRequestConverter;
-import com.rbkmoney.fraudbusters.converter.FraudResultRiskScoreConverter;
 import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.stream.TemplateVisitorImpl;
@@ -18,7 +18,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class FraudInspectorHandler implements InspectorProxySrv.Iface {
 
     private final String resultTopic;
-    private final FraudResultRiskScoreConverter resultConverter;
+    private final CheckedResultToRiskScoreConverter checkedResultToRiskScoreConverter;
     private final ContextToFraudRequestConverter requestConverter;
     private final TemplateVisitorImpl templateVisitor;
     private final KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate;
@@ -32,7 +32,7 @@ public class FraudInspectorHandler implements InspectorProxySrv.Iface {
                 FraudResult fraudResult = new FraudResult(model, templateVisitor.visit(model.getPaymentModel()));
                 kafkaFraudResultTemplate.send(resultTopic, fraudResult);
                 log.info("Checked fraudResult: {}", fraudResult);
-                return resultConverter.convert(fraudResult);
+                return checkedResultToRiskScoreConverter.convert(fraudResult.getResultModel());
             }
             return RiskScore.high;
         } catch (Exception e) {

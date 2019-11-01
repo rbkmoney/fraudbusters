@@ -3,10 +3,9 @@ package com.rbkmoney.fraudbusters.config;
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
-import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
-import com.rbkmoney.fraudbusters.serde.FraudoResultDeserializer;
-import com.rbkmoney.fraudbusters.serde.MgEventSinkRowDeserializer;
-import com.rbkmoney.fraudbusters.serde.MgEventSinkRowSerde;
+import com.rbkmoney.fraudbusters.domain.ScoresResult;
+import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
+import com.rbkmoney.fraudbusters.serde.*;
 import com.rbkmoney.fraudbusters.service.ConsumerGroupIdService;
 import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
 import lombok.RequiredArgsConstructor;
@@ -204,7 +203,19 @@ public class KafkaConfig {
         final Map<String, Object> props = createDefaultProperties(consumerGroup);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
-                new StringDeserializer(), new FraudoResultDeserializer());
+                new StringDeserializer(), new FraudResultDeserializer());
+        factory.setConsumerFactory(consumerFactory);
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, ScoresResult<P2PModel>> kafkaListenerP2PResultContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, ScoresResult<P2PModel>> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
+        final Map<String, Object> props = createDefaultProperties(consumerGroup);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
+        DefaultKafkaConsumerFactory<String, ScoresResult<P2PModel>> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
+                new StringDeserializer(), new P2PResultDeserializer());
         factory.setConsumerFactory(consumerFactory);
         return factory;
     }

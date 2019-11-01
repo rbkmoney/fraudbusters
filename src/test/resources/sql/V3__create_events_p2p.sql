@@ -23,4 +23,4 @@ create table fraud.events_p_to_p (
   checkedTemplate String
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMM(timestamp)
-ORDER BY (eventTime, shopId, partyId, ip, email, bin, fingerprint, resultStatus, cardTokenFrom, cardTokenTo);
+ORDER BY (eventTime, identityId, bin, fingerprint, resultStatus, cardTokenFrom, cardTokenTo);

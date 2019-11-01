@@ -3,7 +3,6 @@ package com.rbkmoney.fraudbusters.config;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.converter.CheckedResultToRiskScoreConverter;
 import com.rbkmoney.fraudbusters.converter.ContextToFraudRequestConverter;
-import com.rbkmoney.fraudbusters.converter.FraudResultRiskScoreConverter;
 import com.rbkmoney.fraudbusters.converter.P2PContextToP2PModelConverter;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
@@ -25,10 +24,10 @@ public class ResourceConfig {
 
     @Bean
     public InspectorProxySrv.Iface fraudInspectorHandler(KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate,
-                                                         FraudResultRiskScoreConverter resultConverter,
+                                                         CheckedResultToRiskScoreConverter checkedResultToRiskScoreConverter,
                                                          ContextToFraudRequestConverter requestConverter,
                                                          TemplateVisitorImpl templateVisitor) {
-        return new FraudInspectorHandler(requestReplyTopic, resultConverter, requestConverter, templateVisitor, kafkaFraudResultTemplate);
+        return new FraudInspectorHandler(requestReplyTopic, checkedResultToRiskScoreConverter, requestConverter, templateVisitor, kafkaFraudResultTemplate);
     }
 
     @Bean
