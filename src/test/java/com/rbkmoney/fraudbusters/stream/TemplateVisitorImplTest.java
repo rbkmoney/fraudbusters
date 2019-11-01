@@ -1,12 +1,12 @@
 package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.template.pool.GroupPoolImpl;
 import com.rbkmoney.fraudbusters.template.pool.GroupReferencePoolImpl;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
-import com.rbkmoney.fraudo.model.PaymentModel;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

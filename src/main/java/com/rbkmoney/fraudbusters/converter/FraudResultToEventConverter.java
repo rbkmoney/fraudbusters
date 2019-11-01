@@ -6,7 +6,7 @@ import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.Metadata;
-import com.rbkmoney.fraudo.model.PaymentModel;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;

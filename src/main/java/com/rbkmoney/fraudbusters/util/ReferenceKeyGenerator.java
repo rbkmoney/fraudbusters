@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.util;
 
-import com.rbkmoney.damsel.fraudbusters.GroupReference;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.exception.UnknownReferenceException;
@@ -17,6 +16,7 @@ public class ReferenceKeyGenerator {
         return generateTemplateKey(reference.party_id, reference.shop_id);
     }
 
+    @Deprecated
     public static String generateTemplateKey(String partyId, String shopId) {
         if (StringUtil.isNullOrEmpty(shopId) && !StringUtil.isNullOrEmpty(partyId)) {
             return partyId;
@@ -24,6 +24,26 @@ public class ReferenceKeyGenerator {
             return partyId + SEPARATOR + shopId;
         }
         throw new UnknownReferenceException();
+    }
+
+    public static String generateTemplateKeyByList(String... ids) {
+        if (ids == null || ids.length == 0) {
+            throw new UnknownReferenceException();
+        }
+        StringBuilder resultKeyBuilder = null;
+        for (String id : ids) {
+            if (resultKeyBuilder == null) {
+                resultKeyBuilder = new StringBuilder()
+                        .append(id);
+            } else {
+                if (!StringUtil.isNullOrEmpty(id)) {
+                    resultKeyBuilder
+                            .append(SEPARATOR)
+                            .append(id);
+                }
+            }
+        }
+        return resultKeyBuilder.toString();
     }
 
 }

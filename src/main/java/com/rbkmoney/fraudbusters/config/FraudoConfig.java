@@ -5,7 +5,10 @@ import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.fraud.aggragator.CountAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.aggragator.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.aggragator.UniqueValueAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.finder.PaymentInListFinderImpl;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import com.rbkmoney.fraudbusters.fraud.payout.PaymentModelFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
@@ -13,16 +16,13 @@ import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
-import com.rbkmoney.fraudo.constant.PaymentCheckedField;
-import com.rbkmoney.fraudo.factory.FastFraudVisitorFactory;
+import com.rbkmoney.fraudo.factory.FirstFraudVisitorFactory;
 import com.rbkmoney.fraudo.factory.FraudVisitorFactory;
 import com.rbkmoney.fraudo.finder.InListFinder;
-import com.rbkmoney.fraudo.model.PaymentModel;
 import com.rbkmoney.fraudo.resolver.CountryResolver;
 import com.rbkmoney.fraudo.resolver.FieldResolver;
 import com.rbkmoney.fraudo.resolver.GroupByModelResolver;
-import com.rbkmoney.fraudo.resolver.payout.PaymentModelFieldResolver;
-import com.rbkmoney.fraudo.visitor.impl.FastFraudVisitorImpl;
+import com.rbkmoney.fraudo.visitor.impl.FirstFindVisitorImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,7 +31,7 @@ public class FraudoConfig {
 
     @Bean
     public FraudVisitorFactory fraudVisitorFactory() {
-        return new FastFraudVisitorFactory();
+        return new FirstFraudVisitorFactory();
     }
 
     @Bean
@@ -54,7 +54,6 @@ public class FraudoConfig {
         return new CountryResolverImpl(geoIpServiceSrv);
     }
 
-
     @Bean
     public FieldResolver<PaymentModel, PaymentCheckedField> paymentModelFieldResolver() {
         return new PaymentModelFieldResolver();
@@ -64,14 +63,12 @@ public class FraudoConfig {
     public InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder(WbListServiceSrv.Iface wbListServiceSrv,
                                                                                EventRepository eventRepository,
                                                                                DBPaymentFieldResolver dbPaymentFieldResolver) {
-
-
         return new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, eventRepository) {
         };
     }
 
     @Bean
-    public FastFraudVisitorImpl paymentRuleVisitor(
+    public FirstFindVisitorImpl paymentRuleVisitor(
             FraudVisitorFactory fraudVisitorFactory,
             CountAggregator<PaymentModel, PaymentCheckedField> countAggregator,
             SumAggregator<PaymentModel, PaymentCheckedField> sumAggregator,
@@ -88,6 +85,5 @@ public class FraudoConfig {
                 paymentModelFieldResolver,
                 new GroupByModelResolver<>(paymentModelFieldResolver));
     }
-
 
 }

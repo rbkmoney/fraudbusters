@@ -8,7 +8,7 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 
-//@WebServlet("/fraud_p2p_inspector/v1")
+@WebServlet("/fraud_p2p_inspector/v1")
 @RequiredArgsConstructor
 public class FraudP2PInspectorServlet extends GenericServlet {
 

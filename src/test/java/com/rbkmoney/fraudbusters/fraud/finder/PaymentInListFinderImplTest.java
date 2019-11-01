@@ -1,12 +1,12 @@
 package com.rbkmoney.fraudbusters.fraud.finder;
 
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
+import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
-import com.rbkmoney.fraudo.constant.PaymentCheckedField;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.model.Pair;
-import com.rbkmoney.fraudo.model.PaymentModel;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;

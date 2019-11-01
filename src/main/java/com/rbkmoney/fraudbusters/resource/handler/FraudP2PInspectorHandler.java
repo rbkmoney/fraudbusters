@@ -4,9 +4,11 @@ import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.p2p_insp.InspectResult;
 import com.rbkmoney.damsel.p2p_insp.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.converter.CheckedResultToRiskScoreConverter;
-import com.rbkmoney.fraudbusters.converter.ContextToFraudRequestConverter;
-import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.stream.TemplateListVisitor;
+import com.rbkmoney.fraudbusters.converter.P2PContextToP2PModelConverter;
+import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
+import com.rbkmoney.fraudbusters.domain.ScoresResult;
+import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
+import com.rbkmoney.fraudbusters.stream.TemplateVisitor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -15,37 +17,43 @@ import org.springframework.kafka.core.KafkaTemplate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
 public class FraudP2PInspectorHandler implements InspectorProxySrv.Iface {
 
+    public static final String FRAUD = "fraud";
     private final String resultTopic;
     private final CheckedResultToRiskScoreConverter resultConverter;
-    private final ContextToFraudRequestConverter requestConverter;
-    private final TemplateListVisitor templateVisitor;
-    private final KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate;
+    private final P2PContextToP2PModelConverter requestConverter;
+    private final TemplateVisitor<P2PModel, CheckedResultModel> templateVisitor;
+    private final KafkaTemplate<String, ScoresResult<P2PModel>> kafkaFraudResultTemplate;
 
     @Override
     public InspectResult inspectTransfer(com.rbkmoney.damsel.p2p_insp.Context context, List<String> list) throws TException {
         try {
             Map<String, RiskScore> scores = new HashMap<>();
 
-////            FraudRequest model = requestConverter.convert(context);
-//            if (model != null) {
-//                log.info("Check fraudRequest: {}", model);
-////                Map<String, CheckedResultModel> visit = templateVisitor.visit(model.getPaymentModel());
-//                ScoresResult scoresResult = new ScoresResult(model, visit);
-////                kafkaFraudResultTemplate.send(resultTopic, scoresResult);
-//                log.info("Checked scoresResult: {}", scoresResult);
-////                return resultConverter.convert(scoresResult);
-//                scores = scoresResult.getScores().entrySet().stream()
-//                        .collect(Collectors.toMap(
-//                                Map.Entry::getKey,
-//                                e -> resultConverter.convert(e.getValue()))
-//                        );
-//            }
+            P2PModel model = requestConverter.convert(context);
+            if (model != null) {
+                log.info("Check model: {}", model);
 
+                CheckedResultModel visit = templateVisitor.visit(model);
+
+                HashMap<String, CheckedResultModel> scoresCheck = new HashMap<>();
+                scoresCheck.put(FRAUD, visit);
+                ScoresResult<P2PModel> scoresResult = new ScoresResult<>(model, scoresCheck);
+
+                kafkaFraudResultTemplate.send(resultTopic, scoresResult);
+                log.info("Checked scoresResult: {}", scoresResult);
+
+                scores = scoresResult.getScores().entrySet().stream()
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                e -> resultConverter.convert(e.getValue()))
+                        );
+            }
 
             return new InspectResult(scores);
         } catch (Exception e) {

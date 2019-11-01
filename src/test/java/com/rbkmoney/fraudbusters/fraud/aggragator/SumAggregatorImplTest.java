@@ -1,10 +1,10 @@
 package com.rbkmoney.fraudbusters.fraud.aggragator;
 
+import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
-import com.rbkmoney.fraudo.constant.PaymentCheckedField;
-import com.rbkmoney.fraudo.model.PaymentModel;
 import com.rbkmoney.fraudo.model.TimeWindow;
 import org.junit.Assert;
 import org.junit.Before;

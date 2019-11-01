@@ -8,7 +8,7 @@ import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
 import com.rbkmoney.damsel.proxy_inspector.*;
-import com.rbkmoney.fraudo.model.PaymentModel;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
@@ -101,7 +101,7 @@ public class BeanUtil {
         }};
     }
 
-    public static PaymentModel createFraudModel() {
+    public static PaymentModel createPaymentModel() {
         PaymentModel fraudModel = new PaymentModel();
         fraudModel.setFingerprint(FINGERPRINT);
         fraudModel.setShopId(SHOP_ID);

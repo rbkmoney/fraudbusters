@@ -1,6 +1,8 @@
 package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.fraudbusters.domain.FraudResult;
+import com.rbkmoney.fraudbusters.domain.ScoresResult;
+import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.serde.FraudResultSerializer;
 import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +54,11 @@ public class ResultTemplateConfig {
 
     @Bean
     public KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerFraudResultConfigs()));
+    }
+
+    @Bean
+    public KafkaTemplate<String, ScoresResult<P2PModel>> p2PModelKafkaTemplate() {
         return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerFraudResultConfigs()));
     }
 

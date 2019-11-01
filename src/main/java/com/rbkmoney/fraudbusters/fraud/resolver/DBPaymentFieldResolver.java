@@ -2,8 +2,8 @@ package com.rbkmoney.fraudbusters.fraud.resolver;
 
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.exception.UnknownFieldException;
-import com.rbkmoney.fraudo.constant.PaymentCheckedField;
-import com.rbkmoney.fraudo.model.PaymentModel;
+import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.stereotype.Service;

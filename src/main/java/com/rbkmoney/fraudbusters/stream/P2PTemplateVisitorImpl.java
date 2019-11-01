@@ -2,9 +2,8 @@ package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
-import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.ResultModel;
 import lombok.RequiredArgsConstructor;
@@ -17,25 +16,23 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TemplateVisitorImpl implements TemplateVisitor<PaymentModel, CheckedResultModel> {
+public class P2PTemplateVisitorImpl implements TemplateVisitor<P2PModel, CheckedResultModel> {
 
     private static final String RULE_NOT_CHECKED = "RULE_NOT_CHECKED";
 
-    private final RuleApplier<PaymentModel> ruleApplier;
+    private final RuleApplier<P2PModel> ruleApplier;
     private final Pool<List<String>> groupPoolImpl;
     private final Pool<String> referencePoolImpl;
     private final Pool<String> groupReferencePoolImpl;
 
     @Override
-    public CheckedResultModel visit(PaymentModel paymentModel) {
-        String partyId = paymentModel.getPartyId();
-        String partyShopKey = ReferenceKeyGenerator.generateTemplateKey(partyId, paymentModel.getShopId());
-        return ruleApplier.apply(paymentModel, referencePoolImpl.get(TemplateLevel.GLOBAL.name()))
-                .orElse(ruleApplier.applyForAny(paymentModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyId)))
-                        .orElse(ruleApplier.applyForAny(paymentModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyShopKey)))
-                                .orElse(ruleApplier.apply(paymentModel, referencePoolImpl.get(partyId))
-                                        .orElse(ruleApplier.apply(paymentModel, referencePoolImpl.get(partyShopKey))
-                                                .orElse(createDefaultResult())))));
+    public CheckedResultModel visit(P2PModel p2PModel) {
+        String identityId = p2PModel.getIdentityId();
+
+        return ruleApplier.apply(p2PModel, referencePoolImpl.get(TemplateLevel.GLOBAL.name()))
+                .orElse(ruleApplier.applyForAny(p2PModel, groupPoolImpl.get(groupReferencePoolImpl.get(identityId)))
+                        .orElse(ruleApplier.apply(p2PModel, referencePoolImpl.get(identityId))
+                                .orElse(createDefaultResult())));
     }
 
     @NotNull

@@ -9,9 +9,9 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ScoresResult {
+public class ScoresResult<T> {
 
-    private FraudRequest fraudRequest;
+    private T request;
     private Map<String, CheckedResultModel> scores;
 
 }

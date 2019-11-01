@@ -5,13 +5,13 @@ import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.*;
+import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
-import com.rbkmoney.fraudo.constant.PaymentCheckedField;
 import com.rbkmoney.fraudo.constant.ResultStatus;
-import com.rbkmoney.fraudo.model.PaymentModel;
 import com.rbkmoney.fraudo.model.ResultModel;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -96,7 +96,7 @@ public class EventRepositoryTest {
 
     @Test
     public void insert() throws SQLException {
-        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel());
         eventRepository.insert(fraudResultToEventConverter.convert(value));
 
         Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
@@ -121,7 +121,7 @@ public class EventRepositoryTest {
 
     @NotNull
     private List<FraudResult> createBatch() {
-        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel());
         FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
         return List.of(value, value2);
     }
@@ -161,7 +161,7 @@ public class EventRepositoryTest {
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
-        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel());
         FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
         PaymentModel fraudModelSecond = BeanUtil.createFraudModelSecond();
         fraudModelSecond.setPartyId("test");
@@ -192,10 +192,10 @@ public class EventRepositoryTest {
 
     @Test
     public void countUniqOperationTest() {
-        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel());
         FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
-        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModel());
-        PaymentModel fraudModel = BeanUtil.createFraudModel();
+        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createPaymentModel());
+        PaymentModel fraudModel = BeanUtil.createPaymentModel();
         fraudModel.setFingerprint("test");
         FraudResult value4 = createFraudResult(ResultStatus.DECLINE, fraudModel);
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3, value4)));
@@ -209,10 +209,10 @@ public class EventRepositoryTest {
 
     @Test
     public void countUniqOperationWithGroupByTest() {
-        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createFraudModel());
+        FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel());
         FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
-        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModel());
-        PaymentModel fraudModel = BeanUtil.createFraudModel();
+        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createPaymentModel());
+        PaymentModel fraudModel = BeanUtil.createPaymentModel();
         fraudModel.setFingerprint("test");
         fraudModel.setPartyId("party");
         FraudResult value4 = createFraudResult(ResultStatus.DECLINE, fraudModel);

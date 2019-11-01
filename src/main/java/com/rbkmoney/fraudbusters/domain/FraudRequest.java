@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.rbkmoney.fraudo.model.PaymentModel;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import lombok.Data;
 
 @Data
