@@ -3,10 +3,10 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
+import com.rbkmoney.damsel.p2p_insp.InspectResult;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.listener.StartupListener;
-import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
@@ -79,13 +79,14 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
     public static final long TIMEOUT = 2000L;
-
-    private InspectorProxySrv.Iface client;
+    public static final String FRAUD = "fraud";
 
     @LocalServerPort
     int serverPort;
 
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
+
+    private static String SERVICE_P2P_URL = "http://localhost:%s/fraud_p2p_inspector/v1";
 
     @Autowired
     private StartupListener startupListener;
@@ -175,7 +176,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
-        client = clientBuilder.build(InspectorProxySrv.Iface.class);
+        InspectorProxySrv.Iface client = clientBuilder.build(InspectorProxySrv.Iface.class);
 
         Thread.sleep(TIMEOUT);
 
@@ -212,6 +213,24 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         KafkaStreams streams = (KafkaStreams) eventSinkStream.get(startupListener);
 
         Assert.assertNull(streams);
+    }
+
+    @Test
+    public void testP2P() throws URISyntaxException, TException, InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
+        THClientBuilder clientBuilder = new THClientBuilder()
+                .withAddress(new URI(String.format(SERVICE_P2P_URL, serverPort)))
+                .withNetworkTimeout(300000);
+
+        com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface client = clientBuilder.build(com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface.class);
+
+        Thread.sleep(TIMEOUT);
+
+        com.rbkmoney.damsel.p2p_insp.Context p2PContext = BeanUtil.createP2PContext("identId", "transfer_1");
+
+        InspectResult fraud = client.inspectTransfer(p2PContext, List.of(FRAUD));
+        Assert.assertEquals(RiskScore.high, fraud.scores.get(FRAUD));
+
+        Thread.sleep(TIMEOUT);
     }
 
 }

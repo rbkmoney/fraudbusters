@@ -26,9 +26,27 @@ public class EventP2PRepository implements CrudRepository<EventP2P> {
     private final JdbcTemplate jdbcTemplate;
 
     private static final String INSERT = "INSERT INTO fraud.events_p_to_p " +
-            "(timestamp, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount, eventTime, " +
-            "country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName, cardToken, paymentId, checkedTemplate)" +
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "(" +
+            "    timestamp,\n" +
+            "    eventTime,\n" +
+            "    identityId,\n" +
+            "    transferId,\n" +
+            "    ip,\n" +
+            "    email,\n" +
+            "    bin,\n" +
+            "    fingerprint,\n" +
+            "    amount,\n" +
+            "    currency,\n" +
+            "    country,\n" +
+            "    bankCountry,\n" +
+            "    maskedPan,\n" +
+            "    bankName,\n" +
+            "    cardTokenFrom,\n" +
+            "    cardTokenTo,\n" +
+            "    resultStatus,\n" +
+            "    checkedRule,\n" +
+            "    checkedTemplate)" +
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
     public void insert(EventP2P value) {

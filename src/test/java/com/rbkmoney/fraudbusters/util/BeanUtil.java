@@ -3,6 +3,10 @@ package com.rbkmoney.fraudbusters.util;
 import com.rbkmoney.damsel.base.Content;
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.p2p_insp.Identity;
+import com.rbkmoney.damsel.p2p_insp.Raw;
+import com.rbkmoney.damsel.p2p_insp.Transfer;
+import com.rbkmoney.damsel.p2p_insp.TransferInfo;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
@@ -47,6 +51,33 @@ public class BeanUtil {
         return createContext(pId);
     }
 
+    public static com.rbkmoney.damsel.p2p_insp.Context createP2PContext(String identityId, String idTransfer) {
+        ContactInfo contact_info = new ContactInfo();
+        contact_info.setEmail(EMAIL);
+        TransferInfo transferInfo = new TransferInfo(
+                new Transfer()
+                        .setCost(new Cash(
+                                9000L,
+                                new CurrencyRef("RUB")
+                        ))
+                        .setSender(com.rbkmoney.damsel.p2p_insp.Payer.raw(
+                                new Raw(com.rbkmoney.damsel.domain.Payer.customer(
+                                        new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(),
+                                                contact_info)))))
+                        .setCreatedAt(TypeUtil.temporalToString(Instant.now()))
+                        .setReceiver(com.rbkmoney.damsel.p2p_insp.Payer.raw(
+                                new Raw(com.rbkmoney.damsel.domain.Payer.customer(
+                                        new CustomerPayer("custId_2", "2", "rec_paym_tool", createBankCard(),
+                                                contact_info)))))
+                        .setIdentity(new Identity(identityId))
+                        .setId(idTransfer)
+        );
+        return new com.rbkmoney.damsel.p2p_insp.Context(
+                transferInfo
+        );
+
+    }
+
     public static Context createContext(String pId) {
         ContactInfo contact_info = new ContactInfo();
         contact_info.setEmail(EMAIL);
@@ -78,10 +109,6 @@ public class BeanUtil {
                 payment
         );
 
-    }
-
-    public static Payer createRecurrentPayer() {
-        return Payer.recurrent(new RecurrentPayer(createBankCard(), new RecurrentParentPayment("invoiceId", "paymentId"), new ContactInfo()));
     }
 
     private static Payer createCustomerPayer() {

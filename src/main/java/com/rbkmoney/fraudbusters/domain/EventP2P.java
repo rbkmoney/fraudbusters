@@ -8,24 +8,28 @@ import java.sql.Date;
 public class EventP2P {
 
     private Date timestamp;
+    private Long eventTime;
+
+    private String identityId;
+    private String transferId;
+
     private String ip;
     private String email;
     private String bin;
     private String fingerprint;
-    private String shopId;
-    private String partyId;
-    private String resultStatus;
-    private String country;
-    private Long eventTime;
+
     private Long amount;
-    private String checkedRule;
-    private String bankCountry;
     private String currency;
-    private String invoiceId;
+
+    private String country;
+    private String bankCountry;
     private String maskedPan;
     private String bankName;
-    private String cardToken;
-    private String paymentId;
+    private String cardTokenFrom;
+    private String cardTokenTo;
+
+    private String resultStatus;
+    private String checkedRule;
     private String checkedTemplate;
 
 }

@@ -6,9 +6,11 @@ import com.rbkmoney.damsel.p2p_insp.Context;
 import com.rbkmoney.damsel.p2p_insp.Transfer;
 import com.rbkmoney.damsel.p2p_insp.TransferInfo;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
+import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.util.PayerFieldExtractor;
 import com.rbkmoney.geck.common.util.TypeUtil;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
@@ -54,16 +56,19 @@ public class P2PContextToP2PModelConverter implements Converter<Context, P2PMode
     }
 
     private com.rbkmoney.fraudbusters.fraud.model.Payer initPayer(Payer payer) {
-        com.rbkmoney.fraudbusters.fraud.model.Payer.PayerBuilder receiverBuilder = com.rbkmoney.fraudbusters.fraud.model.Payer.builder();
+        com.rbkmoney.fraudbusters.fraud.model.Payer payerModel = new com.rbkmoney.fraudbusters.fraud.model.Payer();
 
         PayerFieldExtractor.getBankCard(payer)
-                .ifPresent(bankCard -> receiverBuilder
-                        .bin(bankCard.getBin())
-                        .binCountryCode(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN)
-                        .cardToken(bankCard.getToken())
-                        .pan(bankCard.getMaskedPan())
+                .ifPresent(bankCard -> {
+                            payerModel.setBin(bankCard.getBin());
+                            payerModel.setBinCountryCode(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
+                            payerModel.setCardToken(bankCard.getToken());
+                            payerModel.setPan(bankCard.getMaskedPan());
+                            payerModel.setBankName(bankCard.getBankName());
+                        }
                 );
-        return receiverBuilder.build();
+
+        return payerModel;
     }
 
 }
