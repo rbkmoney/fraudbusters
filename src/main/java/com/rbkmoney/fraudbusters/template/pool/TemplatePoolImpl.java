@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
 public class TemplatePoolImpl implements Pool<FraudoParser.ParseContext> {
 
     private Map<String, FraudoParser.ParseContext> templates = new ConcurrentHashMap<>();

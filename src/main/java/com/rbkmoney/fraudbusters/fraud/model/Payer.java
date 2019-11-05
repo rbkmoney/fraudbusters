@@ -9,7 +9,7 @@ public class Payer {
 
     private String bin;
     private String pan;
-    private String country;
     private String cardToken;
+    private String binCountryCode;
 
 }

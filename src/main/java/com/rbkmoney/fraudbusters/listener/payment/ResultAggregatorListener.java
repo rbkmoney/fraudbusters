@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.listener;
+package com.rbkmoney.fraudbusters.listener.payment;
 
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.FraudResult;

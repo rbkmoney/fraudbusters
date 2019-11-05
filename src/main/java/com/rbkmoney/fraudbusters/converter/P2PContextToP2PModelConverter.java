@@ -8,8 +8,12 @@ import com.rbkmoney.damsel.p2p_insp.TransferInfo;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.util.PayerFieldExtractor;
+import com.rbkmoney.geck.common.util.TypeUtil;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 
 @Component
@@ -25,6 +29,10 @@ public class P2PContextToP2PModelConverter implements Converter<Context, P2PMode
         model.setIdentityId(transfer.getIdentity().getId());
 
         Payer sender = transfer.getSender().getRaw().getPayer();
+        model.setTransferId(transfer.getId());
+
+        LocalDateTime localDateTime = TypeUtil.stringToLocalDateTime(transfer.getCreatedAt());
+        model.setTimestamp(localDateTime.toEpochSecond(ZoneOffset.UTC));
 
         PayerFieldExtractor.getContactInfo(sender)
                 .ifPresent(contract ->
@@ -45,13 +53,13 @@ public class P2PContextToP2PModelConverter implements Converter<Context, P2PMode
         return model;
     }
 
-    private com.rbkmoney.fraudbusters.fraud.model.Payer initPayer(Payer receiver) {
+    private com.rbkmoney.fraudbusters.fraud.model.Payer initPayer(Payer payer) {
         com.rbkmoney.fraudbusters.fraud.model.Payer.PayerBuilder receiverBuilder = com.rbkmoney.fraudbusters.fraud.model.Payer.builder();
 
-        PayerFieldExtractor.getBankCard(receiver)
+        PayerFieldExtractor.getBankCard(payer)
                 .ifPresent(bankCard -> receiverBuilder
                         .bin(bankCard.getBin())
-                        .country(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN)
+                        .binCountryCode(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN)
                         .cardToken(bankCard.getToken())
                         .pan(bankCard.getMaskedPan())
                 );

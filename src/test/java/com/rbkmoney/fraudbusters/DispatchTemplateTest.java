@@ -39,7 +39,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
     public static final int TIMEOUT = 20;
 
     @Autowired
-    private Pool<FraudoParser.ParseContext> pool;
+    private Pool<FraudoParser.ParseContext> templatePoolImpl;
     @Autowired
     private Pool<String> referencePoolImpl;
 
@@ -61,7 +61,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
 
         //check parse context created
         Unreliables.retryUntilTrue(TIMEOUT, TimeUnit.SECONDS, () -> {
-            FraudoParser.ParseContext parseContext = pool.get(id);
+            FraudoParser.ParseContext parseContext = templatePoolImpl.get(id);
             return parseContext != null;
         });
 

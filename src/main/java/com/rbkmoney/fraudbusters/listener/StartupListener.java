@@ -2,6 +2,10 @@ package com.rbkmoney.fraudbusters.listener;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.exception.StartException;
+import com.rbkmoney.fraudbusters.listener.payment.GroupListener;
+import com.rbkmoney.fraudbusters.listener.payment.GroupReferenceListener;
+import com.rbkmoney.fraudbusters.listener.payment.TemplateListener;
+import com.rbkmoney.fraudbusters.listener.payment.TemplateReferenceListener;
 import com.rbkmoney.fraudbusters.stream.TemplateStreamFactory;
 import com.rbkmoney.kafka.common.loader.PreloadListener;
 import com.rbkmoney.kafka.common.loader.PreloadListenerImpl;

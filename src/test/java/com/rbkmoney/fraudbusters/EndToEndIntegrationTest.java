@@ -128,6 +128,11 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
             for (String exec : split) {
                 connection.createStatement().execute(exec);
             }
+            sql = FileUtil.getFile("sql/V3__create_events_p2p.sql");
+            split = sql.split(";");
+            for (String exec : split) {
+                connection.createStatement().execute(exec);
+            }
         }
 
         String globalRef = UUID.randomUUID().toString();

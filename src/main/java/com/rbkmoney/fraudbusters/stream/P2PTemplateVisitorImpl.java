@@ -20,18 +20,18 @@ public class P2PTemplateVisitorImpl implements TemplateVisitor<P2PModel, Checked
 
     private static final String RULE_NOT_CHECKED = "RULE_NOT_CHECKED";
 
-    private final RuleApplier<P2PModel> ruleApplier;
-    private final Pool<List<String>> groupPoolImpl;
-    private final Pool<String> referencePoolImpl;
-    private final Pool<String> groupReferencePoolImpl;
+    private final RuleApplier<P2PModel> ruleP2PApplier;
+    private final Pool<List<String>> groupP2PPoolImpl;
+    private final Pool<String> referenceP2PPoolImpl;
+    private final Pool<String> groupReferenceP2PPoolImpl;
 
     @Override
     public CheckedResultModel visit(P2PModel p2PModel) {
         String identityId = p2PModel.getIdentityId();
 
-        return ruleApplier.apply(p2PModel, referencePoolImpl.get(TemplateLevel.GLOBAL.name()))
-                .orElse(ruleApplier.applyForAny(p2PModel, groupPoolImpl.get(groupReferencePoolImpl.get(identityId)))
-                        .orElse(ruleApplier.apply(p2PModel, referencePoolImpl.get(identityId))
+        return ruleP2PApplier.apply(p2PModel, referenceP2PPoolImpl.get(TemplateLevel.GLOBAL.name()))
+                .orElse(ruleP2PApplier.applyForAny(p2PModel, groupP2PPoolImpl.get(groupReferenceP2PPoolImpl.get(identityId)))
+                        .orElse(ruleP2PApplier.apply(p2PModel, referenceP2PPoolImpl.get(identityId))
                                 .orElse(createDefaultResult())));
     }
 

@@ -1,8 +1,10 @@
-package com.rbkmoney.fraudbusters.listener;
+package com.rbkmoney.fraudbusters.listener.payment;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
+import com.rbkmoney.fraudbusters.listener.AbstractPoolCommandListenerExecutor;
+import com.rbkmoney.fraudbusters.listener.CommandListener;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudo.FraudoParser;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TemplateListener implements CommandListener {
+public class TemplateListener extends AbstractPoolCommandListenerExecutor implements CommandListener {
 
     private final FraudContextParser fraudContextParser;
     private final Pool<FraudoParser.ParseContext> templatePoolImpl;
@@ -29,22 +31,8 @@ public class TemplateListener implements CommandListener {
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetTemplate()) {
             Template template = command.getCommandBody().getTemplate();
             String templateString = new String(template.getTemplate(), StandardCharsets.UTF_8);
-            FraudoParser.ParseContext parseContext = fraudContextParser.parse(templateString);
-            execCommand(command, parseContext);
+            execCommand(command, template.getId(), templatePoolImpl, fraudContextParser::parse, templateString);
         }
     }
 
-    private void execCommand(Command command, FraudoParser.ParseContext context) {
-        Template template = command.getCommandBody().getTemplate();
-        switch (command.command_type) {
-            case CREATE:
-                templatePoolImpl.add(template.getId(), context);
-                return;
-            case DELETE:
-                templatePoolImpl.remove(template.getId());
-                return;
-            default:
-                log.error("Unknown command: {}", command);
-        }
-    }
 }

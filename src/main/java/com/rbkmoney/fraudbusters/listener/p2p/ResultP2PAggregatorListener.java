@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.listener;
+package com.rbkmoney.fraudbusters.listener.p2p;
 
 import com.rbkmoney.fraudbusters.converter.ScoresResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;

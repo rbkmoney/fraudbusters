@@ -19,7 +19,7 @@ public class P2PModelFieldResolver implements FieldResolver<P2PModel, P2PChecked
             case EMAIL:
                 return model.getEmail();
             case COUNTRY_BANK:
-                return model.getSender().getCountry();
+                return model.getSender().getBinCountryCode();
             case CARD_TOKEN_FROM:
                 return model.getSender().getCardToken();
             case CARD_TOKEN_TO:

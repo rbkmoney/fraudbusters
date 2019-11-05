@@ -9,5 +9,7 @@ public class P2PModel extends BaseModel {
     private Payer sender;
     private Payer receiver;
     private String identityId;
+    private String transferId;
+    private Long timestamp;
 
 }
