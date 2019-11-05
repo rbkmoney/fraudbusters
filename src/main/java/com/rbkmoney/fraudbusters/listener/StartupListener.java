@@ -2,6 +2,10 @@ package com.rbkmoney.fraudbusters.listener;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.exception.StartException;
+import com.rbkmoney.fraudbusters.listener.p2p.GroupP2PListener;
+import com.rbkmoney.fraudbusters.listener.p2p.GroupP2PReferenceListener;
+import com.rbkmoney.fraudbusters.listener.p2p.TemplateP2PListener;
+import com.rbkmoney.fraudbusters.listener.p2p.TemplateP2PReferenceListener;
 import com.rbkmoney.fraudbusters.listener.payment.GroupListener;
 import com.rbkmoney.fraudbusters.listener.payment.GroupReferenceListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateListener;
@@ -38,14 +42,26 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
     private final TemplateStreamFactory eventSinkAggregationStreamFactoryImpl;
     private final Properties eventSinkStreamProperties;
+
     private final ConsumerFactory<String, Command> templateListenerFactory;
     private final ConsumerFactory<String, Command> groupListenerFactory;
     private final ConsumerFactory<String, Command> referenceListenerFactory;
     private final ConsumerFactory<String, Command> groupReferenceListenerFactory;
+
     private final TemplateListener templateListener;
     private final GroupListener groupListener;
     private final GroupReferenceListener groupReferenceListener;
     private final TemplateReferenceListener templateReferenceListener;
+
+    private final ConsumerFactory<String, Command> templateP2PListenerFactory;
+    private final ConsumerFactory<String, Command> groupP2PListenerFactory;
+    private final ConsumerFactory<String, Command> referenceP2PListenerFactory;
+    private final ConsumerFactory<String, Command> groupReferenceP2PListenerFactory;
+
+    private final TemplateP2PListener templateP2PListener;
+    private final GroupP2PListener groupP2PListener;
+    private final GroupP2PReferenceListener groupP2PReferenceListener;
+    private final TemplateP2PReferenceListener templateP2PReferenceListener;
 
     private KafkaStreams eventSinkStream;
 
@@ -63,6 +79,18 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     @Value("${kafka.topic.group.reference}")
     private String topicGroupReference;
 
+    @Value("${kafka.topic.p2p.template}")
+    private String topicP2PTemplate;
+
+    @Value("${kafka.topic.p2p.reference}")
+    private String topicP2PReference;
+
+    @Value("${kafka.topic.p2p.group.list}")
+    private String topicP2PGroup;
+
+    @Value("${kafka.topic.p2p.group.reference}")
+    private String topicP2PGroupReference;
+
     @Value("${kafka.stream.event.sink.enable}")
     private boolean enableEventSinkStream;
 
@@ -77,8 +105,14 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
                     () -> waitPreLoad(latch, templateListenerFactory, topicTemplate, templateListener),
                     () -> waitPreLoad(latch, referenceListenerFactory, topicReference, templateReferenceListener),
                     () -> waitPreLoad(latch, groupListenerFactory, topicGroup, groupListener),
-                    () -> waitPreLoad(latch, groupReferenceListenerFactory, topicGroupReference, groupReferenceListener)
+                    () -> waitPreLoad(latch, groupReferenceListenerFactory, topicGroupReference, groupReferenceListener),
+
+                    () -> waitPreLoad(latch, templateP2PListenerFactory, topicP2PTemplate, templateP2PListener),
+                    () -> waitPreLoad(latch, referenceP2PListenerFactory, topicP2PReference, templateP2PReferenceListener),
+                    () -> waitPreLoad(latch, groupP2PListenerFactory, topicP2PGroup, groupP2PListener),
+                    () -> waitPreLoad(latch, groupReferenceP2PListenerFactory, topicP2PGroupReference, groupP2PReferenceListener)
             );
+
             tasks.forEach(executorService::submit);
             long timeout = PRELOAD_TIMEOUT * COUNT_PRELOAD_TASKS;
             boolean await = latch.await(timeout, TimeUnit.SECONDS);
@@ -87,14 +121,18 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
                 throw new StartException("Cant load all rules by timeout: " + timeout);
             }
 
-            if (enableEventSinkStream) {
-                eventSinkStream = eventSinkAggregationStreamFactoryImpl.create(eventSinkStreamProperties);
-                log.info("StartupListener start stream preloadTime: {} ms eventSinkStream: {}", System.currentTimeMillis() - startPreloadTime,
-                        eventSinkStream.allMetadata());
-            }
+            startEventStream(startPreloadTime);
         } catch (InterruptedException e) {
             log.error("StartupListener onApplicationEvent e: ", e);
             Thread.currentThread().interrupt();
+        }
+    }
+
+    private void startEventStream(long startPreloadTime) {
+        if (enableEventSinkStream) {
+            eventSinkStream = eventSinkAggregationStreamFactoryImpl.create(eventSinkStreamProperties);
+            log.info("StartupListener start stream preloadTime: {} ms eventSinkStream: {}", System.currentTimeMillis() - startPreloadTime,
+                    eventSinkStream.allMetadata());
         }
     }
 

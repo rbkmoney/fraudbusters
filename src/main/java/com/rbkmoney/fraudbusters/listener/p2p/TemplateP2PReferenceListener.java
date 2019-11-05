@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.listener.p2p;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
-import com.rbkmoney.damsel.fraudbusters.TemplateReference;
+import com.rbkmoney.damsel.fraudbusters.P2PReference;
 import com.rbkmoney.fraudbusters.listener.AbstractPoolCommandListenerExecutor;
 import com.rbkmoney.fraudbusters.listener.CommandListener;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
@@ -20,14 +20,13 @@ public class TemplateP2PReferenceListener extends AbstractPoolCommandListenerExe
     private final Pool<String> referencePoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.p2p.reference}", containerFactory = "referenceListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.p2p.reference}", containerFactory = "referenceP2PListenerContainerFactory")
     public void listen(@Payload Command command) {
-        log.info("TemplateReferenceListener command: {}", command);
-        if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetReference()) {
-            TemplateReference reference = command.getCommandBody().getReference();
-            String key = ReferenceKeyGenerator.generateTemplateKey(reference);
-            TemplateReference templateReference = command.getCommandBody().getReference();
-            execCommand(command, key, referencePoolImpl, templateReference::getTemplateId);
+        log.info("TemplateP2PReferenceListener command: {}", command);
+        if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetP2pReference()) {
+            P2PReference p2pReference = command.getCommandBody().getP2pReference();
+            String key = ReferenceKeyGenerator.generateP2PTemplateKey(p2pReference);
+            execCommand(command, key, referencePoolImpl, p2pReference::getTemplateId);
         }
     }
 

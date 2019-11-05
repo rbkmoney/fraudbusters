@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.listener.p2p;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
-import com.rbkmoney.damsel.fraudbusters.GroupReference;
+import com.rbkmoney.damsel.fraudbusters.P2PGroupReference;
 import com.rbkmoney.fraudbusters.listener.AbstractPoolCommandListenerExecutor;
 import com.rbkmoney.fraudbusters.listener.CommandListener;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
@@ -20,14 +20,13 @@ public class GroupP2PReferenceListener extends AbstractPoolCommandListenerExecut
     private final Pool<String> groupReferencePoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.p2p.group.reference}", containerFactory = "groupReferenceListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.p2p.group.reference}", containerFactory = "groupReferenceP2PListenerContainerFactory")
     public void listen(@Payload Command command) {
-        log.info("GroupReferenceListener command: {}", command);
-        if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetGroupReference()) {
-            GroupReference reference = command.getCommandBody().getGroupReference();
-            String key = ReferenceKeyGenerator.generateTemplateKey(reference.getPartyId(), reference.getShopId());
-            GroupReference groupReference = command.getCommandBody().getGroupReference();
-            execCommand(command, key, groupReferencePoolImpl, groupReference::getGroupId);
+        log.info("GroupP2PReferenceListener command: {}", command);
+        if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetP2pGroupReference()) {
+            P2PGroupReference p2pGroupReference = command.getCommandBody().getP2pGroupReference();
+            String key = ReferenceKeyGenerator.generateTemplateKeyByList(p2pGroupReference.getIdentityId());
+            execCommand(command, key, groupReferencePoolImpl, p2pGroupReference::getGroupId);
         }
     }
 

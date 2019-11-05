@@ -22,6 +22,9 @@ public class ResourceConfig {
     @Value("${kafka.topic.result}")
     private String requestReplyTopic;
 
+    @Value("${kafka.topic.p2p.result}")
+    private String requestP2PReplyTopic;
+
     @Bean
     public InspectorProxySrv.Iface fraudInspectorHandler(KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate,
                                                          CheckedResultToRiskScoreConverter checkedResultToRiskScoreConverter,
@@ -35,7 +38,7 @@ public class ResourceConfig {
                                                                                          CheckedResultToRiskScoreConverter resultConverter,
                                                                                          P2PContextToP2PModelConverter requestConverter,
                                                                                          P2PTemplateVisitorImpl templateListVisitor) {
-        return new FraudP2PInspectorHandler(requestReplyTopic, resultConverter, requestConverter, templateListVisitor, p2PModelKafkaTemplate);
+        return new FraudP2PInspectorHandler(requestP2PReplyTopic, resultConverter, requestConverter, templateListVisitor, p2PModelKafkaTemplate);
     }
 
 }

@@ -36,9 +36,17 @@ import java.util.Properties;
 public class KafkaConfig {
 
     private static final String TEMPLATE_GROUP_ID = "template-listener";
+    private static final String TEMPLATE_P2P_GROUP_ID = "template-listener-p2p";
+
     private static final String GROUP_LIST_GROUP_ID = "group-listener";
+    private static final String GROUP_P2P_LIST_GROUP_ID = "group-listener-p2p";
+
     private static final String GROUP_LIST_REFERENCE_GROUP_ID = "group-reference-listener";
+    private static final String GROUP_P2P_LIST_REFERENCE_GROUP_ID = "group-reference-listener-p2p";
+
     private static final String REFERENCE_GROUP_ID = "reference-listener";
+    private static final String REFERENCE_P2P_GROUP_ID = "reference-listener-p2p";
+
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "result-aggregator";
     private static final String MG_EVENT_SINK_AGGREGATOR = "mg-event-sink-aggregator";
@@ -121,6 +129,26 @@ public class KafkaConfig {
         return createDefaultConsumerFactory(GROUP_LIST_REFERENCE_GROUP_ID);
     }
 
+    @Bean
+    public ConsumerFactory<String, Command> templateP2PListenerFactory() {
+        return createDefaultConsumerFactory(TEMPLATE_P2P_GROUP_ID);
+    }
+
+    @Bean
+    public ConsumerFactory<String, Command> groupP2PListenerFactory() {
+        return createDefaultConsumerFactory(GROUP_P2P_LIST_GROUP_ID);
+    }
+
+    @Bean
+    public ConsumerFactory<String, Command> referenceP2PListenerFactory() {
+        return createDefaultConsumerFactory(REFERENCE_P2P_GROUP_ID);
+    }
+
+    @Bean
+    public ConsumerFactory<String, Command> groupReferenceP2PListenerFactory() {
+        return createDefaultConsumerFactory(GROUP_P2P_LIST_REFERENCE_GROUP_ID);
+    }
+
     @NotNull
     private ConsumerFactory<String, Command> createDefaultConsumerFactory(String groupListReferenceGroupId) {
         String value = consumerGroupIdService.generateRandomGroupId(groupListReferenceGroupId);
@@ -147,9 +175,21 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> templateP2PListenerContainerFactory(
+            ConsumerFactory<String, Command> templateP2PListenerFactory) {
+        return createDefaultFactory(templateP2PListenerFactory);
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Command> groupListenerContainerFactory(
             ConsumerFactory<String, Command> groupListenerFactory) {
         return createDefaultFactory(groupListenerFactory);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> groupP2PListenerContainerFactory(
+            ConsumerFactory<String, Command> groupP2PListenerFactory) {
+        return createDefaultFactory(groupP2PListenerFactory);
     }
 
     @Bean
@@ -159,9 +199,22 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> referenceP2PListenerContainerFactory(
+            ConsumerFactory<String, Command> referenceP2PListenerFactory) {
+        return createDefaultFactory(referenceP2PListenerFactory);
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Command> groupReferenceListenerContainerFactory(
             ConsumerFactory<String, Command> groupReferenceListenerFactory) {
         return createDefaultFactory(groupReferenceListenerFactory);
+    }
+
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> groupReferenceP2PListenerContainerFactory(
+            ConsumerFactory<String, Command> groupReferenceP2PListenerFactory) {
+        return createDefaultFactory(groupReferenceP2PListenerFactory);
     }
 
     @NotNull

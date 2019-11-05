@@ -43,6 +43,7 @@ public class FraudP2PInspectorHandler implements InspectorProxySrv.Iface {
 
                 HashMap<String, CheckedResultModel> scoresCheck = new HashMap<>();
                 scoresCheck.put(ScoresType.FRAUD, visit);
+
                 ScoresResult<P2PModel> scoresResult = new ScoresResult<>(model, scoresCheck);
 
                 kafkaFraudResultTemplate.send(resultTopic, scoresResult);

@@ -1,8 +1,10 @@
 package com.rbkmoney.fraudbusters.util;
 
+import com.rbkmoney.damsel.fraudbusters.P2PReference;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.exception.UnknownReferenceException;
+import org.springframework.util.StringUtils;
 import org.testcontainers.shaded.io.netty.util.internal.StringUtil;
 
 public class ReferenceKeyGenerator {
@@ -16,6 +18,13 @@ public class ReferenceKeyGenerator {
         return generateTemplateKey(reference.party_id, reference.shop_id);
     }
 
+    public static String generateP2PTemplateKey(P2PReference reference) {
+        if (reference.is_global) {
+            return TemplateLevel.GLOBAL.name();
+        }
+        return generateTemplateKeyByList(reference.identity_id);
+    }
+
     @Deprecated
     public static String generateTemplateKey(String partyId, String shopId) {
         if (StringUtil.isNullOrEmpty(shopId) && !StringUtil.isNullOrEmpty(partyId)) {
@@ -27,7 +36,7 @@ public class ReferenceKeyGenerator {
     }
 
     public static String generateTemplateKeyByList(String... ids) {
-        if (ids == null || ids.length == 0) {
+        if (ids == null || ids.length == 0 || (ids.length == 1 && StringUtils.isEmpty(ids[0]))) {
             throw new UnknownReferenceException();
         }
         StringBuilder resultKeyBuilder = null;

@@ -88,9 +88,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
     @Autowired
-    private MgEventSinkRepository mgEventSinkRepository;
-
-    @Autowired
     private StartupListener startupListener;
 
     @ClassRule

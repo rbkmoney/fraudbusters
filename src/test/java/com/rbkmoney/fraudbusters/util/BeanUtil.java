@@ -161,6 +161,28 @@ public class BeanUtil {
     }
 
     @NotNull
+    public static Command createP2PGroupReferenceCommand(String identityId, String idGroup) {
+        Command command = new Command();
+        command.setCommandType(CommandType.CREATE);
+        command.setCommandBody(CommandBody.p2p_group_reference(new P2PGroupReference()
+                .setGroupId(idGroup)
+                .setIdentityId(identityId))
+        );
+        return command;
+    }
+
+    @NotNull
+    public static Command createP2PTemplateReferenceCommand(String identityId, String templateId) {
+        Command command = new Command();
+        command.setCommandType(CommandType.CREATE);
+        command.setCommandBody(CommandBody.p2p_reference(new P2PReference()
+                .setTemplateId(templateId)
+                .setIdentityId(identityId))
+        );
+        return command;
+    }
+
+    @NotNull
     public static Command createDeleteGroupReferenceCommand(String party, String shopId, String idGroup) {
         Command command = new Command();
         command.setCommandType(CommandType.DELETE);
