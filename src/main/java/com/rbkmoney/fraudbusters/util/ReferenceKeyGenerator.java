@@ -39,6 +39,14 @@ public class ReferenceKeyGenerator {
         if (ids == null || ids.length == 0 || (ids.length == 1 && StringUtils.isEmpty(ids[0]))) {
             throw new UnknownReferenceException();
         }
+        StringBuilder resultKeyBuilder = initBuilder(ids);
+        if (resultKeyBuilder != null) {
+            return resultKeyBuilder.toString();
+        }
+        throw new UnknownReferenceException();
+    }
+
+    private static StringBuilder initBuilder(String[] ids) {
         StringBuilder resultKeyBuilder = null;
         for (String id : ids) {
             if (resultKeyBuilder == null) {
@@ -52,7 +60,7 @@ public class ReferenceKeyGenerator {
                 }
             }
         }
-        return resultKeyBuilder.toString();
+        return resultKeyBuilder;
     }
 
 }
