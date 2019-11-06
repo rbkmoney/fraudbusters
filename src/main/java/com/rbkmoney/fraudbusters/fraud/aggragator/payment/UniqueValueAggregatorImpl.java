@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.fraud.aggragator;
+package com.rbkmoney.fraudbusters.fraud.aggragator.payment;
 
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;

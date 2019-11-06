@@ -4,7 +4,6 @@ import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.constant.EventP2PField;
 import com.rbkmoney.fraudbusters.exception.UnknownFieldException;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
-import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import org.springframework.stereotype.Service;
 
@@ -44,15 +43,15 @@ public class DbP2pFieldResolver {
             case CARD_TOKEN_FROM:
                 return new FieldModel(EventP2PField.cardTokenFrom.name(), model.getSender().getCardToken());
             case CARD_TOKEN_TO:
-                return new FieldModel(EventField.cardToken.name(), model.getReceiver().getCardToken());
+                return new FieldModel(EventP2PField.cardTokenTo.name(), model.getReceiver().getCardToken());
             case PAN:
-                return new FieldModel(EventField.maskedPan.name(), model.getSender().getPan());
+                return new FieldModel(EventP2PField.maskedPan.name(), model.getSender().getPan());
             default:
                 throw new UnknownFieldException();
         }
     }
 
-    public String resolve(PaymentCheckedField field) {
+    public String resolve(P2PCheckedField field) {
         if (field == null) {
             throw new UnknownFieldException();
         }
@@ -67,12 +66,12 @@ public class DbP2pFieldResolver {
                 return EventField.maskedPan.name();
             case FINGERPRINT:
                 return EventField.fingerprint.name();
-            case PARTY_ID:
-                return EventField.partyId.name();
-            case SHOP_ID:
-                return EventField.shopId.name();
-            case CARD_TOKEN:
-                return EventField.cardToken.name();
+            case IDENTITY_ID:
+                return EventP2PField.identityId.name();
+            case CARD_TOKEN_FROM:
+                return EventP2PField.cardTokenFrom.name();
+            case CARD_TOKEN_TO:
+                return EventP2PField.cardTokenTo.name();
             default:
                 throw new UnknownFieldException();
         }

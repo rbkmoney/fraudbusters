@@ -60,7 +60,7 @@ public class PoolConfig {
     }
 
     @Bean
-    public RuleApplierImpl<P2PModel> ruleP2PApplier(FirstFindVisitorImpl paymentRuleVisitor, Pool<FraudoParser.ParseContext> templateP2PPoolImpl) {
-        return new RuleApplierImpl<>(paymentRuleVisitor, templateP2PPoolImpl);
+    public RuleApplierImpl<P2PModel> ruleP2PApplier(FirstFindVisitorImpl p2pRuleVisitor, Pool<FraudoParser.ParseContext> templateP2PPoolImpl) {
+        return new RuleApplierImpl<>(p2pRuleVisitor, templateP2PPoolImpl);
     }
 }

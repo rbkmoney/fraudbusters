@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.fraud.aggragator;
 
+import com.rbkmoney.fraudbusters.fraud.aggragator.payment.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;

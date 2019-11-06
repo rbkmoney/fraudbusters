@@ -1,7 +1,8 @@
-package com.rbkmoney.fraudbusters.fraud.aggragator;
+package com.rbkmoney.fraudbusters.fraud.aggragator.payment;
 
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
+import com.rbkmoney.fraudbusters.fraud.aggragator.AggregateGroupingFunction;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
