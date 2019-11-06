@@ -13,12 +13,22 @@ public class TimestampUtil {
         return TimestampUtil.generateTimestampNow(instant);
     }
 
+    @Deprecated
     public static Long generateTimestampNow(Instant now) {
         return now.getEpochSecond();
     }
 
+    public static Long generateTimestampNowMillis(Instant now) {
+        return now.toEpochMilli();
+    }
+
+    @Deprecated
     public static Long generateTimestampMinusMinutes(Instant now, Long minutes) {
         return minutes != null ? now.minusSeconds(minutes * 60).getEpochSecond() : now.getEpochSecond();
+    }
+
+    public static Long generateTimestampMinusMinutesMillis(Instant now, Long minutes) {
+        return minutes != null ? now.minusSeconds(minutes * 60).toEpochMilli() : now.toEpochMilli();
     }
 
 }

@@ -6,11 +6,9 @@ import com.rbkmoney.damsel.p2p_insp.Context;
 import com.rbkmoney.damsel.p2p_insp.Transfer;
 import com.rbkmoney.damsel.p2p_insp.TransferInfo;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
-import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.util.PayerFieldExtractor;
 import com.rbkmoney.geck.common.util.TypeUtil;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +32,7 @@ public class P2PContextToP2PModelConverter implements Converter<Context, P2PMode
         model.setTransferId(transfer.getId());
 
         LocalDateTime localDateTime = TypeUtil.stringToLocalDateTime(transfer.getCreatedAt());
-        model.setTimestamp(localDateTime.toEpochSecond(ZoneOffset.UTC));
+        model.setTimestamp(localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli());
 
         PayerFieldExtractor.getContactInfo(sender)
                 .ifPresent(contract ->

@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS fraud.events_p_to_p;
 create table fraud.events_p_to_p (
   timestamp Date,
   eventTime UInt64,
+  eventTimeHour UInt64,
 
   identityId String,
   transferId String,
@@ -27,4 +28,4 @@ create table fraud.events_p_to_p (
   checkedTemplate String
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMM(timestamp)
-ORDER BY (identityId, cardTokenFrom, cardTokenTo, bin, fingerprint, resultStatus, currency);
+ORDER BY (eventTimeHour, identityId, cardTokenFrom, cardTokenTo, bin, fingerprint, currency);

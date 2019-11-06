@@ -8,6 +8,7 @@ import com.rbkmoney.fraudbusters.domain.*;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.resolver.FieldModel;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -169,11 +170,11 @@ public class EventRepositoryTest {
 
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3)));
 
-        DBPaymentFieldResolver.FieldModel email = DBPaymentFieldResolver.resolve(PaymentCheckedField.EMAIL, fraudModelSecond);
+        FieldModel email = DBPaymentFieldResolver.resolve(PaymentCheckedField.EMAIL, fraudModelSecond);
         int count = eventRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of());
         Assert.assertEquals(2, count);
 
-        DBPaymentFieldResolver.FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModelSecond);
+        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModelSecond);
         count = eventRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of(resolve));
         Assert.assertEquals(1, count);
     }
@@ -225,7 +226,7 @@ public class EventRepositoryTest {
         Integer sum = eventRepository.uniqCountOperationWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to, List.of());
         Assert.assertEquals(Integer.valueOf(2), sum);
 
-        DBPaymentFieldResolver.FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModel);
+        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModel);
         sum = eventRepository.uniqCountOperationWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to, List.of(resolve));
         Assert.assertEquals(Integer.valueOf(1), sum);
     }

@@ -9,6 +9,7 @@ public class EventP2P {
 
     private Date timestamp;
     private Long eventTime;
+    private Long eventTimeHour;
 
     private String identityId;
     private String transferId;

@@ -5,6 +5,7 @@ import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.resolver.FieldModel;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
@@ -32,8 +33,8 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentM
                                     List<PaymentCheckedField> list) {
         try {
             Instant now = Instant.now();
-            DBPaymentFieldResolver.FieldModel resolve = dbPaymentFieldResolver.resolve(countField, fraudModel);
-            List<DBPaymentFieldResolver.FieldModel> fieldModels = dbPaymentFieldResolver.resolveListFields(fraudModel, list);
+            FieldModel resolve = dbPaymentFieldResolver.resolve(countField, fraudModel);
+            List<FieldModel> fieldModels = dbPaymentFieldResolver.resolveListFields(fraudModel, list);
             Integer uniqCountOperation = eventRepository.uniqCountOperationWithGroupBy(resolve.getName(), resolve.getValue(),
                     dbPaymentFieldResolver.resolve(onField),
                     TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getStartWindowTime()),

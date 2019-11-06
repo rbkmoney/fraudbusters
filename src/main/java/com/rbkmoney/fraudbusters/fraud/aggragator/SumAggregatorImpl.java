@@ -5,6 +5,7 @@ import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.resolver.FieldModel;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -43,11 +44,11 @@ public class SumAggregatorImpl implements SumAggregator<PaymentModel, PaymentChe
     @NotNull
     @BasicMetric("getSumWindowed")
     private Double getSum(PaymentCheckedField checkedField, PaymentModel fraudModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
-                          AggregateGroupingFunction<String, String, Long, Long, List<DBPaymentFieldResolver.FieldModel>, Long> aggregateFunction) {
+                          AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction) {
         try {
             Instant now = Instant.now();
-            DBPaymentFieldResolver.FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, fraudModel);
-            List<DBPaymentFieldResolver.FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(fraudModel, list);
+            FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, fraudModel);
+            List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(fraudModel, list);
             Long sum = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getStartWindowTime()),
                     TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getEndWindowTime()),

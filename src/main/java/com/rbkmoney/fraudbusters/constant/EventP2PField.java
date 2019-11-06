@@ -4,6 +4,7 @@ public enum EventP2PField {
 
     timestamp,
     eventTime,
+    eventTimeHour,
 
     identityId,
     transferId,

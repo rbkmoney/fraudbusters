@@ -10,6 +10,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.Date;
+
+import static java.time.ZoneOffset.UTC;
+
 public class TemplateP2PReferenceListenerTest {
 
     private static final String GROUP_REF_1 = "group_ref_1";
@@ -43,5 +51,17 @@ public class TemplateP2PReferenceListenerTest {
         templateP2PReferenceListener.listen(BeanUtil.createP2PTemplateReferenceCommand(null, GROUP_REF_1));
         ref = templateP2PReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKeyByList(IDENTITY_ID));
         Assert.assertEquals(GROUP_REF_1, ref);
+    }
+
+    @Test
+    public void timeTest(){
+        long time = new Date().getTime();
+
+        System.out.println(time);
+
+        Instant instant = Instant.ofEpochMilli(time).truncatedTo(ChronoUnit.HOURS);
+
+        System.out.println(instant.toEpochMilli());
+
     }
 }

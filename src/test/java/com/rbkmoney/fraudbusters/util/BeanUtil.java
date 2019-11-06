@@ -12,6 +12,7 @@ import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
 import com.rbkmoney.damsel.proxy_inspector.*;
+import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
@@ -45,6 +46,9 @@ public class BeanUtil {
 
     public static final String PAYMENT_ID = "1";
     public static final String TEST_MAIL_RU = "test@mail.ru";
+    public static final String TRANSFER_ID = "transferId";
+    public static final String IDENTITY_ID = "identityId";
+    public static final String RUB = "RUB";
 
     public static Context createContext() {
         String pId = P_ID;
@@ -139,6 +143,58 @@ public class BeanUtil {
         fraudModel.setAmount(AMOUNT_FIRST);
         fraudModel.setBinCountryCode(BIN_COUNTRY_CODE);
         return fraudModel;
+    }
+
+    public static P2PModel createP2PModel() {
+        P2PModel p2PModel = new P2PModel();
+        p2PModel.setFingerprint(FINGERPRINT);
+        p2PModel.setCurrency(RUB);
+        p2PModel.setTransferId(TRANSFER_ID);
+        p2PModel.setIdentityId(IDENTITY_ID);
+        p2PModel.setIp(IP);
+        p2PModel.setEmail(EMAIL);
+        p2PModel.setTimestamp(Instant.now().toEpochMilli());
+
+        com.rbkmoney.fraudbusters.fraud.model.Payer sender = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+
+        sender.setBin(BIN);
+        sender.setBinCountryCode(BIN_COUNTRY_CODE);
+
+        p2PModel.setSender(sender);
+        p2PModel.setAmount(AMOUNT_FIRST);
+
+        com.rbkmoney.fraudbusters.fraud.model.Payer receiver = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+        receiver.setBin(BIN);
+        receiver.setBinCountryCode(BIN_COUNTRY_CODE);
+
+        p2PModel.setReceiver(receiver);
+        return p2PModel;
+    }
+
+    public static P2PModel createP2PModelSecond() {
+        P2PModel p2PModel = new P2PModel();
+        p2PModel.setFingerprint(FINGERPRINT + SUFIX);
+        p2PModel.setTransferId(TRANSFER_ID + SUFIX);
+        p2PModel.setIdentityId(IDENTITY_ID + SUFIX);
+        p2PModel.setIp(IP + SUFIX);
+        p2PModel.setEmail(EMAIL + SUFIX);
+        p2PModel.setTimestamp(Instant.now().toEpochMilli());
+
+        com.rbkmoney.fraudbusters.fraud.model.Payer sender = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+
+        sender.setBin(BIN + SUFIX);
+        sender.setBinCountryCode(BIN_COUNTRY_CODE + SUFIX);
+
+        p2PModel.setSender(sender);
+        p2PModel.setCurrency(RUB);
+        p2PModel.setAmount(AMOUNT_SECOND);
+
+        com.rbkmoney.fraudbusters.fraud.model.Payer receiver = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+        receiver.setBin(BIN + SUFIX);
+        receiver.setBinCountryCode(BIN_COUNTRY_CODE + SUFIX);
+
+        p2PModel.setReceiver(receiver);
+        return p2PModel;
     }
 
     public static PaymentModel createFraudModelSecond() {

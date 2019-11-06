@@ -19,6 +19,7 @@ public class EventP2PBatchPreparedStatementSetter implements BatchPreparedStatem
         int l = 1;
         ps.setDate(l++, event.getTimestamp());
         ps.setLong(l++, event.getEventTime());
+        ps.setLong(l++, event.getEventTimeHour());
 
         ps.setString(l++, event.getIdentityId());
         ps.setString(l++, event.getTransferId());

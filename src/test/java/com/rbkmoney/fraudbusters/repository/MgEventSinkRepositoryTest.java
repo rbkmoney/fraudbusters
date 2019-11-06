@@ -10,6 +10,7 @@ import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.resolver.FieldModel;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -179,7 +180,7 @@ public class MgEventSinkRepositoryTest {
         fraudModelSecond.setEmail(TEST_MAIL_RU);
         fraudModelSecond.setPartyId(PARTY_ID + "_1");
 
-        DBPaymentFieldResolver.FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModelSecond);
+        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModelSecond);
         count = mgEventSinkRepository.countOperationByFieldWithGroupBy(MgEventSinkField.email.name(), fraudModelSecond.getEmail(), from, to, List.of(resolve));
         Assert.assertEquals(1, count);
     }
@@ -233,11 +234,11 @@ public class MgEventSinkRepositoryTest {
 
         mgEventSinkRepository.insertBatch(List.of(defaultMgEvent, defaultMgEvent1, defaultMgEvent2, defaultMgEvent3));
 
-        DBPaymentFieldResolver.FieldModel partyId = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModel);
+        FieldModel partyId = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModel);
         Long sum = mgEventSinkRepository.sumOperationErrorWithGroupBy(EventField.email.name(), defaultMgEvent.getEmail(), from, to, List.of(partyId));
         Assert.assertEquals(BeanUtil.AMOUNT_FIRST + BeanUtil.AMOUNT_FIRST + 10 + BeanUtil.AMOUNT_FIRST + 10, sum.longValue());
 
-        DBPaymentFieldResolver.FieldModel shopId = DBPaymentFieldResolver.resolve(PaymentCheckedField.SHOP_ID, fraudModel);
+        FieldModel shopId = DBPaymentFieldResolver.resolve(PaymentCheckedField.SHOP_ID, fraudModel);
         sum = mgEventSinkRepository.sumOperationErrorWithGroupBy(EventField.email.name(), defaultMgEvent.getEmail(), from, to, List.of(partyId, shopId));
         Assert.assertEquals(BeanUtil.AMOUNT_FIRST + BeanUtil.AMOUNT_FIRST + 10, sum.longValue());
 
