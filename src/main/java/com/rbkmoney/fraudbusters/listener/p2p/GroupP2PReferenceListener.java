@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GroupP2PReferenceListener extends AbstractPoolCommandListenerExecutor implements CommandListener {
 
-    private final Pool<String> groupReferencePoolImpl;
+    private final Pool<String> groupReferenceP2PPoolImpl;
 
     @Override
     @KafkaListener(topics = "${kafka.topic.p2p.group.reference}", containerFactory = "groupReferenceP2PListenerContainerFactory")
@@ -26,7 +26,7 @@ public class GroupP2PReferenceListener extends AbstractPoolCommandListenerExecut
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetP2pGroupReference()) {
             P2PGroupReference p2pGroupReference = command.getCommandBody().getP2pGroupReference();
             String key = ReferenceKeyGenerator.generateTemplateKeyByList(p2pGroupReference.getIdentityId());
-            execCommand(command, key, groupReferencePoolImpl, p2pGroupReference::getGroupId);
+            execCommand(command, key, groupReferenceP2PPoolImpl, p2pGroupReference::getGroupId);
         }
     }
 

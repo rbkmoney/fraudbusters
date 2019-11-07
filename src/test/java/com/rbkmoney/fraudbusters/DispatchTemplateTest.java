@@ -48,7 +48,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
 
         String id = UUID.randomUUID().toString();
 
-        produceTemplate(id, TEMPLATE);
+        produceTemplate(id, TEMPLATE, templateTopic);
 
         //check message in topic
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {

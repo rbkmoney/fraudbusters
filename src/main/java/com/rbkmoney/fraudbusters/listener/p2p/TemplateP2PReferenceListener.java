@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TemplateP2PReferenceListener extends AbstractPoolCommandListenerExecutor implements CommandListener {
 
-    private final Pool<String> referencePoolImpl;
+    private final Pool<String> referenceP2PPoolImpl;
 
     @Override
     @KafkaListener(topics = "${kafka.topic.p2p.reference}", containerFactory = "referenceP2PListenerContainerFactory")
@@ -26,7 +26,7 @@ public class TemplateP2PReferenceListener extends AbstractPoolCommandListenerExe
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetP2pReference()) {
             P2PReference p2pReference = command.getCommandBody().getP2pReference();
             String key = ReferenceKeyGenerator.generateP2PTemplateKey(p2pReference);
-            execCommand(command, key, referencePoolImpl, p2pReference::getTemplateId);
+            execCommand(command, key, referenceP2PPoolImpl, p2pReference::getTemplateId);
         }
     }
 

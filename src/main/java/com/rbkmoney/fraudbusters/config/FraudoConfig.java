@@ -19,6 +19,7 @@ import com.rbkmoney.fraudbusters.fraud.payout.PaymentModelFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.resolver.DbP2pFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.resolver.p2p.CountryP2PResolverImpl;
 import com.rbkmoney.fraudbusters.repository.EventP2PRepository;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
@@ -80,6 +81,11 @@ public class FraudoConfig {
     }
 
     @Bean
+    public CountryResolver countryP2PResolver(GeoIpServiceSrv.Iface geoIpServiceSrv) {
+        return new CountryP2PResolverImpl(geoIpServiceSrv);
+    }
+
+    @Bean
     public FieldResolver<PaymentModel, PaymentCheckedField> paymentModelFieldResolver() {
         return new PaymentModelFieldResolver();
     }
@@ -125,20 +131,20 @@ public class FraudoConfig {
     @Bean
     public FirstFindVisitorImpl p2pRuleVisitor(
             FraudVisitorFactory fraudVisitorFactory,
-            CountAggregator<P2PModel, P2PCheckedField> countAggregator,
-            SumAggregator<P2PModel, P2PCheckedField> sumAggregator,
-            UniqueValueAggregator<P2PModel, P2PCheckedField> uniqueValueAggregator,
-            CountryResolver<P2PCheckedField> countryResolver,
-            InListFinder<P2PModel, P2PCheckedField> inListFinder,
-            FieldResolver<P2PModel, P2PCheckedField> fieldResolver) {
+            CountAggregator<P2PModel, P2PCheckedField> countP2PAggregator,
+            SumAggregator<P2PModel, P2PCheckedField> sumP2PAggregator,
+            UniqueValueAggregator<P2PModel, P2PCheckedField> uniqueValueP2PAggregator,
+            CountryResolver<P2PCheckedField> countryP2PResolver,
+            InListFinder<P2PModel, P2PCheckedField> p2pInListFinder,
+            FieldResolver<P2PModel, P2PCheckedField> p2PModelFieldResolver) {
         return fraudVisitorFactory.createVisitor(
-                countAggregator,
-                sumAggregator,
-                uniqueValueAggregator,
-                countryResolver,
-                inListFinder,
-                fieldResolver,
-                new GroupByModelResolver<>(fieldResolver));
+                countP2PAggregator,
+                sumP2PAggregator,
+                uniqueValueP2PAggregator,
+                countryP2PResolver,
+                p2pInListFinder,
+                p2PModelFieldResolver,
+                new GroupByModelResolver<>(p2PModelFieldResolver));
     }
 
 }

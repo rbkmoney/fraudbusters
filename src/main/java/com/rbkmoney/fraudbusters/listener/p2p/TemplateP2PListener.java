@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets;
 public class TemplateP2PListener extends AbstractPoolCommandListenerExecutor implements CommandListener {
 
     private final FraudContextParser fraudContextParser;
-    private final Pool<FraudoParser.ParseContext> templatePoolImpl;
+    private final Pool<FraudoParser.ParseContext> templateP2PPoolImpl;
 
     @Override
     @KafkaListener(topics = "${kafka.topic.p2p.template}", containerFactory = "templateP2PListenerContainerFactory")
@@ -31,7 +31,8 @@ public class TemplateP2PListener extends AbstractPoolCommandListenerExecutor imp
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetTemplate()) {
             Template template = command.getCommandBody().getTemplate();
             String templateString = new String(template.getTemplate(), StandardCharsets.UTF_8);
-            execCommand(command, template.getId(), templatePoolImpl, fraudContextParser::parse, templateString);
+            log.info("TemplateP2PListener templateString: {}", templateString);
+            execCommand(command, template.getId(), templateP2PPoolImpl, fraudContextParser::parse, templateString);
         }
     }
 
