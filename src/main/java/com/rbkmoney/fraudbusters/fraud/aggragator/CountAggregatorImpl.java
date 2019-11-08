@@ -27,37 +27,42 @@ public class CountAggregatorImpl implements CountAggregator {
     private final FieldResolver fieldResolver;
 
     @Override
+    @BasicMetric("count")
     public Integer count(CheckedField checkedField, FraudModel fraudModel, Long aLong) {
         return getCount(checkedField, fraudModel, aLong, eventRepository::countOperationByField);
     }
 
     @Override
+    @BasicMetric("count")
     public Integer count(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list) {
         return getCount(checkedField, fraudModel, timeWindow, list, eventRepository::countOperationByFieldWithGroupBy);
     }
 
     @Override
+    @BasicMetric("count")
     public Integer countSuccess(CheckedField checkedField, FraudModel fraudModel, Long aLong) {
         return getCount(checkedField, fraudModel, aLong, mgEventSinkRepository::countOperationSuccess);
     }
 
     @Override
+    @BasicMetric("countSuccess")
     public Integer countSuccess(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list) {
         return getCount(checkedField, fraudModel, timeWindow, list, mgEventSinkRepository::countOperationSuccessWithGroupBy);
     }
 
     @Override
+    @BasicMetric("countError")
     public Integer countError(CheckedField checkedField, FraudModel fraudModel, Long aLong, String s) {
         return getCount(checkedField, fraudModel, aLong, mgEventSinkRepository::countOperationError);
     }
 
     @Override
+    @BasicMetric("countError")
     public Integer countError(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, String s, List<CheckedField> list) {
         return getCount(checkedField, fraudModel, timeWindow, list, mgEventSinkRepository::countOperationErrorWithGroupBy);
     }
 
     @NotNull
-    @BasicMetric("getCount")
     private Integer getCount(CheckedField checkedField, FraudModel fraudModel, Long aLong,
                              AggregateFunction<String, String, Long, Long, Integer> aggregateFunction) {
         try {
