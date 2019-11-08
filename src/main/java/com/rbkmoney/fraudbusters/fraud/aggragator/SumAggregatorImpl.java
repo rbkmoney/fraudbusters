@@ -26,37 +26,42 @@ public class SumAggregatorImpl implements SumAggregator {
     private final FieldResolver fieldResolver;
 
     @Override
+    @BasicMetric("sum")
     public Double sum(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes) {
         return getSum(checkedField, fraudModel, timeInMinutes, eventRepository::sumOperationByField);
     }
 
     @Override
+    @BasicMetric("sum")
     public Double sum(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list) {
         return getSum(checkedField, fraudModel, timeWindow, list, eventRepository::sumOperationByFieldWithGroupBy);
     }
 
     @Override
+    @BasicMetric("sumSuccess")
     public Double sumSuccess(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes) {
         return getSum(checkedField, fraudModel, timeInMinutes, mgEventSinkRepository::sumOperationSuccess);
     }
 
     @Override
+    @BasicMetric("sumSuccess")
     public Double sumSuccess(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list) {
         return getSum(checkedField, fraudModel, timeWindow, list, mgEventSinkRepository::sumOperationSuccessWithGroupBy);
     }
 
     @Override
+    @BasicMetric("sumError")
     public Double sumError(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes, String errorCode) {
         return getSum(checkedField, fraudModel, timeInMinutes, mgEventSinkRepository::sumOperationError);
     }
 
     @Override
+    @BasicMetric("sumError")
     public Double sumError(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, String s, List<CheckedField> list) {
         return getSum(checkedField, fraudModel, timeWindow, list, mgEventSinkRepository::sumOperationErrorWithGroupBy);
     }
 
     @NotNull
-    @BasicMetric("getSum")
     private Double getSum(CheckedField checkedField, FraudModel fraudModel, Long timeInMinutes,
                           AggregateFunction<String, String, Long, Long, Long> aggregateFunction) {
         try {
@@ -75,7 +80,6 @@ public class SumAggregatorImpl implements SumAggregator {
     }
 
     @NotNull
-    @BasicMetric("getSumWindowed")
     private Double getSum(CheckedField checkedField, FraudModel fraudModel, TimeWindow timeWindow, List<CheckedField> list,
                           AggregateGroupingFunction<String, String, Long, Long, List<FieldResolver.FieldModel>, Long> aggregateFunction) {
         try {
