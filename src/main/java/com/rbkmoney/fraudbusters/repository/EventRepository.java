@@ -56,8 +56,8 @@ public class EventRepository implements CrudRepository<Event> {
     }
 
     public Integer countOperationByField(String fieldName, String value, Long from, Long to) {
-        Date dateFrom = parceDate(from);
-        Date dateTo = parceDate(to);
+        Date dateFrom = parseDate(from);
+        Date dateTo = parseDate(to);
 
         String sql = String.format("select %1$s, count() as cnt " +
                 "from fraud.events_unique " +
@@ -71,7 +71,7 @@ public class EventRepository implements CrudRepository<Event> {
     }
 
     @NotNull
-    private Date parceDate(Long to) {
+    private Date parseDate(Long to) {
         return Date.valueOf(
                 Instant.ofEpochSecond(to)
                         .atZone(UTC)
@@ -89,8 +89,8 @@ public class EventRepository implements CrudRepository<Event> {
                 "and eventTime <= ?) ", fieldName));
         StringBuilder sqlGroupBy = new StringBuilder(String.format(" group by %1$s ", fieldName));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        Date dateFrom = parceDate(from);
-        Date dateTo = parceDate(to);
+        Date dateFrom = parseDate(from);
+        Date dateTo = parseDate(to);
         ArrayList<Object> objects = ParamsUtils.initParams(fieldModels, dateFrom, dateTo, value, from, to);
         return jdbcTemplate.query(resultSql.toString(), objects.toArray(), new CountExtractor());
     }
@@ -115,8 +115,8 @@ public class EventRepository implements CrudRepository<Event> {
                 "and eventTime <= ?) " +
                 "group by %1$s", fieldName);
 
-        Date dateFrom = parceDate(from);
-        Date dateTo = parceDate(to);
+        Date dateFrom = parseDate(from);
+        Date dateTo = parseDate(to);
         return jdbcTemplate.query(sql, new Object[]{dateFrom, dateTo, value, from, to}, new SumExtractor());
     }
 
@@ -132,8 +132,8 @@ public class EventRepository implements CrudRepository<Event> {
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
 
-        Date dateFrom = parceDate(from);
-        Date dateTo = parceDate(to);
+        Date dateFrom = parseDate(from);
+        Date dateTo = parseDate(to);
         ArrayList<Object> params = ParamsUtils.initParams(fieldModels, dateFrom, dateTo, value, from, to);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
@@ -148,8 +148,8 @@ public class EventRepository implements CrudRepository<Event> {
                 "and eventTime <= ?) " +
                 "group by %1$s", fieldNameBy, fieldNameCount);
 
-        Date dateFrom = parceDate(from);
-        Date dateTo = parceDate(to);
+        Date dateFrom = parseDate(from);
+        Date dateTo = parseDate(to);
         return jdbcTemplate.query(sql, new Object[]{dateFrom, dateTo, value, from, to}, new CountExtractor());
     }
 
@@ -165,8 +165,8 @@ public class EventRepository implements CrudRepository<Event> {
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldNameBy));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
 
-        Date dateFrom = parceDate(from);
-        Date dateTo = parceDate(to);
+        Date dateFrom = parseDate(from);
+        Date dateTo = parseDate(to);
         ArrayList<Object> params = ParamsUtils.initParams(fieldModels, dateFrom, dateTo, value, from, to);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
