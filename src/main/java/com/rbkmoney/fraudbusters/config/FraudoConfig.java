@@ -15,7 +15,7 @@ import com.rbkmoney.fraudbusters.fraud.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.P2PModelFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.payout.PaymentModelFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.PaymentModelFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.resolver.DbP2pFieldResolver;

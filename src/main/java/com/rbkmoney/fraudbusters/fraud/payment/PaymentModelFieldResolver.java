@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.fraud.payout;
+package com.rbkmoney.fraudbusters.fraud.payment;
 
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
