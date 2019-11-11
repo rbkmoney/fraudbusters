@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.repository;
 
-import com.rbkmoney.fraudbusters.fraud.resolver.FieldModel;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

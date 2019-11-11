@@ -1,30 +1,26 @@
-package com.rbkmoney.fraudbusters.fraud.resolver.p2p;
+package com.rbkmoney.fraudbusters.fraud.payment.resolver;
 
-import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
-import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
-import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
+import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
+import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudo.resolver.CountryResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.springframework.cache.annotation.Cacheable;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CountryP2PResolverImpl implements CountryResolver<P2PCheckedField> {
+public class CountryResolverImpl implements CountryResolver<PaymentCheckedField> {
 
-    private final GeoIpServiceSrv.Iface geoIpServiceSrv;
+    private final CountryByIpResolver countryByIpResolver;
 
     @Override
-    @Cacheable("resolveCountry")
-    @BasicMetric("resolveCountry")
-    public String resolveCountry(P2PCheckedField checkedField, String fieldValue) {
+    public String resolveCountry(PaymentCheckedField checkedField, String fieldValue) {
         try {
             String location = null;
-            if (P2PCheckedField.IP == checkedField) {
-                location = geoIpServiceSrv.getLocationIsoCode(fieldValue);
-            } else if (P2PCheckedField.COUNTRY_BANK == checkedField) {
+            if (PaymentCheckedField.IP.equals(checkedField)) {
+                location = countryByIpResolver.resolveCountry(fieldValue);
+            } else if (PaymentCheckedField.COUNTRY_BANK.equals(checkedField)) {
                 location = fieldValue;
             }
             if (location == null) {

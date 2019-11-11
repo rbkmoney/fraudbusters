@@ -1,12 +1,12 @@
-package com.rbkmoney.fraudbusters.fraud.aggragator.payment;
+package com.rbkmoney.fraudbusters.fraud.payment.aggregator;
 
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
-import com.rbkmoney.fraudbusters.fraud.aggragator.AggregateGroupingFunction;
+import com.rbkmoney.fraudbusters.fraud.AggregateGroupingFunction;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.resolver.FieldModel;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;

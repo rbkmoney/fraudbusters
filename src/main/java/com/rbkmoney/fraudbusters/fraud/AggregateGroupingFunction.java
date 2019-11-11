@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.fraud.aggragator;
+package com.rbkmoney.fraudbusters.fraud;
 
 @FunctionalInterface
 public interface AggregateGroupingFunction<T, U, V, W, P, R> {

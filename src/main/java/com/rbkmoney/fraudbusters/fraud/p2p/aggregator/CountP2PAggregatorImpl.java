@@ -1,12 +1,12 @@
-package com.rbkmoney.fraudbusters.fraud.aggragator.p2p;
+package com.rbkmoney.fraudbusters.fraud.p2p.aggregator;
 
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
-import com.rbkmoney.fraudbusters.fraud.aggragator.AggregateGroupingFunction;
+import com.rbkmoney.fraudbusters.fraud.AggregateGroupingFunction;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
-import com.rbkmoney.fraudbusters.fraud.resolver.DbP2pFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.resolver.FieldModel;
+import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.EventP2PRepository;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;

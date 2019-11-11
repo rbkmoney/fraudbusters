@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.fraud.resolver;
+package com.rbkmoney.fraudbusters.fraud.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

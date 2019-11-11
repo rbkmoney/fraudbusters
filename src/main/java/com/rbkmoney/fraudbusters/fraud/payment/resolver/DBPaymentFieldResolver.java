@@ -1,11 +1,10 @@
-package com.rbkmoney.fraudbusters.fraud.resolver;
+package com.rbkmoney.fraudbusters.fraud.payment.resolver;
 
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.exception.UnknownFieldException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;

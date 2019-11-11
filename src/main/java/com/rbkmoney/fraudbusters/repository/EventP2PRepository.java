@@ -3,7 +3,7 @@ package com.rbkmoney.fraudbusters.repository;
 import com.google.common.collect.Lists;
 import com.rbkmoney.fraudbusters.constant.ClickhouseSchemeNames;
 import com.rbkmoney.fraudbusters.domain.EventP2P;
-import com.rbkmoney.fraudbusters.fraud.resolver.FieldModel;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.EventP2PBatchPreparedStatementSetter;

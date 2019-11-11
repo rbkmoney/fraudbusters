@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.fraud.p2p;
+package com.rbkmoney.fraudbusters.fraud.p2p.resolver;
 
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;

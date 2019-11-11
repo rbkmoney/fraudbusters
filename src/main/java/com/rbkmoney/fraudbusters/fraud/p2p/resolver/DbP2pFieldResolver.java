@@ -1,10 +1,11 @@
-package com.rbkmoney.fraudbusters.fraud.resolver;
+package com.rbkmoney.fraudbusters.fraud.p2p.resolver;
 
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.constant.EventP2PField;
 import com.rbkmoney.fraudbusters.exception.UnknownFieldException;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;

@@ -1,25 +1,25 @@
 package com.rbkmoney.fraudbusters.config;
 
-import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
-import com.rbkmoney.fraudbusters.fraud.aggragator.p2p.CountP2PAggregatorImpl;
-import com.rbkmoney.fraudbusters.fraud.aggragator.p2p.P2PUniqueValueAggregatorImpl;
-import com.rbkmoney.fraudbusters.fraud.aggragator.p2p.SumP2PAggregatorImpl;
-import com.rbkmoney.fraudbusters.fraud.aggragator.payment.CountAggregatorImpl;
-import com.rbkmoney.fraudbusters.fraud.aggragator.payment.SumAggregatorImpl;
-import com.rbkmoney.fraudbusters.fraud.aggragator.payment.UniqueValueAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
-import com.rbkmoney.fraudbusters.fraud.finder.P2pInListFinderImpl;
-import com.rbkmoney.fraudbusters.fraud.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.fraud.p2p.P2PModelFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.payment.PaymentModelFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.resolver.CountryResolverImpl;
-import com.rbkmoney.fraudbusters.fraud.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.resolver.DbP2pFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.resolver.p2p.CountryP2PResolverImpl;
+import com.rbkmoney.fraudbusters.fraud.p2p.aggregator.CountP2PAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.p2p.aggregator.P2PUniqueValueAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.p2p.aggregator.SumP2PAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.p2p.finder.P2pInListFinderImpl;
+import com.rbkmoney.fraudbusters.fraud.p2p.resolver.CountryP2PResolverImpl;
+import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.p2p.resolver.P2PModelFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.CountAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.SumAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.UniqueValueAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.PaymentModelFieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventP2PRepository;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
@@ -76,13 +76,13 @@ public class FraudoConfig {
     }
 
     @Bean
-    public CountryResolver countryResolver(GeoIpServiceSrv.Iface geoIpServiceSrv) {
-        return new CountryResolverImpl(geoIpServiceSrv);
+    public CountryResolver countryResolver(CountryByIpResolver countryByIpResolver) {
+        return new CountryResolverImpl(countryByIpResolver);
     }
 
     @Bean
-    public CountryResolver countryP2PResolver(GeoIpServiceSrv.Iface geoIpServiceSrv) {
-        return new CountryP2PResolverImpl(geoIpServiceSrv);
+    public CountryResolver countryP2PResolver(CountryByIpResolver countryByIpResolver) {
+        return new CountryP2PResolverImpl(countryByIpResolver);
     }
 
     @Bean

@@ -2,6 +2,8 @@ package com.rbkmoney.fraudbusters.fraud.resolver;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
+import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudo.resolver.CountryResolver;
 import org.apache.thrift.TException;
 import org.junit.Assert;
@@ -18,13 +20,14 @@ public class CountryResolverImplTest {
 
     @Mock
     GeoIpServiceSrv.Iface geoIpServiceSrv;
+
     CountryResolverImpl countryResolver;
 
     @Before
     public void init() throws TException {
         MockitoAnnotations.initMocks(this);
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(TEST)).thenReturn(COUNTRY_GEO_ISO_CODE);
-        countryResolver = new CountryResolverImpl(geoIpServiceSrv);
+        countryResolver = new CountryResolverImpl(new CountryByIpResolver(geoIpServiceSrv));
     }
 
     @Test
