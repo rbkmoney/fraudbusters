@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface TemplateListVisitor<T, U> {
 
-    Map<String, U> visit(T fraudModel);
+    Map<String, U> visit(T t);
 
 }

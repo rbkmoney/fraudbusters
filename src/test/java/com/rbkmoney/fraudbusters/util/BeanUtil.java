@@ -133,16 +133,16 @@ public class BeanUtil {
     }
 
     public static PaymentModel createPaymentModel() {
-        PaymentModel fraudModel = new PaymentModel();
-        fraudModel.setFingerprint(FINGERPRINT);
-        fraudModel.setShopId(SHOP_ID);
-        fraudModel.setPartyId(PARTY_ID);
-        fraudModel.setIp(IP);
-        fraudModel.setEmail(EMAIL);
-        fraudModel.setBin(BIN);
-        fraudModel.setAmount(AMOUNT_FIRST);
-        fraudModel.setBinCountryCode(BIN_COUNTRY_CODE);
-        return fraudModel;
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setFingerprint(FINGERPRINT);
+        paymentModel.setShopId(SHOP_ID);
+        paymentModel.setPartyId(PARTY_ID);
+        paymentModel.setIp(IP);
+        paymentModel.setEmail(EMAIL);
+        paymentModel.setBin(BIN);
+        paymentModel.setAmount(AMOUNT_FIRST);
+        paymentModel.setBinCountryCode(BIN_COUNTRY_CODE);
+        return paymentModel;
     }
 
     public static P2PModel createP2PModel() {
@@ -198,16 +198,16 @@ public class BeanUtil {
     }
 
     public static PaymentModel createFraudModelSecond() {
-        PaymentModel fraudModel = new PaymentModel();
-        fraudModel.setFingerprint(FINGERPRINT + SUFIX);
-        fraudModel.setShopId(SHOP_ID + SUFIX);
-        fraudModel.setPartyId(PARTY_ID + SUFIX);
-        fraudModel.setIp(IP + SUFIX);
-        fraudModel.setEmail(EMAIL + SUFIX);
-        fraudModel.setBin(BIN + SUFIX);
-        fraudModel.setAmount(AMOUNT_SECOND);
-        fraudModel.setBinCountryCode(BIN_COUNTRY_CODE);
-        return fraudModel;
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setFingerprint(FINGERPRINT + SUFIX);
+        paymentModel.setShopId(SHOP_ID + SUFIX);
+        paymentModel.setPartyId(PARTY_ID + SUFIX);
+        paymentModel.setIp(IP + SUFIX);
+        paymentModel.setEmail(EMAIL + SUFIX);
+        paymentModel.setBin(BIN + SUFIX);
+        paymentModel.setAmount(AMOUNT_SECOND);
+        paymentModel.setBinCountryCode(BIN_COUNTRY_CODE);
+        return paymentModel;
     }
 
     @NotNull

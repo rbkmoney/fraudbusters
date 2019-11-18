@@ -176,12 +176,12 @@ public class MgEventSinkRepositoryTest {
         int count = mgEventSinkRepository.countOperationByFieldWithGroupBy(MgEventSinkField.email.name(), defaultMgEvent.getEmail(), from, to, List.of());
         Assert.assertEquals(3, count);
 
-        PaymentModel fraudModelSecond = BeanUtil.createFraudModelSecond();
-        fraudModelSecond.setEmail(TEST_MAIL_RU);
-        fraudModelSecond.setPartyId(PARTY_ID + "_1");
+        PaymentModel paymentModel = BeanUtil.createFraudModelSecond();
+        paymentModel.setEmail(TEST_MAIL_RU);
+        paymentModel.setPartyId(PARTY_ID + "_1");
 
-        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModelSecond);
-        count = mgEventSinkRepository.countOperationByFieldWithGroupBy(MgEventSinkField.email.name(), fraudModelSecond.getEmail(), from, to, List.of(resolve));
+        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
+        count = mgEventSinkRepository.countOperationByFieldWithGroupBy(MgEventSinkField.email.name(), paymentModel.getEmail(), from, to, List.of(resolve));
         Assert.assertEquals(1, count);
     }
 
@@ -221,7 +221,7 @@ public class MgEventSinkRepositoryTest {
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNow(now);
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
-        PaymentModel fraudModel = BeanUtil.createPaymentModel();
+        PaymentModel paymentModel = BeanUtil.createPaymentModel();
         MgEventSinkRow defaultMgEvent = createDefaultMgEvent("1", ResultStatus.CAPTURED.name());
         defaultMgEvent.setAmount(BeanUtil.AMOUNT_FIRST);
         MgEventSinkRow defaultMgEvent1 = createDefaultMgEvent("2", ResultStatus.FAILED.name());
@@ -234,16 +234,16 @@ public class MgEventSinkRepositoryTest {
 
         mgEventSinkRepository.insertBatch(List.of(defaultMgEvent, defaultMgEvent1, defaultMgEvent2, defaultMgEvent3));
 
-        FieldModel partyId = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModel);
+        FieldModel partyId = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
         Long sum = mgEventSinkRepository.sumOperationErrorWithGroupBy(EventField.email.name(), defaultMgEvent.getEmail(), from, to, List.of(partyId));
         Assert.assertEquals(BeanUtil.AMOUNT_FIRST + BeanUtil.AMOUNT_FIRST + 10 + BeanUtil.AMOUNT_FIRST + 10, sum.longValue());
 
-        FieldModel shopId = DBPaymentFieldResolver.resolve(PaymentCheckedField.SHOP_ID, fraudModel);
+        FieldModel shopId = DBPaymentFieldResolver.resolve(PaymentCheckedField.SHOP_ID, paymentModel);
         sum = mgEventSinkRepository.sumOperationErrorWithGroupBy(EventField.email.name(), defaultMgEvent.getEmail(), from, to, List.of(partyId, shopId));
         Assert.assertEquals(BeanUtil.AMOUNT_FIRST + BeanUtil.AMOUNT_FIRST + 10, sum.longValue());
 
-        fraudModel.setShopId("test_2");
-        shopId = DBPaymentFieldResolver.resolve(PaymentCheckedField.SHOP_ID, fraudModel);
+        paymentModel.setShopId("test_2");
+        shopId = DBPaymentFieldResolver.resolve(PaymentCheckedField.SHOP_ID, paymentModel);
         sum = mgEventSinkRepository.sumOperationErrorWithGroupBy(EventField.email.name(), defaultMgEvent.getEmail(), from, to, List.of(partyId, shopId));
         Assert.assertEquals(0L, sum.longValue());
     }

@@ -25,16 +25,16 @@ public class P2PUniqueValueAggregatorImpl implements UniqueValueAggregator<P2PMo
     private final DbP2pFieldResolver dbP2pFieldResolver;
 
     @Override
-    @BasicMetric(value = "countUniqueValueWindowed", prefix = "p2p")
+    @BasicMetric(value = "countUniqueValueWindowed", extraTags = "p2p")
     public Integer countUniqueValue(P2PCheckedField countField,
-                                    P2PModel fraudModel,
+                                    P2PModel payoutModel,
                                     P2PCheckedField onField,
                                     TimeWindow timeWindow,
                                     List<P2PCheckedField> list) {
         try {
             Instant now = Instant.now();
-            FieldModel resolve = dbP2pFieldResolver.resolve(countField, fraudModel);
-            List<FieldModel> fieldModels = dbP2pFieldResolver.resolveListFields(fraudModel, list);
+            FieldModel resolve = dbP2pFieldResolver.resolve(countField, payoutModel);
+            List<FieldModel> fieldModels = dbP2pFieldResolver.resolveListFields(payoutModel, list);
             Integer uniqCountOperation = eventP2PRepository.uniqCountOperationWithGroupBy(resolve.getName(), resolve.getValue(),
                     dbP2pFieldResolver.resolve(onField),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),

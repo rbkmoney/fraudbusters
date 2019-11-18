@@ -27,14 +27,14 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentM
     @Override
     @BasicMetric("countUniqueValueWindowed")
     public Integer countUniqueValue(PaymentCheckedField countField,
-                                    PaymentModel fraudModel,
+                                    PaymentModel payoutModel,
                                     PaymentCheckedField onField,
                                     TimeWindow timeWindow,
                                     List<PaymentCheckedField> list) {
         try {
             Instant now = Instant.now();
-            FieldModel resolve = dbPaymentFieldResolver.resolve(countField, fraudModel);
-            List<FieldModel> fieldModels = dbPaymentFieldResolver.resolveListFields(fraudModel, list);
+            FieldModel resolve = dbPaymentFieldResolver.resolve(countField, payoutModel);
+            List<FieldModel> fieldModels = dbPaymentFieldResolver.resolveListFields(payoutModel, list);
             Integer uniqCountOperation = eventRepository.uniqCountOperationWithGroupBy(resolve.getName(), resolve.getValue(),
                     dbPaymentFieldResolver.resolve(onField),
                     TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getStartWindowTime()),

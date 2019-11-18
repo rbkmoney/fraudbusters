@@ -220,9 +220,9 @@ public class EventP2PRepositoryTest {
         ScoresResult<P2PModel> value = createScoresResult(ResultStatus.ACCEPT, BeanUtil.createP2PModel());
         ScoresResult<P2PModel> value2 = createScoresResult(ResultStatus.DECLINE, BeanUtil.createP2PModelSecond());
         ScoresResult<P2PModel> value3 = createScoresResult(ResultStatus.DECLINE, BeanUtil.createP2PModel());
-        P2PModel fraudModel = BeanUtil.createP2PModel();
-        fraudModel.setFingerprint("test");
-        ScoresResult<P2PModel> value4 = createScoresResult(ResultStatus.DECLINE, fraudModel);
+        P2PModel p2pModel = BeanUtil.createP2PModel();
+        p2pModel.setFingerprint("test");
+        ScoresResult<P2PModel> value4 = createScoresResult(ResultStatus.DECLINE, p2pModel);
         eventP2PRepository.insertBatch(scoresResultToEventConverter.convertBatch(List.of(value, value2, value3, value4)));
 
         Instant now = Instant.now();
@@ -238,10 +238,10 @@ public class EventP2PRepositoryTest {
         ScoresResult<P2PModel> value = createScoresResult(ResultStatus.ACCEPT, BeanUtil.createP2PModel());
         ScoresResult<P2PModel> value2 = createScoresResult(ResultStatus.DECLINE, BeanUtil.createP2PModelSecond());
         ScoresResult<P2PModel> value3 = createScoresResult(ResultStatus.DECLINE, BeanUtil.createP2PModel());
-        P2PModel fraudModel = BeanUtil.createP2PModel();
-        fraudModel.setFingerprint("test");
-        fraudModel.setIdentityId("identity");
-        ScoresResult<P2PModel> value4 = createScoresResult(ResultStatus.DECLINE, fraudModel);
+        P2PModel p2pModel = BeanUtil.createP2PModel();
+        p2pModel.setFingerprint("test");
+        p2pModel.setIdentityId("identity");
+        ScoresResult<P2PModel> value4 = createScoresResult(ResultStatus.DECLINE, p2pModel);
 
         eventP2PRepository.insertBatch(scoresResultToEventConverter.convertBatch(List.of(value, value2, value3, value4)));
 
@@ -251,7 +251,7 @@ public class EventP2PRepositoryTest {
         Integer sum = eventP2PRepository.uniqCountOperationWithGroupBy(EventP2PField.email.name(), BeanUtil.EMAIL, EventP2PField.fingerprint.name(), from, to, List.of());
         Assert.assertEquals(Integer.valueOf(2), sum);
 
-        FieldModel resolve = dbP2pFieldResolver.resolve(P2PCheckedField.IDENTITY_ID, fraudModel);
+        FieldModel resolve = dbP2pFieldResolver.resolve(P2PCheckedField.IDENTITY_ID, p2pModel);
         sum = eventP2PRepository.uniqCountOperationWithGroupBy(EventP2PField.email.name(), BeanUtil.EMAIL, EventP2PField.fingerprint.name(), from, to, List.of(resolve));
         Assert.assertEquals(Integer.valueOf(1), sum);
     }

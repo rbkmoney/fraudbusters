@@ -23,33 +23,33 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
 
     @Override
     public FraudRequest convert(Context context) {
-        PaymentModel fraudModel = new PaymentModel();
+        PaymentModel paymentModel = new PaymentModel();
         PaymentInfo payment = context.getPayment();
         Party party = payment.getParty();
-        fraudModel.setPartyId(party.getPartyId());
+        paymentModel.setPartyId(party.getPartyId());
         Payer payer = context.getPayment().getPayment().getPayer();
 
         PayerFieldExtractor.getBankCard(payer)
                 .ifPresent(bankCard -> {
-            fraudModel.setBin(bankCard.getBin());
-            fraudModel.setBinCountryCode(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
-            fraudModel.setCardToken(bankCard.getToken());
+            paymentModel.setBin(bankCard.getBin());
+            paymentModel.setBinCountryCode(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
+            paymentModel.setCardToken(bankCard.getToken());
         });
 
         PayerFieldExtractor.getContactInfo(payer)
                 .ifPresent(contract ->
-                        fraudModel.setEmail(contract.getEmail())
+                        paymentModel.setEmail(contract.getEmail())
                 );
 
-        fraudModel.setShopId(payment.getShop().getId());
-        fraudModel.setAmount(payment.getPayment().getCost().getAmount());
+        paymentModel.setShopId(payment.getShop().getId());
+        paymentModel.setAmount(payment.getPayment().getCost().getAmount());
 
         PayerFieldExtractor.getClientInfo(payer).ifPresent(info -> {
-            fraudModel.setIp(info.getIpAddress());
-            fraudModel.setFingerprint(info.getFingerprint());
+            paymentModel.setIp(info.getIpAddress());
+            paymentModel.setFingerprint(info.getFingerprint());
         });
         FraudRequest fraudRequest = new FraudRequest();
-        fraudRequest.setPaymentModel(fraudModel);
+        fraudRequest.setPaymentModel(paymentModel);
         Metadata metadata = initMetadata(context);
         fraudRequest.setMetadata(metadata);
         return fraudRequest;

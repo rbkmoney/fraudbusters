@@ -58,9 +58,9 @@ public class SimpleMeasureAspect {
             return proceedingJoinPoint.proceed();
         } finally {
             try {
-                registry.counter(basicMetric.prefix() + "." + metricName + COUNT, basicMetric.extraTags())
+                registry.counter(metricName + COUNT, basicMetric.extraTags())
                         .increment();
-                sample.stop(registry.timer(basicMetric.prefix() + "." + metricName + TIMER, basicMetric.extraTags()));
+                sample.stop(registry.timer(metricName + TIMER, basicMetric.extraTags()));
             } catch (Exception e) {
                 // ignoring on purpose
             }

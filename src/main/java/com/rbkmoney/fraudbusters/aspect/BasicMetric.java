@@ -9,8 +9,6 @@ import java.lang.annotation.*;
 public @interface BasicMetric {
     String value() default "";
 
-    String prefix() default "";
-
     String[] extraTags() default {};
 
     String description() default "";

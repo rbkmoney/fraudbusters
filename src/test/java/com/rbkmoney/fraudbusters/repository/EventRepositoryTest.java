@@ -128,16 +128,15 @@ public class EventRepositoryTest {
     }
 
     @NotNull
-    private FraudResult createFraudResult(ResultStatus decline, PaymentModel fraudModelSecond) {
+    private FraudResult createFraudResult(ResultStatus decline, PaymentModel paymentModel) {
         FraudResult value2 = new FraudResult();
         CheckedResultModel resultModel = new CheckedResultModel();
         resultModel.setResultModel(new ResultModel(decline, "test",null));
         resultModel.setCheckedTemplate("RULE");
 
         value2.setResultModel(resultModel);
-        PaymentModel fraudModel2 = fraudModelSecond;
         FraudRequest fraudRequest = new FraudRequest();
-        fraudRequest.setPaymentModel(fraudModel2);
+        fraudRequest.setPaymentModel(paymentModel);
         Metadata metadata = new Metadata();
         metadata.setTimestamp(TimestampUtil.generateTimestampNow(Instant.now()));
         fraudRequest.setMetadata(metadata);
@@ -164,17 +163,17 @@ public class EventRepositoryTest {
         Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
         FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel());
         FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
-        PaymentModel fraudModelSecond = BeanUtil.createFraudModelSecond();
-        fraudModelSecond.setPartyId("test");
-        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, fraudModelSecond);
+        PaymentModel paymentModel = BeanUtil.createFraudModelSecond();
+        paymentModel.setPartyId("test");
+        FraudResult value3 = createFraudResult(ResultStatus.DECLINE, paymentModel);
 
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3)));
 
-        FieldModel email = DBPaymentFieldResolver.resolve(PaymentCheckedField.EMAIL, fraudModelSecond);
+        FieldModel email = DBPaymentFieldResolver.resolve(PaymentCheckedField.EMAIL, paymentModel);
         int count = eventRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of());
         Assert.assertEquals(2, count);
 
-        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModelSecond);
+        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
         count = eventRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of(resolve));
         Assert.assertEquals(1, count);
     }
@@ -196,9 +195,9 @@ public class EventRepositoryTest {
         FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel());
         FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
         FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createPaymentModel());
-        PaymentModel fraudModel = BeanUtil.createPaymentModel();
-        fraudModel.setFingerprint("test");
-        FraudResult value4 = createFraudResult(ResultStatus.DECLINE, fraudModel);
+        PaymentModel paymentModel = BeanUtil.createPaymentModel();
+        paymentModel.setFingerprint("test");
+        FraudResult value4 = createFraudResult(ResultStatus.DECLINE, paymentModel);
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3, value4)));
 
         Instant now = Instant.now();
@@ -213,10 +212,10 @@ public class EventRepositoryTest {
         FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel());
         FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
         FraudResult value3 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createPaymentModel());
-        PaymentModel fraudModel = BeanUtil.createPaymentModel();
-        fraudModel.setFingerprint("test");
-        fraudModel.setPartyId("party");
-        FraudResult value4 = createFraudResult(ResultStatus.DECLINE, fraudModel);
+        PaymentModel paymentModel = BeanUtil.createPaymentModel();
+        paymentModel.setFingerprint("test");
+        paymentModel.setPartyId("party");
+        FraudResult value4 = createFraudResult(ResultStatus.DECLINE, paymentModel);
 
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3, value4)));
 
@@ -226,7 +225,7 @@ public class EventRepositoryTest {
         Integer sum = eventRepository.uniqCountOperationWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to, List.of());
         Assert.assertEquals(Integer.valueOf(2), sum);
 
-        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, fraudModel);
+        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
         sum = eventRepository.uniqCountOperationWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to, List.of(resolve));
         Assert.assertEquals(Integer.valueOf(1), sum);
     }

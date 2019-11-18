@@ -30,19 +30,19 @@ public class P2pInListFinderImpl implements InListFinder<P2PModel, P2PCheckedFie
     private static final int CURRENT_ONE = 1;
 
     @Override
-    @BasicMetric(value = "findInBlackList", prefix = "p2p")
+    @BasicMetric(value = "findInBlackList", extraTags = "p2p")
     public Boolean findInBlackList(List<Pair<P2PCheckedField, String>> fields, P2PModel model) {
         return checkInList(fields, model, ListType.black);
     }
 
     @Override
-    @BasicMetric(value = "findInWhiteList", prefix = "p2p")
+    @BasicMetric(value = "findInWhiteList", extraTags = "p2p")
     public Boolean findInWhiteList(List<Pair<P2PCheckedField, String>> fields, P2PModel model) {
         return checkInList(fields, model, ListType.white);
     }
 
     @Override
-    @BasicMetric(value = "findInGreyList", prefix = "p2p")
+    @BasicMetric(value = "findInGreyList", extraTags = "p2p")
     public Boolean findInGreyList(List<Pair<P2PCheckedField, String>> fields, P2PModel model) {
         try {
             return fields.stream()

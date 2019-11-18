@@ -42,9 +42,9 @@ public class SumAggregatorImplTest {
 
     @Test
     public void sum() {
-        PaymentModel fraudModel = new PaymentModel();
-        fraudModel.setAmount(1L);
-        Double some = sumAggregator.sum(PaymentCheckedField.BIN, fraudModel,
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setAmount(1L);
+        Double some = sumAggregator.sum(PaymentCheckedField.BIN, paymentModel,
                 TimeWindow.builder().startWindowTime(1444L).build(), null);
 
         Assert.assertEquals(Double.valueOf(1050101), some);
@@ -52,19 +52,19 @@ public class SumAggregatorImplTest {
 
     @Test
     public void sumTimeWindow() {
-        PaymentModel fraudModel = new PaymentModel();
-        fraudModel.setAmount(1L);
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setAmount(1L);
         TimeWindow.TimeWindowBuilder timeWindowBuilder = TimeWindow.builder().startWindowTime(1444L)
                 .endWindowTime(400L);
         Mockito.when(eventRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
 
-        Double some = sumAggregator.sum(PaymentCheckedField.BIN, fraudModel, timeWindowBuilder.build(), null);
+        Double some = sumAggregator.sum(PaymentCheckedField.BIN, paymentModel, timeWindowBuilder.build(), null);
 
         Assert.assertEquals(Double.valueOf(1050101), some);
 
         timeWindowBuilder = TimeWindow.builder().startWindowTime(1444L)
                 .endWindowTime(null);
-        some = sumAggregator.sum(PaymentCheckedField.BIN, fraudModel, timeWindowBuilder.build(), null);
+        some = sumAggregator.sum(PaymentCheckedField.BIN, paymentModel, timeWindowBuilder.build(), null);
 
         Assert.assertEquals(Double.valueOf(1050101), some);
     }

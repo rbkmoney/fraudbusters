@@ -29,19 +29,19 @@ public class CountP2PAggregatorImpl implements CountAggregator<P2PModel, P2PChec
     private final DbP2pFieldResolver dbP2pFieldResolver;
 
     @Override
-    @BasicMetric(value = "count", prefix = "p2p")
+    @BasicMetric(value = "count", extraTags = "p2p")
     public Integer count(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
         return getCount(checkedField, p2pModel, timeWindow, list, eventP2PRepository::countOperationByFieldWithGroupBy);
     }
 
     @Override
-    @BasicMetric(value = "countSuccess", prefix = "p2p")
+    @BasicMetric(value = "countSuccess", extraTags = "p2p")
     public Integer countSuccess(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
         return getCount(checkedField, p2pModel, timeWindow, list, mgEventSinkRepository::countOperationSuccessWithGroupBy);
     }
 
     @Override
-    @BasicMetric(value = "countError", prefix = "p2p")
+    @BasicMetric(value = "countError", extraTags = "p2p")
     public Integer countError(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, String s, List<P2PCheckedField> list) {
         return getCount(checkedField, p2pModel, timeWindow, list, mgEventSinkRepository::countOperationErrorWithGroupBy);
     }
