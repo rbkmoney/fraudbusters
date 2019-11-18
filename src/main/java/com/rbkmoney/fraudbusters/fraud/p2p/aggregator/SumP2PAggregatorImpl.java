@@ -4,9 +4,9 @@ import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.AggregateGroupingFunction;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.EventP2PRepository;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -43,7 +43,7 @@ public class SumP2PAggregatorImpl implements SumAggregator<P2PModel, P2PCheckedF
     }
 
     @NotNull
-    @BasicMetric("getSumWindowed")
+    @BasicMetric(value = "getSumWindowed", prefix = "p2p")
     private Double getSum(P2PCheckedField checkedField, P2PModel fraudModel, TimeWindow timeWindow, List<P2PCheckedField> list,
                           AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction) {
         try {

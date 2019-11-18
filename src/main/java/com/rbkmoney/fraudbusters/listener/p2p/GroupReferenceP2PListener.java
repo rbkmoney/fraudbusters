@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GroupP2PReferenceListener extends AbstractPoolCommandListenerExecutor implements CommandListener {
+public class GroupReferenceP2PListener extends AbstractPoolCommandListenerExecutor implements CommandListener {
 
     private final Pool<String> groupReferenceP2PPoolImpl;
 

@@ -3,7 +3,7 @@ package com.rbkmoney.fraudbusters.listener;
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.exception.StartException;
 import com.rbkmoney.fraudbusters.listener.p2p.GroupP2PListener;
-import com.rbkmoney.fraudbusters.listener.p2p.GroupP2PReferenceListener;
+import com.rbkmoney.fraudbusters.listener.p2p.GroupReferenceP2PListener;
 import com.rbkmoney.fraudbusters.listener.p2p.TemplateP2PListener;
 import com.rbkmoney.fraudbusters.listener.p2p.TemplateP2PReferenceListener;
 import com.rbkmoney.fraudbusters.listener.payment.GroupListener;
@@ -60,7 +60,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
     private final TemplateP2PListener templateP2PListener;
     private final GroupP2PListener groupP2PListener;
-    private final GroupP2PReferenceListener groupP2PReferenceListener;
+    private final GroupReferenceP2PListener groupReferenceP2PListener;
     private final TemplateP2PReferenceListener templateP2PReferenceListener;
 
     private KafkaStreams eventSinkStream;
@@ -110,7 +110,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
                     () -> waitPreLoad(latch, templateP2PListenerFactory, topicP2PTemplate, templateP2PListener),
                     () -> waitPreLoad(latch, referenceP2PListenerFactory, topicP2PReference, templateP2PReferenceListener),
                     () -> waitPreLoad(latch, groupP2PListenerFactory, topicP2PGroup, groupP2PListener),
-                    () -> waitPreLoad(latch, groupReferenceP2PListenerFactory, topicP2PGroupReference, groupP2PReferenceListener)
+                    () -> waitPreLoad(latch, groupReferenceP2PListenerFactory, topicP2PGroupReference, groupReferenceP2PListener)
             );
 
             tasks.forEach(executorService::submit);

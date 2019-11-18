@@ -51,15 +51,16 @@ public class SimpleMeasureAspect {
         Method method = ((MethodSignature) proceedingJoinPoint.getSignature()).getMethod();
         BasicMetric basicMetric = method.getAnnotation(BasicMetric.class);
         final String metricName = basicMetric.value().isEmpty() ? DEFAULT_METRIC_NAME : basicMetric.value();
+
         Timer.Sample sample = Timer.start(registry);
 
         try {
             return proceedingJoinPoint.proceed();
         } finally {
             try {
-                registry.counter(metricName + COUNT, basicMetric.extraTags())
+                registry.counter(basicMetric.prefix() + "." + metricName + COUNT, basicMetric.extraTags())
                         .increment();
-                sample.stop(registry.timer(metricName + TIMER, basicMetric.extraTags()));
+                sample.stop(registry.timer(basicMetric.prefix() + "." + metricName + TIMER, basicMetric.extraTags()));
             } catch (Exception e) {
                 // ignoring on purpose
             }

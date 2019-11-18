@@ -53,15 +53,4 @@ public class TemplateP2PReferenceListenerTest {
         Assert.assertEquals(GROUP_REF_1, ref);
     }
 
-    @Test
-    public void timeTest(){
-        long time = new Date().getTime();
-
-        System.out.println(time);
-
-        Instant instant = Instant.ofEpochMilli(time).truncatedTo(ChronoUnit.HOURS);
-
-        System.out.println(instant.toEpochMilli());
-
-    }
 }

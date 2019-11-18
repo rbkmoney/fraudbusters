@@ -210,7 +210,6 @@ public class KafkaConfig {
         return createDefaultFactory(groupReferenceListenerFactory);
     }
 
-
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Command> groupReferenceP2PListenerContainerFactory(
             ConsumerFactory<String, Command> groupReferenceP2PListenerFactory) {

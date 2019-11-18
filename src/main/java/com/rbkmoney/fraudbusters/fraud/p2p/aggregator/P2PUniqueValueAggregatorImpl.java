@@ -3,9 +3,9 @@ package com.rbkmoney.fraudbusters.fraud.p2p.aggregator;
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.EventP2PRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
@@ -25,7 +25,7 @@ public class P2PUniqueValueAggregatorImpl implements UniqueValueAggregator<P2PMo
     private final DbP2pFieldResolver dbP2pFieldResolver;
 
     @Override
-    @BasicMetric("countUniqueValueWindowed")
+    @BasicMetric(value = "countUniqueValueWindowed", prefix = "p2p")
     public Integer countUniqueValue(P2PCheckedField countField,
                                     P2PModel fraudModel,
                                     P2PCheckedField onField,
