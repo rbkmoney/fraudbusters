@@ -84,6 +84,9 @@ public class KafkaConfig {
     @Value("${kafka.stream.event.sink.num.thread}")
     private int eventSinkStreamThreads;
 
+    @Value("${kafka.listen.result.concurrency}")
+    private int listenResultConcurrency;
+
     private final ConsumerGroupIdService consumerGroupIdService;
 
     @Bean
@@ -206,6 +209,8 @@ public class KafkaConfig {
         DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(), new FraudoResultDeserializer());
         factory.setConsumerFactory(consumerFactory);
+        factory.setConcurrency(listenResultConcurrency);
+        factory.setErrorHandler(new LoggingErrorHandler());
         return factory;
     }
 
