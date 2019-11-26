@@ -217,10 +217,6 @@ public class KafkaConfig {
         return factory;
     }
 
-    public BatchErrorHandler kafkaErrorHandler() {
-        return new SeekToCurrentBatchErrorHandler();
-    }
-
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, MgEventSinkRow> mgEventSinkListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, MgEventSinkRow> factory = new ConcurrentKafkaListenerContainerFactory<>();
