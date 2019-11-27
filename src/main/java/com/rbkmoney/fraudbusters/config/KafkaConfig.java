@@ -21,7 +21,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.BatchErrorHandler;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.LoggingErrorHandler;
+import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler;
 import org.springframework.retry.RetryPolicy;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
@@ -210,7 +213,7 @@ public class KafkaConfig {
                 new StringDeserializer(), new FraudoResultDeserializer());
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(listenResultConcurrency);
-        factory.setErrorHandler(new LoggingErrorHandler());
+        factory.setBatchListener(true);
         return factory;
     }
 
