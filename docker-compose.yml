@@ -1,0 +1,165 @@
+---
+version: '2'
+services:
+   zookeeper:
+     image: confluentinc/cp-zookeeper:5.0.1
+     hostname: zookeeper
+     container_name: zookeeper
+     environment:
+       ZOOKEEPER_CLIENT_PORT: 2181
+       ZOOKEEPER_TICK_TIME: 2000
+     volumes:
+       - /tmp/docker/zookeeper/data:/var/lib/zookeeper/data
+       - /tmp/docker/zookeeper/logs:/var/lib/zookeeper/log
+
+   broker:
+     image: confluentinc/cp-enterprise-kafka:5.0.1
+     hostname: broker
+     container_name: broker
+     depends_on:
+       - zookeeper
+     environment:
+       KAFKA_BROKER_ID: 1
+       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://broker:29092,PLAINTEXT://broker:9092
+       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+       CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:9092
+       CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
+       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+       CONFLUENT_METRICS_ENABLE: 'true'
+       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+     volumes:
+   - /tmp/docker/kafka2/data:/var/lib/kafka/data
+
+   riak:
+     image: basho/riak-kv
+     hostname: riak
+     container_name: riak
+     # ports:
+     #   - "8087:8087"
+     #   - "8098:8098"
+     environment:
+       - CLUSTER_NAME=riakts
+     labels:
+       - "com.basho.riak.cluster.name=riakts"
+     volumes:
+       - /tmp/docker/riak/data:/etc/riak/schemas
+
+   clickhouse:
+     image: yandex/clickhouse-server
+     hostname: clickhouse
+     container_name: clickhouse
+     ports:
+       # - 9000:9000
+       - 8123:8123
+     volumes:
+       - ./clickhouse/data:/var/lib/clickhouse
+
+  postgres-columbus:
+    image: dr2.rbkmoney.com/rbkmoney/postgres-geodata:0758740c8c3f350ddd7a8331b5e1cbb0374f4832
+    hostname: postgres-columbus
+    container_name: postgres-columbus
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: columbus
+    entrypoint:
+      - /docker-entrypoint.sh
+      - postgres
+    ports:
+      - 5432:5432
+
+  columbus:
+    image: dr2.rbkmoney.com/rbkmoney/columbus:79a03704da4b17afa6f6ce07dbd3522fd5a52442
+    hostname: columbus
+    container_name: columbus
+    environment:
+      spring.datasource.url: "jdbc:postgresql://postgres-columbus:5432/columbus"
+      geo.db.file.path: "file:/maxmind.mmdb"
+      logging.level.com.rbkmoney.woody: "ERROR"
+    depends_on:
+      - postgres-columbus
+    ports:
+      - 8990:8022
+
+  wblist:
+     image: dr2.rbkmoney.com/rbkmoney/wb-list-manager:98dbbb82e54ea37c234e521f57ecd092cf20a298
+     hostname: wblist
+     container_name: wblist
+     environment:
+       kafka.bootstrap.servers: "broker:9092"
+       riak.address: riak
+       riak.port: 8087
+       management.metrics.export.statsd.enabled: "false"
+       logging.level.com.rbkmoney.woody: "ERROR"
+       kafka.wblist.topic.command: "wb-list-command"
+       kafka.wblist.topic.event.sink: "wb-list-event-sink"
+     depends_on:
+       - riak
+       - broker
+     ports:
+       - 8991:8022
+
+  fraudbusters:
+     image: dr2.rbkmoney.com/rbkmoney/fraudbusters:0e06ea2537ebfe971d1885d76101970b0db64899
+     hostname: fraudbusters
+     container_name: fraudbusters
+     environment:
+       kafka.bootstrap.servers: "broker:9092"
+       geo.ip.service.url: "http://columbus:8022/repo"
+       wb.list.service.url: "http://wblist:8022/v1/wb_list"
+       clickhouse.db.url: "jdbc:clickhouse://clickhouse:8123/default"
+       logging.level.com.rbkmoney.woody: "ERROR"
+     depends_on:
+       - clickhouse
+       - broker
+       - columbus
+       - wblist
+     ports:
+       - 8992:8022
+
+  postgres-fb:
+     container_name: postgres_container
+     hostname: postgres-fb
+     image: postgres
+     environment:
+       POSTGRES_USER: postgres
+       POSTGRES_PASSWORD: postgres
+       POSTGRES_DB: wblist
+       PGDATA: /data/postgres
+     volumes:
+        - ./postgres/data/3:/data/postgres
+     restart: unless-stopped
+
+  fb-management:
+     image: dr2.rbkmoney.com/rbkmoney/fraudbusters-management:08e165429d3a91d9d734de0b968a77e00b737c19
+     hostname: fb-management
+     container_name: fb-management
+     environment:
+       kafka.bootstrap.servers: "broker:9092"
+       logging.level.com.rbkmoney.woody: "ERROR"
+       kafka.wblist.topic.command: "wb-list-command"
+       kafka.wblist.topic.event.sink: "wb-list-event-sink"
+       kafka.fraudbusters.template: "template"
+       kafka.fraudbusters.reference: "template_reference"
+       spring.datasource.url: "jdbc:postgresql://postgres-fb:5432/wblist"
+     depends_on:
+       - fraudbusters
+       - broker
+       - wblist
+       - postgres-fb
+     ports:
+       - 8888:8022
+
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+
+volumes:
+  mi2: {}
