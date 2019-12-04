@@ -27,7 +27,7 @@ also interacts with ClickHouse to collect aggregates and fill in the necessary a
 When analyzing the results, it enriches the data from the storage location service by ip addresses
 [Columbus](https://github.com/rbkmoney/damsel/blob/master/proto/geo_ip.thrift)
 
-![alt text](images/aggregation stream fb.png)
+![alt text](images/fb_scheme.png)
 
 ### Install
 
