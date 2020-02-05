@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.repository;
 
-import com.rbkmoney.fraudbusters.fraud.resolver.FieldResolver;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 public class ParamsUtils {
 
     @NotNull
-    public static ArrayList<Object> initParams(List<FieldResolver.FieldModel> lastParams, Object... args) {
+    public static ArrayList<Object> initParams(List<FieldModel> lastParams, Object... args) {
         ArrayList<Object> objects = new ArrayList<>();
         objects.addAll(Arrays.asList(args));
         if (lastParams != null) {
             List<String> collect = lastParams.stream()
-                    .map(FieldResolver.FieldModel::getValue)
+                    .map(FieldModel::getValue)
                     .collect(Collectors.toList());
             objects.addAll(collect);
         }

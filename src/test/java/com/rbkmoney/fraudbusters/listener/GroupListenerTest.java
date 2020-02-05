@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.listener;
 
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
+import com.rbkmoney.fraudbusters.listener.payment.GroupListener;
 import com.rbkmoney.fraudbusters.template.pool.GroupPoolImpl;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.util.BeanUtil;

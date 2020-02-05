@@ -51,6 +51,7 @@ public class SimpleMeasureAspect {
         Method method = ((MethodSignature) proceedingJoinPoint.getSignature()).getMethod();
         BasicMetric basicMetric = method.getAnnotation(BasicMetric.class);
         final String metricName = basicMetric.value().isEmpty() ? DEFAULT_METRIC_NAME : basicMetric.value();
+
         Timer.Sample sample = Timer.start(registry);
 
         try {

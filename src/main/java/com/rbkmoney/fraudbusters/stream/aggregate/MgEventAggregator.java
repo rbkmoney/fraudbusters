@@ -6,8 +6,6 @@ import org.apache.kafka.streams.kstream.Aggregator;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.sql.Date;
-
 @Slf4j
 @Service
 public class MgEventAggregator implements Aggregator<String, MgEventSinkRow, MgEventSinkRow> {
@@ -43,11 +41,7 @@ public class MgEventAggregator implements Aggregator<String, MgEventSinkRow, MgE
         return StringUtils.isEmpty(value) ? newValue : value;
     }
 
-    private Long changeIfNotNull(Long value, Long newValue) {
-        return value == null ? newValue : value;
-    }
-
-    private Date changeIfNotNull(Date value, Date newValue) {
+    private <T> T changeIfNotNull(T value, T newValue) {
         return value == null ? newValue : value;
     }
 

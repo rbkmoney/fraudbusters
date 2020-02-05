@@ -6,42 +6,39 @@ import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.Metadata;
-import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FraudResultToEventConverter implements Converter<FraudResult, Event> {
+public class FraudResultToEventConverter implements BatchConverter<FraudResult, Event> {
 
     private final GeoIpServiceSrv.Iface geoIpService;
 
     @Override
     public Event convert(FraudResult fraudResult) {
         Event event = new Event();
-        FraudModel fraudModel = fraudResult.getFraudRequest().getFraudModel();
-        event.setAmount(fraudModel.getAmount());
-        event.setBin(fraudModel.getBin());
-        event.setEmail(fraudModel.getEmail());
+        PaymentModel paymentModel = fraudResult.getFraudRequest().getPaymentModel();
+        event.setAmount(paymentModel.getAmount());
+        event.setBin(paymentModel.getBin());
+        event.setEmail(paymentModel.getEmail());
         event.setEventTime(getEventTime(fraudResult));
         event.setTimestamp(java.sql.Date.valueOf(LocalDateTime.now().toLocalDate()));
-        event.setFingerprint(fraudModel.getFingerprint());
-        String ip = fraudModel.getIp();
+        event.setFingerprint(paymentModel.getFingerprint());
+        String ip = paymentModel.getIp();
         String country = getCountryCode(ip);
         event.setCountry(country);
         event.setIp(ip);
-        event.setPartyId(fraudModel.getPartyId());
+        event.setPartyId(paymentModel.getPartyId());
         CheckedResultModel resultModel = fraudResult.getResultModel();
         event.setCheckedTemplate(resultModel.getCheckedTemplate());
         Optional.ofNullable(resultModel.getResultModel())
@@ -49,9 +46,9 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
                     event.setCheckedRule(result.getRuleChecked());
                     event.setResultStatus(result.getResultStatus().name());
                 });
-        event.setShopId(fraudModel.getShopId());
-        event.setBankCountry(fraudModel.getBinCountryCode());
-        event.setCardToken(fraudModel.getCardToken());
+        event.setShopId(paymentModel.getShopId());
+        event.setBankCountry(paymentModel.getBinCountryCode());
+        event.setCardToken(paymentModel.getCardToken());
         Metadata metadata = fraudResult.getFraudRequest().getMetadata();
         if (metadata != null) {
             event.setBankName(metadata.getBankName());
@@ -86,9 +83,4 @@ public class FraudResultToEventConverter implements Converter<FraudResult, Event
         return LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
     }
 
-    public List<Event> convertBatch(List<FraudResult> fraudResults) {
-        return fraudResults.stream()
-                .map(this::convert)
-                .collect(Collectors.toList());
-    }
 }

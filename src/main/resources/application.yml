@@ -57,6 +57,14 @@ kafka:
     group:
       list: group_list
       reference: group_reference
+    p2p:
+      result: p2p_result
+      template: template_p2p
+      reference: template_p2p_reference
+      group:
+        list: group_p2p_list
+        reference: group_p2p_reference
+
   ssl:
     enable: false
     keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12

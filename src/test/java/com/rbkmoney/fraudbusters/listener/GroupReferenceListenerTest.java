@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.listener;
 
+import com.rbkmoney.fraudbusters.listener.payment.GroupReferenceListener;
 import com.rbkmoney.fraudbusters.template.pool.GroupReferencePoolImpl;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
@@ -7,8 +8,6 @@ import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
 
 public class GroupReferenceListenerTest {
 

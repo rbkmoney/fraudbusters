@@ -1,15 +1,19 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.base.Content;
-import com.rbkmoney.damsel.domain.Invoice;
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.p2p_insp.Identity;
+import com.rbkmoney.damsel.p2p_insp.Raw;
+import com.rbkmoney.damsel.p2p_insp.Transfer;
+import com.rbkmoney.damsel.p2p_insp.TransferInfo;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
 import com.rbkmoney.damsel.proxy_inspector.*;
-import com.rbkmoney.fraudo.model.FraudModel;
+import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
@@ -42,10 +46,40 @@ public class BeanUtil {
 
     public static final String PAYMENT_ID = "1";
     public static final String TEST_MAIL_RU = "test@mail.ru";
+    public static final String TRANSFER_ID = "transferId";
+    public static final String IDENTITY_ID = "identityId";
+    public static final String RUB = "RUB";
 
     public static Context createContext() {
         String pId = P_ID;
         return createContext(pId);
+    }
+
+    public static com.rbkmoney.damsel.p2p_insp.Context createP2PContext(String identityId, String idTransfer) {
+        ContactInfo contact_info = new ContactInfo();
+        contact_info.setEmail(EMAIL);
+        TransferInfo transferInfo = new TransferInfo(
+                new Transfer()
+                        .setCost(new Cash(
+                                9000L,
+                                new CurrencyRef("RUB")
+                        ))
+                        .setSender(com.rbkmoney.damsel.p2p_insp.Payer.raw(
+                                new Raw(com.rbkmoney.damsel.domain.Payer.customer(
+                                        new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(),
+                                                contact_info)))))
+                        .setCreatedAt(TypeUtil.temporalToString(Instant.now()))
+                        .setReceiver(com.rbkmoney.damsel.p2p_insp.Payer.raw(
+                                new Raw(com.rbkmoney.damsel.domain.Payer.customer(
+                                        new CustomerPayer("custId_2", "2", "rec_paym_tool", createBankCard(),
+                                                contact_info)))))
+                        .setIdentity(new Identity(identityId))
+                        .setId(idTransfer)
+        );
+        return new com.rbkmoney.damsel.p2p_insp.Context(
+                transferInfo
+        );
+
     }
 
     public static Context createContext(String pId) {
@@ -81,10 +115,6 @@ public class BeanUtil {
 
     }
 
-    public static Payer createRecurrentPayer() {
-        return Payer.recurrent(new RecurrentPayer(createBankCard(), new RecurrentParentPayment("invoiceId", "paymentId"), new ContactInfo()));
-    }
-
     private static Payer createCustomerPayer() {
         return Payer.customer(new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(), new ContactInfo()));
     }
@@ -102,30 +132,82 @@ public class BeanUtil {
         }};
     }
 
-    public static FraudModel createFraudModel() {
-        FraudModel fraudModel = new FraudModel();
-        fraudModel.setFingerprint(FINGERPRINT);
-        fraudModel.setShopId(SHOP_ID);
-        fraudModel.setPartyId(PARTY_ID);
-        fraudModel.setIp(IP);
-        fraudModel.setEmail(EMAIL);
-        fraudModel.setBin(BIN);
-        fraudModel.setAmount(AMOUNT_FIRST);
-        fraudModel.setBinCountryCode(BIN_COUNTRY_CODE);
-        return fraudModel;
+    public static PaymentModel createPaymentModel() {
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setFingerprint(FINGERPRINT);
+        paymentModel.setShopId(SHOP_ID);
+        paymentModel.setPartyId(PARTY_ID);
+        paymentModel.setIp(IP);
+        paymentModel.setEmail(EMAIL);
+        paymentModel.setBin(BIN);
+        paymentModel.setAmount(AMOUNT_FIRST);
+        paymentModel.setBinCountryCode(BIN_COUNTRY_CODE);
+        return paymentModel;
     }
 
-    public static FraudModel createFraudModelSecond() {
-        FraudModel fraudModel = new FraudModel();
-        fraudModel.setFingerprint(FINGERPRINT + SUFIX);
-        fraudModel.setShopId(SHOP_ID + SUFIX);
-        fraudModel.setPartyId(PARTY_ID + SUFIX);
-        fraudModel.setIp(IP + SUFIX);
-        fraudModel.setEmail(EMAIL + SUFIX);
-        fraudModel.setBin(BIN + SUFIX);
-        fraudModel.setAmount(AMOUNT_SECOND);
-        fraudModel.setBinCountryCode(BIN_COUNTRY_CODE);
-        return fraudModel;
+    public static P2PModel createP2PModel() {
+        P2PModel p2PModel = new P2PModel();
+        p2PModel.setFingerprint(FINGERPRINT);
+        p2PModel.setCurrency(RUB);
+        p2PModel.setTransferId(TRANSFER_ID);
+        p2PModel.setIdentityId(IDENTITY_ID);
+        p2PModel.setIp(IP);
+        p2PModel.setEmail(EMAIL);
+        p2PModel.setTimestamp(Instant.now().toEpochMilli());
+
+        com.rbkmoney.fraudbusters.fraud.model.Payer sender = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+
+        sender.setBin(BIN);
+        sender.setBinCountryCode(BIN_COUNTRY_CODE);
+
+        p2PModel.setSender(sender);
+        p2PModel.setAmount(AMOUNT_FIRST);
+
+        com.rbkmoney.fraudbusters.fraud.model.Payer receiver = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+        receiver.setBin(BIN);
+        receiver.setBinCountryCode(BIN_COUNTRY_CODE);
+
+        p2PModel.setReceiver(receiver);
+        return p2PModel;
+    }
+
+    public static P2PModel createP2PModelSecond() {
+        P2PModel p2PModel = new P2PModel();
+        p2PModel.setFingerprint(FINGERPRINT + SUFIX);
+        p2PModel.setTransferId(TRANSFER_ID + SUFIX);
+        p2PModel.setIdentityId(IDENTITY_ID + SUFIX);
+        p2PModel.setIp(IP + SUFIX);
+        p2PModel.setEmail(EMAIL + SUFIX);
+        p2PModel.setTimestamp(Instant.now().toEpochMilli());
+
+        com.rbkmoney.fraudbusters.fraud.model.Payer sender = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+
+        sender.setBin(BIN + SUFIX);
+        sender.setBinCountryCode(BIN_COUNTRY_CODE + SUFIX);
+
+        p2PModel.setSender(sender);
+        p2PModel.setCurrency(RUB);
+        p2PModel.setAmount(AMOUNT_SECOND);
+
+        com.rbkmoney.fraudbusters.fraud.model.Payer receiver = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+        receiver.setBin(BIN + SUFIX);
+        receiver.setBinCountryCode(BIN_COUNTRY_CODE + SUFIX);
+
+        p2PModel.setReceiver(receiver);
+        return p2PModel;
+    }
+
+    public static PaymentModel createFraudModelSecond() {
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setFingerprint(FINGERPRINT + SUFIX);
+        paymentModel.setShopId(SHOP_ID + SUFIX);
+        paymentModel.setPartyId(PARTY_ID + SUFIX);
+        paymentModel.setIp(IP + SUFIX);
+        paymentModel.setEmail(EMAIL + SUFIX);
+        paymentModel.setBin(BIN + SUFIX);
+        paymentModel.setAmount(AMOUNT_SECOND);
+        paymentModel.setBinCountryCode(BIN_COUNTRY_CODE);
+        return paymentModel;
     }
 
     @NotNull
@@ -158,6 +240,28 @@ public class BeanUtil {
                 .setGroupId(idGroup)
                 .setPartyId(party)
                 .setShopId(shopId)));
+        return command;
+    }
+
+    @NotNull
+    public static Command createP2PGroupReferenceCommand(String identityId, String idGroup) {
+        Command command = new Command();
+        command.setCommandType(CommandType.CREATE);
+        command.setCommandBody(CommandBody.p2p_group_reference(new P2PGroupReference()
+                .setGroupId(idGroup)
+                .setIdentityId(identityId))
+        );
+        return command;
+    }
+
+    @NotNull
+    public static Command createP2PTemplateReferenceCommand(String identityId, String templateId) {
+        Command command = new Command();
+        command.setCommandType(CommandType.CREATE);
+        command.setCommandBody(CommandBody.p2p_reference(new P2PReference()
+                .setTemplateId(templateId)
+                .setIdentityId(identityId))
+        );
         return command;
     }
 

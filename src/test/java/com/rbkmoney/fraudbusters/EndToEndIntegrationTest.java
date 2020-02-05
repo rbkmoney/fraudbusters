@@ -3,10 +3,10 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
+import com.rbkmoney.damsel.p2p_insp.InspectResult;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.listener.StartupListener;
-import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
@@ -79,16 +79,14 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
     public static final long TIMEOUT = 2000L;
-
-    private InspectorProxySrv.Iface client;
+    public static final String FRAUD = "fraud";
 
     @LocalServerPort
     int serverPort;
 
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
-    @Autowired
-    private MgEventSinkRepository mgEventSinkRepository;
+    private static String SERVICE_P2P_URL = "http://localhost:%s/fraud_p2p_inspector/v1";
 
     @Autowired
     private StartupListener startupListener;
@@ -128,31 +126,36 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
             for (String exec : split) {
                 connection.createStatement().execute(exec);
             }
+            sql = FileUtil.getFile("sql/V3__create_events_p2p.sql");
+            split = sql.split(";");
+            for (String exec : split) {
+                connection.createStatement().execute(exec);
+            }
         }
 
         String globalRef = UUID.randomUUID().toString();
-        produceTemplate(globalRef, TEMPLATE);
+        produceTemplate(globalRef, TEMPLATE, templateTopic);
         produceReference(true, null, null, globalRef);
 
         String partyTemplate = UUID.randomUUID().toString();
-        produceTemplate(partyTemplate, TEMPLATE_CONCRETE);
+        produceTemplate(partyTemplate, TEMPLATE_CONCRETE, templateTopic);
         produceReference(false, P_ID, null, partyTemplate);
 
         String shopRef = UUID.randomUUID().toString();
-        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP);
+        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP, templateTopic);
         produceReference(false, P_ID, BeanUtil.ID_VALUE_SHOP, shopRef);
 
         String groupTemplateDecline = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateDecline, GROUP_DECLINE);
+        produceTemplate(groupTemplateDecline, GROUP_DECLINE, templateTopic);
         String groupTemplateNormal = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateNormal, GROUP_NORMAL);
+        produceTemplate(groupTemplateNormal, GROUP_NORMAL, templateTopic);
 
         String groupId = UUID.randomUUID().toString();
         produceGroup(groupId, List.of(new PriorityId()
                 .setId(groupTemplateDecline)
                 .setPriority(2L), new PriorityId()
                 .setId(groupTemplateNormal)
-                .setPriority(1L)));
+                .setPriority(1L)), groupTopic);
         produceGroupReference(GROUP_P_ID, null, groupId);
 
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
@@ -167,13 +170,12 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     }
 
-
     @Test
     public void test() throws URISyntaxException, TException, InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
-        client = clientBuilder.build(InspectorProxySrv.Iface.class);
+        InspectorProxySrv.Iface client = clientBuilder.build(InspectorProxySrv.Iface.class);
 
         Thread.sleep(TIMEOUT);
 
@@ -188,7 +190,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         Assert.assertEquals(RiskScore.fatal, riskScore);
 
         Thread.sleep(TIMEOUT);
-
 
         context = BeanUtil.createContext(P_ID);
         riskScore = client.inspectPayment(context);

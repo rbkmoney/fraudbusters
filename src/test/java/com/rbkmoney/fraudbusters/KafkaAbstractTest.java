@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
+import com.rbkmoney.fraudbusters.listener.p2p.TemplateP2PReferenceListener;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
@@ -56,12 +57,20 @@ public abstract class KafkaAbstractTest {
 
     @Value("${kafka.topic.template}")
     public String templateTopic;
+    @Value("${kafka.topic.p2p.template}")
+    public String templateTopicP2P;
     @Value("${kafka.topic.reference}")
     public String referenceTopic;
+    @Value("${kafka.topic.p2p.reference}")
+    public String referenceTopicP2P;
     @Value("${kafka.topic.group.list}")
     public String groupTopic;
+    @Value("${kafka.topic.p2p.group.list}")
+    public String groupTopicP2P;
     @Value("${kafka.topic.group.reference}")
     public String groupReferenceTopic;
+    @Value("${kafka.topic.p2p.group.reference}")
+    public String groupReferenceTopicP2P;
     @Value("${kafka.topic.event.sink.initial}")
     public String eventSinkTopic;
     @Value("${kafka.topic.event.sink.aggregated}")
@@ -92,9 +101,13 @@ public abstract class KafkaAbstractTest {
                     .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
                     .applyTo(configurableApplicationContext.getEnvironment());
             initTopic("template");
+            initTopic("template_p2p");
             initTopic("template_reference");
+            initTopic("template_p2p_reference");
             initTopic("group_list");
+            initTopic("group_p2p_list");
             initTopic("group_reference");
+            initTopic("group_p2p_reference");
             initTopic("event_sink");
             initTopic("aggregated_event_sink");
         }
@@ -123,18 +136,18 @@ public abstract class KafkaAbstractTest {
         return new KafkaConsumer<>(props);
     }
 
-    void produceTemplate(String localId, String templateString) throws InterruptedException, ExecutionException {
+    void produceTemplate(String localId, String templateString, String topicName) throws InterruptedException, ExecutionException {
         try (Producer<String, Command> producer = createProducer()) {
             Command command = crateCommandTemplate(localId, templateString);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(templateTopic, localId, command);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(topicName, localId, command);
             producer.send(producerRecord).get();
         }
     }
 
-    void produceGroup(String localId, List<PriorityId> priorityIds) throws InterruptedException, ExecutionException {
+    void produceGroup(String localId, List<PriorityId> priorityIds, String topic) throws InterruptedException, ExecutionException {
         try (Producer<String, Command> producer = createProducer()) {
             Command command = BeanUtil.createGroupCommand(localId, priorityIds);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(groupTopic, localId, command);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(topic, localId, command);
             producer.send(producerRecord).get();
         }
     }
@@ -155,8 +168,36 @@ public abstract class KafkaAbstractTest {
         }
     }
 
+    void produceP2PReference(boolean isGlobal, String identityId, String idTemplate) throws InterruptedException, ExecutionException {
+        try (Producer<String, Command> producer = createProducer()) {
+            Command command = new Command();
+            command.setCommandType(CommandType.CREATE);
+            P2PReference value = new P2PReference();
+            value.setTemplateId(idTemplate);
+            value.setIdentityId(identityId);
+            value.setIsGlobal(isGlobal);
+
+            command.setCommandBody(CommandBody.p2p_reference(value));
+            String key = ReferenceKeyGenerator.generateP2PTemplateKey(value);
+
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(referenceTopicP2P, key, command);
+            producer.send(producerRecord).get();
+        }
+    }
+
     void produceReferenceWithWait(boolean isGlobal, String party, String shopId, String idTemplate, int timeout) throws InterruptedException, ExecutionException {
         produceReference(isGlobal, party, shopId, idTemplate);
+        try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
+            consumer.subscribe(List.of(referenceTopic));
+            Unreliables.retryUntilTrue(timeout, TimeUnit.SECONDS, () -> {
+                ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
+                return !records.isEmpty();
+            });
+        }
+    }
+
+    void produceReferenceWithWait(boolean isGlobal, String identityId, String idTemplate, int timeout) throws InterruptedException, ExecutionException {
+        produceP2PReference(isGlobal, identityId, idTemplate);
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
             consumer.subscribe(List.of(referenceTopic));
             Unreliables.retryUntilTrue(timeout, TimeUnit.SECONDS, () -> {
@@ -171,6 +212,15 @@ public abstract class KafkaAbstractTest {
             Command command = BeanUtil.createGroupReferenceCommand(party, shopId, idGroup);
             String key = ReferenceKeyGenerator.generateTemplateKey(party, shopId);
             ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(groupReferenceTopic, key, command);
+            producer.send(producerRecord).get();
+        }
+    }
+
+    void produceGroupReference(String identityId, String idGroup) throws InterruptedException, ExecutionException {
+        try (Producer<String, Command> producer = createProducer()) {
+            Command command = BeanUtil.createP2PGroupReferenceCommand(identityId, idGroup);
+            String key = ReferenceKeyGenerator.generateTemplateKeyByList(identityId);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(groupReferenceTopicP2P, key, command);
             producer.send(producerRecord).get();
         }
     }

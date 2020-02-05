@@ -1,12 +1,12 @@
 package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.template.pool.GroupPoolImpl;
 import com.rbkmoney.fraudbusters.template.pool.GroupReferencePoolImpl;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
-import com.rbkmoney.fraudo.model.FraudModel;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,9 +47,9 @@ public class TemplateVisitorImplTest {
     @Test
     public void visit() {
         //check empty pools
-        FraudModel fraudModel = new FraudModel();
-        fraudModel.setPartyId(PARTY_ID);
-        CheckedResultModel visit = templateVisitor.visit(fraudModel);
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setPartyId(PARTY_ID);
+        CheckedResultModel visit = templateVisitor.visit(paymentModel);
 
         Assert.assertEquals("RULE_NOT_CHECKED", visit.getCheckedTemplate());
         Assert.assertEquals(ResultStatus.THREE_DS, visit.getResultModel().getResultStatus());
@@ -61,24 +61,24 @@ public class TemplateVisitorImplTest {
         groupReferencePoolImpl.add(key, GROUP_1);
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setCheckedTemplate(TRUE_TEMPL);
-        Mockito.when(ruleApplier.applyForAny(fraudModel, templateIds)).thenReturn(Optional.of(checkedResultModel));
+        Mockito.when(ruleApplier.applyForAny(paymentModel, templateIds)).thenReturn(Optional.of(checkedResultModel));
 
-        visit = templateVisitor.visit(fraudModel);
+        visit = templateVisitor.visit(paymentModel);
         Assert.assertEquals(TRUE_TEMPL, visit.getCheckedTemplate());
 
-        Mockito.when(ruleApplier.applyForAny(fraudModel, templateIds)).thenReturn(Optional.empty());
+        Mockito.when(ruleApplier.applyForAny(paymentModel, templateIds)).thenReturn(Optional.empty());
 
-        visit = templateVisitor.visit(fraudModel);
+        visit = templateVisitor.visit(paymentModel);
         Assert.assertEquals("RULE_NOT_CHECKED", visit.getCheckedTemplate());
         Assert.assertEquals(ResultStatus.THREE_DS, visit.getResultModel().getResultStatus());
 
         //check party pool
         referencePoolImpl.add(key, TEMPLATE_1);
 
-        Mockito.when(ruleApplier.apply(fraudModel, TEMPLATE_1))
+        Mockito.when(ruleApplier.apply(paymentModel, TEMPLATE_1))
                 .thenReturn(Optional.of(checkedResultModel));
 
-        visit = templateVisitor.visit(fraudModel);
+        visit = templateVisitor.visit(paymentModel);
         Assert.assertEquals(TRUE_TEMPL, visit.getCheckedTemplate());
     }
 }
