@@ -6,7 +6,7 @@ FROM @dockerfile.registry@/rbkmoney/build:@dockerfile.build.tag@ as build
 COPY --from=service-java / /tmp/portage-root/
 
 ENV ROOT=/tmp/portage-root
-RUN git clone git://git.bakka.su/gentoo-mirror --depth 1 /usr/portage && emerge sys-devel/gcc
+RUN git clone git://git.bakka.su/gentoo-mirror --depth 1 /usr/portage && emerge sys-devel/gcc -K
 
 FROM @dockerfile.registry@/rbkmoney/service-java:@dockerfile.base.service.tag@
 COPY --from=build /tmp/portage-root/ /
