@@ -44,6 +44,9 @@ kafka:
     event.sink:
       enable: false
       num.thread: 1
+  listen:
+    result:
+      concurrency: 21
   topic:
     result: result
     template: template
