@@ -3,6 +3,9 @@ package com.rbkmoney.fraudbusters.constant;
 public enum EventField {
 
     timestamp,
+    eventTimeHour,
+    eventTime,
+
     ip,
     email,
     bin,
@@ -11,7 +14,6 @@ public enum EventField {
     partyId,
     resultStatus,
     amount,
-    eventTime,
     country,
     checkedRule,
     bankCountry,

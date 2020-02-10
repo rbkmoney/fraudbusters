@@ -4,15 +4,18 @@ DROP TABLE IF EXISTS fraud.events_unique;
 
 create table fraud.events_unique (
   timestamp Date,
-  shopId String,
+  eventTimeHour UInt64,
+  eventTime UInt64,
+
   partyId String,
+  shopId String,
+
   ip String,
   email String,
   bin String,
   fingerprint String,
   resultStatus String,
   amount UInt64,
-  eventTime UInt64,
   country String,
   checkedRule String,
   bankCountry String,
@@ -23,4 +26,7 @@ create table fraud.events_unique (
   cardToken String,
   paymentId String,
   checkedTemplate String
-) ENGINE = MergeTree(timestamp, (shopId, partyId, ip, email, bin, fingerprint, resultStatus, cardToken), 8192);
+) ENGINE = MergeTree()
+PARTITION BY toYYYYMM (timestamp)
+ORDER BY (eventTimeHour, partyId, shopId, bin, resultStatus, cardToken, email, ip, fingerprint)
+TTL timestamp + INTERVAL 3 MONTH;

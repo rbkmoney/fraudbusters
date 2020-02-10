@@ -8,6 +8,9 @@ import java.sql.Date;
 public class Event {
 
     private Date timestamp;
+    private Long eventTimeHour;
+    private Long eventTime;
+
     private String ip;
     private String email;
     private String bin;
@@ -16,7 +19,6 @@ public class Event {
     private String partyId;
     private String resultStatus;
     private String country;
-    private Long eventTime;
     private Long amount;
     private String checkedRule;
     private String bankCountry;
