@@ -13,8 +13,10 @@ import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Slf4j
@@ -31,8 +33,13 @@ public class FraudResultToEventConverter implements BatchConverter<FraudResult, 
         event.setAmount(paymentModel.getAmount());
         event.setBin(paymentModel.getBin());
         event.setEmail(paymentModel.getEmail());
-        event.setEventTime(getEventTime(fraudResult));
+
+        Long timestamp = getEventTime(fraudResult);
+        event.setEventTime(timestamp);
         event.setTimestamp(java.sql.Date.valueOf(LocalDateTime.now().toLocalDate()));
+        long eventTimeHour = Instant.ofEpochMilli(timestamp).truncatedTo(ChronoUnit.HOURS).toEpochMilli();
+        event.setEventTimeHour(eventTimeHour);
+
         event.setFingerprint(paymentModel.getFingerprint());
         String ip = paymentModel.getIp();
         String country = getCountryCode(ip);
@@ -46,6 +53,7 @@ public class FraudResultToEventConverter implements BatchConverter<FraudResult, 
                     event.setCheckedRule(result.getRuleChecked());
                     event.setResultStatus(result.getResultStatus().name());
                 });
+
         event.setShopId(paymentModel.getShopId());
         event.setBankCountry(paymentModel.getBinCountryCode());
         event.setCardToken(paymentModel.getCardToken());

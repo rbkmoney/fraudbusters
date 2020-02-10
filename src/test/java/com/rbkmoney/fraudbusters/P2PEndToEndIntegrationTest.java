@@ -72,7 +72,7 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
     private static String SERVICE_P2P_URL = "http://localhost:%s/fraud_p2p_inspector/v1";
 
     @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer();
+    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override

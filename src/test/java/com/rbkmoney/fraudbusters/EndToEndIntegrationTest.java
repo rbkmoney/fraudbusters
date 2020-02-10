@@ -92,7 +92,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private StartupListener startupListener;
 
     @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer();
+    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override

@@ -14,6 +14,8 @@ public class EventParametersGenerator {
     public static Map<String, Object> generateParamsByFraudModel(Event value) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(EventField.timestamp.name(), value.getTimestamp());
+        parameters.put(EventField.eventTimeHour.name(), value.getEventTimeHour());
+        parameters.put(EventField.eventTime.name(), value.getEventTime());
         parameters.put(EventField.ip.name(), value.getIp());
         parameters.put(EventField.email.name(), value.getEmail());
         parameters.put(EventField.bin.name(), value.getBin());
@@ -22,7 +24,6 @@ public class EventParametersGenerator {
         parameters.put(EventField.partyId.name(), value.getPartyId());
         parameters.put(EventField.resultStatus.name(), value.getResultStatus());
         parameters.put(EventField.amount.name(), value.getAmount());
-        parameters.put(EventField.eventTime.name(), value.getEventTime());
         parameters.put(EventField.country.name(), value.getCountry());
         parameters.put(EventField.checkedRule.name(), value.getCheckedRule());
         Optional.ofNullable(value.getBankCountry()).ifPresent(v -> parameters.put(EventField.bankCountry.name(), v));

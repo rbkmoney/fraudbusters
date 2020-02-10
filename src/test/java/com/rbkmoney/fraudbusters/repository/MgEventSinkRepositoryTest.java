@@ -56,7 +56,7 @@ public class MgEventSinkRepositoryTest {
     private static final long AMOUNT = 1200L;
 
     @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer();
+    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Autowired
     private MgEventSinkRepository mgEventSinkRepository;

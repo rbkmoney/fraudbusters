@@ -18,6 +18,9 @@ public class EventBatchPreparedStatementSetter implements BatchPreparedStatement
         Event event = batch.get(i);
         int l = 1;
         ps.setDate(l++, event.getTimestamp());
+        ps.setLong(l++, event.getEventTimeHour());
+        ps.setLong(l++, event.getEventTime());
+
         ps.setString(l++, event.getIp());
         ps.setString(l++, event.getEmail());
         ps.setString(l++, event.getBin());
@@ -26,7 +29,6 @@ public class EventBatchPreparedStatementSetter implements BatchPreparedStatement
         ps.setString(l++, event.getPartyId());
         ps.setString(l++, event.getResultStatus());
         ps.setLong(l++, event.getAmount());
-        ps.setLong(l++, event.getEventTime());
         ps.setString(l++, event.getCountry());
         ps.setString(l++, event.getCheckedRule());
         ps.setString(l++, event.getBankCountry());

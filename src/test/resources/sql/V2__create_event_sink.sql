@@ -2,9 +2,12 @@ DROP TABLE IF EXISTS fraud.events_sink_mg;
 
 create table fraud.events_sink_mg (
   timestamp Date,
+  eventTimeHour UInt64,
   eventTime UInt64,
-  shopId String,
+
   partyId String,
+  shopId String,
+
   ip String,
   email String,
   bin String,
@@ -22,5 +25,5 @@ create table fraud.events_sink_mg (
   cardToken String,
   paymentId String
 ) ENGINE = MergeTree()
-PARTITION BY toYYYYMM(timestamp)
-ORDER BY (eventTime, shopId, partyId, ip, email, bin, fingerprint, resultStatus, cardToken);
+PARTITION BY toYYYYMM (timestamp)
+ORDER BY (eventTime, partyId, shopId, bin, resultStatus, cardToken, email, ip, fingerprint);
