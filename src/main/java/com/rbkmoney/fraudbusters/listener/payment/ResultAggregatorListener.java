@@ -30,6 +30,7 @@ public class ResultAggregatorListener {
         } catch (Exception e) {
             log.warn("Error when ResultAggregatorListener listen e: ", e);
             Thread.sleep(KafkaConfig.THROTTLING_TIMEOUT);
+            throw e;
         }
     }
 }

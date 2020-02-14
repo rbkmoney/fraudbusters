@@ -28,6 +28,7 @@ public class ResultP2PAggregatorListener {
         } catch (Exception e) {
             log.warn("Error when ResultP2PAggregatorListener listen e: ", e);
             Thread.sleep(KafkaConfig.THROTTLING_TIMEOUT);
+            throw e;
         }
     }
 
