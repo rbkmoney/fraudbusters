@@ -38,6 +38,8 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class KafkaConfig {
 
+    public static final long THROTTLING_TIMEOUT = 500L;
+
     private static final String TEMPLATE_GROUP_ID = "template-listener";
     private static final String TEMPLATE_P2P_GROUP_ID = "template-listener-p2p";
 
