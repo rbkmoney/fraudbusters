@@ -8,10 +8,8 @@ import com.rbkmoney.fraudbusters.converter.ContextToFraudRequestConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.stream.TemplateVisitor;
-import com.rbkmoney.fraudbusters.stream.TemplateVisitorImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -33,7 +31,7 @@ public class FraudInspectorHandler implements InspectorProxySrv.Iface {
             FraudRequest model = requestConverter.convert(context);
             if (model != null) {
                 log.info("Check fraudRequest: {}", model);
-                FraudResult fraudResult = new FraudResult(model, templateVisitor.visit(model.getPaymentModel()));
+                FraudResult fraudResult = new FraudResult(model, templateVisitor.visit(model.getFraudModel()));
                 kafkaFraudResultTemplate.send(resultTopic, fraudResult);
                 log.info("Checked fraudResult: {}", fraudResult);
                 return checkedResultToRiskScoreConverter.convert(fraudResult.getResultModel());
