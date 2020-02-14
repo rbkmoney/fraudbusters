@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.config;
 
+import com.rbkmoney.fraudbusters.config.properties.KafkaSslProperties;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
@@ -24,31 +25,14 @@ public class ResultTemplateConfig {
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
 
-    @Value("${kafka.ssl.server-password}")
-    private String serverStorePassword;
-
-    @Value("${kafka.ssl.server-keystore-location}")
-    private String serverStoreCertPath;
-
-    @Value("${kafka.ssl.keystore-password}")
-    private String keyStorePassword;
-
-    @Value("${kafka.ssl.key-password}")
-    private String keyPassword;
-
-    @Value("${kafka.ssl.keystore-location}")
-    private String clientStoreCertPath;
-
-    @Value("${kafka.ssl.enable}")
-    private boolean kafkaSslEnable;
+    private final KafkaSslProperties kafkaSslProperties;
 
     private Map<String, Object> producerResultConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
-                clientStoreCertPath, keyStorePassword, keyPassword));
+        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslProperties));
         return props;
     }
 
