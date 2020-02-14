@@ -10,7 +10,7 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FraudRequest {
 
-    private PaymentModel paymentModel;
+    private PaymentModel fraudModel;
     private Metadata metadata;
 
 }

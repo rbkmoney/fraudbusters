@@ -29,7 +29,7 @@ public class FraudResultToEventConverter implements BatchConverter<FraudResult, 
     @Override
     public Event convert(FraudResult fraudResult) {
         Event event = new Event();
-        PaymentModel paymentModel = fraudResult.getFraudRequest().getPaymentModel();
+        PaymentModel paymentModel = fraudResult.getFraudRequest().getFraudModel();
         event.setAmount(paymentModel.getAmount());
         event.setBin(paymentModel.getBin());
         event.setEmail(paymentModel.getEmail());

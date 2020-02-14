@@ -49,7 +49,6 @@ public class FraudoConfig {
         return new CountAggregatorImpl(eventRepository, mgEventSinkRepository, dbPaymentFieldResolver);
     }
 
-
     @Bean
     public CountAggregator countP2PAggregator(EventP2PRepository eventP2PRepository, MgEventSinkRepository mgEventSinkRepository, DbP2pFieldResolver dbP2pFieldResolver) {
         return new CountP2PAggregatorImpl(eventP2PRepository, mgEventSinkRepository, dbP2pFieldResolver);

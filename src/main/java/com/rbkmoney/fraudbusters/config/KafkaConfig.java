@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
+import com.rbkmoney.fraudbusters.config.properties.KafkaSslProperties;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
@@ -20,10 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.BatchErrorHandler;
-import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.LoggingErrorHandler;
-import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler;
 import org.springframework.retry.RetryPolicy;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
@@ -75,24 +73,6 @@ public class KafkaConfig {
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
 
-    @Value("${kafka.ssl.server-password}")
-    private String serverStorePassword;
-
-    @Value("${kafka.ssl.server-keystore-location}")
-    private String serverStoreCertPath;
-
-    @Value("${kafka.ssl.keystore-password}")
-    private String keyStorePassword;
-
-    @Value("${kafka.ssl.key-password}")
-    private String keyPassword;
-
-    @Value("${kafka.ssl.keystore-location}")
-    private String clientStoreCertPath;
-
-    @Value("${kafka.ssl.enable}")
-    private boolean kafkaSslEnable;
-
     @Value("${kafka.stream.event.sink.num.thread}")
     private int eventSinkStreamThreads;
 
@@ -100,6 +80,7 @@ public class KafkaConfig {
     private int listenResultConcurrency;
 
     private final ConsumerGroupIdService consumerGroupIdService;
+    private final KafkaSslProperties kafkaSslProperties;
 
     @Bean
     public Properties eventSinkStreamProperties() {
@@ -112,8 +93,7 @@ public class KafkaConfig {
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, cacheSizeStateStoreMb * 1024 * 1024L);
         props.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
         props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, eventSinkStreamThreads);
-        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
-                clientStoreCertPath, keyStorePassword, keyPassword));
+        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslProperties));
         return props;
     }
 
@@ -171,8 +151,7 @@ public class KafkaConfig {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, value);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, EARLIEST);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
-        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslEnable, serverStoreCertPath, serverStorePassword,
-                clientStoreCertPath, keyStorePassword, keyPassword));
+        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslProperties));
         return props;
     }
 
@@ -265,6 +244,8 @@ public class KafkaConfig {
         DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(), new FraudResultDeserializer());
         factory.setConsumerFactory(consumerFactory);
+        factory.setConcurrency(listenResultConcurrency);
+        factory.setBatchListener(true);
         return factory;
     }
 

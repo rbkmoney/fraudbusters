@@ -136,7 +136,7 @@ public class EventRepositoryTest {
 
         value2.setResultModel(resultModel);
         FraudRequest fraudRequest = new FraudRequest();
-        fraudRequest.setPaymentModel(paymentModel);
+        fraudRequest.setFraudModel(paymentModel);
         Metadata metadata = new Metadata();
         metadata.setTimestamp(TimestampUtil.generateTimestampNow(Instant.now()));
         fraudRequest.setMetadata(metadata);

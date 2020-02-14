@@ -49,7 +49,7 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
             paymentModel.setFingerprint(info.getFingerprint());
         });
         FraudRequest fraudRequest = new FraudRequest();
-        fraudRequest.setPaymentModel(paymentModel);
+        fraudRequest.setFraudModel(paymentModel);
         Metadata metadata = initMetadata(context);
         fraudRequest.setMetadata(metadata);
         return fraudRequest;
