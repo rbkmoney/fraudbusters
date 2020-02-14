@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "kafka.ssl")
 public class KafkaSslProperties {
 
-
     private String serverPassword;
     private String serverKeystoreLocation;
     private String keystorePassword;
