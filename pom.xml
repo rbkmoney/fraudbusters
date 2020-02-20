@@ -31,7 +31,7 @@
         <geck.version>0.6.7</geck.version>
         <fraudo.version>0.0.10-SNAPSHOT</fraudo.version>
         <damsel-utils.version>2.1.3</damsel-utils.version>
-        <wb.list.proto.version>1.27-be77f75</wb.list.proto.version>
+        <wb.list.proto.version>1.29-4fe14c3</wb.list.proto.version>
         <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
         <kafka.common.lib.version>0.0.9</kafka.common.lib.version>
         <clickhouse-jdbc.version>0.1.54</clickhouse-jdbc.version>
