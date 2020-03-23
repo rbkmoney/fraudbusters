@@ -13,6 +13,7 @@ import com.rbkmoney.fraudo.model.Pair;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
@@ -93,9 +94,13 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
             String partyId = model.getPartyId();
             String shopId = model.getShopId();
             List<Row> rows = fields.stream()
+                    .filter(entry -> entry.getFirst() == null || !StringUtils.isEmpty(entry.getSecond()))
                     .map(entry -> createRow(white, partyId, shopId, entry.getFirst(), entry.getSecond()))
                     .collect(Collectors.toList());
-            return wbListServiceSrv.isAnyExist(rows);
+            if (!CollectionUtils.isEmpty(rows)) {
+                return wbListServiceSrv.isAnyExist(rows);
+            }
+            return false;
         } catch (Exception e) {
             log.warn("InListFinderImpl error when findInList e: ", e);
             throw new RuleFunctionException(e);

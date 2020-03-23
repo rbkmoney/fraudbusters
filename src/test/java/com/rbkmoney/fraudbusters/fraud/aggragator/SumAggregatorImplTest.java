@@ -1,10 +1,10 @@
 package com.rbkmoney.fraudbusters.fraud.aggragator;
 
-import com.rbkmoney.fraudbusters.fraud.payment.aggregator.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
-import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.SumAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -25,8 +25,8 @@ public class SumAggregatorImplTest {
     private MgEventSinkRepository mgEventSinkRepository;
     @Mock
     private DBPaymentFieldResolver DBPaymentFieldResolver;
-    @Mock
-    private FieldModel modelMock;
+
+    private FieldModel modelMock = new FieldModel("name", "value");
 
     SumAggregatorImpl sumAggregator;
 
@@ -82,6 +82,6 @@ public class SumAggregatorImplTest {
         Double some = sumAggregator.sum(PaymentCheckedField.BIN, new PaymentModel(),
                 TimeWindow.builder().startWindowTime(1444L).build(), null);
 
-        Assert.assertEquals(some, Double.valueOf(1050100));
+        Assert.assertEquals(Double.valueOf(1050100), some);
     }
 }
