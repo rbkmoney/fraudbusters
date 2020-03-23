@@ -49,4 +49,17 @@ public class PaymentInListFinderImplTest {
         Boolean isInList = listFinder.findInBlackList(List.of(new Pair<>(PaymentCheckedField.IP, VALUE)), paymentModel);
         Assert.assertTrue(isInList);
     }
+
+    @Test
+    public void findInListEmpty() throws TException {
+        Mockito.when(wbListServiceSrv.isAnyExist(any())).thenReturn(true);
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setPartyId(PARTY_ID);
+        paymentModel.setShopId(SHOP_ID);
+        Boolean isInList = listFinder.findInBlackList(List.of(new Pair<>(PaymentCheckedField.IP, null)), paymentModel);
+        Assert.assertFalse(isInList);
+
+        isInList = listFinder.findInBlackList(List.of(new Pair<>(PaymentCheckedField.IP, "")), paymentModel);
+        Assert.assertFalse(isInList);
+    }
 }

@@ -15,6 +15,7 @@ import com.rbkmoney.fraudo.model.TimeWindow;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -53,6 +54,10 @@ public class CountAggregatorImpl implements CountAggregator<PaymentModel, Paymen
             Instant now = Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
+
+            if (StringUtils.isEmpty(resolve)) {
+                return CURRENT_ONE;
+            }
 
             Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getStartWindowTime()),

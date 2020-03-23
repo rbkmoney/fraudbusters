@@ -3,15 +3,16 @@ package com.rbkmoney.fraudbusters.fraud.payment.aggregator;
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.EventRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -34,6 +35,9 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentM
         try {
             Instant now = Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(countField, payoutModel);
+            if (StringUtils.isEmpty(resolve.getValue())) {
+                return CURRENT_ONE;
+            }
             List<FieldModel> fieldModels = dbPaymentFieldResolver.resolveListFields(payoutModel, list);
             Integer uniqCountOperation = eventRepository.uniqCountOperationWithGroupBy(resolve.getName(), resolve.getValue(),
                     dbPaymentFieldResolver.resolve(onField),
