@@ -55,7 +55,7 @@ public class CountAggregatorImpl implements CountAggregator<PaymentModel, Paymen
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
 
-            if (StringUtils.isEmpty(resolve)) {
+            if (StringUtils.isEmpty(resolve.getValue())) {
                 return CURRENT_ONE;
             }
 
