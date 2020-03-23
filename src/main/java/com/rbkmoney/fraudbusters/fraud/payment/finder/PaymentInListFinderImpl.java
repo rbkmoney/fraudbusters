@@ -94,7 +94,7 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
             String partyId = model.getPartyId();
             String shopId = model.getShopId();
             List<Row> rows = fields.stream()
-                    .filter(entry -> entry.getFirst() == null || !StringUtils.isEmpty(entry.getSecond()))
+                    .filter(entry -> entry.getFirst() != null && !StringUtils.isEmpty(entry.getSecond()))
                     .map(entry -> createRow(white, partyId, shopId, entry.getFirst(), entry.getSecond()))
                     .collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(rows)) {
