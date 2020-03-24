@@ -109,7 +109,7 @@ public class FraudoConfig {
     }
 
     @Bean
-    public FirstFindVisitorImpl paymentRuleVisitor(
+    public FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> paymentRuleVisitor(
             FraudVisitorFactory fraudVisitorFactory,
             CountAggregator<PaymentModel, PaymentCheckedField> countAggregator,
             SumAggregator<PaymentModel, PaymentCheckedField> sumAggregator,
@@ -128,7 +128,7 @@ public class FraudoConfig {
     }
 
     @Bean
-    public FirstFindVisitorImpl p2pRuleVisitor(
+    public FirstFindVisitorImpl<P2PModel, P2PCheckedField> p2pRuleVisitor(
             FraudVisitorFactory fraudVisitorFactory,
             CountAggregator<P2PModel, P2PCheckedField> countP2PAggregator,
             SumAggregator<P2PModel, P2PCheckedField> sumP2PAggregator,
