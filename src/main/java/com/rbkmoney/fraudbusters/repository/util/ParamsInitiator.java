@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.repository;
+package com.rbkmoney.fraudbusters.repository.util;
 
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import org.jetbrains.annotations.NotNull;
@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ParamsUtils {
+public class ParamsInitiator {
 
     @NotNull
     public static ArrayList<Object> initParams(List<FieldModel> lastParams, Object... args) {

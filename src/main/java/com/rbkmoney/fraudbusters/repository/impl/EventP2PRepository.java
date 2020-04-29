@@ -1,13 +1,16 @@
-package com.rbkmoney.fraudbusters.repository;
+package com.rbkmoney.fraudbusters.repository.impl;
 
 import com.google.common.collect.Lists;
 import com.rbkmoney.fraudbusters.constant.ClickhouseSchemeNames;
 import com.rbkmoney.fraudbusters.domain.EventP2P;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.CrudRepository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.EventP2PBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.setter.EventP2PParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.util.ParamsInitiator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +30,7 @@ import static java.time.ZoneOffset.UTC;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EventP2PRepository implements CrudRepository<EventP2P> {
+public class EventP2PRepository implements CrudRepository<EventP2P>, AggregationRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -75,13 +78,12 @@ public class EventP2PRepository implements CrudRepository<EventP2P> {
         }
     }
 
+    @Override
     public Integer countOperationByField(String fieldName, String value, Long from, Long to) {
-        long eventTimeHourFrom = Instant.ofEpochMilli(from).truncatedTo(ChronoUnit.HOURS).toEpochMilli();
         Date dateFrom = java.sql.Date.valueOf(
                 Instant.ofEpochMilli(from)
                         .atZone(UTC)
                         .toLocalDate());
-        long eventTimeHourTo = Instant.ofEpochMilli(to).truncatedTo(ChronoUnit.HOURS).toEpochMilli();
         Date dateTo = java.sql.Date.valueOf(
                 Instant.ofEpochMilli(to)
                         .atZone(UTC)
@@ -91,8 +93,6 @@ public class EventP2PRepository implements CrudRepository<EventP2P> {
                 "from fraud.events_p_to_p " +
                 "where (timestamp >= ? " +
                 "and timestamp <= ? " +
-                "and eventTimeHour >= ? " +
-                "and eventTimeHour <= ? " +
                 "and %1$s = ? " +
                 "and eventTime >= ? " +
                 "and eventTime <= ?) " +
@@ -100,11 +100,12 @@ public class EventP2PRepository implements CrudRepository<EventP2P> {
 
         return jdbcTemplate.query(
                 sql,
-                new Object[]{dateFrom, dateTo, eventTimeHourFrom, eventTimeHourTo, value, from, to},
+                new Object[]{dateFrom, dateTo, value, from, to},
                 new CountExtractor()
         );
     }
 
+    @Override
     public Integer countOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to,
                                                     List<FieldModel> fieldModels) {
         ArrayList<Object> params = generateParams(value, from, to, fieldModels);
@@ -113,8 +114,6 @@ public class EventP2PRepository implements CrudRepository<EventP2P> {
                 "from fraud.events_p_to_p " +
                         "where (timestamp >= ? " +
                         "and timestamp <= ? " +
-                        "and eventTimeHour >= ? " +
-                        "and eventTimeHour <= ? " +
                         "and %1$s = ? " +
                         "and eventTime >= ? " +
                         "and eventTime <= ?) ",
@@ -127,17 +126,15 @@ public class EventP2PRepository implements CrudRepository<EventP2P> {
 
     @NotNull
     private ArrayList<Object> generateParams(String value, Long from, Long to, List<FieldModel> fieldModels) {
-        long eventTimeHourFrom = Instant.ofEpochMilli(from).truncatedTo(ChronoUnit.HOURS).toEpochMilli();
         Date dateFrom = Date.valueOf(
                 Instant.ofEpochMilli(from)
                         .atZone(UTC)
                         .toLocalDate());
-        long eventTimeHourTo = Instant.ofEpochMilli(to).truncatedTo(ChronoUnit.HOURS).toEpochMilli();
         Date dateTo = Date.valueOf(
                 Instant.ofEpochMilli(to)
                         .atZone(UTC)
                         .toLocalDate());
-        return ParamsUtils.initParams(fieldModels, dateFrom, dateTo, eventTimeHourFrom, eventTimeHourTo, value, from, to);
+        return ParamsInitiator.initParams(fieldModels, dateFrom, dateTo, value, from, to);
     }
 
     private StringBuilder appendGroupingFields(List<FieldModel> fieldModels, StringBuilder sql, StringBuilder sqlGroupBy) {
@@ -150,14 +147,7 @@ public class EventP2PRepository implements CrudRepository<EventP2P> {
         return sql.append(sqlGroupBy.toString());
     }
 
-    public Long sumOperationByField(String fieldName, String value, Long from, Long to) {
-        String sql = String.format("select %1$s, sum(amount) as sum " +
-                "from fraud.events_p_to_p " +
-                "where (eventTime >= ? and eventTime <= ? and %1$s = ?)" +
-                "group by %1$s", fieldName);
-        return jdbcTemplate.query(sql, new Object[]{from, to, value}, new SumExtractor());
-    }
-
+    @Override
     public Long sumOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to,
                                                List<FieldModel> fieldModels) {
         ArrayList<Object> params = generateParams(value, from, to, fieldModels);
@@ -166,8 +156,6 @@ public class EventP2PRepository implements CrudRepository<EventP2P> {
                 "from fraud.events_p_to_p " +
                 "where (timestamp >= ? " +
                 "and timestamp <= ? " +
-                "and eventTimeHour >= ? " +
-                "and eventTimeHour <= ? " +
                 "and %1$s = ? " +
                 "and eventTime >= ? " +
                 "and eventTime <= ?) ", fieldName));
@@ -177,42 +165,38 @@ public class EventP2PRepository implements CrudRepository<EventP2P> {
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
+    @Override
     public Integer uniqCountOperation(String fieldNameBy, String value, String fieldNameCount, Long from, Long to) {
         String sql = String.format("select %1$s, uniq(%2$s) as cnt " +
                 "from fraud.events_p_to_p " +
                 "where (timestamp >= ? " +
                 "and timestamp <= ? " +
-                "and eventTimeHour >= ? " +
-                "and eventTimeHour <= ? " +
                 "and %1$s = ? " +
                 "and eventTime >= ? " +
                 "and eventTime <= ?) " +
                 "group by %1$s", fieldNameBy, fieldNameCount);
 
-        long eventTimeHourFrom = Instant.ofEpochMilli(from).truncatedTo(ChronoUnit.HOURS).toEpochMilli();
         Date dateFrom = java.sql.Date.valueOf(
                 Instant.ofEpochMilli(from)
                         .atZone(UTC)
                         .toLocalDate());
-        long eventTimeHourTo = Instant.ofEpochMilli(to).truncatedTo(ChronoUnit.HOURS).toEpochMilli();
         Date dateTo = java.sql.Date.valueOf(
                 Instant.ofEpochMilli(to)
                         .atZone(UTC)
                         .toLocalDate());
 
         return jdbcTemplate.query(sql,
-                new Object[]{dateFrom, dateTo, eventTimeHourFrom, eventTimeHourTo, value, from, to},
+                new Object[]{dateFrom, dateTo, value, from, to},
                 new CountExtractor());
     }
 
+    @Override
     public Integer uniqCountOperationWithGroupBy(String fieldNameBy, String value, String fieldNameCount,
                                                  Long from, Long to, List<FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format("select %1$s, uniq(%2$s) as cnt " +
                 "from fraud.events_p_to_p " +
                 "where (timestamp >= ? " +
                 "and timestamp <= ? " +
-                "and eventTimeHour >= ? " +
-                "and eventTimeHour <= ? " +
                 "and %1$s = ? " +
                 "and eventTime >= ? " +
                 "and eventTime <= ?) ", fieldNameBy, fieldNameCount));

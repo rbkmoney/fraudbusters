@@ -7,8 +7,8 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.EventRepository;
-import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.impl.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -24,13 +24,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SumAggregatorImpl implements SumAggregator<PaymentModel, PaymentCheckedField> {
 
-    private final EventRepository eventRepository;
+    private final AggregationRepository aggregationRepository;
     private final MgEventSinkRepository mgEventSinkRepository;
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
 
     @Override
     public Double sum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getSum(checkedField, paymentModel, timeWindow, list, eventRepository::sumOperationByFieldWithGroupBy);
+        return getSum(checkedField, paymentModel, timeWindow, list, aggregationRepository::sumOperationByFieldWithGroupBy);
     }
 
     @Override
@@ -55,9 +55,8 @@ public class SumAggregatorImpl implements SumAggregator<PaymentModel, PaymentChe
             }
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
             Long sum = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
-                    TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getEndWindowTime()),
-                    eventFields);
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields);
             double resultSum = (double) checkedLong(sum) + checkedLong(paymentModel.getAmount());
             log.debug("SumAggregatorImpl field: {} value: {}  sum: {}", resolve.getName(), resolve.getValue(), resultSum);
             return resultSum;

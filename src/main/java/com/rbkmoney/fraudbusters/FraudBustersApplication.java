@@ -40,8 +40,6 @@ public class FraudBustersApplication extends SpringApplication {
     public void preDestroy() {
         log.info("FraudBustersApplication preDestroy!");
         registry.stop();
-        startupListener.stop();
-
         paymentRuleVisitor.close();
         p2pRuleVisitor.close();
     }

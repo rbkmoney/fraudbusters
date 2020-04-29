@@ -6,7 +6,7 @@ import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
-import com.rbkmoney.fraudbusters.repository.EventP2PRepository;
+import com.rbkmoney.fraudbusters.repository.impl.EventP2PRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;

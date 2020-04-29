@@ -1,14 +1,16 @@
-package com.rbkmoney.fraudbusters.repository;
+package com.rbkmoney.fraudbusters.repository.impl;
 
 import com.google.common.collect.Lists;
 import com.rbkmoney.fraudbusters.constant.ClickhouseSchemeNames;
 import com.rbkmoney.fraudbusters.constant.ResultStatus;
 import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
+import com.rbkmoney.fraudbusters.repository.CrudRepository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.MgEventSinkBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.setter.MgEventSinkParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.util.ParamsInitiator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -61,7 +63,7 @@ public class MgEventSinkRepository implements CrudRepository<MgEventSinkRow> {
                 "where eventTime >= ? and eventTime <= ? and %1$s = ? ", fieldName));
         StringBuilder sqlGroupBy = new StringBuilder(String.format(" group by %1$s ", fieldName));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> objects = ParamsUtils.initParams(fieldModels, from, to, value);
+        ArrayList<Object> objects = ParamsInitiator.initParams(fieldModels, from, to, value);
         return jdbcTemplate.query(resultSql.toString(), objects.toArray(), new CountExtractor());
     }
 
@@ -91,7 +93,7 @@ public class MgEventSinkRepository implements CrudRepository<MgEventSinkRow> {
                 "where eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ? ", fieldName));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsUtils.initParams(fieldModels, from, to, value, ResultStatus.CAPTURED.name());
+        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.CAPTURED.name());
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
@@ -110,7 +112,7 @@ public class MgEventSinkRepository implements CrudRepository<MgEventSinkRow> {
                 "where eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ? ", fieldName));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsUtils.initParams(fieldModels, from, to, value, ResultStatus.FAILED.name());
+        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.FAILED.name());
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
@@ -130,7 +132,7 @@ public class MgEventSinkRepository implements CrudRepository<MgEventSinkRow> {
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ?)", fieldName));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsUtils.initParams(fieldModels, from, to, value, ResultStatus.CAPTURED.name());
+        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.CAPTURED.name());
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
@@ -150,7 +152,7 @@ public class MgEventSinkRepository implements CrudRepository<MgEventSinkRow> {
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ? and resultStatus = ?)", fieldName));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsUtils.initParams(fieldModels, from, to, value, ResultStatus.FAILED.name());
+        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.FAILED.name());
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
@@ -169,7 +171,7 @@ public class MgEventSinkRepository implements CrudRepository<MgEventSinkRow> {
                 "where (eventTime >= ? and eventTime <= ? and %1$s = ?) ", fieldNameBy, fieldNameCount));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldNameBy));
         StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsUtils.initParams(fieldModels, from, to, value);
+        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 }

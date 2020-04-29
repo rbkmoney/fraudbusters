@@ -6,9 +6,11 @@ import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.*;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
+import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
+import com.rbkmoney.fraudbusters.repository.impl.EventRepository;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -43,7 +45,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = {EventRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class, DBPaymentFieldResolver.class}, initializers = EventRepositoryTest.Initializer.class)
+@ContextConfiguration(classes = {EventRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
+        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class}, initializers = EventRepositoryTest.Initializer.class)
 public class EventRepositoryTest {
 
     private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_unique";

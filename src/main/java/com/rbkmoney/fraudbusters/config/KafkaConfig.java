@@ -52,14 +52,6 @@ public class KafkaConfig {
 
     private static final String EARLIEST = "earliest";
     private static final String RESULT_AGGREGATOR = "result-aggregator";
-    private static final String MG_EVENT_SINK_AGGREGATOR = "mg-event-sink-aggregator";
-    private static final String EVENT_SINK_CLIENT_FRAUDBUSTERS = "event-sink-client-fraudbusters";
-
-    @Value("${kafka.state.cache.size:10}")
-    private int cacheSizeStateStoreMb;
-
-    @Value("${kafka.state.dir}")
-    private String stateDir;
 
     @Value("${kafka.max.poll.records}")
     private String maxPollRecords;
@@ -73,29 +65,11 @@ public class KafkaConfig {
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
 
-    @Value("${kafka.stream.event.sink.num.thread}")
-    private int eventSinkStreamThreads;
-
     @Value("${kafka.listen.result.concurrency}")
     private int listenResultConcurrency;
 
     private final ConsumerGroupIdService consumerGroupIdService;
     private final KafkaSslProperties kafkaSslProperties;
-
-    @Bean
-    public Properties eventSinkStreamProperties() {
-        final Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, consumerGroupIdService.generateGroupId("event-sink-fraud"));
-        props.put(StreamsConfig.CLIENT_ID_CONFIG, EVENT_SINK_CLIENT_FRAUDBUSTERS);
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, MgEventSinkRowSerde.class);
-        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, cacheSizeStateStoreMb * 1024 * 1024L);
-        props.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
-        props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, eventSinkStreamThreads);
-        props.putAll(SslKafkaUtils.sslConfigure(kafkaSslProperties));
-        return props;
-    }
 
     @Bean
     public ConsumerFactory<String, Command> templateListenerFactory() {
@@ -260,18 +234,6 @@ public class KafkaConfig {
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(listenResultConcurrency);
         factory.setBatchListener(true);
-        return factory;
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, MgEventSinkRow> mgEventSinkListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, MgEventSinkRow> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        String consumerGroup = consumerGroupIdService.generateGroupId(MG_EVENT_SINK_AGGREGATOR);
-        final Map<String, Object> props = createDefaultProperties(consumerGroup);
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
-        DefaultKafkaConsumerFactory<String, MgEventSinkRow> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
-                new StringDeserializer(), new MgEventSinkRowDeserializer());
-        factory.setConsumerFactory(consumerFactory);
         return factory;
     }
 

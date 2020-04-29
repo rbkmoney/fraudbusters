@@ -36,7 +36,7 @@ public class FraudResultToEventConverter implements BatchConverter<FraudResult, 
 
         Long timestamp = getEventTime(fraudResult);
         event.setEventTime(timestamp);
-        event.setTimestamp(java.sql.Date.valueOf(LocalDateTime.now().toLocalDate()));
+        event.setTimestamp(LocalDateTime.now().toLocalDate());
         long eventTimeHour = Instant.ofEpochMilli(timestamp).truncatedTo(ChronoUnit.HOURS).toEpochMilli();
         event.setEventTimeHour(eventTimeHour);
 

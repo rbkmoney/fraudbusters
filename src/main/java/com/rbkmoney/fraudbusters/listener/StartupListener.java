@@ -16,14 +16,12 @@ import com.rbkmoney.kafka.common.loader.PreloadListenerImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.streams.KafkaStreams;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -38,10 +36,6 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
     private static final long PRELOAD_TIMEOUT = 30L;
     private static final int COUNT_PRELOAD_TASKS = 4;
-    public static final long CLOSE_STREAM_TIMEOUT_SECONDS = 10L;
-
-    private final TemplateStreamFactory eventSinkAggregationStreamFactoryImpl;
-    private final Properties eventSinkStreamProperties;
 
     private final ConsumerFactory<String, Command> templateListenerFactory;
     private final ConsumerFactory<String, Command> groupListenerFactory;
@@ -62,8 +56,6 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private final GroupP2PListener groupP2PListener;
     private final GroupReferenceP2PListener groupReferenceP2PListener;
     private final TemplateP2PReferenceListener templateP2PReferenceListener;
-
-    private KafkaStreams eventSinkStream;
 
     private PreloadListener<String, Command> preloadListener = new PreloadListenerImpl<>();
 
@@ -90,9 +82,6 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
     @Value("${kafka.topic.p2p.group.reference}")
     private String topicP2PGroupReference;
-
-    @Value("${kafka.stream.event.sink.enable}")
-    private boolean enableEventSinkStream;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -121,24 +110,10 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
                 throw new StartException("Cant load all rules by timeout: " + timeout);
             }
 
-            startEventStream(startPreloadTime);
+            log.info("StartupListener start stream preloadTime: {} ms", System.currentTimeMillis() - startPreloadTime);
         } catch (InterruptedException e) {
             log.error("StartupListener onApplicationEvent e: ", e);
             Thread.currentThread().interrupt();
-        }
-    }
-
-    private void startEventStream(long startPreloadTime) {
-        if (enableEventSinkStream) {
-            eventSinkStream = eventSinkAggregationStreamFactoryImpl.create(eventSinkStreamProperties);
-            log.info("StartupListener start stream preloadTime: {} ms eventSinkStream: {}", System.currentTimeMillis() - startPreloadTime,
-                    eventSinkStream.allMetadata());
-        }
-    }
-
-    public void stop() {
-        if (eventSinkStream != null) {
-            eventSinkStream.close(Duration.ofSeconds(CLOSE_STREAM_TIMEOUT_SECONDS));
         }
     }
 

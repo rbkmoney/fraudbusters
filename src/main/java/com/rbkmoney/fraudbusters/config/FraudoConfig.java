@@ -20,9 +20,9 @@ import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.PaymentModelFieldResolver;
-import com.rbkmoney.fraudbusters.repository.EventP2PRepository;
-import com.rbkmoney.fraudbusters.repository.EventRepository;
-import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.impl.EventP2PRepository;
+import com.rbkmoney.fraudbusters.repository.impl.MgEventSinkRepository;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
@@ -45,27 +45,31 @@ public class FraudoConfig {
     }
 
     @Bean
-    public CountAggregator countAggregator(EventRepository eventRepository, MgEventSinkRepository mgEventSinkRepository, DBPaymentFieldResolver dbPaymentFieldResolver) {
+    public CountAggregator countAggregator(AggregationRepository eventRepository, MgEventSinkRepository mgEventSinkRepository,
+                                           DBPaymentFieldResolver dbPaymentFieldResolver) {
         return new CountAggregatorImpl(eventRepository, mgEventSinkRepository, dbPaymentFieldResolver);
     }
 
     @Bean
-    public CountAggregator countP2PAggregator(EventP2PRepository eventP2PRepository, MgEventSinkRepository mgEventSinkRepository, DbP2pFieldResolver dbP2pFieldResolver) {
+    public CountAggregator countP2PAggregator(EventP2PRepository eventP2PRepository, MgEventSinkRepository mgEventSinkRepository,
+                                              DbP2pFieldResolver dbP2pFieldResolver) {
         return new CountP2PAggregatorImpl(eventP2PRepository, mgEventSinkRepository, dbP2pFieldResolver);
     }
 
     @Bean
-    public SumAggregator sumAggregator(EventRepository eventRepository, MgEventSinkRepository mgEventSinkRepository, DBPaymentFieldResolver dbPaymentFieldResolver) {
+    public SumAggregator sumAggregator(AggregationRepository eventRepository, MgEventSinkRepository mgEventSinkRepository,
+                                       DBPaymentFieldResolver dbPaymentFieldResolver) {
         return new SumAggregatorImpl(eventRepository, mgEventSinkRepository, dbPaymentFieldResolver);
     }
 
     @Bean
-    public SumAggregator sumP2PAggregator(EventP2PRepository eventRepository, MgEventSinkRepository mgEventSinkRepository, DbP2pFieldResolver dbP2pFieldResolver) {
-        return new SumP2PAggregatorImpl(eventRepository, mgEventSinkRepository, dbP2pFieldResolver);
+    public SumAggregator sumP2PAggregator(EventP2PRepository eventP2PRepository, MgEventSinkRepository mgEventSinkRepository,
+                                          DbP2pFieldResolver dbP2pFieldResolver) {
+        return new SumP2PAggregatorImpl(eventP2PRepository, mgEventSinkRepository, dbP2pFieldResolver);
     }
 
     @Bean
-    public UniqueValueAggregator uniqueValueAggregator(EventRepository eventRepository, DBPaymentFieldResolver dbPaymentFieldResolver) {
+    public UniqueValueAggregator uniqueValueAggregator(AggregationRepository eventRepository, DBPaymentFieldResolver dbPaymentFieldResolver) {
         return new UniqueValueAggregatorImpl(eventRepository, dbPaymentFieldResolver);
     }
 
@@ -96,7 +100,7 @@ public class FraudoConfig {
 
     @Bean
     public InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder(WbListServiceSrv.Iface wbListServiceSrv,
-                                                                               EventRepository eventRepository,
+                                                                               AggregationRepository eventRepository,
                                                                                DBPaymentFieldResolver dbPaymentFieldResolver) {
         return new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, eventRepository);
     }

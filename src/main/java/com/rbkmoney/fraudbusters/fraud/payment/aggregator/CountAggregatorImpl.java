@@ -7,8 +7,8 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.EventRepository;
-import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.impl.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -25,14 +25,14 @@ import java.util.List;
 public class CountAggregatorImpl implements CountAggregator<PaymentModel, PaymentCheckedField> {
 
     private static final int CURRENT_ONE = 1;
-    private final EventRepository eventRepository;
+    private final AggregationRepository aggregationRepository;
     private final MgEventSinkRepository mgEventSinkRepository;
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
 
     @Override
     @BasicMetric("count")
     public Integer count(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getCount(checkedField, paymentModel, timeWindow, list, eventRepository::countOperationByFieldWithGroupBy);
+        return getCount(checkedField, paymentModel, timeWindow, list, aggregationRepository::countOperationByFieldWithGroupBy);
     }
 
     @Override
@@ -60,9 +60,8 @@ public class CountAggregatorImpl implements CountAggregator<PaymentModel, Paymen
             }
 
             Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
-                    TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getEndWindowTime()),
-                    eventFields);
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields);
 
             log.debug("CountAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), count);
             return count + CURRENT_ONE;
