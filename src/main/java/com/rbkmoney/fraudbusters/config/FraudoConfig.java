@@ -21,7 +21,6 @@ import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.PaymentModelFieldResolver;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
-import com.rbkmoney.fraudbusters.repository.impl.EventP2PRepository;
 import com.rbkmoney.fraudbusters.repository.impl.MgEventSinkRepository;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
@@ -51,7 +50,7 @@ public class FraudoConfig {
     }
 
     @Bean
-    public CountAggregator countP2PAggregator(EventP2PRepository eventP2PRepository, MgEventSinkRepository mgEventSinkRepository,
+    public CountAggregator countP2PAggregator(AggregationRepository eventP2PRepository, MgEventSinkRepository mgEventSinkRepository,
                                               DbP2pFieldResolver dbP2pFieldResolver) {
         return new CountP2PAggregatorImpl(eventP2PRepository, mgEventSinkRepository, dbP2pFieldResolver);
     }
@@ -63,7 +62,7 @@ public class FraudoConfig {
     }
 
     @Bean
-    public SumAggregator sumP2PAggregator(EventP2PRepository eventP2PRepository, MgEventSinkRepository mgEventSinkRepository,
+    public SumAggregator sumP2PAggregator(AggregationRepository eventP2PRepository, MgEventSinkRepository mgEventSinkRepository,
                                           DbP2pFieldResolver dbP2pFieldResolver) {
         return new SumP2PAggregatorImpl(eventP2PRepository, mgEventSinkRepository, dbP2pFieldResolver);
     }
@@ -74,7 +73,7 @@ public class FraudoConfig {
     }
 
     @Bean
-    public UniqueValueAggregator uniqueValueP2PAggregator(EventP2PRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
+    public UniqueValueAggregator uniqueValueP2PAggregator(AggregationRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
         return new P2PUniqueValueAggregatorImpl(eventP2PRepository, dbP2pFieldResolver);
     }
 
@@ -107,7 +106,7 @@ public class FraudoConfig {
 
     @Bean
     public InListFinder<P2PModel, P2PCheckedField> p2pInListFinder(WbListServiceSrv.Iface wbListServiceSrv,
-                                                                   EventP2PRepository eventP2PRepository,
+                                                                   AggregationRepository eventP2PRepository,
                                                                    DbP2pFieldResolver dbP2pFieldResolver) {
         return new P2pInListFinderImpl(wbListServiceSrv, dbP2pFieldResolver, eventP2PRepository);
     }

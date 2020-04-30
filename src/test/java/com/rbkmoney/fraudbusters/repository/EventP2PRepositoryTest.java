@@ -10,9 +10,10 @@ import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.EventP2P;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
-import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
+import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.EventP2PRepository;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
@@ -50,7 +51,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = {EventP2PRepository.class, ScoresResultToEventConverter.class, ScoresResultToEventP2PConverter.class, ClickhouseConfig.class, DbP2pFieldResolver.class}, initializers = EventP2PRepositoryTest.Initializer.class)
+@ContextConfiguration(classes = {EventP2PRepository.class, ScoresResultToEventConverter.class,
+        ScoresResultToEventP2PConverter.class, ClickhouseConfig.class, DbP2pFieldResolver.class, AggregationGeneralRepositoryImpl.class},
+        initializers = EventP2PRepositoryTest.Initializer.class)
 public class EventP2PRepositoryTest {
 
     private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_p_to_p";

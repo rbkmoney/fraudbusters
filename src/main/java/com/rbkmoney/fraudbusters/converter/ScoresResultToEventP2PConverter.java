@@ -7,7 +7,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDateTime;
 
 import static java.time.ZoneOffset.UTC;
 
@@ -19,14 +19,11 @@ public class ScoresResultToEventP2PConverter implements Converter<P2PModel, Even
         EventP2P eventP2P = new EventP2P();
         Long timestamp = source.getTimestamp();
 
-        eventP2P.setTimestamp(java.sql.Date.valueOf(
-                Instant.ofEpochMilli(timestamp)
-                        .atZone(UTC)
-                        .toLocalDate())
-        );
-
-        eventP2P.setEventTime(timestamp);
-        long eventTimeHour = Instant.ofEpochMilli(timestamp).truncatedTo(ChronoUnit.HOURS).toEpochMilli();
+        Instant instant = Instant.ofEpochMilli(timestamp);
+        LocalDateTime localDateTime = instant.atZone(UTC).toLocalDateTime();
+        eventP2P.setTimestamp(localDateTime.toLocalDate());
+        eventP2P.setEventTime(localDateTime.toEpochSecond(UTC));
+        long eventTimeHour = instant.toEpochMilli();
         eventP2P.setEventTimeHour(eventTimeHour);
 
         eventP2P.setTransferId(source.getTransferId());

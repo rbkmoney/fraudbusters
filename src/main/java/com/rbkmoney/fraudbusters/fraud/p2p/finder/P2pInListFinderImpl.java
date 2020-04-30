@@ -6,6 +6,7 @@ import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.impl.EventP2PRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.finder.InListFinder;
@@ -25,7 +26,7 @@ public class P2pInListFinderImpl implements InListFinder<P2PModel, P2PCheckedFie
 
     private final WbListServiceSrv.Iface wbListServiceSrv;
     private final DbP2pFieldResolver dbP2pFieldResolver;
-    private final EventP2PRepository eventP2PRepository;
+    private final AggregationRepository eventP2PRepository;
 
     private static final int CURRENT_ONE = 1;
 

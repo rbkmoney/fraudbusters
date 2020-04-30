@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = {EventRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
-        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class}, initializers = EventRepositoryTest.Initializer.class)
+        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class }, initializers = EventRepositoryTest.Initializer.class)
 public class EventRepositoryTest {
 
     private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_unique";
@@ -141,7 +141,7 @@ public class EventRepositoryTest {
         FraudRequest fraudRequest = new FraudRequest();
         fraudRequest.setFraudModel(paymentModel);
         Metadata metadata = new Metadata();
-        metadata.setTimestamp(TimestampUtil.generateTimestampNow(Instant.now()));
+        metadata.setTimestamp(TimestampUtil.generateTimestampNowMillis(Instant.now()));
         fraudRequest.setMetadata(metadata);
         value2.setFraudRequest(fraudRequest);
         return value2;
@@ -150,8 +150,8 @@ public class EventRepositoryTest {
     @Test
     public void countOperationByEmailTest() throws SQLException {
         Instant now = Instant.now();
-        Long to = TimestampUtil.generateTimestampNow(now);
-        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        Long to = TimestampUtil.generateTimestampNowMillis(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
         List<FraudResult> batch = createBatch();
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
 
@@ -162,8 +162,8 @@ public class EventRepositoryTest {
     @Test
     public void countOperationByEmailTestWithGroupBy() throws SQLException {
         Instant now = Instant.now();
-        Long to = TimestampUtil.generateTimestampNow(now);
-        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        Long to = TimestampUtil.generateTimestampNowMillis(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
         FraudResult value = createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel());
         FraudResult value2 = createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond());
         PaymentModel paymentModel = BeanUtil.createFraudModelSecond();
@@ -184,8 +184,8 @@ public class EventRepositoryTest {
     @Test
     public void sumOperationByEmailTest() throws SQLException {
         Instant now = Instant.now();
-        Long to = TimestampUtil.generateTimestampNow(now);
-        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        Long to = TimestampUtil.generateTimestampNowMillis(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
         List<FraudResult> batch = createBatch();
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
 
@@ -204,8 +204,8 @@ public class EventRepositoryTest {
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3, value4)));
 
         Instant now = Instant.now();
-        Long to = TimestampUtil.generateTimestampNow(now);
-        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        Long to = TimestampUtil.generateTimestampNowMillis(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
         Integer sum = eventRepository.uniqCountOperation(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to);
         Assert.assertEquals(Integer.valueOf(2), sum);
     }
@@ -223,8 +223,8 @@ public class EventRepositoryTest {
         eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(List.of(value, value2, value3, value4)));
 
         Instant now = Instant.now();
-        Long to = TimestampUtil.generateTimestampNow(now);
-        Long from = TimestampUtil.generateTimestampMinusMinutes(now, 10L);
+        Long to = TimestampUtil.generateTimestampNowMillis(now);
+        Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
         Integer sum = eventRepository.uniqCountOperationWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to, List.of());
         Assert.assertEquals(Integer.valueOf(2), sum);
 

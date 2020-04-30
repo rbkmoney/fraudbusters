@@ -10,14 +10,13 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+
+import static java.time.ZoneOffset.UTC;
 
 @Slf4j
 @Component
@@ -34,10 +33,11 @@ public class FraudResultToEventConverter implements BatchConverter<FraudResult, 
         event.setBin(paymentModel.getBin());
         event.setEmail(paymentModel.getEmail());
 
-        Long timestamp = getEventTime(fraudResult);
-        event.setEventTime(timestamp);
-        event.setTimestamp(LocalDateTime.now().toLocalDate());
-        long eventTimeHour = Instant.ofEpochMilli(timestamp).truncatedTo(ChronoUnit.HOURS).toEpochMilli();
+        Instant instant = Instant.now();
+        LocalDateTime localDateTime = instant.atZone(UTC).toLocalDateTime();
+        event.setTimestamp(localDateTime.toLocalDate());
+        event.setEventTime(localDateTime.toEpochSecond(UTC));
+        long eventTimeHour = instant.toEpochMilli();
         event.setEventTimeHour(eventTimeHour);
 
         event.setFingerprint(paymentModel.getFingerprint());
@@ -77,18 +77,4 @@ public class FraudResultToEventConverter implements BatchConverter<FraudResult, 
         }
         return country != null ? country : ClickhouseUtilsValue.UNKNOWN;
     }
-
-    @NotNull
-    private Long getEventTime(FraudResult fraudResult) {
-        if (fraudResult.getFraudRequest().getMetadata() != null) {
-            Long timestamp = fraudResult.getFraudRequest().getMetadata().getTimestamp();
-            return timestamp != null ? timestamp : generateNow();
-        }
-        return generateNow();
-    }
-
-    private long generateNow() {
-        return LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
-    }
-
 }

@@ -35,6 +35,7 @@ public class EventRepository implements CrudRepository<Event>, AggregationReposi
 
     @Override
     public void insert(Event value) {
+        log.debug("EventRepository insertBatch value: {}", value);
         if (value != null) {
             Map<String, Object> parameters = EventParametersGenerator.generateParamsByFraudModel(value);
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
@@ -48,6 +49,7 @@ public class EventRepository implements CrudRepository<Event>, AggregationReposi
 
     @Override
     public void insertBatch(List<Event> events) {
+        log.debug("EventRepository insertBatch events: {}", events);
         if (events != null && !events.isEmpty()) {
             jdbcTemplate.batchUpdate(INSERT, new EventBatchPreparedStatementSetter(events));
         }
