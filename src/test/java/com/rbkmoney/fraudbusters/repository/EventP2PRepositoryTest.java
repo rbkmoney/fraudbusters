@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters.repository;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.EventP2PField;
+import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.constant.ScoresType;
 import com.rbkmoney.fraudbusters.converter.ScoresResultToEventConverter;
 import com.rbkmoney.fraudbusters.converter.ScoresResultToEventP2PConverter;
@@ -15,6 +16,7 @@ import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.EventP2PRepository;
+import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -27,6 +29,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -76,6 +79,9 @@ public class EventP2PRepositoryTest {
     @MockBean
     GeoIpServiceSrv.Iface iface;
 
+    @MockBean
+    SourcePool sourcePool;
+
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
@@ -90,6 +96,8 @@ public class EventP2PRepositoryTest {
 
     @Before
     public void setUp() throws Exception {
+        Mockito.when(sourcePool.getActiveSource()).thenReturn(EventSource.FRAUD_EVENTS_UNIQUE);
+
         Connection connection = getSystemConn();
         String sql = FileUtil.getFile("sql/db_init.sql");
         String[] split = sql.split(";");

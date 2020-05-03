@@ -5,7 +5,8 @@ import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.listener.StartupListener;
+import com.rbkmoney.fraudbusters.constant.EventSource;
+import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
@@ -13,7 +14,6 @@ import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
@@ -34,7 +35,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
 
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -78,6 +78,10 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String GROUP_P_ID = "group_1";
     public static final long TIMEOUT = 2000L;
 
+
+    @MockBean
+    SourcePool sourcePool;
+
     @Autowired
     JdbcTemplate jdbcTemplate;
 
@@ -104,6 +108,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
+        Mockito.when(sourcePool.getActiveSource()).thenReturn(EventSource.FRAUD_EVENTS_UNIQUE);
+
         ChInitializer.initAllScripts(clickHouseContainer);
 
         String globalRef = UUID.randomUUID().toString();

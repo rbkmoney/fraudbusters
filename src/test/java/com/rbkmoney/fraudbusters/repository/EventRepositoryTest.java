@@ -11,6 +11,7 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.EventRepository;
+import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = {EventRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
-        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class }, initializers = EventRepositoryTest.Initializer.class)
+        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, SourcePool.class}, initializers = EventRepositoryTest.Initializer.class)
 public class EventRepositoryTest {
 
     private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_unique";
@@ -86,6 +87,11 @@ public class EventRepositoryTest {
         Connection connection = getSystemConn();
         String sql = FileUtil.getFile("sql/db_init.sql");
         String[] split = sql.split(";");
+        for (String exec : split) {
+            connection.createStatement().execute(exec);
+        }
+        sql = FileUtil.getFile("sql/TEST_analytics_data.sql");
+        split = sql.split(";");
         for (String exec : split) {
             connection.createStatement().execute(exec);
         }
