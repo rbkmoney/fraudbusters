@@ -5,26 +5,26 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.impl.EventRepository;
-import com.rbkmoney.fraudbusters.repository.impl.MgEventSinkRepository;
+import com.rbkmoney.fraudbusters.repository.impl.AnalyticRepository;
+import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudo.model.TimeWindow;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class SumAggregatorImplTest {
 
     @Mock
-    private EventRepository eventRepository;
-    @Mock
-    private MgEventSinkRepository mgEventSinkRepository;
+    private AnalyticRepository analyticRepository;
     @Mock
     private DBPaymentFieldResolver DBPaymentFieldResolver;
+    @Mock
+    private SourcePool sourcePool;
 
     private FieldModel modelMock = new FieldModel("name", "value");
 
@@ -34,10 +34,11 @@ public class SumAggregatorImplTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
 
-        Mockito.when(DBPaymentFieldResolver.resolve(any(), any())).thenReturn(modelMock);
-        Mockito.when(eventRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
+        when(DBPaymentFieldResolver.resolve(any(), any())).thenReturn(modelMock);
+        when(analyticRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
+        when(sourcePool.getActiveSource()).thenReturn(analyticRepository);
 
-        sumAggregator = new SumAggregatorImpl(eventRepository, mgEventSinkRepository, DBPaymentFieldResolver);
+        sumAggregator = new SumAggregatorImpl(DBPaymentFieldResolver, sourcePool);
     }
 
     @Test
@@ -56,7 +57,7 @@ public class SumAggregatorImplTest {
         paymentModel.setAmount(1L);
         TimeWindow.TimeWindowBuilder timeWindowBuilder = TimeWindow.builder().startWindowTime(1444L)
                 .endWindowTime(400L);
-        Mockito.when(eventRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
+        when(analyticRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
 
         Double some = sumAggregator.sum(PaymentCheckedField.BIN, paymentModel, timeWindowBuilder.build(), null);
 

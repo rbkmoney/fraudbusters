@@ -3,7 +3,6 @@ package com.rbkmoney.fraudbusters.repository;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.EventField;
-import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.FraudRequest;
@@ -14,7 +13,7 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
-import com.rbkmoney.fraudbusters.repository.impl.EventRepository;
+import com.rbkmoney.fraudbusters.repository.impl.AnalyticRepository;
 import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
 import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
@@ -53,18 +52,15 @@ import static org.junit.Assert.assertEquals;
 @Slf4j
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = {EventRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
+@ContextConfiguration(classes = {AnalyticRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
         DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, FraudResultRepository.class, SourcePool.class},
-        initializers = EventRepositoryTest.Initializer.class)
-public class EventRepositoryTest {
+        initializers = FraudResultRepositoryTest.Initializer.class)
+public class FraudResultRepositoryTest {
 
     private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_unique";
 
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
-    @Autowired
-    private EventRepository eventRepository;
 
     @Autowired
     private FraudResultRepository fraudResultRepository;
@@ -108,7 +104,7 @@ public class EventRepositoryTest {
 
     @Before
     public void setUp() throws Exception {
-        Mockito.when(sourcePool.getActiveSource()).thenReturn(EventSource.FRAUD_EVENTS_UNIQUE);
+        Mockito.when(sourcePool.getActiveSource()).thenReturn(fraudResultRepository);
         initDb();
     }
 
@@ -168,7 +164,7 @@ public class EventRepositoryTest {
         List<FraudResult> batch = createBatch();
         fraudResultRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
 
-        int count = eventRepository.countOperationByField(EventField.email.name(), BeanUtil.EMAIL, from, to);
+        int count = fraudResultRepository.countOperationByField(EventField.email.name(), BeanUtil.EMAIL, from, to);
         assertEquals(1, count);
     }
 
@@ -189,11 +185,11 @@ public class EventRepositoryTest {
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
 
         FieldModel email = DBPaymentFieldResolver.resolve(PaymentCheckedField.EMAIL, paymentModel);
-        int count = eventRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of());
+        int count = fraudResultRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of());
         assertEquals(2, count);
 
         FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
-        count = eventRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of(resolve));
+        count = fraudResultRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of(resolve));
         assertEquals(1, count);
     }
 
@@ -204,7 +200,7 @@ public class EventRepositoryTest {
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
-        Long sum = eventRepository.sumOperationByFieldWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, from, to, List.of());
+        Long sum = fraudResultRepository.sumOperationByFieldWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, from, to, List.of());
         assertEquals(BeanUtil.AMOUNT_FIRST, sum);
     }
 
@@ -224,7 +220,7 @@ public class EventRepositoryTest {
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
-        Integer sum = eventRepository.uniqCountOperation(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to);
+        Integer sum = fraudResultRepository.uniqCountOperation(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to);
         assertEquals(Integer.valueOf(2), sum);
     }
 
@@ -246,11 +242,11 @@ public class EventRepositoryTest {
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
-        Integer sum = eventRepository.uniqCountOperationWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to, List.of());
+        Integer sum = fraudResultRepository.uniqCountOperationWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to, List.of());
         assertEquals(Integer.valueOf(2), sum);
 
         FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
-        sum = eventRepository.uniqCountOperationWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to, List.of(resolve));
+        sum = fraudResultRepository.uniqCountOperationWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to, List.of(resolve));
         assertEquals(Integer.valueOf(1), sum);
     }
 

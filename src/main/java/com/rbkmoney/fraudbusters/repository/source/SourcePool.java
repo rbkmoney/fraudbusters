@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.repository.source;
 
 import com.rbkmoney.fraudbusters.constant.EventSource;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -22,9 +22,9 @@ public class SourcePool {
     private final JdbcTemplate jdbcTemplate;
 
     @Getter
-    private EventSource activeSource;
+    private AggregationRepository activeSource;
 
-    private final Map<EventSource, Boolean> pool = new ConcurrentHashMap<>();
+    private final List<AggregationRepository> aggregationRepositoryList;
 
     @PostConstruct
     public void initPool() {
@@ -33,19 +33,18 @@ public class SourcePool {
 
     public void checkAllSource() {
         boolean findActive = false;
-        for (EventSource value : EventSource.values()) {
-            boolean isActive = isActiveSource(value);
-            this.pool.put(value, isActive);
+        for (AggregationRepository value : aggregationRepositoryList) {
+            boolean isActive = isActiveSource(value.getEventSource());
             if (!findActive && isActive) {
                 this.activeSource = value;
                 findActive = true;
             }
         }
         if (!findActive) {
-            activeSource = EventSource.values()[0];
+            activeSource = aggregationRepositoryList.get(0);
             log.warn("SourcePool not found active source and set default by priority: {}", activeSource);
         }
-        log.info("SourcePool checkAllSource sourcePool: {}", pool);
+        log.info("SourcePool checkAllSource sourcePool: {}", aggregationRepositoryList);
     }
 
     private boolean isActiveSource(EventSource table) {

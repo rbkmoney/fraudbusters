@@ -6,20 +6,16 @@ import com.rbkmoney.damsel.fraudbusters.CommandBody;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.constant.ResultStatus;
 import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
-import com.rbkmoney.fraudbusters.repository.impl.EventRepository;
+import com.rbkmoney.fraudbusters.repository.impl.AnalyticRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
-import com.rbkmoney.fraudbusters.serde.MgEventSinkRowDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +40,6 @@ import ru.yandex.clickhouse.ClickHouseDataSource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -73,7 +68,7 @@ public class PreLoadTest extends KafkaAbstractTest {
     JdbcTemplate jdbcTemplate;
 
     @MockBean
-    EventRepository eventRepository;
+    AnalyticRepository analyticRepository;
 
     @Autowired
     Properties eventSinkStreamProperties;

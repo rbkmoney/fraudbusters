@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -22,8 +23,9 @@ import java.util.List;
 public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentModel, PaymentCheckedField> {
 
     private static final int CURRENT_ONE = 1;
-    private final AggregationRepository aggregationRepository;
+
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
+    private final SourcePool sourcePool;
 
     @Override
     @BasicMetric("countUniqueValueWindowed")
@@ -39,7 +41,8 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentM
                 return CURRENT_ONE;
             }
             List<FieldModel> fieldModels = dbPaymentFieldResolver.resolveListFields(payoutModel, list);
-            Integer uniqCountOperation = aggregationRepository.uniqCountOperationWithGroupBy(resolve.getName(), resolve.getValue(),
+            AggregationRepository activeSource = sourcePool.getActiveSource();
+            Integer uniqCountOperation = activeSource.uniqCountOperationWithGroupBy(resolve.getName(), resolve.getValue(),
                     dbPaymentFieldResolver.resolve(onField),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), fieldModels);

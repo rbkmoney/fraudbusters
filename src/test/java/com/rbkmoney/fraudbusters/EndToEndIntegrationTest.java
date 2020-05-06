@@ -5,12 +5,13 @@ import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.constant.EventSource;
+import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
 import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -81,6 +82,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @MockBean
     SourcePool sourcePool;
+    @Autowired
+    FraudResultRepository fraudResultRepository;
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -94,6 +97,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
@@ -103,13 +107,15 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
                     .applyTo(configurableApplicationContext.getEnvironment());
             LocationInfo info = new LocationInfo();
             info.setCountryGeoId(COUNTRY_GEO_ID);
+
+            ChInitializer.initAllScripts(clickHouseContainer);
         }
     }
 
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
-        Mockito.when(sourcePool.getActiveSource()).thenReturn(EventSource.FRAUD_EVENTS_UNIQUE);
-
+        Mockito.when(sourcePool.getActiveSource()).thenReturn(fraudResultRepository);
+        
         ChInitializer.initAllScripts(clickHouseContainer);
 
         String globalRef = UUID.randomUUID().toString();

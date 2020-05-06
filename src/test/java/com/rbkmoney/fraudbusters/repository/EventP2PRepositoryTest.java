@@ -14,7 +14,7 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
-import com.rbkmoney.fraudbusters.repository.impl.EventP2PRepository;
+import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
 import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
@@ -106,7 +106,6 @@ public class EventP2PRepositoryTest {
 
     @Before
     public void setUp() throws Exception {
-        Mockito.when(sourcePool.getActiveSource()).thenReturn(EventSource.FRAUD_EVENTS_UNIQUE);
         initDb();
     }
 
@@ -121,7 +120,6 @@ public class EventP2PRepositoryTest {
 
         assertEquals(1, count.intValue());
     }
-
 
     @Test
     public void insertBatch() throws SQLException {

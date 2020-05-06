@@ -8,8 +8,6 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
-import com.rbkmoney.fraudbusters.repository.impl.EventP2PRepository;
-import com.rbkmoney.fraudbusters.repository.impl.MgEventSinkRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -26,7 +24,6 @@ public class CountP2PAggregatorImpl implements CountAggregator<P2PModel, P2PChec
 
     private static final int CURRENT_ONE = 1;
     private final AggregationRepository eventP2PRepository;
-    private final MgEventSinkRepository mgEventSinkRepository;
     private final DbP2pFieldResolver dbP2pFieldResolver;
 
     @Override
@@ -38,13 +35,13 @@ public class CountP2PAggregatorImpl implements CountAggregator<P2PModel, P2PChec
     @Override
     @BasicMetric(value = "countSuccess", extraTags = "p2p")
     public Integer countSuccess(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
-        return getCount(checkedField, p2pModel, timeWindow, list, mgEventSinkRepository::countOperationSuccessWithGroupBy);
+        return getCount(checkedField, p2pModel, timeWindow, list, eventP2PRepository::countOperationSuccessWithGroupBy);
     }
 
     @Override
     @BasicMetric(value = "countError", extraTags = "p2p")
     public Integer countError(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, String s, List<P2PCheckedField> list) {
-        return getCount(checkedField, p2pModel, timeWindow, list, mgEventSinkRepository::countOperationErrorWithGroupBy);
+        return getCount(checkedField, p2pModel, timeWindow, list, eventP2PRepository::countOperationErrorWithGroupBy);
     }
 
     @NotNull

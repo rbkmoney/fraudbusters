@@ -1,7 +1,8 @@
-package com.rbkmoney.fraudbusters.repository.impl;
+package com.rbkmoney.fraudbusters.repository.impl.p2p;
 
 import com.google.common.collect.Lists;
 import com.rbkmoney.fraudbusters.constant.ClickhouseSchemeNames;
+import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.domain.EventP2P;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
@@ -9,6 +10,7 @@ import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.CrudRepository;
 import com.rbkmoney.fraudbusters.repository.setter.EventP2PBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.setter.EventP2PParametersGenerator;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,6 +27,9 @@ public class EventP2PRepository implements CrudRepository<EventP2P>, Aggregation
 
     private final JdbcTemplate jdbcTemplate;
     private final AggregationGeneralRepository aggregationGeneralRepository;
+
+    @Getter
+    private final EventSource eventSource = EventSource.FRAUD_EVENTS_UNIQUE;
 
     public static final String FRAUD_EVENTS_P_TO_P = "fraud.events_p_to_p";
 
@@ -55,29 +60,44 @@ public class EventP2PRepository implements CrudRepository<EventP2P>, Aggregation
         }
     }
 
-    @Override
     public Integer countOperationByField(String fieldName, String value, Long from, Long to) {
         return aggregationGeneralRepository.countOperationByField(FRAUD_EVENTS_P_TO_P, fieldName, value, from, to);
     }
 
-    @Override
     public Integer countOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
         return aggregationGeneralRepository.countOperationByFieldWithGroupBy(FRAUD_EVENTS_P_TO_P, fieldName, value, from, to, fieldModels);
     }
 
-    @Override
     public Long sumOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
         return aggregationGeneralRepository.sumOperationByFieldWithGroupBy(FRAUD_EVENTS_P_TO_P, fieldName, value, from, to, fieldModels);
     }
 
-    @Override
     public Integer uniqCountOperation(String fieldNameBy, String value, String fieldNameCount, Long from, Long to) {
         return aggregationGeneralRepository.uniqCountOperation(FRAUD_EVENTS_P_TO_P, fieldNameBy, value, fieldNameCount, from, to);
     }
 
-    @Override
     public Integer uniqCountOperationWithGroupBy(String fieldNameBy, String value, String fieldNameCount, Long from, Long to, List<FieldModel> fieldModels) {
         return aggregationGeneralRepository.uniqCountOperationWithGroupBy(FRAUD_EVENTS_P_TO_P, fieldNameBy, value, fieldNameCount, from, to, fieldModels);
+    }
+
+    @Override
+    public Integer countOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Integer countOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Long sumOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Long sumOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+        throw new UnsupportedOperationException();
     }
 
 }
