@@ -66,6 +66,7 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
         return jdbcTemplate.query(sqlResult, params.toArray(), new CountExtractor());
     }
 
+
     @NotNull
     private ArrayList<Object> generateParams(String value, Long from, Long to, List<FieldModel> fieldModels) {
         Instant instantFrom = Instant.ofEpochMilli(from);

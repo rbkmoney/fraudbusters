@@ -11,33 +11,18 @@ public class ChInitializer {
 
     public static void initAllScripts(ClickHouseContainer clickHouseContainer) throws SQLException {
         try (Connection connection = getSystemConn(clickHouseContainer)) {
+            execAllInFile(connection, "sql/db_init.sql");
+            execAllInFile(connection, "sql/V2__create_event_sink.sql");
+            execAllInFile(connection, "sql/V3__create_events_p2p.sql");
+            execAllInFile(connection, "sql/TEST_analytics_data.sql");
+        }
+    }
 
-            String sql = FileUtil.getFile("sql/db_init.sql");
-            String[] split = sql.split(";");
-            for (String exec : split) {
-                connection.createStatement().execute(exec);
-            }
-            sql = FileUtil.getFile("sql/V2__create_event_sink.sql");
-            split = sql.split(";");
-            for (String exec : split) {
-                connection.createStatement().execute(exec);
-            }
-            sql = FileUtil.getFile("sql/V3__create_events_p2p.sql");
-            split = sql.split(";");
-            for (String exec : split) {
-                connection.createStatement().execute(exec);
-            }
-            sql = FileUtil.getFile("sql/TEST_analytics_data.sql");
-            split = sql.split(";");
-            for (String exec : split) {
-                connection.createStatement().execute(exec);
-            }
-
-            sql = FileUtil.getFile("sql/data/inserts_event_sink.sql");
-            split = sql.split(";");
-            for (String exec : split) {
-                connection.createStatement().execute(exec);
-            }
+    public static void execAllInFile(Connection connection, String s) throws SQLException {
+        String sql = FileUtil.getFile(s);
+        String[] split = sql.split(";");
+        for (String exec : split) {
+            connection.createStatement().execute(exec);
         }
     }
 

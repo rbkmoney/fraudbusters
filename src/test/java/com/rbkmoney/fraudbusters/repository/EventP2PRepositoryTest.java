@@ -18,7 +18,6 @@ import com.rbkmoney.fraudbusters.repository.impl.EventP2PRepository;
 import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
-import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.ResultModel;
@@ -49,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.rbkmoney.fraudbusters.util.ChInitializer.execAllInFile;
 import static org.junit.Assert.assertEquals;
 
 @Slf4j
@@ -98,18 +98,10 @@ public class EventP2PRepositoryTest {
     }
 
     private static void initDb() throws SQLException {
-        Connection connection = ChInitializer.getSystemConn(clickHouseContainer);
-        String sql = FileUtil.getFile("sql/db_init.sql");
-        String[] split = sql.split(";");
-        for (String exec : split) {
-            connection.createStatement().execute(exec);
+        try (Connection connection = ChInitializer.getSystemConn(clickHouseContainer)) {
+            execAllInFile(connection, "sql/db_init.sql");
+            execAllInFile(connection, "sql/V3__create_events_p2p.sql");
         }
-        sql = FileUtil.getFile("sql/V3__create_events_p2p.sql");
-        split = sql.split(";");
-        for (String exec : split) {
-            connection.createStatement().execute(exec);
-        }
-        connection.close();
     }
 
     @Before
