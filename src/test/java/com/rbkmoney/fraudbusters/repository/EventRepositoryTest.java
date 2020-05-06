@@ -15,6 +15,7 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.EventRepository;
+import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
 import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
@@ -53,7 +54,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = {EventRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
-        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, SourcePool.class},
+        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, FraudResultRepository.class, SourcePool.class},
         initializers = EventRepositoryTest.Initializer.class)
 public class EventRepositoryTest {
 
@@ -64,6 +65,9 @@ public class EventRepositoryTest {
 
     @Autowired
     private EventRepository eventRepository;
+
+    @Autowired
+    private FraudResultRepository fraudResultRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -118,7 +122,7 @@ public class EventRepositoryTest {
 
     @Test
     public void insert() throws SQLException {
-        eventRepository.insert(fraudResultToEventConverter
+        fraudResultRepository.insert(fraudResultToEventConverter
                 .convert(createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel()))
         );
 
@@ -129,7 +133,7 @@ public class EventRepositoryTest {
 
     @Test
     public void insertBatch() throws SQLException {
-        eventRepository.insertBatch(
+        fraudResultRepository.insertBatch(
                 createBatch().stream()
                         .map(fraudResultToEventConverter::convert)
                         .collect(Collectors.toList())
@@ -170,7 +174,7 @@ public class EventRepositoryTest {
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
         List<FraudResult> batch = createBatch();
-        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
+        fraudResultRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
 
         int count = eventRepository.countOperationByField(EventField.email.name(), BeanUtil.EMAIL, from, to);
         assertEquals(1, count);
@@ -180,7 +184,7 @@ public class EventRepositoryTest {
     public void countOperationByEmailTestWithGroupBy() throws SQLException {
         PaymentModel paymentModel = BeanUtil.createFraudModelSecond();
         paymentModel.setPartyId("test");
-        eventRepository.insertBatch(fraudResultToEventConverter
+        fraudResultRepository.insertBatch(fraudResultToEventConverter
                 .convertBatch(List.of(
                         createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel()),
                         createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond()),
@@ -203,7 +207,7 @@ public class EventRepositoryTest {
 
     @Test
     public void sumOperationByEmailTest() throws SQLException {
-        eventRepository.insertBatch(fraudResultToEventConverter.convertBatch(createBatch()));
+        fraudResultRepository.insertBatch(fraudResultToEventConverter.convertBatch(createBatch()));
 
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNowMillis(now);
@@ -216,7 +220,7 @@ public class EventRepositoryTest {
     public void countUniqOperationTest() {
         PaymentModel paymentModel = BeanUtil.createPaymentModel();
         paymentModel.setFingerprint("test");
-        eventRepository.insertBatch(fraudResultToEventConverter
+        fraudResultRepository.insertBatch(fraudResultToEventConverter
                 .convertBatch(List.of(
                         createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel()),
                         createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond()),
@@ -238,7 +242,7 @@ public class EventRepositoryTest {
         paymentModel.setFingerprint("test");
         paymentModel.setPartyId("party");
 
-        eventRepository.insertBatch(fraudResultToEventConverter
+        fraudResultRepository.insertBatch(fraudResultToEventConverter
                 .convertBatch(List.of(
                         createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel()),
                         createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond()),
