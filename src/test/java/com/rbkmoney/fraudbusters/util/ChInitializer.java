@@ -41,7 +41,7 @@ public class ChInitializer {
         }
     }
 
-    private static Connection getSystemConn(ClickHouseContainer clickHouseContainer) throws SQLException {
+    public static Connection getSystemConn(ClickHouseContainer clickHouseContainer) throws SQLException {
         ClickHouseProperties properties = new ClickHouseProperties();
         ClickHouseDataSource dataSource = new ClickHouseDataSource(clickHouseContainer.getJdbcUrl(), properties);
         return dataSource.getConnection();

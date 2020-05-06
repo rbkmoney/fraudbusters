@@ -52,8 +52,8 @@ public class SourcePool {
         try {
             LocalDateTime now = LocalDateTime.now();
             Object[] params = {now.minusMinutes(10L).toInstant(ZoneOffset.UTC).getEpochSecond(), now.toInstant(ZoneOffset.UTC).getEpochSecond()};
-            Integer cnt = jdbcTemplate.query("select count() as cnt from " + table.getTable() + " where eventTime >= ? and eventTime <= ?",
-                    params, new CountExtractor());
+            String query = String.format("select count() as cnt from %s where eventTime >= ? and eventTime <= ?", table.getTable());
+            Integer cnt = jdbcTemplate.query(query, params, new CountExtractor());
             return cnt != null && cnt > 0;
         } catch (Exception e) {
             log.warn("SourcePool error when check activity for source: {} e: ", table, e);
