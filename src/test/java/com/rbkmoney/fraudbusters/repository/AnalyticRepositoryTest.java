@@ -41,8 +41,8 @@ import static org.junit.Assert.assertEquals;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = {AnalyticRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
         DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, FraudResultRepository.class, SourcePool.class},
-        initializers = EventSourceAnaliticRepositoryTest.Initializer.class)
-public class EventSourceAnaliticRepositoryTest {
+        initializers = AnalyticRepositoryTest.Initializer.class)
+public class AnalyticRepositoryTest {
 
     private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_unique";
     public static final long FROM = 1588761200000L;
@@ -102,12 +102,26 @@ public class EventSourceAnaliticRepositoryTest {
         count = analyticRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(),
                 1588761200000L, 1588761209000L, List.of(resolve));
         assertEquals(1, count);
+
+        count = analyticRepository.countOperationSuccessWithGroupBy(EventField.email.name(), email.getValue(),
+                1588761200000L, 1588761209000L, List.of(resolve));
+        assertEquals(1, count);
+
+        count = analyticRepository.countOperationErrorWithGroupBy(EventField.email.name(), email.getValue(),
+                1588761200000L, 1588761209000L, List.of(resolve), "");
+        assertEquals(0, count);
     }
 
     @Test
     public void sumOperationByEmailTest() throws SQLException {
         Long sum = analyticRepository.sumOperationByFieldWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, FROM, TO, List.of());
         assertEquals(BeanUtil.AMOUNT_FIRST, sum);
+
+        sum = analyticRepository.sumOperationSuccessWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, FROM, TO, List.of());
+        assertEquals(BeanUtil.AMOUNT_FIRST, sum);
+
+        sum = analyticRepository.sumOperationErrorWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, FROM, TO, List.of(), "");
+        assertEquals(0L, sum.longValue());
     }
 
     @Test

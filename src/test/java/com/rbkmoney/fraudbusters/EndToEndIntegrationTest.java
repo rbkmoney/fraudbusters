@@ -63,7 +63,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
             " -> decline;";
 
     private static final String TEMPLATE_CONCRETE =
-            "rule:  sum(\"email\", 10) >= 29000  -> decline;";
+            "rule:  sumSuccess(\"email\", 10) >= 29000  -> decline;";
 
     private static final String GROUP_DECLINE =
             "rule:  1 >= 0  -> decline;";
@@ -77,7 +77,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final int COUNTRY_GEO_ID = 12345;
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
-    public static final long TIMEOUT = 2000L;
+    public static final long TIMEOUT = 1000L;
 
 
     @MockBean

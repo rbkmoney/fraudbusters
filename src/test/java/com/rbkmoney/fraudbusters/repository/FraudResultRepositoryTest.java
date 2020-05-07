@@ -176,6 +176,7 @@ public class FraudResultRepositoryTest {
                 .convertBatch(List.of(
                         createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel()),
                         createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond()),
+                        createFraudResult(ResultStatus.ACCEPT, paymentModel),
                         createFraudResult(ResultStatus.DECLINE, paymentModel))
                 )
         );
@@ -186,10 +187,16 @@ public class FraudResultRepositoryTest {
 
         FieldModel email = DBPaymentFieldResolver.resolve(PaymentCheckedField.EMAIL, paymentModel);
         int count = fraudResultRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of());
-        assertEquals(2, count);
+        assertEquals(3, count);
+
+        count = fraudResultRepository.countOperationSuccessWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of());
+        assertEquals(1, count);
 
         FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
         count = fraudResultRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of(resolve));
+        assertEquals(2, count);
+
+        count = fraudResultRepository.countOperationSuccessWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of(resolve));
         assertEquals(1, count);
     }
 
@@ -201,6 +208,9 @@ public class FraudResultRepositoryTest {
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
         Long sum = fraudResultRepository.sumOperationByFieldWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, from, to, List.of());
+        assertEquals(BeanUtil.AMOUNT_FIRST, sum);
+
+        sum = fraudResultRepository.sumOperationSuccessWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, from, to, List.of());
         assertEquals(BeanUtil.AMOUNT_FIRST, sum);
     }
 

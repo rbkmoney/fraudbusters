@@ -12,7 +12,7 @@ import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.EventBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.setter.EventParametersGenerator;
-import com.rbkmoney.fraudbusters.repository.util.ParamsInitiator;
+import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -101,8 +101,9 @@ public class FraudResultRepository implements CrudRepository<Event>, Aggregation
                 "and eventTime <= ? " +
                 "and %1$s = ? and resultStatus != ? ", fieldName, eventSource.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.DECLINE.name());
+        StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, ResultStatus.DECLINE.name());
+        log.debug("FraudResultRepository countOperationSuccessWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
@@ -118,8 +119,9 @@ public class FraudResultRepository implements CrudRepository<Event>, Aggregation
                 "and eventTime <= ? " +
                 "and %1$s = ? and resultStatus = ? ", fieldName, eventSource.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.DECLINE.name());
+        StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, ResultStatus.DECLINE.name());
+        log.debug("FraudResultRepository countOperationErrorWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
@@ -134,8 +136,9 @@ public class FraudResultRepository implements CrudRepository<Event>, Aggregation
                 "and eventTime <= ? " +
                 "and %1$s = ? and resultStatus != ? ", fieldName, eventSource.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.DECLINE.name());
+        StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, ResultStatus.DECLINE.name());
+        log.debug("FraudResultRepository sumOperationSuccessWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
@@ -151,8 +154,9 @@ public class FraudResultRepository implements CrudRepository<Event>, Aggregation
                 "and eventTime <= ? " +
                 "and %1$s = ? and resultStatus = ? ", fieldName, eventSource.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.DECLINE.name());
+        StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, ResultStatus.DECLINE.name());
+        log.debug("FraudResultRepository sumOperationErrorWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 

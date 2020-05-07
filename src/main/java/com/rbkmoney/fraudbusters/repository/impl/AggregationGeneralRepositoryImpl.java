@@ -4,19 +4,14 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
-import com.rbkmoney.fraudbusters.repository.util.ParamsInitiator;
+import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.time.ZoneOffset.UTC;
 
 @Slf4j
 @Service
@@ -27,11 +22,6 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
 
     @Override
     public Integer countOperationByField(String table, String fieldName, String value, Long from, Long to) {
-        Instant instantFrom = Instant.ofEpochMilli(from);
-        LocalDate dateFrom = instantFrom.atZone(UTC).toLocalDate();
-        Instant instantTo = Instant.ofEpochMilli(to);
-        LocalDate dateTo = instantTo.atZone(UTC).toLocalDate();
-
         String sql = String.format(
                 "select %1$s, count() as cnt " +
                         "from %2$s " +
@@ -41,16 +31,15 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
                         "and eventTime <= ? " +
                         "and %1$s = ? " +
                         "group by %1$s", fieldName, table);
-
-        Object[] params = {dateFrom, dateTo, instantFrom.getEpochSecond(), instantTo.getEpochSecond(), value};
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, value);
         log.debug("AggregationGeneralRepositoryImpl countOperationByField sql: {} params: {}", sql, params);
-        return jdbcTemplate.query(sql, params, new CountExtractor());
+        return jdbcTemplate.query(sql, params.toArray(), new CountExtractor());
     }
 
     @Override
     public Integer countOperationByFieldWithGroupBy(String table, String fieldName, String value, Long from, Long to,
                                                     List<FieldModel> fieldModels) {
-        ArrayList<Object> params = generateParams(value, from, to, fieldModels);
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value);
 
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, count() as cnt " +
@@ -61,26 +50,16 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
                         "and eventTime <= ? " +
                         "and %1$s = ? ", fieldName, table));
         StringBuilder sqlGroupBy = new StringBuilder(String.format(" group by %1$s ", fieldName));
-        StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
+        StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
         String sqlResult = resultSql.toString();
         log.debug("AggregationGeneralRepositoryImpl countOperationByFieldWithGroupBy sql: {} params: {}", sqlResult, params);
         return jdbcTemplate.query(sqlResult, params.toArray(), new CountExtractor());
     }
 
-    @NotNull
-    private ArrayList<Object> generateParams(String value, Long from, Long to, List<FieldModel> fieldModels) {
-        Instant instantFrom = Instant.ofEpochMilli(from);
-        LocalDate dateFrom = instantFrom.atZone(UTC).toLocalDate();
-        Instant instantTo = Instant.ofEpochMilli(to);
-        LocalDate dateTo = instantTo.atZone(UTC).toLocalDate();
-        return ParamsInitiator.initParams(fieldModels, dateFrom, dateTo,
-                instantFrom.getEpochSecond(), instantTo.getEpochSecond(), value);
-    }
-
     @Override
     public Long sumOperationByFieldWithGroupBy(String table, String fieldName, String value, Long from, Long to,
                                                List<FieldModel> fieldModels) {
-        ArrayList<Object> params = generateParams(value, from, to, fieldModels);
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value);
 
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, sum(amount) as sum " +
@@ -91,7 +70,7 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
                         "and eventTime <= ? " +
                         "and %1$s = ? ", fieldName, table));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
+        StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
 
         String sqlResult = resultSql.toString();
         log.debug("AggregationGeneralRepositoryImpl sumOperationByFieldWithGroupBy sql: {} params: {}", sqlResult, params);
@@ -109,15 +88,9 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
                         "and eventTime <= ? " +
                         "and %1$s = ? " +
                         "group by %1$s", fieldNameBy, fieldNameCount, table);
-
-        Instant instantFrom = Instant.ofEpochMilli(from);
-        LocalDate dateFrom = instantFrom.atZone(UTC).toLocalDate();
-        Instant instantTo = Instant.ofEpochMilli(to);
-        LocalDate dateTo = instantTo.atZone(UTC).toLocalDate();
-
-        Object[] params = {dateFrom, dateTo, instantFrom.getEpochSecond(), instantTo.getEpochSecond(), value};
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, value);
         log.debug("AggregationGeneralRepositoryImpl uniqCountOperation sql: {} params: {}", sql, params);
-        return jdbcTemplate.query(sql, params, new CountExtractor());
+        return jdbcTemplate.query(sql, params.toArray(), new CountExtractor());
     }
 
     @Override
@@ -132,8 +105,8 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
                         "and eventTime <= ? " +
                         "and %1$s = ? ", fieldNameBy, fieldNameCount, table));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldNameBy));
-        StringBuilder resultSql = appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = generateParams(value, from, to, fieldModels);
+        StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value);
         String sqlResult = resultSql.toString();
         log.debug("AggregationGeneralRepositoryImpl uniqCountOperationWithGroupBy sql: {} params: {}", sqlResult, params);
         return jdbcTemplate.query(sqlResult, params.toArray(), new CountExtractor());

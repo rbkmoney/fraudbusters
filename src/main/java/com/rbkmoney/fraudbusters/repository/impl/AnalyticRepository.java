@@ -7,7 +7,7 @@ import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
-import com.rbkmoney.fraudbusters.repository.util.ParamsInitiator;
+import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,8 +67,9 @@ public class AnalyticRepository implements AggregationRepository {
                         "and eventTime <= ? " +
                         "and %1$s = ? and status = ? ", fieldName, eventSource.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, AnalyticStatus.captured.name());
+        StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, AnalyticStatus.captured.name());
+        log.debug("AnalyticRepository countOperationSuccessWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
@@ -82,10 +83,12 @@ public class AnalyticRepository implements AggregationRepository {
                         "and timestamp <= ? " +
                         "and eventTime >= ? " +
                         "and eventTime <= ? " +
-                        "and %1$s = ? and status = ? and errorCode=? ", fieldName, eventSource.getTable(), errorCode));
+                        "and %1$s = ? and status = ? and errorCode=? ", fieldName, eventSource.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, AnalyticStatus.failed.name());
+        StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value,
+                AnalyticStatus.failed.name(), errorCode);
+        log.debug("AnalyticRepository countOperationErrorWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
@@ -101,8 +104,9 @@ public class AnalyticRepository implements AggregationRepository {
                         "and eventTime <= ? " +
                         "and %1$s = ? and status = ? ", fieldName, eventSource.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, AnalyticStatus.captured.name());
+        StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, AnalyticStatus.captured.name());
+        log.debug("AnalyticRepository sumOperationSuccessWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
@@ -118,8 +122,10 @@ public class AnalyticRepository implements AggregationRepository {
                         "and eventTime <= ? " +
                         "and %1$s = ? and status = ? and errorCode=? ", fieldName, eventSource.getTable(), errorCode));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
-        StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, AnalyticStatus.failed.name());
+        StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
+        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value,
+                AnalyticStatus.failed.name(), errorCode);
+        log.debug("AnalyticRepository sumOperationErrorWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
