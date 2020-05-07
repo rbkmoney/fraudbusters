@@ -86,7 +86,8 @@ public class EventP2PRepository implements CrudRepository<EventP2P>, Aggregation
     }
 
     @Override
-    public Integer countOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Integer countOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
+                                                  List<FieldModel> fieldModels, String errorCode) {
         throw new UnsupportedOperationException();
     }
 
@@ -96,7 +97,8 @@ public class EventP2PRepository implements CrudRepository<EventP2P>, Aggregation
     }
 
     @Override
-    public Long sumOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Long sumOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
+                                             List<FieldModel> fieldModels, String errorCode) {
         throw new UnsupportedOperationException();
     }
 

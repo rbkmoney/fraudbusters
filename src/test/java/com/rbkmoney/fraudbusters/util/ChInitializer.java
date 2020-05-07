@@ -12,8 +12,7 @@ public class ChInitializer {
     public static void initAllScripts(ClickHouseContainer clickHouseContainer) throws SQLException {
         try (Connection connection = getSystemConn(clickHouseContainer)) {
             execAllInFile(connection, "sql/db_init.sql");
-            execAllInFile(connection, "sql/V2__create_event_sink.sql");
-            execAllInFile(connection, "sql/V3__create_events_p2p.sql");
+            execAllInFile(connection, "sql/V2__create_events_p2p.sql");
             execAllInFile(connection, "sql/TEST_analytics_data.sql");
         }
     }

@@ -40,7 +40,8 @@ public class SumAggregatorImpl implements SumAggregator<PaymentModel, PaymentChe
     }
 
     @Override
-    public Double sumError(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, String s, List<PaymentCheckedField> list) {
+    public Double sumError(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, String errorCode,
+                           List<PaymentCheckedField> list) {
         try {
             Instant now = Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
@@ -51,7 +52,7 @@ public class SumAggregatorImpl implements SumAggregator<PaymentModel, PaymentChe
             AggregationRepository activeSource = sourcePool.getActiveSource();
             Long sum = activeSource.sumOperationErrorWithGroupBy(resolve.getName(), resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields);
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields, errorCode);
             double resultSum = (double) checkedLong(sum) + checkedLong(paymentModel.getAmount());
             log.debug("SumAggregatorImpl field: {} value: {}  sumError: {}", resolve.getName(), resolve.getValue(), resultSum);
             return resultSum;

@@ -1,10 +1,8 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
-import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.p2p_insp.InspectResult;
-import com.rbkmoney.fraudbusters.listener.StartupListener;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
@@ -20,7 +18,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -102,7 +99,7 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
                 connection.createStatement().execute(exec);
             }
 
-            sql = FileUtil.getFile("sql/V3__create_events_p2p.sql");
+            sql = FileUtil.getFile("sql/V2__create_events_p2p.sql");
             split = sql.split(";");
             for (String exec : split) {
                 connection.createStatement().execute(exec);

@@ -36,6 +36,8 @@ public class SumAggregatorImplTest {
 
         when(DBPaymentFieldResolver.resolve(any(), any())).thenReturn(modelMock);
         when(analyticRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
+        when(analyticRepository.sumOperationSuccessWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
+        when(analyticRepository.sumOperationErrorWithGroupBy(any(), any(), any(), any(), any(), any())).thenReturn(1050100L);
         when(sourcePool.getActiveSource()).thenReturn(analyticRepository);
 
         sumAggregator = new SumAggregatorImpl(DBPaymentFieldResolver, sourcePool);
@@ -72,7 +74,7 @@ public class SumAggregatorImplTest {
 
     @Test
     public void sumSuccess() {
-        Double some = sumAggregator.sum(PaymentCheckedField.BIN, new PaymentModel(),
+        Double some = sumAggregator.sumSuccess(PaymentCheckedField.BIN, new PaymentModel(),
                 TimeWindow.builder().startWindowTime(1444L).build(), null);
 
         Assert.assertEquals(Double.valueOf(1050100), some);
@@ -80,8 +82,8 @@ public class SumAggregatorImplTest {
 
     @Test
     public void sumError() {
-        Double some = sumAggregator.sum(PaymentCheckedField.BIN, new PaymentModel(),
-                TimeWindow.builder().startWindowTime(1444L).build(), null);
+        Double some = sumAggregator.sumError(PaymentCheckedField.BIN, new PaymentModel(),
+                TimeWindow.builder().startWindowTime(1444L).build(), null, null);
 
         Assert.assertEquals(Double.valueOf(1050100), some);
     }

@@ -6,7 +6,6 @@ import com.rbkmoney.damsel.fraudbusters.CommandBody;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.domain.MgEventSinkRow;
 import com.rbkmoney.fraudbusters.repository.impl.AnalyticRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
@@ -69,9 +68,6 @@ public class PreLoadTest extends KafkaAbstractTest {
 
     @MockBean
     AnalyticRepository analyticRepository;
-
-    @Autowired
-    Properties eventSinkStreamProperties;
 
     @LocalServerPort
     int serverPort;
@@ -144,22 +140,6 @@ public class PreLoadTest extends KafkaAbstractTest {
         produceMessageToEventSink(BeanUtil.createMessagePaymentStared(BeanUtil.SOURCE_ID));
         produceMessageToEventSink(BeanUtil.createMessagePaymentStared(BeanUtil.SOURCE_ID + "_2"));
         produceMessageToEventSink(BeanUtil.createMessageInvoiceCaptured(BeanUtil.SOURCE_ID));
-
-        eventSinkStreamProperties.setProperty(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000 + "");
-        eventSinkStreamProperties.setProperty(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0 + "");
-    }
-
-    @NotNull
-    private ConsumerRecords<String, MgEventSinkRow> pollWithWaitingTimeout(Consumer<String, MgEventSinkRow> consumer, Duration duration) {
-        long startTime = System.currentTimeMillis();
-        ConsumerRecords<String, MgEventSinkRow> poll = consumer.poll(Duration.ofSeconds(5L));
-        while (poll.isEmpty()) {
-            if (System.currentTimeMillis() - startTime > duration.toMillis()) {
-                throw new RuntimeException("Timeout error in pollWithWaitingTimeout!");
-            }
-            poll = consumer.poll(Duration.ofSeconds(5L));
-        }
-        return poll;
     }
 
 }

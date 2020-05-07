@@ -3,7 +3,6 @@ package com.rbkmoney.fraudbusters.repository;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.EventP2PField;
-import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.constant.ScoresType;
 import com.rbkmoney.fraudbusters.converter.ScoresResultToEventConverter;
 import com.rbkmoney.fraudbusters.converter.ScoresResultToEventP2PConverter;
@@ -28,7 +27,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -100,7 +98,7 @@ public class EventP2PRepositoryTest {
     private static void initDb() throws SQLException {
         try (Connection connection = ChInitializer.getSystemConn(clickHouseContainer)) {
             execAllInFile(connection, "sql/db_init.sql");
-            execAllInFile(connection, "sql/V3__create_events_p2p.sql");
+            execAllInFile(connection, "sql/V2__create_events_p2p.sql");
         }
     }
 

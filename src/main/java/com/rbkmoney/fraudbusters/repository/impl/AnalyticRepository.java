@@ -74,7 +74,7 @@ public class AnalyticRepository implements AggregationRepository {
 
     @Override
     public Integer countOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
-                                                  List<FieldModel> fieldModels) {
+                                                  List<FieldModel> fieldModels, String errorCode) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, count() as cnt " +
                         "from %2$s " +
@@ -82,7 +82,7 @@ public class AnalyticRepository implements AggregationRepository {
                         "and timestamp <= ? " +
                         "and eventTime >= ? " +
                         "and eventTime <= ? " +
-                        "and %1$s = ? and status = ? ", fieldName, eventSource.getTable()));
+                        "and %1$s = ? and status = ? and errorCode=? ", fieldName, eventSource.getTable(), errorCode));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
         ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, AnalyticStatus.failed.name());
@@ -108,7 +108,7 @@ public class AnalyticRepository implements AggregationRepository {
 
     @Override
     public Long sumOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
-                                             List<FieldModel> fieldModels) {
+                                             List<FieldModel> fieldModels, String errorCode) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, sum(amount) as sum " +
                         "from %2$s " +
@@ -116,7 +116,7 @@ public class AnalyticRepository implements AggregationRepository {
                         "and timestamp <= ? " +
                         "and eventTime >= ? " +
                         "and eventTime <= ? " +
-                        "and %1$s = ? and status = ? ", fieldName, eventSource.getTable()));
+                        "and %1$s = ? and status = ? and errorCode=? ", fieldName, eventSource.getTable(), errorCode));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
         ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, AnalyticStatus.failed.name());

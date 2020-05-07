@@ -20,5 +20,4 @@ public class SourceActivityCheckScheduler {
         log.info("SourceActivityCheckScheduler scheduleCheckActivity activeSource: {}", sourcePool.getActiveSource());
     }
 
-
 }

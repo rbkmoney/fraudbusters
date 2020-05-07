@@ -3,7 +3,6 @@ package com.rbkmoney.fraudbusters.repository.impl;
 import com.google.common.collect.Lists;
 import com.rbkmoney.fraudbusters.constant.ClickhouseSchemeNames;
 import com.rbkmoney.fraudbusters.constant.EventSource;
-import com.rbkmoney.fraudbusters.constant.ResultStatus;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
@@ -14,6 +13,7 @@ import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.EventBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.setter.EventParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.util.ParamsInitiator;
+import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -99,16 +99,17 @@ public class FraudResultRepository implements CrudRepository<Event>, Aggregation
                 "and timestamp <= ? " +
                 "and eventTime >= ? " +
                 "and eventTime <= ? " +
-                "and %1$s = ? and resultStatus = ? ", fieldName, eventSource.getTable()));
+                "and %1$s = ? and resultStatus != ? ", fieldName, eventSource.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.CAPTURED.name());
+        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.DECLINE.name());
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
     @Override
     public Integer countOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
-                                                  List<FieldModel> fieldModels) {
+                                                  List<FieldModel> fieldModels, String errorCode) {
+        log.warn("Error code ignore on this source: {} errorCode: {}", eventSource.getTable(), errorCode);
         StringBuilder sql = new StringBuilder(String.format("select %1$s, count() as cnt " +
                 "from %2$s " +
                 "where timestamp >= ? " +
@@ -118,7 +119,7 @@ public class FraudResultRepository implements CrudRepository<Event>, Aggregation
                 "and %1$s = ? and resultStatus = ? ", fieldName, eventSource.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.FAILED.name());
+        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.DECLINE.name());
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
@@ -131,16 +132,17 @@ public class FraudResultRepository implements CrudRepository<Event>, Aggregation
                 "and timestamp <= ? " +
                 "and eventTime >= ? " +
                 "and eventTime <= ? " +
-                "and %1$s = ? and resultStatus = ? ", fieldName, eventSource.getTable()));
+                "and %1$s = ? and resultStatus != ? ", fieldName, eventSource.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.CAPTURED.name());
+        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.DECLINE.name());
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
     @Override
     public Long sumOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
-                                             List<FieldModel> fieldModels) {
+                                             List<FieldModel> fieldModels, String errorCode) {
+        log.warn("Error code ignore on this source: {} errorCode: {}", eventSource.getTable(), errorCode);
         StringBuilder sql = new StringBuilder(String.format("select %1$s, sum(amount) as sum " +
                 "from %2$s " +
                 "where timestamp >= ? " +
@@ -150,7 +152,7 @@ public class FraudResultRepository implements CrudRepository<Event>, Aggregation
                 "and %1$s = ? and resultStatus = ? ", fieldName, eventSource.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = aggregationGeneralRepository.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.FAILED.name());
+        ArrayList<Object> params = ParamsInitiator.initParams(fieldModels, from, to, value, ResultStatus.DECLINE.name());
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 

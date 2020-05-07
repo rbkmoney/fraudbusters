@@ -57,7 +57,8 @@ public class CountAggregatorImpl implements CountAggregator<PaymentModel, Paymen
             AggregationRepository activeSource = sourcePool.getActiveSource();
             Integer count = activeSource.countOperationErrorWithGroupBy(resolve.getName(), resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields);
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()),
+                    eventFields, errorCode);
 
             log.debug("CountAggregatorImpl field: {} value: {}  countError: {}", resolve.getName(), resolve.getValue(), count);
             return count + CURRENT_ONE;
