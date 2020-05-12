@@ -4,7 +4,7 @@ import com.rbkmoney.fraudbusters.config.KafkaConfig;
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.repository.CrudRepository;
+import com.rbkmoney.fraudbusters.repository.Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ResultAggregatorListener {
 
-    private final CrudRepository<Event> crudRepository;
+    private final Repository<Event> repository;
     private final FraudResultToEventConverter fraudResultToEventConverter;
 
     @KafkaListener(topics = "${kafka.topic.result}", containerFactory = "kafkaListenerContainerFactory")
@@ -27,7 +27,7 @@ public class ResultAggregatorListener {
                        @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {
             log.info("ResultAggregatorListener listen result size: {} partition: {} offset: {}", batch.size(), partition, offset);
-            crudRepository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
+            repository.insertBatch(fraudResultToEventConverter.convertBatch(batch));
         } catch (Exception e) {
             log.warn("Error when ResultAggregatorListener listen e: ", e);
             Thread.sleep(KafkaConfig.THROTTLING_TIMEOUT);

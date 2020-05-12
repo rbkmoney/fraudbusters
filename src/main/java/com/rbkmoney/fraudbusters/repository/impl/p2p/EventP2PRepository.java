@@ -7,7 +7,7 @@ import com.rbkmoney.fraudbusters.domain.EventP2P;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
-import com.rbkmoney.fraudbusters.repository.CrudRepository;
+import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.setter.EventP2PBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.setter.EventP2PParametersGenerator;
 import lombok.Getter;
@@ -23,7 +23,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EventP2PRepository implements CrudRepository<EventP2P>, AggregationRepository {
+public class EventP2PRepository implements Repository<EventP2P>, AggregationRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final AggregationGeneralRepository aggregationGeneralRepository;

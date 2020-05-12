@@ -7,7 +7,7 @@ import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
-import com.rbkmoney.fraudbusters.repository.CrudRepository;
+import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.EventBatchPreparedStatementSetter;
@@ -30,7 +30,7 @@ import java.util.Map;
 @Service
 @Order(2)
 @RequiredArgsConstructor
-public class FraudResultRepository implements CrudRepository<Event>, AggregationRepository {
+public class FraudResultRepository implements Repository<Event>, AggregationRepository {
 
     @Getter
     private final EventSource eventSource = EventSource.FRAUD_EVENTS_UNIQUE;

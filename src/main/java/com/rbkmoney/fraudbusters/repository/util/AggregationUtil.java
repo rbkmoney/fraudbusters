@@ -49,16 +49,14 @@ public class AggregationUtil {
     private static ArrayList<Object> initParams(List<FieldModel> lastParams, Object... args) {
         ArrayList<Object> objects = new ArrayList<>();
         if (args != null) {
-            objects.addAll(Arrays.stream(args)
+            Arrays.stream(args)
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toCollection(ArrayList::new))
-            );
+                    .collect(Collectors.toCollection(() -> objects));
         }
         if (lastParams != null) {
-            List<String> collect = lastParams.stream()
+            lastParams.stream()
                     .map(FieldModel::getValue)
-                    .collect(Collectors.toList());
-            objects.addAll(collect);
+                    .collect(Collectors.toCollection(() -> objects));
         }
         return objects;
     }

@@ -45,42 +45,42 @@ public class FraudoConfig {
     }
 
     @Bean
-    public CountAggregator countAggregator(SourcePool sourcePool, DBPaymentFieldResolver dbPaymentFieldResolver) {
+    public CountAggregator<PaymentModel, PaymentCheckedField> countAggregator(SourcePool sourcePool, DBPaymentFieldResolver dbPaymentFieldResolver) {
         return new CountAggregatorImpl(dbPaymentFieldResolver, sourcePool);
     }
 
     @Bean
-    public CountAggregator countP2PAggregator(AggregationRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
+    public CountAggregator<P2PModel, P2PCheckedField> countP2PAggregator(AggregationRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
         return new CountP2PAggregatorImpl(eventP2PRepository, dbP2pFieldResolver);
     }
 
     @Bean
-    public SumAggregator sumAggregator(SourcePool sourcePool, DBPaymentFieldResolver dbPaymentFieldResolver) {
+    public SumAggregator<PaymentModel, PaymentCheckedField> sumAggregator(SourcePool sourcePool, DBPaymentFieldResolver dbPaymentFieldResolver) {
         return new SumAggregatorImpl(dbPaymentFieldResolver, sourcePool);
     }
 
     @Bean
-    public SumAggregator sumP2PAggregator(EventP2PRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
+    public SumAggregator<P2PModel, P2PCheckedField> sumP2PAggregator(EventP2PRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
         return new SumP2PAggregatorImpl(eventP2PRepository, dbP2pFieldResolver);
     }
 
     @Bean
-    public UniqueValueAggregator uniqueValueAggregator(SourcePool sourcePool, DBPaymentFieldResolver dbPaymentFieldResolver) {
+    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueAggregator(SourcePool sourcePool, DBPaymentFieldResolver dbPaymentFieldResolver) {
         return new UniqueValueAggregatorImpl(dbPaymentFieldResolver, sourcePool);
     }
 
     @Bean
-    public UniqueValueAggregator uniqueValueP2PAggregator(EventP2PRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
+    public UniqueValueAggregator<P2PModel, P2PCheckedField> uniqueValueP2PAggregator(EventP2PRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
         return new P2PUniqueValueAggregatorImpl(eventP2PRepository, dbP2pFieldResolver);
     }
 
     @Bean
-    public CountryResolver countryResolver(CountryByIpResolver countryByIpResolver) {
+    public CountryResolver<PaymentCheckedField> countryResolver(CountryByIpResolver countryByIpResolver) {
         return new CountryResolverImpl(countryByIpResolver);
     }
 
     @Bean
-    public CountryResolver countryP2PResolver(CountryByIpResolver countryByIpResolver) {
+    public CountryResolver<P2PCheckedField> countryP2PResolver(CountryByIpResolver countryByIpResolver) {
         return new CountryP2PResolverImpl(countryByIpResolver);
     }
 

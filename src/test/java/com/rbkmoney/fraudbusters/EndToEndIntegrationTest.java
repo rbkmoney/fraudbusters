@@ -60,7 +60,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
                     "AND sum(\"email\", 10) >= 18000 " +
                     "AND count(\"card_token\", 10) > 1 " +
                     "AND in(countryBy(\"country_bank\"), \"RUS\") \n" +
-            " -> decline;";
+                    " -> decline;";
 
     private static final String TEMPLATE_CONCRETE =
             "rule:  sumSuccess(\"email\", 10) >= 29000  -> decline;";
@@ -115,7 +115,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
         Mockito.when(sourcePool.getActiveSource()).thenReturn(fraudResultRepository);
-        
+
         ChInitializer.initAllScripts(clickHouseContainer);
 
         String globalRef = UUID.randomUUID().toString();
@@ -170,7 +170,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         Thread.sleep(TIMEOUT);
 
         List<Map<String, Object>> maps = jdbcTemplate.queryForList("select * from fraud.events_unique");
-        System.out.println(maps);
 
         context = BeanUtil.createContext();
         riskScore = client.inspectPayment(context);
@@ -194,6 +193,5 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceMessageToEventSink(BeanUtil.createMessageInvoiceCaptured(BeanUtil.SOURCE_ID));
 
         maps = jdbcTemplate.queryForList("select * from fraud.events_unique");
-        System.out.println(maps);
     }
 }
