@@ -55,7 +55,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private final GroupReferenceP2PListener groupReferenceP2PListener;
     private final TemplateP2PReferenceListener templateP2PReferenceListener;
 
-    private PreloadListener<String, Command> preloadListener = new PreloadListenerImpl<>();
+    private final PreloadListener<String, Command> preloadListener = new PreloadListenerImpl<>();
 
     @Value("${kafka.topic.template}")
     private String topicTemplate;
