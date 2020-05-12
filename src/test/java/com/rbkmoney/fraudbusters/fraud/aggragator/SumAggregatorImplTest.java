@@ -61,15 +61,15 @@ public class SumAggregatorImplTest {
                 .endWindowTime(400L);
         when(analyticRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
 
-        Double some = sumAggregator.sum(PaymentCheckedField.BIN, paymentModel, timeWindowBuilder.build(), null);
+        Double sum = sumAggregator.sum(PaymentCheckedField.BIN, paymentModel, timeWindowBuilder.build(), null);
 
-        Assert.assertEquals(Double.valueOf(1050101), some);
+        Assert.assertEquals(Double.valueOf(1050101), sum);
 
         timeWindowBuilder = TimeWindow.builder().startWindowTime(1444L)
                 .endWindowTime(null);
-        some = sumAggregator.sum(PaymentCheckedField.BIN, paymentModel, timeWindowBuilder.build(), null);
+        sum = sumAggregator.sum(PaymentCheckedField.BIN, paymentModel, timeWindowBuilder.build(), null);
 
-        Assert.assertEquals(Double.valueOf(1050101), some);
+        Assert.assertEquals(Double.valueOf(1050101), sum);
     }
 
     @Test
