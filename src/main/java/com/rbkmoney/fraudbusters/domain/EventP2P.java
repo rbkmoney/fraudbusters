@@ -3,11 +3,12 @@ package com.rbkmoney.fraudbusters.domain;
 import lombok.Data;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 @Data
 public class EventP2P {
 
-    private Date timestamp;
+    private LocalDate timestamp;
     private Long eventTime;
     private Long eventTimeHour;
 

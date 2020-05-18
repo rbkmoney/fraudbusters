@@ -17,7 +17,7 @@ public class EventP2PBatchPreparedStatementSetter implements BatchPreparedStatem
     public void setValues(PreparedStatement ps, int i) throws SQLException {
         EventP2P event = batch.get(i);
         int l = 1;
-        ps.setDate(l++, event.getTimestamp());
+        ps.setObject(l++, event.getTimestamp());
         ps.setLong(l++, event.getEventTime());
         ps.setLong(l++, event.getEventTimeHour());
 

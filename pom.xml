@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.rbkmoney</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.1.RELEASE</version>
+        <version>2.2.6.RELEASE</version>
     </parent>
 
     <name>fraudbusters</name>
@@ -34,7 +34,7 @@
         <wb.list.proto.version>1.29-4fe14c3</wb.list.proto.version>
         <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
         <kafka.common.lib.version>0.0.9</kafka.common.lib.version>
-        <clickhouse-jdbc.version>0.1.54</clickhouse-jdbc.version>
+        <clickhouse-jdbc.version>0.2.4</clickhouse-jdbc.version>
         <fraudbusters-proto.version>1.15-8f3babc</fraudbusters-proto.version>
         <machinegun-proto.version>1.12-ebae56f</machinegun-proto.version>
 
@@ -90,36 +90,9 @@
             <artifactId>janino</artifactId>
             <version>2.6.1</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.rocksdb</groupId>
-            <artifactId>rocksdbjni</artifactId>
-            <version>5.18.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-streams</artifactId>
-            <version>2.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <version>2.3.0</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
-            <version>2.2.2.RELEASE</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka-streams</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka-clients</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!--rbk libs-->
@@ -189,7 +162,12 @@
             <artifactId>clickhouse-jdbc</artifactId>
             <version>${clickhouse-jdbc.version}</version>
         </dependency>
-        
+        <dependency>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>custom-actuator-endpoints</artifactId>
+            <version>0.0.2</version>
+        </dependency>
+
         <!-- Test libs -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -200,12 +178,6 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
             <version>1.10.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-streams-test-utils</artifactId>
-            <version>2.1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>

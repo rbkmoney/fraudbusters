@@ -8,21 +8,23 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.EventRepository;
+import com.rbkmoney.fraudbusters.repository.impl.AnalyticRepository;
+import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.model.Pair;
 import org.apache.thrift.TException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.time.Instant;
 import java.util.List;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class InGreyListFinderImplTest {
 
@@ -35,24 +37,27 @@ public class InGreyListFinderImplTest {
     @Mock
     private WbListServiceSrv.Iface wbListServiceSrv;
     @Mock
-    private EventRepository eventRepository;
+    private AnalyticRepository analyticRepository;
+    @Mock
+    private SourcePool sourcePool;
 
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        inGreyListFinder = new PaymentInListFinderImpl(wbListServiceSrv, new DBPaymentFieldResolver(), eventRepository);
+        when(sourcePool.getActiveSource()).thenReturn(analyticRepository);
+        inGreyListFinder = new PaymentInListFinderImpl(wbListServiceSrv, new DBPaymentFieldResolver(), sourcePool);
     }
 
     @Test
     public void findInList() throws TException {
-        Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(new Result().setRowInfo(new RowInfo()));
+        when(wbListServiceSrv.getRowInfo(any())).thenReturn(new Result().setRowInfo(new RowInfo()));
 
         PaymentModel paymentModel = new PaymentModel();
         paymentModel.setPartyId(PARTY_ID);
         paymentModel.setShopId(SHOP_ID);
         Boolean inList = inGreyListFinder.findInGreyList(List.of(new Pair<>(PaymentCheckedField.CARD_TOKEN, VALUE)), paymentModel);
 
-        Assert.assertFalse(inList);
+        assertFalse(inList);
 
         Instant now = Instant.now();
         Result result = new Result().setRowInfo(RowInfo
@@ -61,15 +66,15 @@ public class InGreyListFinderImplTest {
                         .setTimeToLive(now.plusSeconds(10L).toString())
                         .setStartCountTime(now.toString())));
 
-        Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(result);
-        Mockito.when(eventRepository.countOperationByField(any(), any(), any(), any())).thenReturn(6);
+        when(wbListServiceSrv.getRowInfo(any())).thenReturn(result);
+        when(analyticRepository.countOperationByField(any(), any(), any(), any())).thenReturn(6);
 
         inList = inGreyListFinder.findInGreyList(List.of(new Pair<>(PaymentCheckedField.CARD_TOKEN, VALUE)), paymentModel);
-        Assert.assertFalse(inList);
+        assertFalse(inList);
 
-        Mockito.when(eventRepository.countOperationByField(any(), any(), any(), any())).thenReturn(4);
+        when(analyticRepository.countOperationByField(any(), any(), any(), any())).thenReturn(4);
         inList = inGreyListFinder.findInGreyList(List.of(new Pair<>(PaymentCheckedField.CARD_TOKEN, VALUE)), paymentModel);
-        Assert.assertTrue(inList);
+        assertTrue(inList);
     }
 
     @Test
@@ -80,13 +85,13 @@ public class InGreyListFinderImplTest {
                         .setCount(5L)
                         .setTimeToLive(now.plusSeconds(10L).toString())
                         .setStartCountTime(now.toString())));
-        Mockito.when(wbListServiceSrv.getRowInfo(any())).thenReturn(result);
-        Mockito.when(eventRepository.countOperationByField(any(), any(), any(), any())).thenReturn(4);
+        when(wbListServiceSrv.getRowInfo(any())).thenReturn(result);
+        when(analyticRepository.countOperationByField(any(), any(), any(), any())).thenReturn(4);
         PaymentModel paymentModel = new PaymentModel();
         paymentModel.setPartyId(PARTY_ID);
         paymentModel.setShopId(SHOP_ID);
         Boolean inList = inGreyListFinder.findInGreyList(List.of(new Pair<>(PaymentCheckedField.CARD_TOKEN, VALUE)), paymentModel);
 
-        Assert.assertTrue(inList);
+        assertTrue(inList);
     }
 }

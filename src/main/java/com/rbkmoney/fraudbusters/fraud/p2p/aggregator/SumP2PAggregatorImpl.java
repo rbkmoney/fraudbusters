@@ -7,8 +7,7 @@ import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
-import com.rbkmoney.fraudbusters.repository.EventP2PRepository;
-import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -23,8 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SumP2PAggregatorImpl implements SumAggregator<P2PModel, P2PCheckedField> {
 
-    private final EventP2PRepository eventP2PRepository;
-    private final MgEventSinkRepository mgEventSinkRepository;
+    private final AggregationRepository eventP2PRepository;
     private final DbP2pFieldResolver dbPaymentFieldResolver;
 
     @Override
@@ -34,12 +32,26 @@ public class SumP2PAggregatorImpl implements SumAggregator<P2PModel, P2PCheckedF
 
     @Override
     public Double sumSuccess(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
-        return getSum(checkedField, p2pModel, timeWindow, list, mgEventSinkRepository::sumOperationSuccessWithGroupBy);
+        return getSum(checkedField, p2pModel, timeWindow, list, eventP2PRepository::sumOperationSuccessWithGroupBy);
     }
 
     @Override
-    public Double sumError(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, String s, List<P2PCheckedField> list) {
-        return getSum(checkedField, p2pModel, timeWindow, list, mgEventSinkRepository::sumOperationErrorWithGroupBy);
+    public Double sumError(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, String errorCode, List<P2PCheckedField> list) {
+        try {
+            Instant now = Instant.now();
+            FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, p2pModel);
+            List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(p2pModel, list);
+            Long sum = eventP2PRepository.sumOperationErrorWithGroupBy(resolve.getName(), resolve.getValue(),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()),
+                    eventFields, errorCode);
+            double resultSum = (double) checkedLong(sum) + checkedLong(p2pModel.getAmount());
+            log.debug("SumAggregatorImpl field: {} value: {}  sum: {}", resolve.getName(), resolve.getValue(), resultSum);
+            return resultSum;
+        } catch (Exception e) {
+            log.warn("SumAggregatorImpl error when getCount e: ", e);
+            throw new RuleFunctionException(e);
+        }
     }
 
     @NotNull

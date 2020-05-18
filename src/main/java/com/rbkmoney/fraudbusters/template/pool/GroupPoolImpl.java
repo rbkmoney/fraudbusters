@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class GroupPoolImpl implements Pool<List<String>> {
 
-    private Map<String, List<String>> references = new ConcurrentHashMap<>();
+    private final Map<String, List<String>> references = new ConcurrentHashMap<>();
 
     @Override
     public void add(String key, List<String> reference) {
