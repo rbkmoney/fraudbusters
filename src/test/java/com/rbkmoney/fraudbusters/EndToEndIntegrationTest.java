@@ -3,18 +3,18 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
-import com.rbkmoney.damsel.p2p_insp.InspectResult;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.listener.StartupListener;
+import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
+import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
-import com.rbkmoney.fraudbusters.util.FileUtil;
+import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,23 +25,22 @@ import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
-import ru.yandex.clickhouse.ClickHouseDataSource;
-import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -59,12 +58,12 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE =
             "rule: count(\"email\", 10, 0, \"party_id\", \"shop_id\") > 1  AND count(\"email\", 10) < 3 " +
                     "AND sum(\"email\", 10) >= 18000 " +
-                    "AND count(\"card_token\", 10) > 1 " +
+                    "AND countSuccess(\"card_token\", 10) > 1 " +
                     "AND in(countryBy(\"country_bank\"), \"RUS\") \n" +
-            " -> decline;";
+                    " -> decline;";
 
     private static final String TEMPLATE_CONCRETE =
-            "rule:  sum(\"email\", 10) >= 29000  -> decline;";
+            "rule:  sumSuccess(\"email\", 10) >= 29000  -> decline;";
 
     private static final String GROUP_DECLINE =
             "rule:  1 >= 0  -> decline;";
@@ -78,23 +77,27 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final int COUNTRY_GEO_ID = 12345;
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
-    public static final long TIMEOUT = 2000L;
-    public static final String FRAUD = "fraud";
+    public static final long TIMEOUT = 1000L;
+
+
+    @MockBean
+    SourcePool sourcePool;
+    @Autowired
+    FraudResultRepository fraudResultRepository;
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     @LocalServerPort
     int serverPort;
 
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
-    private static String SERVICE_P2P_URL = "http://localhost:%s/fraud_p2p_inspector/v1";
-
-    @Autowired
-    private StartupListener startupListener;
-
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
@@ -104,34 +107,16 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
                     .applyTo(configurableApplicationContext.getEnvironment());
             LocationInfo info = new LocationInfo();
             info.setCountryGeoId(COUNTRY_GEO_ID);
-        }
-    }
 
-    private Connection getSystemConn() throws SQLException {
-        ClickHouseProperties properties = new ClickHouseProperties();
-        ClickHouseDataSource dataSource = new ClickHouseDataSource(clickHouseContainer.getJdbcUrl(), properties);
-        return dataSource.getConnection();
+            ChInitializer.initAllScripts(clickHouseContainer);
+        }
     }
 
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
-        try (Connection connection = getSystemConn()) {
-            String sql = FileUtil.getFile("sql/db_init.sql");
-            String[] split = sql.split(";");
-            for (String exec : split) {
-                connection.createStatement().execute(exec);
-            }
-            sql = FileUtil.getFile("sql/V2__create_event_sink.sql");
-            split = sql.split(";");
-            for (String exec : split) {
-                connection.createStatement().execute(exec);
-            }
-            sql = FileUtil.getFile("sql/V3__create_events_p2p.sql");
-            split = sql.split(";");
-            for (String exec : split) {
-                connection.createStatement().execute(exec);
-            }
-        }
+        Mockito.when(sourcePool.getActiveSource()).thenReturn(fraudResultRepository);
+
+        ChInitializer.initAllScripts(clickHouseContainer);
 
         String globalRef = UUID.randomUUID().toString();
         produceTemplate(globalRef, TEMPLATE, templateTopic);
@@ -167,7 +152,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         }
 
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
-
     }
 
     @Test
@@ -184,6 +168,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         Assert.assertEquals(RiskScore.high, riskScore);
 
         Thread.sleep(TIMEOUT);
+
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList("select * from fraud.events_unique");
 
         context = BeanUtil.createContext();
         riskScore = client.inspectPayment(context);
@@ -206,11 +192,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceMessageToEventSink(BeanUtil.createMessagePaymentStared(BeanUtil.SOURCE_ID));
         produceMessageToEventSink(BeanUtil.createMessageInvoiceCaptured(BeanUtil.SOURCE_ID));
 
-        Field eventSinkStream = startupListener.getClass().getDeclaredField("eventSinkStream");
-        eventSinkStream.setAccessible(true);
-        KafkaStreams streams = (KafkaStreams) eventSinkStream.get(startupListener);
-
-        Assert.assertNull(streams);
+        maps = jdbcTemplate.queryForList("select * from fraud.events_unique");
     }
-
 }

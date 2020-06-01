@@ -17,7 +17,7 @@ public class EventBatchPreparedStatementSetter implements BatchPreparedStatement
     public void setValues(PreparedStatement ps, int i) throws SQLException {
         Event event = batch.get(i);
         int l = 1;
-        ps.setDate(l++, event.getTimestamp());
+        ps.setObject(l++, event.getTimestamp());
         ps.setLong(l++, event.getEventTimeHour());
         ps.setLong(l++, event.getEventTime());
 

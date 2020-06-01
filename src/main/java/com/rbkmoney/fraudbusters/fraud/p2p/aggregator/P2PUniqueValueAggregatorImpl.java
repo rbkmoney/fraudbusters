@@ -6,7 +6,8 @@ import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
-import com.rbkmoney.fraudbusters.repository.EventP2PRepository;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -21,7 +22,7 @@ import java.util.List;
 public class P2PUniqueValueAggregatorImpl implements UniqueValueAggregator<P2PModel, P2PCheckedField> {
 
     private static final int CURRENT_ONE = 1;
-    private final EventP2PRepository eventP2PRepository;
+    private final AggregationRepository eventP2PRepository;
     private final DbP2pFieldResolver dbP2pFieldResolver;
 
     @Override

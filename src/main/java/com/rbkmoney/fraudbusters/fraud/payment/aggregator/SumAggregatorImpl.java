@@ -7,8 +7,8 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.EventRepository;
-import com.rbkmoney.fraudbusters.repository.MgEventSinkRepository;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -24,23 +24,42 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SumAggregatorImpl implements SumAggregator<PaymentModel, PaymentCheckedField> {
 
-    private final EventRepository eventRepository;
-    private final MgEventSinkRepository mgEventSinkRepository;
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
+    private final SourcePool sourcePool;
 
     @Override
     public Double sum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getSum(checkedField, paymentModel, timeWindow, list, eventRepository::sumOperationByFieldWithGroupBy);
+        AggregationRepository activeSource = sourcePool.getActiveSource();
+        return getSum(checkedField, paymentModel, timeWindow, list, activeSource::sumOperationByFieldWithGroupBy);
     }
 
     @Override
     public Double sumSuccess(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getSum(checkedField, paymentModel, timeWindow, list, mgEventSinkRepository::sumOperationSuccessWithGroupBy);
+        AggregationRepository activeSource = sourcePool.getActiveSource();
+        return getSum(checkedField, paymentModel, timeWindow, list, activeSource::sumOperationSuccessWithGroupBy);
     }
 
     @Override
-    public Double sumError(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, String s, List<PaymentCheckedField> list) {
-        return getSum(checkedField, paymentModel, timeWindow, list, mgEventSinkRepository::sumOperationErrorWithGroupBy);
+    public Double sumError(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, String errorCode,
+                           List<PaymentCheckedField> list) {
+        try {
+            Instant now = Instant.now();
+            FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
+            if (StringUtils.isEmpty(resolve.getValue())) {
+                return Double.valueOf(checkedLong(paymentModel.getAmount()));
+            }
+            List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
+            AggregationRepository activeSource = sourcePool.getActiveSource();
+            Long sum = activeSource.sumOperationErrorWithGroupBy(resolve.getName(), resolve.getValue(),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields, errorCode);
+            double resultSum = (double) checkedLong(sum) + checkedLong(paymentModel.getAmount());
+            log.debug("SumAggregatorImpl field: {} value: {}  sumError: {}", resolve.getName(), resolve.getValue(), resultSum);
+            return resultSum;
+        } catch (Exception e) {
+            log.warn("SumAggregatorImpl error when sumError e: ", e);
+            throw new RuleFunctionException(e);
+        }
     }
 
     @NotNull
@@ -55,14 +74,13 @@ public class SumAggregatorImpl implements SumAggregator<PaymentModel, PaymentChe
             }
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
             Long sum = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
-                    TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutes(now, timeWindow.getEndWindowTime()),
-                    eventFields);
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields);
             double resultSum = (double) checkedLong(sum) + checkedLong(paymentModel.getAmount());
             log.debug("SumAggregatorImpl field: {} value: {}  sum: {}", resolve.getName(), resolve.getValue(), resultSum);
             return resultSum;
         } catch (Exception e) {
-            log.warn("SumAggregatorImpl error when getCount e: ", e);
+            log.warn("SumAggregatorImpl error when getSum e: ", e);
             throw new RuleFunctionException(e);
         }
     }

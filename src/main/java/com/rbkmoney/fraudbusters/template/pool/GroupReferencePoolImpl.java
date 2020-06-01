@@ -1,13 +1,11 @@
 package com.rbkmoney.fraudbusters.template.pool;
 
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GroupReferencePoolImpl implements Pool<String> {
 
-    private Map<String, String> references = new ConcurrentHashMap<>();
+    private final Map<String, String> references = new ConcurrentHashMap<>();
 
     @Override
     public void add(String key, String reference) {

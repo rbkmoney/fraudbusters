@@ -6,7 +6,8 @@ import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.EventRepository;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.model.Pair;
@@ -26,7 +27,7 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
 
     private final WbListServiceSrv.Iface wbListServiceSrv;
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
-    private final EventRepository eventRepository;
+    private final SourcePool sourcePool;
 
     private static final int CURRENT_ONE = 1;
 
@@ -62,17 +63,8 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
                 Row row = createRow(ListType.grey, partyId, shopId, field, value);
                 Result result = wbListServiceSrv.getRowInfo(row);
                 if (result.getRowInfo() != null && result.getRowInfo().isSetCountInfo()) {
-                    RowInfo rowInfo = result.getRowInfo();
-                    String startCountTime = rowInfo.getCountInfo().getStartCountTime();
-                    String ttl = rowInfo.getCountInfo().getTimeToLive();
                     String resolveField = dbPaymentFieldResolver.resolve(field);
-                    Long to = TimestampUtil.generateTimestampWithParse(ttl);
-                    Long from = TimestampUtil.generateTimestampWithParse(startCountTime);
-                    if (Instant.now().getEpochSecond() > to || from >= to) {
-                        return false;
-                    }
-                    int currentCount = eventRepository.countOperationByField(resolveField, value, from, to);
-                    return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
+                    return сountLessThanWbList(value, result, resolveField);
                 }
             }
             return false;
@@ -80,6 +72,21 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
             log.warn("InListFinderImpl error when findInList e: ", e);
             throw new RuleFunctionException(e);
         }
+    }
+
+    @NotNull
+    private Boolean сountLessThanWbList(String value, Result result, String resolveField) {
+        RowInfo rowInfo = result.getRowInfo();
+        String startCountTime = rowInfo.getCountInfo().getStartCountTime();
+        String ttl = rowInfo.getCountInfo().getTimeToLive();
+        Long to = TimestampUtil.generateTimestampWithParse(ttl);
+        Long from = TimestampUtil.generateTimestampWithParse(startCountTime);
+        if (Instant.now().getEpochSecond() > to || from >= to) {
+            return false;
+        }
+        AggregationRepository activeSource = sourcePool.getActiveSource();
+        int currentCount = activeSource.countOperationByField(resolveField, value, from, to);
+        return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
     }
 
     @Override

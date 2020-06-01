@@ -2,21 +2,14 @@ package com.rbkmoney.fraudbusters.converter;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
-import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.domain.Event;
-import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.domain.Metadata;
+import com.rbkmoney.fraudbusters.domain.*;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Slf4j
@@ -34,11 +27,10 @@ public class FraudResultToEventConverter implements BatchConverter<FraudResult, 
         event.setBin(paymentModel.getBin());
         event.setEmail(paymentModel.getEmail());
 
-        Long timestamp = getEventTime(fraudResult);
-        event.setEventTime(timestamp);
-        event.setTimestamp(java.sql.Date.valueOf(LocalDateTime.now().toLocalDate()));
-        long eventTimeHour = Instant.ofEpochMilli(timestamp).truncatedTo(ChronoUnit.HOURS).toEpochMilli();
-        event.setEventTimeHour(eventTimeHour);
+        TimeProperties timeProperties = TimestampUtil.generateTimeProperties();
+        event.setTimestamp(timeProperties.getTimestamp());
+        event.setEventTime(timeProperties.getEventTime());
+        event.setEventTimeHour(timeProperties.getEventTimeHour());
 
         event.setFingerprint(paymentModel.getFingerprint());
         String ip = paymentModel.getIp();
@@ -77,18 +69,4 @@ public class FraudResultToEventConverter implements BatchConverter<FraudResult, 
         }
         return country != null ? country : ClickhouseUtilsValue.UNKNOWN;
     }
-
-    @NotNull
-    private Long getEventTime(FraudResult fraudResult) {
-        if (fraudResult.getFraudRequest().getMetadata() != null) {
-            Long timestamp = fraudResult.getFraudRequest().getMetadata().getTimestamp();
-            return timestamp != null ? timestamp : generateNow();
-        }
-        return generateNow();
-    }
-
-    private long generateNow() {
-        return LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
-    }
-
 }

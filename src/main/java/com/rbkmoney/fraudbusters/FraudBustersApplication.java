@@ -12,10 +12,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PreDestroy;
 
 @Slf4j
+@EnableScheduling
 @ServletComponentScan
 @SpringBootApplication
 public class FraudBustersApplication extends SpringApplication {
@@ -40,8 +42,6 @@ public class FraudBustersApplication extends SpringApplication {
     public void preDestroy() {
         log.info("FraudBustersApplication preDestroy!");
         registry.stop();
-        startupListener.stop();
-
         paymentRuleVisitor.close();
         p2pRuleVisitor.close();
     }
