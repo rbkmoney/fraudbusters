@@ -54,6 +54,16 @@ public class SumP2PAggregatorImpl implements SumAggregator<P2PModel, P2PCheckedF
         }
     }
 
+    @Override
+    public Double sumChargeback(P2PCheckedField p2PCheckedField, P2PModel p2PModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Double sumRefund(P2PCheckedField p2PCheckedField, P2PModel p2PModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
+        throw new UnsupportedOperationException();
+    }
+
     @NotNull
     @BasicMetric(value = "getSumWindowed", extraTags = "p2p")
     private Double getSum(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list,

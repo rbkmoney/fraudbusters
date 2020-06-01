@@ -14,7 +14,6 @@ import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
-import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -76,9 +75,6 @@ public class EventP2PRepositoryTest {
 
     @MockBean
     GeoIpServiceSrv.Iface iface;
-
-    @MockBean
-    SourcePool sourcePool;
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @SneakyThrows

@@ -7,8 +7,9 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.AggregationRepository;
-import com.rbkmoney.fraudbusters.repository.source.SourcePool;
+import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
+import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
+import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -27,20 +28,20 @@ public class CountAggregatorImpl implements CountAggregator<PaymentModel, Paymen
     private static final int CURRENT_ONE = 1;
 
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
-    private final SourcePool sourcePool;
+    private final PaymentRepository analyticRepository;
+    private final RefundRepository refundRepository;
+    private final ChargebackRepository chargebackRepository;
 
     @Override
     @BasicMetric("count")
     public Integer count(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        AggregationRepository activeSource = sourcePool.getActiveSource();
-        return getCount(checkedField, paymentModel, timeWindow, list, activeSource::countOperationByFieldWithGroupBy);
+        return getCount(checkedField, paymentModel, timeWindow, list, analyticRepository::countOperationByFieldWithGroupBy);
     }
 
     @Override
     @BasicMetric("countSuccess")
     public Integer countSuccess(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        AggregationRepository activeSource = sourcePool.getActiveSource();
-        return getCount(checkedField, paymentModel, timeWindow, list, activeSource::countOperationSuccessWithGroupBy);
+        return getCount(checkedField, paymentModel, timeWindow, list, analyticRepository::countOperationSuccessWithGroupBy);
     }
 
     @Override
@@ -54,8 +55,7 @@ public class CountAggregatorImpl implements CountAggregator<PaymentModel, Paymen
             if (StringUtils.isEmpty(resolve.getValue())) {
                 return CURRENT_ONE;
             }
-            AggregationRepository activeSource = sourcePool.getActiveSource();
-            Integer count = activeSource.countOperationErrorWithGroupBy(resolve.getName(), resolve.getValue(),
+            Integer count = analyticRepository.countOperationErrorWithGroupBy(resolve.getName(), resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()),
                     eventFields, errorCode);
@@ -68,16 +68,34 @@ public class CountAggregatorImpl implements CountAggregator<PaymentModel, Paymen
         }
     }
 
+    @Override
+    @BasicMetric("countChargeback")
+    public Integer countChargeback(PaymentCheckedField paymentCheckedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
+        return getCount(paymentCheckedField, paymentModel, timeWindow, list, chargebackRepository::countOperationByFieldWithGroupBy, false);
+    }
+
+    @Override
+    @BasicMetric("countRefund")
+    public Integer countRefund(PaymentCheckedField paymentCheckedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
+        return getCount(paymentCheckedField, paymentModel, timeWindow, list, refundRepository::countOperationByFieldWithGroupBy, false);
+    }
+
     @NotNull
     private Integer getCount(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
                              AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Integer> aggregateFunction) {
+        return getCount(checkedField, paymentModel, timeWindow, list, aggregateFunction, true);
+    }
+
+    @NotNull
+    private Integer getCount(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
+                             AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Integer> aggregateFunction, boolean withCurrent) {
         try {
             Instant now = Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
 
             if (StringUtils.isEmpty(resolve.getValue())) {
-                return CURRENT_ONE;
+                return withCurrent ? CURRENT_ONE : 0;
             }
 
             Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
@@ -85,7 +103,7 @@ public class CountAggregatorImpl implements CountAggregator<PaymentModel, Paymen
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields);
 
             log.debug("CountAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), count);
-            return count + CURRENT_ONE;
+            return withCurrent ? count + CURRENT_ONE : count;
         } catch (Exception e) {
             log.warn("CountAggregatorImpl error when getCount e: ", e);
             throw new RuleFunctionException(e);

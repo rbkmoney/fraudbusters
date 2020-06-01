@@ -5,8 +5,7 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.impl.AnalyticRepository;
-import com.rbkmoney.fraudbusters.repository.source.SourcePool;
+import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.model.Pair;
 import org.apache.thrift.TException;
@@ -20,7 +19,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 public class PaymentInListFinderImplTest {
 
@@ -34,15 +32,12 @@ public class PaymentInListFinderImplTest {
     @Mock
     private DBPaymentFieldResolver dbPaymentFieldResolver;
     @Mock
-    private AnalyticRepository analyticRepository;
-    @Mock
-    private SourcePool sourcePool;
+    private PaymentRepository analyticRepository;
 
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        when(sourcePool.getActiveSource()).thenReturn(analyticRepository);
-        listFinder = new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, sourcePool);
+        listFinder = new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, analyticRepository);
     }
 
     @Test

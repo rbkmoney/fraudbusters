@@ -13,9 +13,8 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
-import com.rbkmoney.fraudbusters.repository.impl.AnalyticRepository;
 import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
-import com.rbkmoney.fraudbusters.repository.source.SourcePool;
+import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -28,7 +27,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -52,8 +50,8 @@ import static org.junit.Assert.assertEquals;
 @Slf4j
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = {AnalyticRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
-        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, FraudResultRepository.class, SourcePool.class},
+@ContextConfiguration(classes = {PaymentRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
+        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, FraudResultRepository.class},
         initializers = FraudResultRepositoryTest.Initializer.class)
 public class FraudResultRepositoryTest {
 
@@ -76,9 +74,6 @@ public class FraudResultRepositoryTest {
 
     @MockBean
     GeoIpServiceSrv.Iface iface;
-
-    @MockBean
-    SourcePool sourcePool;
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @SneakyThrows
@@ -104,7 +99,6 @@ public class FraudResultRepositoryTest {
 
     @Before
     public void setUp() throws Exception {
-        Mockito.when(sourcePool.getActiveSource()).thenReturn(fraudResultRepository);
         initDb();
     }
 

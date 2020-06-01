@@ -6,7 +6,7 @@ import com.rbkmoney.damsel.fraudbusters.CommandBody;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.repository.impl.AnalyticRepository;
+import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
@@ -63,7 +63,7 @@ public class PreLoadTest extends KafkaAbstractTest {
     JdbcTemplate jdbcTemplate;
 
     @MockBean
-    AnalyticRepository analyticRepository;
+    PaymentRepository analyticRepository;
 
     @LocalServerPort
     int serverPort;

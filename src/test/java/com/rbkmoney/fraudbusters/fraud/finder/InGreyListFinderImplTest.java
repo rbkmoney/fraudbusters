@@ -8,8 +8,7 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.impl.AnalyticRepository;
-import com.rbkmoney.fraudbusters.repository.source.SourcePool;
+import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.model.Pair;
 import org.apache.thrift.TException;
@@ -37,15 +36,12 @@ public class InGreyListFinderImplTest {
     @Mock
     private WbListServiceSrv.Iface wbListServiceSrv;
     @Mock
-    private AnalyticRepository analyticRepository;
-    @Mock
-    private SourcePool sourcePool;
+    private PaymentRepository analyticRepository;
 
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        when(sourcePool.getActiveSource()).thenReturn(analyticRepository);
-        inGreyListFinder = new PaymentInListFinderImpl(wbListServiceSrv, new DBPaymentFieldResolver(), sourcePool);
+        inGreyListFinder = new PaymentInListFinderImpl(wbListServiceSrv, new DBPaymentFieldResolver(), analyticRepository);
     }
 
     @Test

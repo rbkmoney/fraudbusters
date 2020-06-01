@@ -23,7 +23,7 @@ public class ResultAggregatorListener {
     private final FraudResultToEventConverter fraudResultToEventConverter;
 
     @KafkaListener(topics = "${kafka.topic.result}", containerFactory = "kafkaListenerContainerFactory")
-    public void listen(List<FraudResult> batch, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
+        public void listen(List<FraudResult> batch, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
                        @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {
             log.info("ResultAggregatorListener listen result size: {} partition: {} offset: {}", batch.size(), partition, offset);

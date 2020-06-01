@@ -5,10 +5,11 @@ import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
-import com.rbkmoney.fraudbusters.repository.source.SourcePool;
+import com.rbkmoney.fraudbusters.constant.EventSource;
+import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
+import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
+import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
-import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
@@ -25,7 +26,6 @@ import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
@@ -45,6 +45,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -56,34 +57,41 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     private static final String TEMPLATE =
-            "rule: count(\"email\", 10, 0, \"party_id\", \"shop_id\") > 1  AND count(\"email\", 10) < 3 " +
-                    "AND sum(\"email\", 10) >= 18000 " +
-                    "AND countSuccess(\"card_token\", 10) > 1 " +
-                    "AND in(countryBy(\"country_bank\"), \"RUS\") \n" +
+            "rule:TEMPLATE: count(\"email\", 10, 0, \"party_id\", \"shop_id\") > 1  AND count(\"email\", 10) < 3 " +
+                    "AND sum(\"email\", 10, \"party_id\", \"shop_id\") >= 18000 " +
+                    "AND countSuccess(\"card_token\", 10, \"party_id\", \"shop_id\") > 1 " +
+                    "AND in(countryBy(\"country_bank\"), \"RUS\") " +
+                    "OR countRefund(\"card_token\", 10, \"party_id\", \"shop_id\") > 0 " +
+                    "OR countChargeback(\"card_token\", 10, \"party_id\", \"shop_id\") > 0 \n" +
                     " -> decline;";
 
     private static final String TEMPLATE_CONCRETE =
-            "rule:  sumSuccess(\"email\", 10) >= 29000  -> decline;";
+            "rule:TEMPLATE_CONCRETE:  sumSuccess(\"email\", 10) >= 29000  -> decline;";
 
     private static final String GROUP_DECLINE =
-            "rule:  1 >= 0  -> decline;";
+            "rule:GROUP_DECLINE:  1 >= 0  -> decline;";
 
     private static final String GROUP_NORMAL =
-            "rule:  1 < 0  -> decline;";
+            "rule:GROUP_NORMAL:  1 < 0  -> decline;";
 
     private static final String TEMPLATE_CONCRETE_SHOP =
-            "rule:  sum(\"email\", 10) >= 18000  -> accept;";
+            "rule:TEMPLATE_CONCRETE_SHOP:  sum(\"email\", 10) >= 18000  -> accept;";
 
     private static final int COUNTRY_GEO_ID = 12345;
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
     public static final long TIMEOUT = 1000L;
+    public static final String CAPTURED = "captured";
+    public static final String FAILED = "failed";
 
-
-    @MockBean
-    SourcePool sourcePool;
     @Autowired
-    FraudResultRepository fraudResultRepository;
+    PaymentRepository paymentRepository;
+
+    @Autowired
+    ChargebackRepository chargebackRepository;
+
+    @Autowired
+    RefundRepository refundRepository;
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -114,8 +122,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
-        Mockito.when(sourcePool.getActiveSource()).thenReturn(fraudResultRepository);
-
         ChInitializer.initAllScripts(clickHouseContainer);
 
         String globalRef = UUID.randomUUID().toString();
@@ -128,7 +134,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
         String shopRef = UUID.randomUUID().toString();
         produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP, templateTopic);
-        produceReference(false, P_ID, BeanUtil.ID_VALUE_SHOP, shopRef);
+        produceReference(false, P_ID, ID_VALUE_SHOP, shopRef);
 
         String groupTemplateDecline = UUID.randomUUID().toString();
         produceTemplate(groupTemplateDecline, GROUP_DECLINE, templateTopic);
@@ -163,35 +169,32 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
         Thread.sleep(TIMEOUT);
 
-        Context context = BeanUtil.createContext();
+        Context context = createContext();
         RiskScore riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        Thread.sleep(TIMEOUT);
+        paymentRepository.insert(convertContextToPayment(context, CAPTURED));
 
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("select * from fraud.events_unique");
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList("select * from " + EventSource.ANALYTIC_EVENTS_SINK.getTable());
+        System.out.println(maps);
 
-        context = BeanUtil.createContext();
+
+        context = createContext();
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
 
-        Thread.sleep(TIMEOUT);
+        paymentRepository.insert(convertContextToPayment(context, FAILED));
 
-        context = BeanUtil.createContext(P_ID);
+        context = createContext(P_ID);
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.low, riskScore);
 
-        Thread.sleep(TIMEOUT);
+        paymentRepository.insert(convertContextToPayment(context, CAPTURED));
 
         //test groups templates
-        context = BeanUtil.createContext(GROUP_P_ID);
+        context = createContext(GROUP_P_ID);
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
-
-        produceMessageToEventSink(BeanUtil.createMessageCreateInvoice(BeanUtil.SOURCE_ID));
-        produceMessageToEventSink(BeanUtil.createMessagePaymentStared(BeanUtil.SOURCE_ID));
-        produceMessageToEventSink(BeanUtil.createMessageInvoiceCaptured(BeanUtil.SOURCE_ID));
-
-        maps = jdbcTemplate.queryForList("select * from fraud.events_unique");
     }
+
 }

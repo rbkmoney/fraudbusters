@@ -59,6 +59,16 @@ public class CountP2PAggregatorImpl implements CountAggregator<P2PModel, P2PChec
         }
     }
 
+    @Override
+    public Integer countChargeback(P2PCheckedField p2PCheckedField, P2PModel p2PModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Integer countRefund(P2PCheckedField p2PCheckedField, P2PModel p2PModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
+        throw new UnsupportedOperationException();
+    }
+
     @NotNull
     private Integer getCount(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list,
                              AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Integer> aggregateFunction) {

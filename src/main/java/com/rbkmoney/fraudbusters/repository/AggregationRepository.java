@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface AggregationRepository {
 
-    EventSource getEventSource();
-
     Integer countOperationByField(String fieldName, String value, Long from, Long to);
 
     Integer countOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels);
