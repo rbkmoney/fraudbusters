@@ -45,6 +45,10 @@ public class AggregationUtil {
         return generateParams(from, to, null, value);
     }
 
+    public static ArrayList<Object> generateStatusParams(Long from, Long to, String value, String status) {
+        return generateParams(from, to, null, value, status);
+    }
+
     @NotNull
     private static ArrayList<Object> initParams(List<FieldModel> lastParams, Object... args) {
         ArrayList<Object> objects = new ArrayList<>();

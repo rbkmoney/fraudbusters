@@ -5,8 +5,11 @@ import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.constant.ChargebackStatus;
+import com.rbkmoney.fraudbusters.constant.RefundStatus;
 import com.rbkmoney.fraudbusters.domain.Chargeback;
 import com.rbkmoney.fraudbusters.domain.Payment;
+import com.rbkmoney.fraudbusters.domain.Refund;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
@@ -204,7 +207,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        chargebackRepository.insert(convertContextToPayment(context, "accepted", new Chargeback()));
+        chargebackRepository.insert(convertContextToPayment(context, ChargebackStatus.accepted.name(), new Chargeback()));
 
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
@@ -215,7 +218,12 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        chargebackRepository.insert(convertContextToPayment(context, "accepted", new Chargeback()));
+        refundRepository.insert(convertContextToPayment(context, RefundStatus.failed.name(), new Refund()));
+
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.high, riskScore);
+
+        refundRepository.insert(convertContextToPayment(context, RefundStatus.succeeded.name(), new Refund()));
 
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
