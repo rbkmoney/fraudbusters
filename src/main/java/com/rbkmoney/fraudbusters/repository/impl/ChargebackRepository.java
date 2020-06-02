@@ -8,6 +8,7 @@ import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.setter.BaseRawParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.setter.ChargebackParametersGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,7 +36,7 @@ public class ChargebackRepository implements Repository<Chargeback>, Aggregation
     public void insert(Chargeback chargeback) {
         log.debug("ChargebackRepository insert chargeback: {}", chargeback);
         if (chargeback != null) {
-            Map<String, Object> parameters = BaseRawParametersGenerator.generateParamsByFraudModel(chargeback);
+            Map<String, Object> parameters = ChargebackParametersGenerator.generateParamsByFraudModel(chargeback);
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
                     .withTableName(EventSource.ANALYTIC_EVENTS_SINK_CHARGEBACK.getTable());
             simpleJdbcInsert.setColumnNames(Lists.newArrayList(parameters.keySet()));

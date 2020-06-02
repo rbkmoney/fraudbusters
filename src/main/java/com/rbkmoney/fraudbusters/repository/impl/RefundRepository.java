@@ -11,6 +11,7 @@ import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.BaseRawParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.setter.RefundParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,7 @@ public class RefundRepository implements Repository<Refund>, AggregationReposito
     public void insert(Refund refund) {
         log.debug("RefundRepository insert payment: {}", refund);
         if (refund != null) {
-            Map<String, Object> parameters = BaseRawParametersGenerator.generateParamsByFraudModel(refund);
+            Map<String, Object> parameters = RefundParametersGenerator.generateParamsByFraudModel(refund);
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
                     .withTableName(EventSource.ANALYTIC_EVENTS_SINK_REFUND.getTable());
             simpleJdbcInsert.setColumnNames(Lists.newArrayList(parameters.keySet()));
