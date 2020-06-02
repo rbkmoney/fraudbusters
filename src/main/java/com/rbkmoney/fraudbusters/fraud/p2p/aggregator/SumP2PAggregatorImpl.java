@@ -32,36 +32,22 @@ public class SumP2PAggregatorImpl implements SumAggregator<P2PModel, P2PCheckedF
 
     @Override
     public Double sumSuccess(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
-        return getSum(checkedField, p2pModel, timeWindow, list, eventP2PRepository::sumOperationSuccessWithGroupBy);
+        throw new UnsupportedOperationException("P2p is not support this operation!");
     }
 
     @Override
     public Double sumError(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, String errorCode, List<P2PCheckedField> list) {
-        try {
-            Instant now = Instant.now();
-            FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, p2pModel);
-            List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(p2pModel, list);
-            Long sum = eventP2PRepository.sumOperationErrorWithGroupBy(resolve.getName(), resolve.getValue(),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()),
-                    eventFields, errorCode);
-            double resultSum = (double) checkedLong(sum) + checkedLong(p2pModel.getAmount());
-            log.debug("SumAggregatorImpl field: {} value: {}  sum: {}", resolve.getName(), resolve.getValue(), resultSum);
-            return resultSum;
-        } catch (Exception e) {
-            log.warn("SumAggregatorImpl error when getCount e: ", e);
-            throw new RuleFunctionException(e);
-        }
+        throw new UnsupportedOperationException("P2p is not support this operation!");
     }
 
     @Override
     public Double sumChargeback(P2PCheckedField p2PCheckedField, P2PModel p2PModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("P2p is not support this operation!");
     }
 
     @Override
     public Double sumRefund(P2PCheckedField p2PCheckedField, P2PModel p2PModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("P2p is not support this operation!");
     }
 
     @NotNull

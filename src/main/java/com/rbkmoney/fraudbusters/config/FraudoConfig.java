@@ -21,8 +21,8 @@ import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.PaymentModelFieldResolver;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
@@ -55,7 +55,7 @@ public class FraudoConfig {
     }
 
     @Bean
-    public CountAggregator<P2PModel, P2PCheckedField> countP2PAggregator(AggregationRepository eventP2PRepository,
+    public CountAggregator<P2PModel, P2PCheckedField> countP2PAggregator(EventP2PRepository eventP2PRepository,
                                                                          DbP2pFieldResolver dbP2pFieldResolver) {
         return new CountP2PAggregatorImpl(eventP2PRepository, dbP2pFieldResolver);
     }

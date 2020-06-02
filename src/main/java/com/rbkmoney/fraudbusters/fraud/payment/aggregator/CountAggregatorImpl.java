@@ -7,8 +7,9 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
@@ -28,20 +29,20 @@ public class CountAggregatorImpl implements CountAggregator<PaymentModel, Paymen
     private static final int CURRENT_ONE = 1;
 
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
-    private final PaymentRepository analyticRepository;
+    private final PaymentRepository paymentRepository;
     private final RefundRepository refundRepository;
     private final ChargebackRepository chargebackRepository;
 
     @Override
     @BasicMetric("count")
     public Integer count(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getCount(checkedField, paymentModel, timeWindow, list, analyticRepository::countOperationByFieldWithGroupBy);
+        return getCount(checkedField, paymentModel, timeWindow, list, paymentRepository::countOperationByFieldWithGroupBy);
     }
 
     @Override
     @BasicMetric("countSuccess")
     public Integer countSuccess(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getCount(checkedField, paymentModel, timeWindow, list, analyticRepository::countOperationSuccessWithGroupBy);
+        return getCount(checkedField, paymentModel, timeWindow, list, paymentRepository::countOperationSuccessWithGroupBy);
     }
 
     @Override
@@ -55,7 +56,7 @@ public class CountAggregatorImpl implements CountAggregator<PaymentModel, Paymen
             if (StringUtils.isEmpty(resolve.getValue())) {
                 return CURRENT_ONE;
             }
-            Integer count = analyticRepository.countOperationErrorWithGroupBy(resolve.getName(), resolve.getValue(),
+            Integer count = paymentRepository.countOperationErrorWithGroupBy(resolve.getName(), resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()),
                     eventFields, errorCode);

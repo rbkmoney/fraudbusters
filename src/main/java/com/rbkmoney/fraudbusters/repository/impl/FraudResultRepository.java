@@ -6,7 +6,7 @@ import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
-import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
@@ -18,16 +18,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-public class FraudResultRepository implements Repository<Event>, AggregationRepository {
+public class FraudResultRepository implements Repository<Event>, PaymentRepository {
 
     private final AggregationGeneralRepository aggregationGeneralRepository;
     private final JdbcTemplate jdbcTemplate;

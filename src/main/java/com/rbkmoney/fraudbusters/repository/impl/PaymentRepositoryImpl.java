@@ -6,7 +6,7 @@ import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.domain.Payment;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
-import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
@@ -15,18 +15,22 @@ import com.rbkmoney.fraudbusters.repository.setter.PaymentBatchPreparedStatement
 import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Service
+@Primary
+@Profile("full-prod")
+@Component
 @RequiredArgsConstructor
-public class PaymentRepository implements Repository<Payment>, AggregationRepository {
+public class PaymentRepositoryImpl implements Repository<Payment>, PaymentRepository {
 
     private final AggregationGeneralRepository aggregationGeneralRepository;
     private final JdbcTemplate jdbcTemplate;

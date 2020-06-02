@@ -8,9 +8,10 @@ public enum BaseField {
 
     partyId,
     shopId,
+    providerId,
+    terminal,
 
     email,
-    providerName,
 
     amount,
     currency,
@@ -33,8 +34,5 @@ public enum BaseField {
 
     paymentCountry,
     bankCountry,
-
-    providerId,
-    terminal
 
 }

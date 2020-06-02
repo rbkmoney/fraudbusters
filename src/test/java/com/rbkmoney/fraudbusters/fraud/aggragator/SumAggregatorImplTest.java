@@ -6,7 +6,7 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
+import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.fraudo.model.TimeWindow;
 import org.junit.Assert;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 public class SumAggregatorImplTest {
 
     @Mock
-    private PaymentRepository paymentRepository;
+    private PaymentRepositoryImpl paymentRepository;
     @Mock
     private RefundRepository refundRepository;
     @Mock

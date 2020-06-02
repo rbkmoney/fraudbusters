@@ -79,27 +79,4 @@ public class ChargebackRepository implements Repository<Chargeback>, Aggregation
                 fieldNameBy, value, fieldNameCount, from, to, fieldModels);
     }
 
-    @Override
-    public Integer countOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to,
-                                                    List<FieldModel> fieldModels) {
-        throw new UnsupportedOperationException("ChargebackRepository is not support now!");
-    }
-
-    @Override
-    public Integer countOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
-                                                  List<FieldModel> fieldModels, String errorCode) {
-        throw new UnsupportedOperationException("ChargebackRepository is not support now!");
-    }
-
-    @Override
-    public Long sumOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to,
-                                               List<FieldModel> fieldModels) {
-        throw new UnsupportedOperationException("ChargebackRepository is not support now!");
-    }
-
-    @Override
-    public Long sumOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
-                                             List<FieldModel> fieldModels, String errorCode) {
-        throw new UnsupportedOperationException("ChargebackRepository is not support now!");
-    }
 }

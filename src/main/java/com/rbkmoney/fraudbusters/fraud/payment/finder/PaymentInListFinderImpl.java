@@ -6,7 +6,8 @@ import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.model.Pair;
@@ -26,7 +27,7 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
 
     private final WbListServiceSrv.Iface wbListServiceSrv;
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
-    private final PaymentRepository analyticRepository;
+    private final PaymentRepository paymentRepository;
 
     private static final int CURRENT_ONE = 1;
 
@@ -83,7 +84,7 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
         if (Instant.now().getEpochSecond() > to || from >= to) {
             return false;
         }
-        int currentCount = analyticRepository.countOperationByField(resolveField, value, from, to);
+        int currentCount = paymentRepository.countOperationByField(resolveField, value, from, to);
         return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
     }
 

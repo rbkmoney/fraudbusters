@@ -78,26 +78,4 @@ public class EventP2PRepository implements Repository<EventP2P>, AggregationRepo
                 fieldNameBy, value, fieldNameCount, from, to, fieldModels);
     }
 
-    @Override
-    public Integer countOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Integer countOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
-                                                  List<FieldModel> fieldModels, String errorCode) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Long sumOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Long sumOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
-                                             List<FieldModel> fieldModels, String errorCode) {
-        throw new UnsupportedOperationException();
-    }
-
 }

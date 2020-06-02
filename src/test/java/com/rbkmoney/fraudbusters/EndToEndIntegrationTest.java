@@ -5,9 +5,9 @@ import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.constant.EventSource;
+import com.rbkmoney.fraudbusters.domain.Payment;
+import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
@@ -32,6 +32,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
@@ -40,7 +41,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +51,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @Slf4j
 @RunWith(SpringRunner.class)
+@ActiveProfiles("full-prod")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class)
 @ContextConfiguration(initializers = EndToEndIntegrationTest.Initializer.class)
@@ -85,7 +86,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     public static final String FAILED = "failed";
 
     @Autowired
-    PaymentRepository paymentRepository;
+    Repository<Payment> repository;
 
     @Autowired
     ChargebackRepository chargebackRepository;
@@ -173,23 +174,19 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         RiskScore riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        paymentRepository.insert(convertContextToPayment(context, CAPTURED));
-
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("select * from " + EventSource.ANALYTIC_EVENTS_SINK.getTable());
-        System.out.println(maps);
-
+        repository.insert(convertContextToPayment(context, CAPTURED));
 
         context = createContext();
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
 
-        paymentRepository.insert(convertContextToPayment(context, FAILED));
+        repository.insert(convertContextToPayment(context, FAILED));
 
         context = createContext(P_ID);
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.low, riskScore);
 
-        paymentRepository.insert(convertContextToPayment(context, CAPTURED));
+        repository.insert(convertContextToPayment(context, CAPTURED));
 
         //test groups templates
         context = createContext(GROUP_P_ID);

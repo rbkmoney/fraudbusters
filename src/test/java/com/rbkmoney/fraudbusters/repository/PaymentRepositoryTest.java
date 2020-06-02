@@ -1,7 +1,6 @@
 package com.rbkmoney.fraudbusters.repository;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
-import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.constant.EventSource;
@@ -12,8 +11,7 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
-import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
-import com.rbkmoney.fraudbusters.repository.impl.PaymentRepository;
+import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +26,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
@@ -43,11 +42,11 @@ import static com.rbkmoney.fraudbusters.util.ChInitializer.execAllInFile;
 import static org.junit.Assert.assertEquals;
 
 @Slf4j
+@ActiveProfiles("full-prod")
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = {PaymentRepository.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
-        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, FraudResultRepository.class},
-        initializers = PaymentRepositoryTest.Initializer.class)
+@ContextConfiguration(classes = {PaymentRepositoryImpl.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
+        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class}, initializers = PaymentRepositoryTest.Initializer.class)
 public class PaymentRepositoryTest {
 
     public static final long FROM = 1588761200000L;
@@ -57,7 +56,7 @@ public class PaymentRepositoryTest {
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Autowired
-    private PaymentRepository paymentRepository;
+    private PaymentRepositoryImpl paymentRepository;
 
     @Autowired
     DBPaymentFieldResolver DBPaymentFieldResolver;
