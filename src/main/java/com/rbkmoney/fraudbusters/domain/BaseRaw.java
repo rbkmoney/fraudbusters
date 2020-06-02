@@ -28,9 +28,6 @@ public class BaseRaw {
     private String paymentId;
 
     private String ip;
-    private String bin;
-    private String maskedPan;
-    private String paymentTool;
     private String fingerprint;
     private String cardToken;
     private String paymentSystem;

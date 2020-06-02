@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.domain.Chargeback;
 import com.rbkmoney.fraudbusters.domain.Payment;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
@@ -62,8 +63,10 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
                     "AND sum(\"email\", 10, \"party_id\", \"shop_id\") >= 18000 " +
                     "AND countSuccess(\"card_token\", 10, \"party_id\", \"shop_id\") > 1 " +
                     "AND in(countryBy(\"country_bank\"), \"RUS\") " +
+                    "OR sumRefund(\"card_token\", 10, \"party_id\", \"shop_id\") > 0 " +
                     "OR countRefund(\"card_token\", 10, \"party_id\", \"shop_id\") > 0 " +
-                    "OR countChargeback(\"card_token\", 10, \"party_id\", \"shop_id\") > 0 \n" +
+                    "OR countChargeback(\"card_token\", 10, \"party_id\", \"shop_id\") > 0 " +
+                    "OR sumChargeback(\"card_token\", 10, \"party_id\", \"shop_id\") > 0 \n" +
                     " -> decline;";
 
     private static final String TEMPLATE_CONCRETE =
@@ -174,22 +177,46 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         RiskScore riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        repository.insert(convertContextToPayment(context, CAPTURED));
+        repository.insert(convertContextToPayment(context, CAPTURED, new Payment()));
 
         context = createContext();
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
 
-        repository.insert(convertContextToPayment(context, FAILED));
+        repository.insert(convertContextToPayment(context, FAILED, new Payment()));
 
         context = createContext(P_ID);
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.low, riskScore);
 
-        repository.insert(convertContextToPayment(context, CAPTURED));
+        repository.insert(convertContextToPayment(context, CAPTURED, new Payment()));
 
         //test groups templates
         context = createContext(GROUP_P_ID);
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.fatal, riskScore);
+
+        //test chargeback functions
+        String chargeTest = "charge-test";
+        context = createContext(chargeTest);
+        context.getPayment().getShop().setId(chargeTest);
+        context.getPayment().getParty().setPartyId(chargeTest);
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.high, riskScore);
+
+        chargebackRepository.insert(convertContextToPayment(context, "accepted", new Chargeback()));
+
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.fatal, riskScore);
+
+        //test refund functions
+        String refundShopId = "refund-test";
+        context.getPayment().getShop().setId(refundShopId);
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.high, riskScore);
+
+        chargebackRepository.insert(convertContextToPayment(context, "accepted", new Chargeback()));
+
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
     }

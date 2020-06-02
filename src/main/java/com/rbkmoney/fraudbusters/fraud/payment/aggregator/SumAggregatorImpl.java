@@ -7,7 +7,6 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
@@ -65,18 +64,24 @@ public class SumAggregatorImpl implements SumAggregator<PaymentModel, PaymentChe
 
     @Override
     public Double sumChargeback(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getSum(checkedField, paymentModel, timeWindow, list, chargebackRepository::sumOperationByFieldWithGroupBy);
+        return getSum(checkedField, paymentModel, timeWindow, list, chargebackRepository::sumOperationByFieldWithGroupBy, false);
     }
 
     @Override
     public Double sumRefund(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getSum(checkedField, paymentModel, timeWindow, list, refundRepository::sumOperationByFieldWithGroupBy);
+        return getSum(checkedField, paymentModel, timeWindow, list, refundRepository::sumOperationByFieldWithGroupBy, false);
+    }
+
+    @NotNull
+    private Double getSum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
+                          AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction) {
+        return getSum(checkedField, paymentModel, timeWindow, list, aggregateFunction, true);
     }
 
     @NotNull
     @BasicMetric("getSumWindowed")
     private Double getSum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
-                          AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction) {
+                          AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction, boolean withCurrent) {
         try {
             Instant now = Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
@@ -87,7 +92,7 @@ public class SumAggregatorImpl implements SumAggregator<PaymentModel, PaymentChe
             Long sum = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields);
-            double resultSum = (double) checkedLong(sum) + checkedLong(paymentModel.getAmount());
+            double resultSum = withCurrent ? (double) checkedLong(sum) + checkedLong(paymentModel.getAmount()) : checkedLong(sum);
             log.debug("SumAggregatorImpl field: {} value: {}  sum: {}", resolve.getName(), resolve.getValue(), resultSum);
             return resultSum;
         } catch (Exception e) {

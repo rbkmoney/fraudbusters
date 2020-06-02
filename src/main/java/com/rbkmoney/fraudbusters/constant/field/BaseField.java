@@ -25,9 +25,6 @@ public enum BaseField {
     sequenceId,
 
     ip,
-    bin,
-    maskedPan,
-    paymentTool,
     fingerprint,
     cardToken,
     paymentSystem,

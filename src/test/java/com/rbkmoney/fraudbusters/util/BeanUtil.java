@@ -13,7 +13,7 @@ import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
 import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
-import com.rbkmoney.fraudbusters.domain.Payment;
+import com.rbkmoney.fraudbusters.domain.BaseRaw;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
@@ -405,8 +405,7 @@ public class BeanUtil {
     }
 
     @NotNull
-    public static Payment convertContextToPayment(Context context, String status) {
-        Payment payment = new Payment();
+    public static <T extends BaseRaw> T convertContextToPayment(Context context, String status, T payment) {
         TimeProperties timeProperties = TimestampUtil.generateTimeProperties();
         payment.setTimestamp(timeProperties.getTimestamp());
         payment.setEventTime(timeProperties.getEventTime());
@@ -418,7 +417,6 @@ public class BeanUtil {
         Payer payer = context.getPayment().getPayment().getPayer();
         PayerFieldExtractor.getBankCard(payer)
                 .ifPresent(bankCard -> {
-                    payment.setBin(bankCard.getBin());
                     payment.setBankCountry(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
                     payment.setCardToken(bankCard.getToken());
                 });

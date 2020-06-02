@@ -12,6 +12,7 @@ import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.BaseRawParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.setter.PaymentBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.repository.setter.PaymentParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +46,7 @@ public class PaymentRepositoryImpl implements Repository<Payment>, PaymentReposi
     public void insert(Payment payment) {
         log.debug("PaymentRepository insert payment: {}", payment);
         if (payment != null) {
-            Map<String, Object> parameters = BaseRawParametersGenerator.generateParamsByFraudModel(payment);
+            Map<String, Object> parameters = PaymentParametersGenerator.generateParamsByFraudModel(payment);
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
                     .withTableName(EventSource.ANALYTIC_EVENTS_SINK.getTable());
             simpleJdbcInsert.setColumnNames(Lists.newArrayList(parameters.keySet()));

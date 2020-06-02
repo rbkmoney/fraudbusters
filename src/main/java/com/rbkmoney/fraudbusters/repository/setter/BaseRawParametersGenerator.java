@@ -49,9 +49,6 @@ public class BaseRawParametersGenerator {
         Optional.ofNullable(value.getPaymentId()).ifPresent(v -> parameters.put(BaseField.paymentId.name(), v));
 
         Optional.ofNullable(value.getIp()).ifPresent(v -> parameters.put(BaseField.ip.name(), v));
-        Optional.ofNullable(value.getBin()).ifPresent(v -> parameters.put(BaseField.bin.name(), v));
-        Optional.ofNullable(value.getMaskedPan()).ifPresent(v -> parameters.put(BaseField.maskedPan.name(), v));
-        Optional.ofNullable(value.getPaymentTool()).ifPresent(v -> parameters.put(BaseField.paymentTool.name(), v));
 
         Optional.ofNullable(value.getFingerprint()).ifPresent(v -> parameters.put(BaseField.fingerprint.name(), v));
         Optional.ofNullable(value.getCardToken()).ifPresent(v -> parameters.put(BaseField.cardToken.name(), v));
