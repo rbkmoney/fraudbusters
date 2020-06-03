@@ -12,6 +12,9 @@ import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
 import com.rbkmoney.damsel.proxy_inspector.*;
+import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
+import com.rbkmoney.fraudbusters.domain.BaseRaw;
+import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.geck.common.util.TypeUtil;
@@ -401,4 +404,33 @@ public class BeanUtil {
         return clientInfo;
     }
 
+    @NotNull
+    public static <T extends BaseRaw> T convertContextToPayment(Context context, String status, T payment) {
+        TimeProperties timeProperties = TimestampUtil.generateTimeProperties();
+        payment.setTimestamp(timeProperties.getTimestamp());
+        payment.setEventTime(timeProperties.getEventTime());
+        payment.setEventTimeHour(timeProperties.getEventTimeHour());
+        Cash cost = context.getPayment().getPayment().getCost();
+        payment.setAmount(cost.getAmount());
+        payment.setCurrency(cost.getCurrency().getSymbolicCode());
+        payment.setStatus(status);
+        Payer payer = context.getPayment().getPayment().getPayer();
+        PayerFieldExtractor.getBankCard(payer)
+                .ifPresent(bankCard -> {
+                    payment.setBankCountry(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
+                    payment.setCardToken(bankCard.getToken());
+                });
+        PayerFieldExtractor.getClientInfo(payer)
+                .ifPresent(clientInfo -> {
+                    payment.setFingerprint(clientInfo.getFingerprint());
+                    payment.setIp(clientInfo.getIpAddress());
+                });
+        PayerFieldExtractor.getContactInfo(payer)
+                .ifPresent(contactInfo -> {
+                    payment.setEmail(contactInfo.getEmail());
+                });
+        payment.setPartyId(context.getPayment().getParty().getPartyId());
+        payment.setShopId(context.getPayment().getShop().getId());
+        return payment;
+    }
 }

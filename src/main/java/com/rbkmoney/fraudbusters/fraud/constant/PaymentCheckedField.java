@@ -17,8 +17,8 @@ public enum PaymentCheckedField {
     PARTY_ID("party_id"),
     CARD_TOKEN("card_token");
 
-    private String value;
-    private static Map<String, PaymentCheckedField> valueMap = new HashMap<>();
+    private final String value;
+    private static final Map<String, PaymentCheckedField> valueMap = new HashMap<>();
 
     static {
         for (PaymentCheckedField value : PaymentCheckedField.values()) {
