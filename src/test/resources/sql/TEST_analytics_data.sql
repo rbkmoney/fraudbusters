@@ -160,3 +160,57 @@ create table analytic.events_sink_adjustment
 ) ENGINE = ReplacingMergeTree()
 PARTITION BY toYYYYMM (timestamp)
 ORDER BY (eventTimeHour, partyId, shopId, status, currency, providerName, fingerprint, cardToken, invoiceId, paymentId, adjustmentId, sequenceId);
+
+DROP TABLE IF EXISTS analytic.events_sink_chargeback;
+
+create table analytic.events_sink_chargeback
+(
+    timestamp             Date,
+    eventTime             UInt64,
+    eventTimeHour         UInt64,
+
+    partyId               String,
+    shopId                String,
+
+    email                 String,
+    providerName          String,
+
+    amount                UInt64,
+    guaranteeDeposit      UInt64,
+    systemFee             UInt64,
+    providerFee           UInt64,
+    externalFee           UInt64,
+
+    currency              String,
+
+    chargebackCode        String,
+
+    stage                 Enum8('chargeback' = 1, 'pre_arbitration' = 2, 'arbitration' = 3),
+    status                Enum8('accepted' = 1, 'rejected' = 2, 'cancelled' = 3),
+    category              Enum8('fraud' = 1, 'dispute' = 2, 'authorisation' = 3, 'processing_error' = 4),
+
+    invoiceId             String,
+    chargebackId          String,
+    paymentId             String,
+    sequenceId            UInt64,
+
+    ip                    String,
+    fingerprint           String,
+    cardToken             String,
+    paymentSystem         String,
+    digitalWalletProvider String,
+    digitalWalletToken    String,
+    cryptoCurrency        String,
+    mobileOperator        String,
+
+    paymentCountry        String,
+    bankCountry           String,
+
+    paymentTime           UInt64,
+    providerId            String,
+    terminal              String
+
+) ENGINE = ReplacingMergeTree()
+PARTITION BY toYYYYMM (timestamp)
+ORDER BY (eventTimeHour, partyId, shopId, category, status, stage, currency, providerName, fingerprint, cardToken,
+invoiceId, paymentId, chargebackId, sequenceId);

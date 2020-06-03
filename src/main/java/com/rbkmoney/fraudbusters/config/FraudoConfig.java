@@ -21,8 +21,10 @@ import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.PaymentModelFieldResolver;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.PaymentRepository;
+import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
+import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
-import com.rbkmoney.fraudbusters.repository.source.SourcePool;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
@@ -45,28 +47,37 @@ public class FraudoConfig {
     }
 
     @Bean
-    public CountAggregator<PaymentModel, PaymentCheckedField> countAggregator(SourcePool sourcePool, DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new CountAggregatorImpl(dbPaymentFieldResolver, sourcePool);
+    public CountAggregator<PaymentModel, PaymentCheckedField> countAggregator(PaymentRepository paymentRepository,
+                                                                              RefundRepository refundRepository,
+                                                                              ChargebackRepository chargebackRepository,
+                                                                              DBPaymentFieldResolver dbPaymentFieldResolver) {
+        return new CountAggregatorImpl(dbPaymentFieldResolver, paymentRepository, refundRepository, chargebackRepository);
     }
 
     @Bean
-    public CountAggregator<P2PModel, P2PCheckedField> countP2PAggregator(AggregationRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
+    public CountAggregator<P2PModel, P2PCheckedField> countP2PAggregator(EventP2PRepository eventP2PRepository,
+                                                                         DbP2pFieldResolver dbP2pFieldResolver) {
         return new CountP2PAggregatorImpl(eventP2PRepository, dbP2pFieldResolver);
     }
 
     @Bean
-    public SumAggregator<PaymentModel, PaymentCheckedField> sumAggregator(SourcePool sourcePool, DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new SumAggregatorImpl(dbPaymentFieldResolver, sourcePool);
+    public SumAggregator<PaymentModel, PaymentCheckedField> sumAggregator(PaymentRepository paymentRepository,
+                                                                          RefundRepository refundRepository,
+                                                                          ChargebackRepository chargebackRepository,
+                                                                          DBPaymentFieldResolver dbPaymentFieldResolver) {
+        return new SumAggregatorImpl(dbPaymentFieldResolver, paymentRepository, refundRepository, chargebackRepository);
     }
 
     @Bean
-    public SumAggregator<P2PModel, P2PCheckedField> sumP2PAggregator(EventP2PRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
+    public SumAggregator<P2PModel, P2PCheckedField> sumP2PAggregator(EventP2PRepository eventP2PRepository,
+                                                                     DbP2pFieldResolver dbP2pFieldResolver) {
         return new SumP2PAggregatorImpl(eventP2PRepository, dbP2pFieldResolver);
     }
 
     @Bean
-    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueAggregator(SourcePool sourcePool, DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new UniqueValueAggregatorImpl(dbPaymentFieldResolver, sourcePool);
+    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueAggregator(PaymentRepository paymentRepository,
+                                                                                          DBPaymentFieldResolver dbPaymentFieldResolver) {
+        return new UniqueValueAggregatorImpl(dbPaymentFieldResolver, paymentRepository);
     }
 
     @Bean
@@ -96,9 +107,9 @@ public class FraudoConfig {
 
     @Bean
     public InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder(WbListServiceSrv.Iface wbListServiceSrv,
-                                                                               SourcePool sourcePool,
+                                                                               PaymentRepository paymentRepository,
                                                                                DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, sourcePool);
+        return new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, paymentRepository);
     }
 
     @Bean
