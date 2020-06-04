@@ -32,7 +32,7 @@ services:
        CONFLUENT_METRICS_ENABLE: 'true'
        CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
      volumes:
-   - /tmp/docker/kafka2/data:/var/lib/kafka/data
+       - /tmp/docker/kafka2/data:/var/lib/kafka/data
 
    riak:
      image: basho/riak-kv
@@ -58,7 +58,7 @@ services:
      volumes:
        - ./clickhouse/data:/var/lib/clickhouse
 
-  postgres-columbus:
+   postgres-columbus:
     image: dr2.rbkmoney.com/rbkmoney/postgres-geodata:0758740c8c3f350ddd7a8331b5e1cbb0374f4832
     hostname: postgres-columbus
     container_name: postgres-columbus
@@ -72,7 +72,7 @@ services:
     ports:
       - 5432:5432
 
-  columbus:
+   columbus:
     image: dr2.rbkmoney.com/rbkmoney/columbus:79a03704da4b17afa6f6ce07dbd3522fd5a52442
     hostname: columbus
     container_name: columbus
@@ -85,7 +85,7 @@ services:
     ports:
       - 8990:8022
 
-  wblist:
+   wblist:
      image: dr2.rbkmoney.com/rbkmoney/wb-list-manager:98dbbb82e54ea37c234e521f57ecd092cf20a298
      hostname: wblist
      container_name: wblist
@@ -103,7 +103,7 @@ services:
      ports:
        - 8991:8022
 
-  fraudbusters:
+   fraudbusters:
      image: dr2.rbkmoney.com/rbkmoney/fraudbusters:0e06ea2537ebfe971d1885d76101970b0db64899
      hostname: fraudbusters
      container_name: fraudbusters
@@ -121,7 +121,7 @@ services:
      ports:
        - 8992:8022
 
-  postgres-fb:
+   postgres-fb:
      container_name: postgres_container
      hostname: postgres-fb
      image: postgres
@@ -134,7 +134,7 @@ services:
         - ./postgres/data/3:/data/postgres
      restart: unless-stopped
 
-  fb-management:
+   fb-management:
      image: dr2.rbkmoney.com/rbkmoney/fraudbusters-management:08e165429d3a91d9d734de0b968a77e00b737c19
      hostname: fb-management
      container_name: fb-management
