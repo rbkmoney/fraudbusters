@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.service;
+package com.rbkmoney.fraudbusters.client.model;
 
 import lombok.Builder;
 import lombok.Data;

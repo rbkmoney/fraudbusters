@@ -1,7 +1,8 @@
-package com.rbkmoney.fraudbusters.service;
+package com.rbkmoney.fraudbusters.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rbkmoney.fraudbusters.client.model.PaymentReferenceModel;
 import com.rbkmoney.fraudbusters.exception.RemoteClientException;
 import com.rbkmoney.fraudbusters.exception.UnknownReferenceException;
 import lombok.SneakyThrows;
@@ -23,7 +24,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 @Service
-public class FraudManagementServiceImpl implements FraudManagementService {
+public class FraudManagementClientImpl implements FraudManagementClient {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final CloseableHttpClient client = HttpClients.createDefault();
