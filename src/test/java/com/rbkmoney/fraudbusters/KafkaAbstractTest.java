@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.listener.p2p.TemplateP2PReferenceListener;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
+import com.rbkmoney.fraudbusters.service.FraudManagementService;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
@@ -23,7 +24,9 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
+import org.junit.Before;
 import org.junit.ClassRule;
+import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -40,9 +43,14 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import static org.mockito.ArgumentMatchers.any;
+
 @Slf4j
 @ContextConfiguration(initializers = KafkaAbstractTest.Initializer.class)
 public abstract class KafkaAbstractTest {
+
+    @MockBean
+    private FraudManagementService fraudManagementService;
 
     @MockBean
     GeoIpServiceSrv.Iface geoIpServiceSrv;
@@ -75,6 +83,11 @@ public abstract class KafkaAbstractTest {
     public String eventSinkTopic;
     @Value("${kafka.topic.event.sink.aggregated}")
     public String aggregatedEventSink;
+
+    @Before
+    public void setUp(){
+        Mockito.when(fraudManagementService.isNewShop(any(), any())).thenReturn(false);
+    }
 
     public static Producer<String, Command> createProducer() {
         Properties props = new Properties();

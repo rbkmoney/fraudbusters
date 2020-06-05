@@ -24,11 +24,14 @@ public class FraudManagementService {
     }
 
     public void createDefaultReference(String partyId, String shopId) {
-        if (!fraudManagementClient.isExistReference(partyId, shopId)) {
-            log.info("Got a new shop ('{}', '{}'). We should try to create a default template.", partyId, shopId);
-            String refId = fraudManagementClient.createDefaultReference(partyId, shopId);
-            log.info("Default template with id {} successfully created for new shop ('{}', '{}')", refId, partyId, shopId);
-
+        try {
+            if (!fraudManagementClient.isExistReference(partyId, shopId)) {
+                log.info("Got a new shop ('{}', '{}'). We should try to create a default template.", partyId, shopId);
+                String refId = fraudManagementClient.createDefaultReference(partyId, shopId);
+                log.info("Default template with id {} successfully created for new shop ('{}', '{}')", refId, partyId, shopId);
+            }
+        } catch (Exception e) {
+            log.error("Could not interact with fraudbusters-management", e);
         }
     }
 }
