@@ -1,33 +1,22 @@
 package com.rbkmoney.fraudbusters.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbkmoney.fraudbusters.client.model.PaymentReferenceModel;
-import com.rbkmoney.fraudbusters.exception.RemoteClientException;
 import com.rbkmoney.fraudbusters.exception.UnknownReferenceException;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class FraudManagementClientImpl implements FraudManagementClient {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final CloseableHttpClient client = HttpClients.createDefault();
+    private final RestTemplate restTemplate;
 
     @Value("${fraud.management.url}")
     private String url;
@@ -39,60 +28,37 @@ public class FraudManagementClientImpl implements FraudManagementClient {
     @SneakyThrows
     @Override
     public String createDefaultReference(String partyId, String shopId) {
-        String requestJson = buildRequestJson(partyId, shopId);
-        HttpPost httpPost = buildHttpPost(requestJson);
-        CloseableHttpResponse httpResponse = client.execute(httpPost);
-        if (httpResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            String[] ids = objectMapper.readValue(httpResponse.getEntity().getContent(), String[].class);
-            if (ids == null || ids.length != 1) {
-                throw new UnknownReferenceException();
-            }
-            return ids[0];
-        } else {
-            throw new RemoteClientException("With status code: " + httpResponse.getStatusLine().getStatusCode());
+        List<PaymentReferenceModel> request = buildRequest(partyId, shopId);
+        String[] response = restTemplate.postForObject(url + TEMPLATE_DEFAULT_PATH, request, String[].class);
+        if (response == null || response.length != 1) {
+            throw new UnknownReferenceException();
         }
+        return response[0];
     }
 
     @SneakyThrows
     @Override
-    public List<PaymentReferenceModel> getReferences(String partyId, String shopId) {
-        HttpGet httpGet = buildHttpGet(partyId, shopId);
-        CloseableHttpResponse httpResponse = client.execute(httpGet);
-        if (httpResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            var paymentReferenceModels = objectMapper.readValue(httpResponse.getEntity().getContent(), PaymentReferenceModel[].class);
-            return List.of(paymentReferenceModels);
-        } else {
-            throw new RemoteClientException("With status code: " + httpResponse.getStatusLine().getStatusCode());
-        }
+    public boolean isExistReference(String partyId, String shopId) {
+        URI uri = builGetURI(partyId, shopId);
+        PaymentReferenceModel[] response = restTemplate.getForObject(uri, PaymentReferenceModel[].class);
+        return response != null && response.length > 0;
     }
 
-    private HttpGet buildHttpGet(String partyId, String shopId) throws URISyntaxException {
-        URI uri = new URIBuilder(url + REFERENCE_PATH)
-                .setParameter("partyId", partyId)
-                .setParameter("shopId", shopId)
-                .setParameter("isGlobal", "false")
-                .setParameter("isDefault", "false")
-                .build();
-        HttpGet httpGet = new HttpGet(uri);
-        httpGet.setHeader("Accept", MediaType.APPLICATION_JSON_VALUE);
-        return httpGet;
+    private URI builGetURI(String partyId, String shopId) {
+        return UriComponentsBuilder.fromHttpUrl(url + REFERENCE_PATH)
+                .queryParam("partyId", partyId)
+                .queryParam("shopId", shopId)
+                .queryParam("isGlobal", "false")
+                .queryParam("isDefault", "false")
+                .build().toUri();
     }
 
-    private HttpPost buildHttpPost(String json) throws UnsupportedEncodingException {
-        StringEntity entity = new StringEntity(json);
-        HttpPost httpPost = new HttpPost(url + TEMPLATE_DEFAULT_PATH);
-        httpPost.setEntity(entity);
-        httpPost.setHeader("Accept", MediaType.APPLICATION_JSON_VALUE);
-        httpPost.setHeader("Content-type", MediaType.APPLICATION_JSON_VALUE);
-        return httpPost;
-    }
-
-    private String buildRequestJson(String partyId, String shopId) throws JsonProcessingException {
+    private List<PaymentReferenceModel> buildRequest(String partyId, String shopId) {
         var referenceModel = PaymentReferenceModel.builder()
                 .partyId(partyId)
                 .shopId(shopId)
                 .isGlobal(false)
                 .build();
-        return objectMapper.writeValueAsString(List.of(referenceModel));
+        return List.of(referenceModel);
     }
 }
