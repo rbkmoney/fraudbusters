@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.fraudbusters.client.FraudManagementClient;
+import com.rbkmoney.fraudbusters.config.properties.DefaultTemplateProperties;
 import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +17,11 @@ public class FraudManagementService {
 
     private final FraudResultRepository repository;
     private final FraudManagementClient fraudManagementClient;
+    private final DefaultTemplateProperties properties;
 
     public boolean isNewShop(String partyId, String shopId) {
         Long to = Instant.now().toEpochMilli();
-        Long from = Instant.now().minus(3, ChronoUnit.YEARS).toEpochMilli();
+        Long from = Instant.now().minus(properties.getCountToCheckYears(), ChronoUnit.YEARS).toEpochMilli();
         return repository.countOperationByField("shopId", shopId, from, to) == 0;
     }
 

@@ -61,7 +61,7 @@ public class FraudManagementServiceTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json; charset=utf-8")
-                        .withBody("[{\"TransactionState\": \"pending\", \"TransactionId\": \"GE00000037136286\", \"OrderId\": \"1589385800029\", \"StateDetails\": {}}]")));
+                        .withBody("[{\"partyId\": \"p1\", \"shopId\": \"s1\", \"isGlobal\": \"false\"}]")));
 
         stubFor(get(anyUrl())
                 .withQueryParam("shopId", equalTo("shopId_non_exists"))

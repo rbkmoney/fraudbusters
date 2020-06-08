@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.listener.payment;
 
 import com.rbkmoney.fraudbusters.config.KafkaConfig;
+import com.rbkmoney.fraudbusters.config.properties.DefaultTemplateProperties;
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
@@ -23,6 +24,7 @@ public class ResultAggregatorListener {
     private final Repository<Event> repository;
     private final FraudResultToEventConverter fraudResultToEventConverter;
     private final FraudManagementService fraudManagementService;
+    private final DefaultTemplateProperties defaultTemplateProperties;
 
     @KafkaListener(topics = "${kafka.topic.result}", containerFactory = "kafkaListenerContainerFactory")
     public void listen(List<FraudResult> batch, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
@@ -30,9 +32,11 @@ public class ResultAggregatorListener {
         try {
             log.info("ResultAggregatorListener listen result size: {} partition: {} offset: {}", batch.size(), partition, offset);
             List<Event> events = fraudResultToEventConverter.convertBatch(batch);
-            events.stream()
-                    .filter(e -> fraudManagementService.isNewShop(e.getPartyId(), e.getShopId()))
-                    .forEach(e -> fraudManagementService.createDefaultReference(e.getPartyId(), e.getShopId()));
+            if (defaultTemplateProperties.isEnable()) {
+                events.stream()
+                        .filter(e -> fraudManagementService.isNewShop(e.getPartyId(), e.getShopId()))
+                        .forEach(e -> fraudManagementService.createDefaultReference(e.getPartyId(), e.getShopId()));
+            }
             repository.insertBatch(events);
         } catch (Exception e) {
             log.warn("Error when ResultAggregatorListener listen e: ", e);

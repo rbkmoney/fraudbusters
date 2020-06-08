@@ -84,3 +84,9 @@ wb.list.service.url: "localhost:29092/v1/wb_list"
 fraud:
   management:
     url: "localhost:8899"
+
+defaultTemplate:
+  enable: true
+  countToCheckYears: 3
+
+
