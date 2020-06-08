@@ -85,7 +85,7 @@ fraud:
   management:
     url: "localhost:8899"
 
-defaultTemplate:
+default.template:
   enable: true
   countToCheckYears: 3
 
