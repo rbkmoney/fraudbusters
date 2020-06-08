@@ -24,7 +24,6 @@ public class FraudManagementClientImpl implements FraudManagementClient {
     public static final String TEMPLATE_DEFAULT_PATH = "/template/default";
     public static final String REFERENCE_PATH = "/reference";
 
-
     @SneakyThrows
     @Override
     public String createDefaultReference(String partyId, String shopId) {
