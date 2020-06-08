@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters.service;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.rbkmoney.fraudbusters.client.FraudManagementClientImpl;
 import com.rbkmoney.fraudbusters.config.RestTemplateConfig;
+import com.rbkmoney.fraudbusters.config.properties.DefaultTemplateProperties;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
 import org.junit.Before;
@@ -32,7 +33,8 @@ import static org.mockito.ArgumentMatchers.any;
         AggregationGeneralRepositoryImpl.class,
         FraudResultRepository.class,
         FraudManagementClientImpl.class,
-        RestTemplateConfig.class})
+        RestTemplateConfig.class,
+        DefaultTemplateProperties.class})
 public class FraudManagementServiceTest {
 
     @Rule
