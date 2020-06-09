@@ -24,7 +24,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(SpringRunner.class)
 @TestPropertySource(properties = {"fraud.management.url=http://127.0.0.1:8089"})
@@ -40,7 +40,7 @@ public class FraudManagementServiceTest {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8089);
 
-    @Mock
+    @MockBean
     private FraudResultRepository fraudResultRepository;
 
     @MockBean
@@ -76,15 +76,21 @@ public class FraudManagementServiceTest {
 
     @Test
     public void testCreateDefaultReference() {
-        MockitoAnnotations.initMocks(this);
-        Mockito.when(fraudResultRepository.countOperationByField(any(), any(), any(), any())).thenReturn(0);
-        fraudManagementService.createDefaultReference("partyId", "shopId_exists");
+       fraudManagementService.createDefaultReference("partyId", "shopId_exists");
         verify(1, getRequestedFor(anyUrl()));
         verify(0, postRequestedFor(urlEqualTo("/template/default")));
 
         fraudManagementService.createDefaultReference("partyId", "shopId_non_exists");
         verify(2, getRequestedFor(anyUrl()));
         verify(1, postRequestedFor(urlEqualTo("/template/default")));
+    }
+
+    @Test
+    public void testIsNewShop(){
+        MockitoAnnotations.initMocks(this);
+        Mockito.when(fraudResultRepository.countOperationByField(anyString(), anyString(), anyLong(), anyLong())).thenReturn(0);
+        fraudManagementService.isNewShop("p1", "s1");
+        Mockito.verify(fraudResultRepository).countOperationByField(anyString(), anyString(), anyLong(), anyLong());
     }
 
 }
