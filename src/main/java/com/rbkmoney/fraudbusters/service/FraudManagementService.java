@@ -21,7 +21,7 @@ public class FraudManagementService {
 
     public boolean isNewShop(String partyId, String shopId) {
         Long to = Instant.now().toEpochMilli();
-        Long from = Instant.now().minus(properties.getCountToCheckYears(), ChronoUnit.YEARS).toEpochMilli();
+        Long from = Instant.now().minus(properties.getCountToCheckDays(), ChronoUnit.DAYS).toEpochMilli();
         return repository.countOperationByField("shopId", shopId, from, to) == 0;
     }
 

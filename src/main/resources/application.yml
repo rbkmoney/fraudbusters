@@ -87,6 +87,6 @@ fraud:
 
 default.template:
   enable: true
-  countToCheckYears: 3
+  countToCheckDays: 1000
 
 
