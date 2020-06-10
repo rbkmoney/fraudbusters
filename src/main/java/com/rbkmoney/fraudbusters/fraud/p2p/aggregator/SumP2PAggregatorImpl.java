@@ -30,26 +30,6 @@ public class SumP2PAggregatorImpl implements SumAggregator<P2PModel, P2PCheckedF
         return getSum(checkedField, p2pModel, timeWindow, list, eventP2PRepository::sumOperationByFieldWithGroupBy);
     }
 
-    @Override
-    public Double sumSuccess(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
-        throw new UnsupportedOperationException("P2p is not support this operation!");
-    }
-
-    @Override
-    public Double sumError(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, String errorCode, List<P2PCheckedField> list) {
-        throw new UnsupportedOperationException("P2p is not support this operation!");
-    }
-
-    @Override
-    public Double sumChargeback(P2PCheckedField p2PCheckedField, P2PModel p2PModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
-        throw new UnsupportedOperationException("P2p is not support this operation!");
-    }
-
-    @Override
-    public Double sumRefund(P2PCheckedField p2PCheckedField, P2PModel p2PModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
-        throw new UnsupportedOperationException("P2p is not support this operation!");
-    }
-
     @NotNull
     @BasicMetric(value = "getSumWindowed", extraTags = "p2p")
     private Double getSum(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list,

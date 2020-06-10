@@ -7,7 +7,6 @@ import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
-import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
@@ -31,28 +30,6 @@ public class CountP2PAggregatorImpl implements CountAggregator<P2PModel, P2PChec
     @BasicMetric(value = "count", extraTags = "p2p")
     public Integer count(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
         return getCount(checkedField, p2pModel, timeWindow, list, eventP2PRepository::countOperationByFieldWithGroupBy);
-    }
-
-    @Override
-    @BasicMetric(value = "countSuccess", extraTags = "p2p")
-    public Integer countSuccess(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
-        throw new UnsupportedOperationException("P2p is not support this operation!");
-    }
-
-    @Override
-    @BasicMetric(value = "countError", extraTags = "p2p")
-    public Integer countError(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, String errorCode, List<P2PCheckedField> list) {
-        throw new UnsupportedOperationException("P2p is not support this operation!");
-    }
-
-    @Override
-    public Integer countChargeback(P2PCheckedField p2PCheckedField, P2PModel p2PModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
-        throw new UnsupportedOperationException("P2p is not support this operation!");
-    }
-
-    @Override
-    public Integer countRefund(P2PCheckedField p2PCheckedField, P2PModel p2PModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
-        throw new UnsupportedOperationException("P2p is not support this operation!");
     }
 
     @NotNull

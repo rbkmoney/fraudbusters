@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.fraud.payment.resolver;
 
+import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
@@ -11,6 +12,7 @@ import org.apache.thrift.TException;
 @Slf4j
 @RequiredArgsConstructor
 public class CountryResolverImpl implements CountryResolver<PaymentCheckedField> {
+
 
     private final CountryByIpResolver countryByIpResolver;
 
@@ -24,7 +26,7 @@ public class CountryResolverImpl implements CountryResolver<PaymentCheckedField>
                 location = fieldValue;
             }
             if (location == null) {
-                return UNKNOWN_VALUE;
+                return ClickhouseUtilsValue.UNKNOWN;
             }
             log.debug("CountryResolverImpl resolve ip: {} country_id: {}", fieldValue, location);
             return location;
