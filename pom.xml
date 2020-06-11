@@ -29,13 +29,13 @@
         <damsel.version>1.354-86029b4</damsel.version>
         <woody.thrift.version>1.1.15</woody.thrift.version>
         <geck.version>0.6.7</geck.version>
-        <fraudo.version>0.0.15</fraudo.version>
+        <fraudo.version>0.0.16</fraudo.version>
         <damsel-utils.version>2.1.3</damsel-utils.version>
         <wb.list.proto.version>1.29-4fe14c3</wb.list.proto.version>
         <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
         <kafka.common.lib.version>0.0.9</kafka.common.lib.version>
         <clickhouse-jdbc.version>0.2.4</clickhouse-jdbc.version>
-        <fraudbusters-proto.version>1.15-8f3babc</fraudbusters-proto.version>
+        <fraudbusters-proto.version>1.24-205d4ba</fraudbusters-proto.version>
         <machinegun-proto.version>1.12-ebae56f</machinegun-proto.version>
 
         <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
@@ -200,6 +200,12 @@
             <groupId>org.rnorth.duct-tape</groupId>
             <artifactId>duct-tape</artifactId>
             <version>1.0.8</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>4.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

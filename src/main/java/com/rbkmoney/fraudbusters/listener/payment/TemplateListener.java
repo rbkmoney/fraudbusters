@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters.listener.payment;
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
+import com.rbkmoney.fraudbusters.fraud.payment.validator.PaymentTemplateValidator;
 import com.rbkmoney.fraudbusters.listener.AbstractPoolCommandListenerExecutor;
 import com.rbkmoney.fraudbusters.listener.CommandListener;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
@@ -13,8 +14,10 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 
 @Slf4j
@@ -23,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 public class TemplateListener extends AbstractPoolCommandListenerExecutor implements CommandListener {
 
     private final FraudContextParser<FraudoPaymentParser.ParseContext> paymentContextParser;
+    private final PaymentTemplateValidator paymentTemplateValidator;
     private final Pool<ParserRuleContext> templatePoolImpl;
 
     @Override
@@ -32,7 +36,16 @@ public class TemplateListener extends AbstractPoolCommandListenerExecutor implem
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetTemplate()) {
             Template template = command.getCommandBody().getTemplate();
             String templateString = new String(template.getTemplate(), StandardCharsets.UTF_8);
+            log.info("TemplateP2PListener templateString: {}", templateString);
+            validateTemplate(templateString);
             execCommand(command, template.getId(), templatePoolImpl, paymentContextParser::parse, templateString);
+        }
+    }
+
+    private void validateTemplate(String templateString) {
+        List<String> validate = paymentTemplateValidator.validate(templateString);
+        if (!CollectionUtils.isEmpty(validate)) {
+            log.warn("TemplateP2PListener validateError: {}", validate);
         }
     }
 
