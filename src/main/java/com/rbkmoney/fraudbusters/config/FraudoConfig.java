@@ -20,7 +20,6 @@ import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.PaymentModelFieldResolver;
-import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
@@ -28,13 +27,19 @@ import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
-import com.rbkmoney.fraudo.factory.FirstFraudVisitorFactory;
-import com.rbkmoney.fraudo.factory.FraudVisitorFactory;
 import com.rbkmoney.fraudo.finder.InListFinder;
+import com.rbkmoney.fraudo.p2p.factory.P2PFraudVisitorFactory;
+import com.rbkmoney.fraudo.p2p.resolver.P2PGroupResolver;
+import com.rbkmoney.fraudo.p2p.resolver.P2PTimeWindowResolver;
+import com.rbkmoney.fraudo.p2p.visitor.impl.FirstFindP2PVisitorImpl;
+import com.rbkmoney.fraudo.payment.aggregator.CountPaymentAggregator;
+import com.rbkmoney.fraudo.payment.aggregator.SumPaymentAggregator;
+import com.rbkmoney.fraudo.payment.factory.FraudVisitorFactoryImpl;
+import com.rbkmoney.fraudo.payment.resolver.PaymentGroupResolver;
+import com.rbkmoney.fraudo.payment.resolver.PaymentTimeWindowResolver;
+import com.rbkmoney.fraudo.payment.visitor.impl.FirstFindVisitorImpl;
 import com.rbkmoney.fraudo.resolver.CountryResolver;
 import com.rbkmoney.fraudo.resolver.FieldResolver;
-import com.rbkmoney.fraudo.resolver.GroupByModelResolver;
-import com.rbkmoney.fraudo.visitor.impl.FirstFindVisitorImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -42,15 +47,10 @@ import org.springframework.context.annotation.Configuration;
 public class FraudoConfig {
 
     @Bean
-    public FraudVisitorFactory fraudVisitorFactory() {
-        return new FirstFraudVisitorFactory();
-    }
-
-    @Bean
-    public CountAggregator<PaymentModel, PaymentCheckedField> countAggregator(PaymentRepository paymentRepository,
-                                                                              RefundRepository refundRepository,
-                                                                              ChargebackRepository chargebackRepository,
-                                                                              DBPaymentFieldResolver dbPaymentFieldResolver) {
+    public CountPaymentAggregator<PaymentModel, PaymentCheckedField> countAggregator(PaymentRepository paymentRepository,
+                                                                                     RefundRepository refundRepository,
+                                                                                     ChargebackRepository chargebackRepository,
+                                                                                     DBPaymentFieldResolver dbPaymentFieldResolver) {
         return new CountAggregatorImpl(dbPaymentFieldResolver, paymentRepository, refundRepository, chargebackRepository);
     }
 
@@ -61,10 +61,10 @@ public class FraudoConfig {
     }
 
     @Bean
-    public SumAggregator<PaymentModel, PaymentCheckedField> sumAggregator(PaymentRepository paymentRepository,
-                                                                          RefundRepository refundRepository,
-                                                                          ChargebackRepository chargebackRepository,
-                                                                          DBPaymentFieldResolver dbPaymentFieldResolver) {
+    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumAggregator(PaymentRepository paymentRepository,
+                                                                                 RefundRepository refundRepository,
+                                                                                 ChargebackRepository chargebackRepository,
+                                                                                 DBPaymentFieldResolver dbPaymentFieldResolver) {
         return new SumAggregatorImpl(dbPaymentFieldResolver, paymentRepository, refundRepository, chargebackRepository);
     }
 
@@ -121,40 +121,40 @@ public class FraudoConfig {
 
     @Bean
     public FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> paymentRuleVisitor(
-            FraudVisitorFactory fraudVisitorFactory,
-            CountAggregator<PaymentModel, PaymentCheckedField> countAggregator,
-            SumAggregator<PaymentModel, PaymentCheckedField> sumAggregator,
+            CountPaymentAggregator<PaymentModel, PaymentCheckedField> countAggregator,
+            SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumAggregator,
             UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueAggregator,
             CountryResolver<PaymentCheckedField> countryResolver,
             InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder,
             FieldResolver<PaymentModel, PaymentCheckedField> paymentModelFieldResolver) {
-        return fraudVisitorFactory.createVisitor(
+        return new FraudVisitorFactoryImpl().createVisitor(
                 countAggregator,
                 sumAggregator,
                 uniqueValueAggregator,
                 countryResolver,
                 paymentInListFinder,
                 paymentModelFieldResolver,
-                new GroupByModelResolver<>(paymentModelFieldResolver));
+                new PaymentGroupResolver<>(paymentModelFieldResolver),
+                new PaymentTimeWindowResolver());
     }
 
     @Bean
-    public FirstFindVisitorImpl<P2PModel, P2PCheckedField> p2pRuleVisitor(
-            FraudVisitorFactory fraudVisitorFactory,
+    public FirstFindP2PVisitorImpl<P2PModel, P2PCheckedField> p2pRuleVisitor(
             CountAggregator<P2PModel, P2PCheckedField> countP2PAggregator,
             SumAggregator<P2PModel, P2PCheckedField> sumP2PAggregator,
             UniqueValueAggregator<P2PModel, P2PCheckedField> uniqueValueP2PAggregator,
             CountryResolver<P2PCheckedField> countryP2PResolver,
             InListFinder<P2PModel, P2PCheckedField> p2pInListFinder,
             FieldResolver<P2PModel, P2PCheckedField> p2PModelFieldResolver) {
-        return fraudVisitorFactory.createVisitor(
+        return new P2PFraudVisitorFactory().createVisitor(
                 countP2PAggregator,
                 sumP2PAggregator,
                 uniqueValueP2PAggregator,
                 countryP2PResolver,
                 p2pInListFinder,
                 p2PModelFieldResolver,
-                new GroupByModelResolver<>(p2PModelFieldResolver));
+                new P2PGroupResolver<>(p2PModelFieldResolver),
+                new P2PTimeWindowResolver());
     }
 
 }

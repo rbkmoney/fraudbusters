@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.fraud.resolver;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
+import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
@@ -40,13 +41,13 @@ public class CountryResolverImplTest {
     public void resolveCountryUnknownLocationTest() throws TException {
         Mockito.when(geoIpServiceSrv.getLocation(TEST)).thenReturn(null);
         String result = countryResolver.resolveCountry(PaymentCheckedField.IP, "123.123.123.123");
-        Assert.assertEquals(result, CountryResolver.UNKNOWN_VALUE);
+        Assert.assertEquals(result, ClickhouseUtilsValue.UNKNOWN);
     }
 
     @Test
     public void resolveCountryExceptionInvocationTest() throws TException {
         Mockito.when(geoIpServiceSrv.getLocation(TEST)).thenThrow(new TException());
         String result = countryResolver.resolveCountry(PaymentCheckedField.IP, "123.123.123.123");
-        Assert.assertEquals(result, CountryResolver.UNKNOWN_VALUE);
+        Assert.assertEquals(result, ClickhouseUtilsValue.UNKNOWN);
     }
 }

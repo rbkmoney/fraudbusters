@@ -6,7 +6,8 @@ import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
-import com.rbkmoney.fraudo.FraudoParser;
+import com.rbkmoney.fraudo.FraudoPaymentParser;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Producer;
@@ -39,7 +40,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
     public static final int TIMEOUT = 20;
 
     @Autowired
-    private Pool<FraudoParser.ParseContext> templatePoolImpl;
+    private Pool<ParserRuleContext> templatePoolImpl;
     @Autowired
     private Pool<String> referencePoolImpl;
 
@@ -61,7 +62,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
 
         //check parse context created
         Unreliables.retryUntilTrue(TIMEOUT, TimeUnit.SECONDS, () -> {
-            FraudoParser.ParseContext parseContext = templatePoolImpl.get(id);
+            ParserRuleContext parseContext = templatePoolImpl.get(id);
             return parseContext != null;
         });
 

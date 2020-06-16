@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.fraud.p2p.resolver;
 
+import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
@@ -24,7 +25,7 @@ public class CountryP2PResolverImpl implements CountryResolver<P2PCheckedField> 
                 location = fieldValue;
             }
             if (location == null) {
-                return UNKNOWN_VALUE;
+                return ClickhouseUtilsValue.UNKNOWN;
             }
             log.debug("CountryResolverImpl resolve ip: {} country_id: {}", fieldValue, location);
             return location;

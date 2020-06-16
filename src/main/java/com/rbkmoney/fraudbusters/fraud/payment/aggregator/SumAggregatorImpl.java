@@ -11,8 +11,8 @@ import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
-import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
+import com.rbkmoney.fraudo.payment.aggregator.SumPaymentAggregator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-public class SumAggregatorImpl implements SumAggregator<PaymentModel, PaymentCheckedField> {
+public class SumAggregatorImpl implements SumPaymentAggregator<PaymentModel, PaymentCheckedField> {
 
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
     private final PaymentRepository paymentRepository;

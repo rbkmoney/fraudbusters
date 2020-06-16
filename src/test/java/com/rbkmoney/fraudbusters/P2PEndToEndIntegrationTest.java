@@ -57,8 +57,6 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
                     " -> decline;";
 
     private static final int COUNTRY_GEO_ID = 12345;
-    private static final String P_ID = "test";
-    private static final String GROUP_P_ID = "group_1";
     public static final long TIMEOUT = 2000L;
     public static final String FRAUD = "fraud";
     public static final String IDENT_ID = "identId";

@@ -1,9 +1,9 @@
 package com.rbkmoney.fraudbusters.fraud;
 
-import com.rbkmoney.fraudo.FraudoParser;
+import org.antlr.v4.runtime.ParserRuleContext;
 
-public interface FraudContextParser {
+public interface FraudContextParser<T extends ParserRuleContext> {
 
-    FraudoParser.ParseContext parse(String template);
+    T parse(String template);
 
 }
