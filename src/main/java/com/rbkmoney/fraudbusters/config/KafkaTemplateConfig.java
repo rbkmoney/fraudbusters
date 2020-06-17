@@ -1,5 +1,8 @@
 package com.rbkmoney.fraudbusters.config;
 
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
+import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.fraudbusters.config.properties.KafkaSslProperties;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
@@ -20,7 +23,7 @@ import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
-public class ResultTemplateConfig {
+public class KafkaTemplateConfig {
 
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
@@ -38,6 +41,21 @@ public class ResultTemplateConfig {
 
     @Bean
     public KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerResultConfigs()));
+    }
+
+    @Bean
+    public KafkaTemplate<String, Payment> paymentKafkaTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerResultConfigs()));
+    }
+
+    @Bean
+    public KafkaTemplate<String, Refund> refundKafkaTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerResultConfigs()));
+    }
+
+    @Bean
+    public KafkaTemplate<String, Chargeback> chargebackKafkaTemplate() {
         return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerResultConfigs()));
     }
 

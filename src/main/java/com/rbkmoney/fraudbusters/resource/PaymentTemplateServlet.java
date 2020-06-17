@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.resource;
 
-import com.rbkmoney.damsel.fraudbusters.PaymentValidateServiceSrv;
+import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.woody.thrift.impl.http.THServiceBuilder;
 import lombok.RequiredArgsConstructor;
 
@@ -10,17 +10,17 @@ import java.io.IOException;
 
 @WebServlet("/fraud_payment_validator/v1/")
 @RequiredArgsConstructor
-public class PaymentValidateTemplateServlet extends GenericServlet {
+public class PaymentTemplateServlet extends GenericServlet {
 
     private Servlet thriftServlet;
 
-    private final PaymentValidateServiceSrv.Iface paymentTemplateValidatorHandler;
+    private final PaymentServiceSrv.Iface paymentHandler;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         thriftServlet = new THServiceBuilder()
-                .build(PaymentValidateServiceSrv.Iface.class, paymentTemplateValidatorHandler);
+                .build(PaymentServiceSrv.Iface.class, paymentHandler);
     }
 
     @Override

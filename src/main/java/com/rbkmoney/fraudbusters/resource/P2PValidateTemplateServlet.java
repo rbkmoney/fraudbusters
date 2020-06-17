@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.resource;
 
-import com.rbkmoney.damsel.fraudbusters.P2PValidateServiceSrv;
+import com.rbkmoney.damsel.fraudbusters.P2PServiceSrv;
 import com.rbkmoney.woody.thrift.impl.http.THServiceBuilder;
 import lombok.RequiredArgsConstructor;
 
@@ -14,13 +14,13 @@ public class P2PValidateTemplateServlet extends GenericServlet {
 
     private Servlet thriftServlet;
 
-    private final P2PValidateServiceSrv.Iface p2pTemplateValidatorHandler;
+    private final P2PServiceSrv.Iface p2pTemplateValidatorHandler;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         thriftServlet = new THServiceBuilder()
-                .build(P2PValidateServiceSrv.Iface.class, p2pTemplateValidatorHandler);
+                .build(P2PServiceSrv.Iface.class, p2pTemplateValidatorHandler);
     }
 
     @Override
