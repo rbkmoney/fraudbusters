@@ -23,4 +23,10 @@ public class TemplatePoolImpl implements Pool<ParserRuleContext> {
     public void remove(String key) {
         templates.remove(key);
     }
+
+    @Override
+    public int size() {
+        return templates.size();
+    }
+
 }

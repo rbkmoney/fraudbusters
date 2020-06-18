@@ -10,10 +10,12 @@ import com.rbkmoney.fraudbusters.listener.payment.GroupListener;
 import com.rbkmoney.fraudbusters.listener.payment.GroupReferenceListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateReferenceListener;
+import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.kafka.common.loader.PreloadListener;
 import com.rbkmoney.kafka.common.loader.PreloadListenerImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -54,6 +56,9 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private final GroupP2PListener groupP2PListener;
     private final GroupReferenceP2PListener groupReferenceP2PListener;
     private final TemplateP2PReferenceListener templateP2PReferenceListener;
+
+    private final Pool<ParserRuleContext> templatePoolImpl;
+    private final Pool<ParserRuleContext> templateP2PPoolImpl;
 
     private final PreloadListener<String, Command> preloadListener = new PreloadListenerImpl<>();
 
@@ -109,6 +114,8 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
             }
 
             log.info("StartupListener start stream preloadTime: {} ms", System.currentTimeMillis() - startPreloadTime);
+            log.info("StartupListener load pool payment template size: {} templates: {}", templatePoolImpl.size(), templatePoolImpl);
+            log.info("StartupListener load pool p2p template size: {} templates: {}", templateP2PPoolImpl.size(), templatePoolImpl);
         } catch (InterruptedException e) {
             log.error("StartupListener onApplicationEvent e: ", e);
             Thread.currentThread().interrupt();
