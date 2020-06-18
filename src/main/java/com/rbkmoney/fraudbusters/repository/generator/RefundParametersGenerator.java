@@ -1,7 +1,8 @@
-package com.rbkmoney.fraudbusters.repository.setter;
+package com.rbkmoney.fraudbusters.repository.generator;
 
+import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.fraudbusters.constant.field.RefundField;
-import com.rbkmoney.fraudbusters.domain.Refund;
+import com.rbkmoney.fraudbusters.repository.generator.BaseRawParametersGenerator;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;

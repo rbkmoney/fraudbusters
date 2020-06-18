@@ -1,18 +1,18 @@
 package com.rbkmoney.fraudbusters.repository.impl;
 
 import com.google.common.collect.Lists;
+import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.fraudbusters.constant.AnalyticStatus;
 import com.rbkmoney.fraudbusters.constant.EventSource;
-import com.rbkmoney.fraudbusters.domain.Payment;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
-import com.rbkmoney.fraudbusters.repository.setter.BaseRawParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.generator.BaseRawParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.setter.PaymentBatchPreparedStatementSetter;
-import com.rbkmoney.fraudbusters.repository.setter.PaymentParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.generator.PaymentParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class PaymentRepositoryImpl implements Repository<Payment>, PaymentReposi
 
     private static final String INSERT = String.format(
             "INSERT INTO %1s (%2s) VALUES (%3s)",
-            EventSource.ANALYTIC_EVENTS_SINK.getTable(),
+            EventSource.FRAUD_EVENTS_PAYMENT.getTable(),
             BaseRawParametersGenerator.BASE_RAW_PARAMETERS,
             BaseRawParametersGenerator.BASE_RAW_PARAMETERS_MARK);
 
@@ -48,7 +48,7 @@ public class PaymentRepositoryImpl implements Repository<Payment>, PaymentReposi
         if (payment != null) {
             Map<String, Object> parameters = PaymentParametersGenerator.generateParamsByFraudModel(payment);
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
-                    .withTableName(EventSource.ANALYTIC_EVENTS_SINK.getTable());
+                    .withTableName(EventSource.FRAUD_EVENTS_PAYMENT.getTable());
             simpleJdbcInsert.setColumnNames(Lists.newArrayList(parameters.keySet()));
             simpleJdbcInsert.execute(parameters);
         }

@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class PaymentBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
+public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
     private final List<Payment> batch;
 

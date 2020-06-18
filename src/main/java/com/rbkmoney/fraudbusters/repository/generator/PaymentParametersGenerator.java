@@ -1,7 +1,7 @@
-package com.rbkmoney.fraudbusters.repository.setter;
+package com.rbkmoney.fraudbusters.repository.generator;
 
+import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.fraudbusters.constant.field.PaymentField;
-import com.rbkmoney.fraudbusters.domain.Payment;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;

@@ -1,14 +1,14 @@
 package com.rbkmoney.fraudbusters.repository.impl;
 
 import com.google.common.collect.Lists;
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.fraudbusters.constant.ChargebackStatus;
 import com.rbkmoney.fraudbusters.constant.EventSource;
-import com.rbkmoney.fraudbusters.domain.Chargeback;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.repository.setter.BaseRawParametersGenerator;
-import com.rbkmoney.fraudbusters.repository.setter.ChargebackParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.generator.BaseRawParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.generator.ChargebackParametersGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,7 +28,7 @@ public class ChargebackRepository implements Repository<Chargeback>, Aggregation
 
     private static final String INSERT = String.format(
             "INSERT INTO %1S (%2S) VALUES (%3S)",
-            EventSource.ANALYTIC_EVENTS_SINK_CHARGEBACK.getTable(),
+            EventSource.FRAUD_EVENTS_CHARGEBACK.getTable(),
             BaseRawParametersGenerator.BASE_RAW_PARAMETERS,
             BaseRawParametersGenerator.BASE_RAW_PARAMETERS_MARK);
 
@@ -38,7 +38,7 @@ public class ChargebackRepository implements Repository<Chargeback>, Aggregation
         if (chargeback != null) {
             Map<String, Object> parameters = ChargebackParametersGenerator.generateParamsByFraudModel(chargeback);
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
-                    .withTableName(EventSource.ANALYTIC_EVENTS_SINK_CHARGEBACK.getTable());
+                    .withTableName(EventSource.FRAUD_EVENTS_CHARGEBACK.getTable());
             simpleJdbcInsert.setColumnNames(Lists.newArrayList(parameters.keySet()));
             simpleJdbcInsert.execute(parameters);
         }

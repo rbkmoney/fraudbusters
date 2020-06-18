@@ -1,14 +1,15 @@
 package com.rbkmoney.fraudbusters.repository.impl;
 
 import com.google.common.collect.Lists;
+import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.constant.RefundStatus;
-import com.rbkmoney.fraudbusters.domain.Refund;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.repository.setter.BaseRawParametersGenerator;
-import com.rbkmoney.fraudbusters.repository.setter.RefundParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.generator.BaseRawParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.setter.PaymentBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.repository.generator.RefundParametersGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,17 +29,17 @@ public class RefundRepository implements Repository<Refund>, AggregationReposito
 
     private static final String INSERT = String.format(
             "INSERT INTO %1S (%2S) VALUES (%3S)",
-            EventSource.ANALYTIC_EVENTS_SINK_REFUND.getTable(),
+            EventSource.FRAUD_EVENTS_REFUND.getTable(),
             BaseRawParametersGenerator.BASE_RAW_PARAMETERS,
             BaseRawParametersGenerator.BASE_RAW_PARAMETERS_MARK);
 
     @Override
     public void insert(Refund refund) {
-        log.debug("RefundRepository insert payment: {}", refund);
+        log.debug("RefundRepository insert refund: {}", refund);
         if (refund != null) {
             Map<String, Object> parameters = RefundParametersGenerator.generateParamsByFraudModel(refund);
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
-                    .withTableName(EventSource.ANALYTIC_EVENTS_SINK_REFUND.getTable());
+                    .withTableName(EventSource.FRAUD_EVENTS_REFUND.getTable());
             simpleJdbcInsert.setColumnNames(Lists.newArrayList(parameters.keySet()));
             simpleJdbcInsert.execute(parameters);
         }
@@ -46,7 +47,10 @@ public class RefundRepository implements Repository<Refund>, AggregationReposito
 
     @Override
     public void insertBatch(List<Refund> batch) {
-        throw new UnsupportedOperationException("RefundRepository is not support now!");
+        if (batch != null && !batch.isEmpty()) {
+            log.debug("RefundRepository insertBatch batch size: {}", batch.size());
+            jdbcTemplate.batchUpdate(INSERT, new PaymentBatchPreparedStatementSetter(batch));
+        }
     }
 
     @Override
