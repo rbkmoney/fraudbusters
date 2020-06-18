@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.listener.payment;
 
-import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.fraudbusters.config.KafkaConfig;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import lombok.RequiredArgsConstructor;
@@ -15,18 +15,18 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PaymentEventListener {
+public class ChargebackEventListener {
 
-    private final Repository<Payment> repository;
+    private final Repository<Chargeback> repository;
 
-    @KafkaListener(topics = "${kafka.topic.event.payment}", containerFactory = "kafkaListenerContainerFactory")
-    public void listen(List<Payment> payments, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
+    @KafkaListener(topics = "${kafka.topic.event.chargeback}", containerFactory = "kafkaListenerContainerFactory")
+    public void listen(List<Chargeback> chargeback, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
                        @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {
-            log.info("PaymentEventListener listen result size: {} partition: {} offset: {}", payments.size(), partition, offset);
-            repository.insertBatch(payments);
+            log.info("ChargebackEventListener listen result size: {} partition: {} offset: {}", chargeback.size(), partition, offset);
+            repository.insertBatch(chargeback);
         } catch (Exception e) {
-            log.warn("Error when PaymentEventListener listen e: ", e);
+            log.warn("Error when ChargebackEventListener listen e: ", e);
             Thread.sleep(KafkaConfig.THROTTLING_TIMEOUT);
             throw e;
         }
