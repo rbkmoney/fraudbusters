@@ -1,6 +1,8 @@
 package com.rbkmoney.fraudbusters.repository.setter;
 
-import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.fraudbusters.domain.TimeProperties;
+import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
@@ -11,42 +13,52 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RefundBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
-    private final List<Payment> batch;
+    private final List<Refund> batch;
 
     @Override
     public void setValues(PreparedStatement ps, int i) throws SQLException {
-        Payment event = batch.get(i);
+        Refund event = batch.get(i);
         int l = 1;
-        ps.setObject(l++, event.getTimestamp());
-        ps.setLong(l++, event.getEventTimeHour());
-        ps.setLong(l++, event.getEventTime());
+        TimeProperties timeProperties = TimestampUtil.generateTimePropertiesByString(event.getEventTime());
+        ps.setObject(l++, timeProperties.getTimestamp());
+        ps.setLong(l++, timeProperties.getEventTimeHour());
+        ps.setLong(l++, timeProperties.getEventTime());
 
-        ps.setString(l++, event.getPartyId());
-        ps.setString(l++, event.getShopId());
+        ps.setString(l++, event.getId());
 
-        ps.setString(l++, event.getEmail());
-        ps.setString(l++, event.getProviderId());
+        ClientInfo clientInfo = event.getClientInfo();
+        ps.setString(l++, clientInfo.getEmail());
+        ps.setString(l++, clientInfo.getIp());
+        ps.setString(l++, clientInfo.getFingerprint());
 
-        ps.setLong(l++, event.getAmount());
-        ps.setString(l++, event.getCurrency());
+        PaymentTool paymentTool = event.getPaymentTool();
+        if (paymentTool.isSetBankCard()) {
+            BankCard bankCard = paymentTool.getBankCard();
+            ps.setString(l++, bankCard.getBin());
+            ps.setString(l++, bankCard.getMaskedPan());
+            ps.setString(l++, bankCard.getCardToken());
+            ps.setString(l++, bankCard.getPaymentSystem());
+            ps.setString(l++, PaymentTool.bank_card());
+        }
 
-        ps.setString(l++, event.getStatus());
-        ps.setString(l++, event.getErrorCode());
-        ps.setString(l++, event.getErrorReason());
+        ProviderInfo providerInfo = event.getProviderInfo();
+        ps.setString(l++, providerInfo.getTerminalId());
+        ps.setString(l++, providerInfo.getProviderId());
+        ps.setString(l++, providerInfo.getCountry());
 
-        ps.setString(l++, event.getInvoiceId());
-        ps.setString(l++, event.getPaymentId());
+        ReferenceInfo referenceInfo = event.getReferenceInfo();
+        if (referenceInfo.isSetMerchantInfo()) {
+            MerchantInfo merchantInfo = referenceInfo.getMerchantInfo();
+            ps.setString(l++, merchantInfo.getPartyId());
+            ps.setString(l++, merchantInfo.getShopId());
+        }
 
-        ps.setString(l++, event.getIp());
-        ps.setString(l++, event.getBin());
-        ps.setString(l++, event.getMaskedPan());
-        ps.setString(l++, event.getPaymentTool());
-        ps.setString(l++, event.getFingerprint());
-        ps.setString(l++, event.getCardToken());
-        ps.setString(l++, event.getPaymentSystem());
-        ps.setString(l++, event.getPaymentCountry());
-        ps.setString(l++, event.getBankCountry());
-        ps.setString(l, event.getTerminal());
+        ps.setObject(l++, event.getStatus());
+        ps.setObject(l++, event.getCategory());
+        ps.setString(l++, event.getChargebackCode());
+
+        ps.setLong(l++, event.getCost().getAmount());
+        ps.setString(l, event.getCost().getCurrency().getSymbolicCode());
     }
 
     @Override

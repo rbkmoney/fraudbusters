@@ -9,6 +9,7 @@ import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.generator.BaseRawParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.generator.ChargebackParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.setter.ChargebackBatchPreparedStatementSetter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,7 +47,10 @@ public class ChargebackRepository implements Repository<Chargeback>, Aggregation
 
     @Override
     public void insertBatch(List<Chargeback> batch) {
-        throw new UnsupportedOperationException("ChargebackRepository is not support now!");
+        if (batch != null && !batch.isEmpty()) {
+            log.debug("ChargebackRepository insertBatch batch size: {}", batch.size());
+            jdbcTemplate.batchUpdate(INSERT, new ChargebackBatchPreparedStatementSetter(batch));
+        }
     }
 
     @Override

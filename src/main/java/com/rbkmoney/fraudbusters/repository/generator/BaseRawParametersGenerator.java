@@ -13,8 +13,8 @@ import java.util.Optional;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BaseRawParametersGenerator {
 
-    public static final String BASE_RAW_PARAMETERS = " timestamp,eventTimeHour,eventTime, " +
-            "shopId, partyId, " +
+    public static final String BASE_RAW_PARAMETERS = " timestamp, eventTimeHour, eventTime, " +
+            "id, " +
             "email, providerId, " +
             "amount, currency, " +
             "status, errorReason, errorCode, " +
