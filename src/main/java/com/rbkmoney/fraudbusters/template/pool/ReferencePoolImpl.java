@@ -1,8 +1,11 @@
 package com.rbkmoney.fraudbusters.template.pool;
 
+import lombok.ToString;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@ToString
 public class ReferencePoolImpl implements Pool<String> {
 
     private final Map<String, String> references = new ConcurrentHashMap<>();

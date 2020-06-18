@@ -1,10 +1,12 @@
 package com.rbkmoney.fraudbusters.template.pool;
 
+import lombok.ToString;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@ToString
 public class TemplatePoolImpl implements Pool<ParserRuleContext> {
 
     private final Map<String, ParserRuleContext> templates = new ConcurrentHashMap<>();

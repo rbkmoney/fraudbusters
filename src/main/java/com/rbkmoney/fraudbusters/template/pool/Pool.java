@@ -9,4 +9,5 @@ public interface Pool<T> {
     void remove(String key);
 
     int size();
+
 }
