@@ -50,6 +50,9 @@ kafka:
     event.sink:
       initial: event_sink
       aggregated: aggregated_event_sink
+      payment: payment_event
+      refund: refund_event
+      chargeback: chargeback_event
     group:
       list: group_list
       reference: group_reference
