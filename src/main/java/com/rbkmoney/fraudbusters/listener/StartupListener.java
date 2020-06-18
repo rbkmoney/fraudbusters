@@ -115,7 +115,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
             log.info("StartupListener start stream preloadTime: {} ms", System.currentTimeMillis() - startPreloadTime);
             log.info("StartupListener load pool payment template size: {} templates: {}", templatePoolImpl.size(), templatePoolImpl);
-            log.info("StartupListener load pool p2p template size: {} templates: {}", templateP2PPoolImpl.size(), templatePoolImpl);
+            log.info("StartupListener load pool p2p template size: {} templates: {}", templateP2PPoolImpl.size(), templateP2PPoolImpl);
         } catch (InterruptedException e) {
             log.error("StartupListener onApplicationEvent e: ", e);
             Thread.currentThread().interrupt();
