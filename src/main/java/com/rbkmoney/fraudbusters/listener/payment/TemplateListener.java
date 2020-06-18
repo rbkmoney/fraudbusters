@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.listener.payment;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
+import com.rbkmoney.damsel.fraudbusters.CommandType;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.fraud.payment.validator.PaymentTemplateValidator;
@@ -37,15 +38,17 @@ public class TemplateListener extends AbstractPoolCommandListenerExecutor implem
             Template template = command.getCommandBody().getTemplate();
             String templateString = new String(template.getTemplate(), StandardCharsets.UTF_8);
             log.info("TemplateP2PListener templateString: {}", templateString);
-            validateTemplate(templateString);
+            if (CommandType.CREATE.equals(command.command_type)) {
+                validateTemplate(template.getId(), templateString);
+            }
             execCommand(command, template.getId(), templatePoolImpl, paymentContextParser::parse, templateString);
         }
     }
 
-    private void validateTemplate(String templateString) {
+    private void validateTemplate(String id, String templateString) {
         List<String> validate = paymentTemplateValidator.validate(templateString);
         if (!CollectionUtils.isEmpty(validate)) {
-            log.warn("TemplateP2PListener validateError: {}", validate);
+            log.warn("TemplateListener templateId: {} validateError: {}", id, validate);
         }
     }
 

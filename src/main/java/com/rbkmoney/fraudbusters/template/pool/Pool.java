@@ -7,4 +7,6 @@ public interface Pool<T> {
     T get(String key);
 
     void remove(String key);
+
+    int size();
 }

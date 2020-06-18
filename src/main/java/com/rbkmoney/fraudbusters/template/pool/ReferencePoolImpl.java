@@ -21,4 +21,9 @@ public class ReferencePoolImpl implements Pool<String> {
     public void remove(String key) {
         references.remove(key);
     }
+
+    @Override
+    public int size() {
+        return references.size();
+    }
 }
