@@ -22,4 +22,9 @@ public class GroupPoolImpl implements Pool<List<String>> {
     public void remove(String key) {
         references.remove(key);
     }
+
+    @Override
+    public int size() {
+        return references.size();
+    }
 }
