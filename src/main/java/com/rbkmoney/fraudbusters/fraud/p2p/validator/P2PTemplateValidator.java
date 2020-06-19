@@ -24,7 +24,7 @@ public class P2PTemplateValidator implements FraudTemplateValidator {
         ValidateErrorListener validateErrorListener = new ValidateErrorListener();
         parser.addErrorListener(validateErrorListener);
         parser.parse();
-        log.info("PaymentTemplateValidator validated errors: {}", validateErrorListener.getErrors());
+        log.info("P2PTemplateValidator validated errors: {}", validateErrorListener.getErrors());
         return validateErrorListener.getErrors();
     }
 
