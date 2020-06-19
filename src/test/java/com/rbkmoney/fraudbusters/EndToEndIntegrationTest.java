@@ -1,7 +1,10 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
+import com.rbkmoney.damsel.fraudbusters.PaymentValidateServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
+import com.rbkmoney.damsel.fraudbusters.Template;
+import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
@@ -165,6 +168,22 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         }
 
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
+    }
+
+    @Test
+    public void testValidation() throws URISyntaxException, TException {
+        THClientBuilder clientBuilder = new THClientBuilder()
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
+                .withNetworkTimeout(300000);
+        PaymentValidateServiceSrv.Iface client = clientBuilder.build(PaymentValidateServiceSrv.Iface.class);
+
+        ValidateTemplateResponse validateTemplateResponse = client.validateCompilationTemplate(
+                List.of(new Template()
+                        .setId("dfsdf")
+                        .setTemplate(TEMPLATE.getBytes()))
+        );
+
+        Assert.assertTrue(validateTemplateResponse.getErrors().isEmpty());
     }
 
     @Test
