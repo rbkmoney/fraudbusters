@@ -10,13 +10,13 @@ import org.springframework.context.annotation.Configuration;
 public class ValidatorConfig {
 
     @Bean
-    public ListTemplateValidator paymentTemplatesValidator(FraudTemplateValidator p2PTemplateValidator) {
-        return new ListTemplateValidatorImpl(p2PTemplateValidator);
+    public ListTemplateValidator paymentTemplatesValidator(FraudTemplateValidator paymentTemplateValidator) {
+        return new ListTemplateValidatorImpl(paymentTemplateValidator);
     }
 
     @Bean
-    public ListTemplateValidator p2pTemplatesValidator(FraudTemplateValidator paymentTemplateValidator) {
-        return new ListTemplateValidatorImpl(paymentTemplateValidator);
+    public ListTemplateValidator p2pTemplatesValidator(FraudTemplateValidator p2PTemplateValidator) {
+        return new ListTemplateValidatorImpl(p2PTemplateValidator);
     }
 
 }
