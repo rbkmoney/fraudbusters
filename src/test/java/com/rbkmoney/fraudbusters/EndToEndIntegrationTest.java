@@ -114,9 +114,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
-    public EndToEndIntegrationTest() throws URISyntaxException {
-    }
-
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @SneakyThrows
         @Override
