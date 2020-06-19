@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.repository.generator;
+package com.rbkmoney.fraudbusters.repository.impl.analytics;
 
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.domain.Event;

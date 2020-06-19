@@ -11,7 +11,7 @@ import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.setter.EventBatchPreparedStatementSetter;
-import com.rbkmoney.fraudbusters.repository.generator.EventParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.impl.analytics.EventParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.RequiredArgsConstructor;

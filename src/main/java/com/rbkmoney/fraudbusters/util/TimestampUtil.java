@@ -49,7 +49,6 @@ public class TimestampUtil {
 
     @NonNull
     public static TimeProperties generateTimePropertiesByString(String time) {
-        TimeProperties timeProperties = new TimeProperties();
         Instant instant = parseInstantFromString(time);
         return generateTimePropertiesByInstant(instant);
     }

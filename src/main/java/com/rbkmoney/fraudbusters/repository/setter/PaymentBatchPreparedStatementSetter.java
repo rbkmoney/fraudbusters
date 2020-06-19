@@ -1,6 +1,8 @@
 package com.rbkmoney.fraudbusters.repository.setter;
 
+import com.rbkmoney.damsel.fraudbusters.Error;
 import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.fraudbusters.constant.FraudPaymentTool;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,17 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class PaymentBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
+
+    public final static String FIELDS = " timestamp, eventTimeHour, eventTime, " +
+            "id, " +
+            "email, ip, fingerprint, " +
+            "bin, maskedPan, cardToken, paymentSystem, paymentTool, " +
+            "terminal, providerId, bankCountry, " +
+            "partyId, shopId, " +
+            "amount, currency, " +
+            "status, errorCode, errorReason";
+
+    public final static String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
     private final List<Payment> batch;
 
@@ -38,7 +51,7 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
             ps.setString(l++, bankCard.getMaskedPan());
             ps.setString(l++, bankCard.getCardToken());
             ps.setString(l++, bankCard.getPaymentSystem());
-            ps.setString(l++, PaymentTool.bank_card());
+            ps.setString(l++, FraudPaymentTool.BANK_CARD.name());
         }
 
         ProviderInfo providerInfo = event.getProviderInfo();
@@ -53,12 +66,13 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
             ps.setString(l++, merchantInfo.getShopId());
         }
 
-        ps.setObject(l++, event.getStatus());
-        ps.setObject(l++, event.getCategory());
-        ps.setString(l++, event.getChargebackCode());
-
         ps.setLong(l++, event.getCost().getAmount());
-        ps.setString(l, event.getCost().getCurrency().getSymbolicCode());
+        ps.setString(l++, event.getCost().getCurrency().getSymbolicCode());
+
+        ps.setObject(l++, event.getStatus());
+        Error error = event.getError();
+        ps.setString(l++, error == null ? null : error.getErrorCode());
+        ps.setString(l, error == null ? null : error.getErrorReason());
     }
 
     @Override

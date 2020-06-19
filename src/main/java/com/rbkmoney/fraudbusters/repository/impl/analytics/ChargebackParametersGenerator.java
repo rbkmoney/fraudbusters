@@ -1,7 +1,7 @@
-package com.rbkmoney.fraudbusters.repository.generator;
+package com.rbkmoney.fraudbusters.repository.impl.analytics;
 
-import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.fraudbusters.constant.field.ChargebackField;
+import com.rbkmoney.fraudbusters.domain.Chargeback;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;

@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.repository.setter;
 
 import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.fraudbusters.constant.FraudPaymentTool;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
             ps.setString(l++, bankCard.getMaskedPan());
             ps.setString(l++, bankCard.getCardToken());
             ps.setString(l++, bankCard.getPaymentSystem());
-            ps.setString(l++, PaymentTool.bank_card());
+            ps.setString(l++, FraudPaymentTool.BANK_CARD.name());
         }
 
         ProviderInfo providerInfo = event.getProviderInfo();
@@ -53,12 +54,14 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
             ps.setString(l++, merchantInfo.getShopId());
         }
 
-        ps.setObject(l++, event.getStatus());
-        ps.setObject(l++, event.getCategory());
-        ps.setString(l++, event.getChargebackCode());
-
         ps.setLong(l++, event.getCost().getAmount());
         ps.setString(l, event.getCost().getCurrency().getSymbolicCode());
+
+        ps.setObject(l++, event.getStatus());
+
+        ps.setObject(l++, event.getCategory());
+        ps.setString(l, event.getChargebackCode());
+
     }
 
     @Override

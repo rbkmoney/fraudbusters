@@ -102,17 +102,6 @@ public class FraudResultRepositoryTest {
     }
 
     @Test
-    public void insert() throws SQLException {
-        fraudResultRepository.insert(fraudResultToEventConverter
-                .convert(createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel()))
-        );
-
-        Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
-                (resultSet, i) -> resultSet.getInt("cnt"));
-        assertEquals(1, count.intValue());
-    }
-
-    @Test
     public void insertBatch() throws SQLException {
         fraudResultRepository.insertBatch(
                 createBatch().stream()

@@ -16,7 +16,8 @@ import static org.junit.Assert.*;
 class PaymentServiceHandlerTest {
 
     PaymentServiceHandler paymentServiceHandler = new PaymentServiceHandler(
-            new ListTemplateValidatorImpl(new PaymentTemplateValidator()));
+            new ListTemplateValidatorImpl(new PaymentTemplateValidator()),
+            null, null, null);
 
     @Test
     void validateCompilationTemplateEmptyList() throws TException {
