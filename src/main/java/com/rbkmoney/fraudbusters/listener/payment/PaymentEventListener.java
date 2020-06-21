@@ -19,7 +19,7 @@ public class PaymentEventListener {
 
     private final Repository<Payment> repository;
 
-    @KafkaListener(topics = "${kafka.topic.event.sink.payment}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.event.sink.payment}", containerFactory = "kafkaPaymentResultListenerContainerFactory")
     public void listen(List<Payment> payments, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
                        @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {

@@ -15,16 +15,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RefundBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
-    public final static String FIELDS = " timestamp, eventTimeHour, eventTime, " +
+    public static final String FIELDS = " timestamp, eventTimeHour, eventTime, " +
             "id, " +
             "email, ip, fingerprint, " +
             "bin, maskedPan, cardToken, paymentSystem, paymentTool , " +
             "terminal, providerId, bankCountry" +
             "partyId, shopId, " +
             "amount, currency, " +
-            "status";
+            "status, errorCode, errorReason, paymentId";
 
-    public final static String FIELDS_MARK = "?";
+    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
     private final List<Refund> batch;
 
@@ -66,14 +66,15 @@ public class RefundBatchPreparedStatementSetter implements BatchPreparedStatemen
             ps.setString(l++, merchantInfo.getShopId());
         }
 
+        ps.setLong(l++, event.getCost().getAmount());
+        ps.setString(l++, event.getCost().getCurrency().getSymbolicCode());
+
         ps.setObject(l++, event.getStatus());
 
         Error error = event.getError();
-        ps.setObject(l++, error.getErrorCode());
-        ps.setString(l++, error.getErrorReason());
-
-        ps.setLong(l++, event.getCost().getAmount());
-        ps.setString(l, event.getCost().getCurrency().getSymbolicCode());
+        ps.setString(l++, error == null ? null : error.getErrorCode());
+        ps.setString(l++, error == null ? null : error.getErrorReason());
+        ps.setString(l, event.getPaymentId());
     }
 
     @Override

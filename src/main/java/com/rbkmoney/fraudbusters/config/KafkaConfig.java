@@ -1,6 +1,9 @@
 package com.rbkmoney.fraudbusters.config;
 
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.damsel.fraudbusters.Command;
+import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.fraudbusters.config.properties.KafkaSslProperties;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
@@ -213,6 +216,48 @@ public class KafkaConfig {
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(), new FraudResultDeserializer());
+        factory.setConsumerFactory(consumerFactory);
+        factory.setConcurrency(listenResultConcurrency);
+        factory.setBatchListener(true);
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Payment> kafkaPaymentResultListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Payment> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
+        final Map<String, Object> props = createDefaultProperties(consumerGroup);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
+        DefaultKafkaConsumerFactory<String, Payment> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
+                new StringDeserializer(), new PaymentDeserializer());
+        factory.setConsumerFactory(consumerFactory);
+        factory.setConcurrency(listenResultConcurrency);
+        factory.setBatchListener(true);
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Refund> kafkaRefundResultListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Refund> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
+        final Map<String, Object> props = createDefaultProperties(consumerGroup);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
+        DefaultKafkaConsumerFactory<String, Refund> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
+                new StringDeserializer(), new RefundDeserializer());
+        factory.setConsumerFactory(consumerFactory);
+        factory.setConcurrency(listenResultConcurrency);
+        factory.setBatchListener(true);
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Chargeback> kafkaChargebackResultListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Chargeback> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
+        final Map<String, Object> props = createDefaultProperties(consumerGroup);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
+        DefaultKafkaConsumerFactory<String, Chargeback> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
+                new StringDeserializer(), new ChargebackDeserializer());
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(listenResultConcurrency);
         factory.setBatchListener(true);

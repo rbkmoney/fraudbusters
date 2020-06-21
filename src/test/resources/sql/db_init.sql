@@ -31,8 +31,6 @@ PARTITION BY toYYYYMM (timestamp)
 ORDER BY (eventTimeHour, partyId, shopId, bin, resultStatus, cardToken, email, ip, fingerprint)
 TTL timestamp + INTERVAL 3 MONTH;
 
-DROP TABLE IF EXISTS fraud.payment;
-
 DROP TABLE IF EXISTS fraud.refund;
 
 create table fraud.refund
@@ -70,6 +68,8 @@ create table fraud.refund
 ) ENGINE = ReplacingMergeTree()
 PARTITION BY toYYYYMM (timestamp)
 ORDER BY (eventTimeHour, partyId, shopId, status, currency, providerId, fingerprint, cardToken, id, paymentId);
+
+DROP TABLE IF EXISTS fraud.payment;
 
 create table fraud.payment
 (

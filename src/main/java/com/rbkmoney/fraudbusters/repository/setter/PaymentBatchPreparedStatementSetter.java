@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
-    public final static String FIELDS = " timestamp, eventTimeHour, eventTime, " +
+    public static final String FIELDS = " timestamp, eventTimeHour, eventTime, " +
             "id, " +
             "email, ip, fingerprint, " +
             "bin, maskedPan, cardToken, paymentSystem, paymentTool, " +
@@ -24,7 +24,7 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
             "amount, currency, " +
             "status, errorCode, errorReason";
 
-    public final static String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
+    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
     private final List<Payment> batch;
 

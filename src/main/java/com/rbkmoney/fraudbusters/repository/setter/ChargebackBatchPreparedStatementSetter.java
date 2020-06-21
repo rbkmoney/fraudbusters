@@ -14,6 +14,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
+    public static final String FIELDS = " timestamp, eventTimeHour, eventTime, " +
+            "id, " +
+            "email, ip, fingerprint, " +
+            "bin, maskedPan, cardToken, paymentSystem, paymentTool , " +
+            "terminal, providerId, bankCountry" +
+            "partyId, shopId, " +
+            "amount, currency, " +
+            "status, category, chargebackCode, paymentId";
+
+    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
+
     private final List<Chargeback> batch;
 
     @Override
@@ -55,12 +66,14 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
         }
 
         ps.setLong(l++, event.getCost().getAmount());
-        ps.setString(l, event.getCost().getCurrency().getSymbolicCode());
+        ps.setString(l++, event.getCost().getCurrency().getSymbolicCode());
 
         ps.setObject(l++, event.getStatus());
 
         ps.setObject(l++, event.getCategory());
-        ps.setString(l, event.getChargebackCode());
+        ps.setString(l++, event.getChargebackCode());
+
+        ps.setString(l, event.getPaymentId());
 
     }
 

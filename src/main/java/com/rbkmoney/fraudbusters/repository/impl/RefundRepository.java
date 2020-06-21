@@ -23,8 +23,8 @@ public class RefundRepository implements Repository<Refund> {
     private static final String INSERT = String.format(
             "INSERT INTO %1S (%2S) VALUES (%3S)",
             EventSource.FRAUD_EVENTS_REFUND.getTable(),
-            BaseRawParametersGenerator.BASE_RAW_PARAMETERS,
-            BaseRawParametersGenerator.BASE_RAW_PARAMETERS_MARK);
+            RefundBatchPreparedStatementSetter.FIELDS,
+            RefundBatchPreparedStatementSetter.FIELDS_MARK);
 
     @Override
     public void insert(Refund refund) {

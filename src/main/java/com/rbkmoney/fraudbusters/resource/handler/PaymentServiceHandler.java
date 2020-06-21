@@ -47,6 +47,7 @@ public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
 
     @Override
     public void insertPayments(List<Payment> list) throws InsertionException {
+        log.debug("PaymentServiceHandler insertPayments list: {}", list);
         for (Payment payment : list) {
             send(paymentKafkaTemplate, paymentEventTopic, payment.getId(), payment);
         }
@@ -54,6 +55,7 @@ public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
 
     @Override
     public void insertRefunds(List<Refund> list) throws InsertionException {
+        log.debug("PaymentServiceHandler insertRefunds list: {}", list);
         for (Refund refund : list) {
             send(refundKafkaTemplate, refundEventTopic, refund.getId(), refund);
         }
@@ -61,6 +63,7 @@ public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
 
     @Override
     public void insertChargebacks(List<Chargeback> list) throws InsertionException {
+        log.debug("PaymentServiceHandler insertChargebacks list: {}", list);
         for (Chargeback chargeback : list) {
             send(chargebackKafkaTemplate, chargebackEventTopic, chargeback.getId(), chargeback);
         }

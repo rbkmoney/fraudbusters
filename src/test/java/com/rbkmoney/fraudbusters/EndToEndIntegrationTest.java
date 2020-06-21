@@ -1,10 +1,7 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
-import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
-import com.rbkmoney.damsel.fraudbusters.PriorityId;
-import com.rbkmoney.damsel.fraudbusters.Template;
-import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
@@ -48,6 +45,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -132,7 +130,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
-        ChInitializer.initAllScripts(clickHouseContainer);
 
         String globalRef = UUID.randomUUID().toString();
         produceTemplate(globalRef, TEMPLATE, templateTopic);
@@ -248,5 +245,40 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         Assert.assertEquals(RiskScore.fatal, riskScore);
     }
 
+    @Test
+    public void testLoadData() throws URISyntaxException, TException, InterruptedException {
+        THClientBuilder clientBuilder = new THClientBuilder()
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
+                .withNetworkTimeout(300000);
+        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
 
+        //Test empty lists
+        client.insertPayments(List.of());
+        client.insertRefunds(List.of());
+        client.insertChargebacks(List.of());
+
+        //Payment
+        client.insertPayments(List.of(createPayment(PaymentStatus.captured)));
+        Thread.sleep(TIMEOUT);
+
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.payment");
+        Assert.assertEquals(1, maps.size());
+        Assert.assertEquals("email", maps.get(0).get("email"));
+
+        //Chargeback
+        client.insertChargebacks(List.of(createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.accepted),
+                createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.cancelled)));
+        Thread.sleep(TIMEOUT);
+
+        maps = jdbcTemplate.queryForList("SELECT * from fraud.chargeback");
+        Assert.assertEquals(2, maps.size());
+
+        //Refund
+        client.insertRefunds(List.of(createRefund(com.rbkmoney.damsel.fraudbusters.RefundStatus.succeeded),
+                createRefund(com.rbkmoney.damsel.fraudbusters.RefundStatus.failed)));
+        Thread.sleep(TIMEOUT);
+
+        maps = jdbcTemplate.queryForList("SELECT * from fraud.refund");
+        Assert.assertEquals(2, maps.size());
+    }
 }

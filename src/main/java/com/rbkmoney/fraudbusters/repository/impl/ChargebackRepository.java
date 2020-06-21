@@ -3,7 +3,6 @@ package com.rbkmoney.fraudbusters.repository.impl;
 import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.repository.impl.analytics.BaseRawParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.setter.ChargebackBatchPreparedStatementSetter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,14 +16,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChargebackRepository implements Repository<Chargeback> {
 
-    private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
 
     private static final String INSERT = String.format(
             "INSERT INTO %1S (%2S) VALUES (%3S)",
             EventSource.FRAUD_EVENTS_CHARGEBACK.getTable(),
-            BaseRawParametersGenerator.BASE_RAW_PARAMETERS,
-            BaseRawParametersGenerator.BASE_RAW_PARAMETERS_MARK);
+            ChargebackBatchPreparedStatementSetter.FIELDS,
+            ChargebackBatchPreparedStatementSetter.FIELDS_MARK);
 
     @Override
     public void insert(Chargeback chargeback) {

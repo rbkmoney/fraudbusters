@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS fraud.events_p_to_p;
+DROP TABLE IF EXISTS FRAUD.events_p_to_p;
 
-create table fraud.events_p_to_p (
+create table FRAUD.events_p_to_p (
   timestamp Date,
   eventTime UInt64,
   eventTimeHour UInt64,
