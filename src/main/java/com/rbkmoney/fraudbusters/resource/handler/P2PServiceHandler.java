@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.resource.handler;
 
-import com.rbkmoney.damsel.fraudbusters.P2PValidateServiceSrv;
+import com.rbkmoney.damsel.fraudbusters.P2PServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
 import com.rbkmoney.fraudbusters.fraud.ListTemplateValidator;
@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class P2PTemplateValidatorHandler implements P2PValidateServiceSrv.Iface {
+public class P2PServiceHandler implements P2PServiceSrv.Iface {
 
     private final ListTemplateValidator p2pTemplatesValidator;
 
