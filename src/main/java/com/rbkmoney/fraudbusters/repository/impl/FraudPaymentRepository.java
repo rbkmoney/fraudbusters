@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -25,13 +26,13 @@ public class FraudPaymentRepository implements Repository<FraudPayment> {
 
     @Override
     public void insert(FraudPayment value) {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void insertBatch(List<FraudPayment> payments) {
-        log.debug("EventRepository insertBatch payments: {}", payments);
-        if (payments != null && !payments.isEmpty()) {
+        log.debug("FraudPaymentRepository insertBatch payments: {}", payments);
+        if (!CollectionUtils.isEmpty(payments)) {
             jdbcTemplate.batchUpdate(INSERT, new FraudPaymentBatchPreparedStatementSetter(payments));
         }
     }

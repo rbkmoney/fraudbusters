@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
-import com.rbkmoney.damsel.fraudbusters.PaymentValidateServiceSrv;
+import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
@@ -173,9 +173,9 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @Test
     public void testValidation() throws URISyntaxException, TException {
         THClientBuilder clientBuilder = new THClientBuilder()
-                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment/v1/", serverPort)))
                 .withNetworkTimeout(300000);
-        PaymentValidateServiceSrv.Iface client = clientBuilder.build(PaymentValidateServiceSrv.Iface.class);
+        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
 
         ValidateTemplateResponse validateTemplateResponse = client.validateCompilationTemplate(
                 List.of(new Template()

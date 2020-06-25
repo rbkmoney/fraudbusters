@@ -51,7 +51,7 @@ public class ResourceConfig {
 
 
     @Bean
-    public PaymentServiceSrv.Iface paymentService(ListTemplateValidator paymentTemplatesValidator,
+    public PaymentServiceSrv.Iface paymentServiceHandler(ListTemplateValidator paymentTemplatesValidator,
                                                   KafkaTemplate<String, FraudPayment> kafkaFraudPaymentTemplate) {
         return new PaymentServiceHandler(fraudPaymentTopic, paymentTemplatesValidator, kafkaFraudPaymentTemplate);
     }

@@ -14,13 +14,13 @@ public class PaymentServiceServlet extends GenericServlet {
 
     private Servlet thriftServlet;
 
-    private final PaymentServiceSrv.Iface paymentTemplateValidatorHandler;
+    private final PaymentServiceSrv.Iface paymentServiceHandler;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         thriftServlet = new THServiceBuilder()
-                .build(PaymentServiceSrv.Iface.class, paymentTemplateValidatorHandler);
+                .build(PaymentServiceSrv.Iface.class, paymentServiceHandler);
     }
 
     @Override

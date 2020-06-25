@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters.repository.setter;
 
 import com.rbkmoney.damsel.domain.ClientInfo;
 import com.rbkmoney.damsel.domain.ContactInfo;
-import com.rbkmoney.damsel.domain.Payer;
 import com.rbkmoney.damsel.domain.PaymentTool;
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +19,9 @@ public class FraudPaymentBatchPreparedStatementSetter implements BatchPreparedSt
     @Override
     public void setValues(PreparedStatement ps, int i) throws SQLException {
         FraudPayment payment = payments.get(i);
-        PaymentTool paymentTool = getPaymentTool(payment.getPayer());
-        ClientInfo clientInfo = getClientInfo(payment);
-        ContactInfo contactInfo = getContactInfo(payment);
+        PaymentTool paymentTool = extractPaymentTool(payment);
+        ClientInfo clientInfo = extractClientInfo(payment);
+        ContactInfo contactInfo = extractContactInfo(payment);
         int l = 1;
         ps.setString(l++, payment.getId());
         ps.setString(l++, payment.getLastChangeTime());
@@ -44,32 +43,32 @@ public class FraudPaymentBatchPreparedStatementSetter implements BatchPreparedSt
         ps.setLong(l++, payment.getRoute().getProvider().getId());
         ps.setLong(l++, payment.getRoute().getTerminal().getId());
         ps.setString(l++, payment.getFraudInfo().getTempalteId());
-        ps.setString(l++, payment.getFraudInfo().getDescription());
+        ps.setString(l, payment.getFraudInfo().getDescription());
     }
 
-    private ContactInfo getContactInfo(FraudPayment payment) {
+    private ContactInfo extractContactInfo(FraudPayment payment) {
         if (payment.getPayer().isSetPaymentResource()) {
             return payment.getPayer().getPaymentResource().getContactInfo();
         } else if (payment.getPayer().isSetRecurrent()) {
             return payment.getPayer().getRecurrent().getContactInfo();
         }
-        return null;
+        throw new IllegalStateException("ContactInfo must be set for " + payment.getId());
     }
 
-    private ClientInfo getClientInfo(FraudPayment payment) {
+    private ClientInfo extractClientInfo(FraudPayment payment) {
         if (payment.getPayer().isSetPaymentResource()) {
             return payment.getPayer().getPaymentResource().getResource().getClientInfo();
         }
-        return null;
+        throw new IllegalStateException("ClientInfo must be set for " + payment.getId());
     }
 
-    private PaymentTool getPaymentTool(Payer payer) {
-        if (payer.isSetPaymentResource()) {
-            return payer.getPaymentResource().getResource().getPaymentTool();
-        } else if (payer.isSetRecurrent()) {
-            return payer.getRecurrent().getPaymentTool();
+    private PaymentTool extractPaymentTool(FraudPayment payment) {
+        if (payment.getPayer().isSetPaymentResource()) {
+            return payment.getPayer().getPaymentResource().getResource().getPaymentTool();
+        } else if (payment.getPayer().isSetRecurrent()) {
+            return payment.getPayer().getRecurrent().getPaymentTool();
         }
-        return null;
+        throw new IllegalStateException("PaymentTool must be set for " + payment.getId());
     }
 
     @Override
