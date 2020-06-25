@@ -34,16 +34,16 @@ public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
 
     @Override
     public void insertPayments(List<Payment> list) throws InsertionException, TException {
-
+        //TODO
     }
 
     @Override
     public void insertRefunds(List<Refund> list) throws InsertionException, TException {
-
+        //TODO
     }
 
     @Override
     public void insertChargebacks(List<Chargeback> list) throws InsertionException, TException {
-
+        //TODO
     }
 }
