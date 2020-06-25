@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class ReferenceKeyGeneratorTest {
 
-    @Test(expected = UnknownReferenceException.class)
+    @Test
     public void generateTemplateKey() {
         String key = ReferenceKeyGenerator.generateTemplateKey("partyId", "shopId");
         Assert.assertEquals("partyId_shopId", key);
@@ -15,6 +15,7 @@ public class ReferenceKeyGeneratorTest {
         Assert.assertEquals("partyId", key);
 
         key = ReferenceKeyGenerator.generateTemplateKey(null, "shopId");
+        Assert.assertEquals("DEFAULT", key);
     }
 
     @Test(expected = UnknownReferenceException.class)
