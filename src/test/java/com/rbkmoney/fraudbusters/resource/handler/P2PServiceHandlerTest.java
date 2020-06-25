@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.resource.handler;
 
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
-import com.rbkmoney.fraudbusters.fraud.p2p.validator.P2PTemplateValidator;
+import com.rbkmoney.fraudbusters.fraud.p2p.validator. P2PTemplateValidator;
 import com.rbkmoney.fraudbusters.fraud.validator.ListTemplateValidatorImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
