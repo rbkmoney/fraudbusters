@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS fraud;
+
 DROP TABLE IF EXISTS fraud.fraud_payment;
 
 create table fraud.fraud_payment (
