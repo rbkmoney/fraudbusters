@@ -14,6 +14,7 @@ public class ChInitializer {
             execAllInFile(connection, "sql/db_init.sql");
             execAllInFile(connection, "sql/V2__create_events_p2p.sql");
             execAllInFile(connection, "sql/TEST_analytics_data.sql");
+            execAllInFile(connection, "sql/V3__create_payment.sql");
         }
     }
 

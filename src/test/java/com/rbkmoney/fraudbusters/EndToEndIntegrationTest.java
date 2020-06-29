@@ -130,7 +130,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
-
         String globalRef = UUID.randomUUID().toString();
         produceTemplate(globalRef, TEMPLATE, templateTopic);
         produceReference(true, null, null, globalRef);

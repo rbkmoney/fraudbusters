@@ -19,7 +19,7 @@ public class RefundBatchPreparedStatementSetter implements BatchPreparedStatemen
             "id, " +
             "email, ip, fingerprint, " +
             "bin, maskedPan, cardToken, paymentSystem, paymentTool , " +
-            "terminal, providerId, bankCountry" +
+            "terminal, providerId, bankCountry, " +
             "partyId, shopId, " +
             "amount, currency, " +
             "status, errorCode, errorReason, paymentId";

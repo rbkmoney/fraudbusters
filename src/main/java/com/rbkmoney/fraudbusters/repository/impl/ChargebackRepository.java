@@ -19,7 +19,7 @@ public class ChargebackRepository implements Repository<Chargeback> {
     private final JdbcTemplate jdbcTemplate;
 
     private static final String INSERT = String.format(
-            "INSERT INTO %1S (%2S) VALUES (%3S)",
+            "INSERT INTO %1s (%2s) VALUES (%3s)",
             EventSource.FRAUD_EVENTS_CHARGEBACK.getTable(),
             ChargebackBatchPreparedStatementSetter.FIELDS,
             ChargebackBatchPreparedStatementSetter.FIELDS_MARK);
@@ -33,7 +33,7 @@ public class ChargebackRepository implements Repository<Chargeback> {
     @Override
     public void insertBatch(List<Chargeback> batch) {
         if (batch != null && !batch.isEmpty()) {
-            log.debug("ChargebackRepository insertBatch batch size: {}", batch.size());
+            log.debug("ChargebackRepository insertBatch batch: {}", batch);
             jdbcTemplate.batchUpdate(INSERT, new ChargebackBatchPreparedStatementSetter(batch));
         }
     }

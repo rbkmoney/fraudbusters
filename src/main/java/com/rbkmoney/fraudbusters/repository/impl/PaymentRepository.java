@@ -15,9 +15,8 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PaymentRepositoryImpl implements Repository<Payment> {
+public class PaymentRepository implements Repository<Payment> {
 
-    private final AggregationGeneralRepository aggregationGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
 
     private static final String INSERT = String.format(
@@ -34,8 +33,8 @@ public class PaymentRepositoryImpl implements Repository<Payment> {
 
     @Override
     public void insertBatch(List<Payment> batch) {
-        log.debug("PaymentRepository insertBatch batch: {}", batch);
         if (batch != null && !batch.isEmpty()) {
+            log.debug("PaymentRepository insertBatch batch: {}", batch);
             jdbcTemplate.batchUpdate(INSERT, new PaymentBatchPreparedStatementSetter(batch));
         }
     }

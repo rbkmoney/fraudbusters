@@ -17,11 +17,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RefundRepository implements Repository<Refund> {
 
-    private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
 
     private static final String INSERT = String.format(
-            "INSERT INTO %1S (%2S) VALUES (%3S)",
+            "INSERT INTO %1s (%2s) VALUES (%3s)",
             EventSource.FRAUD_EVENTS_REFUND.getTable(),
             RefundBatchPreparedStatementSetter.FIELDS,
             RefundBatchPreparedStatementSetter.FIELDS_MARK);
