@@ -3,12 +3,12 @@ package com.rbkmoney.fraudbusters.repository.impl;
 import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.repository.impl.analytics.BaseRawParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.setter.RefundBatchPreparedStatementSetter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class RefundRepository implements Repository<Refund> {
 
     @Override
     public void insertBatch(List<Refund> batch) {
-        if (batch != null && !batch.isEmpty()) {
+        if (!CollectionUtils.isEmpty(batch)) {
             log.debug("RefundRepository insertBatch batch size: {}", batch.size());
             jdbcTemplate.batchUpdate(INSERT, new RefundBatchPreparedStatementSetter(batch));
         }

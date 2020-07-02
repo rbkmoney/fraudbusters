@@ -1,15 +1,21 @@
 package com.rbkmoney.fraudbusters.repository.setter;
 
+import com.rbkmoney.damsel.domain.BankCard;
+import com.rbkmoney.damsel.domain.PaymentTool;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.constant.FraudPaymentTool;
+import com.rbkmoney.fraudbusters.constant.PaymentToolType;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
+import com.rbkmoney.geck.common.util.TBaseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+
+import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
 
 @RequiredArgsConstructor
 public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
@@ -44,14 +50,12 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
         ps.setString(l++, clientInfo.getFingerprint());
 
         PaymentTool paymentTool = event.getPaymentTool();
-        if (paymentTool.isSetBankCard()) {
-            BankCard bankCard = paymentTool.getBankCard();
-            ps.setString(l++, bankCard.getBin());
-            ps.setString(l++, bankCard.getMaskedPan());
-            ps.setString(l++, bankCard.getCardToken());
-            ps.setString(l++, bankCard.getPaymentSystem());
-            ps.setString(l++, FraudPaymentTool.BANK_CARD.name());
-        }
+        ps.setString(l++, TBaseUtil.unionFieldToEnum(paymentTool, PaymentToolType.class).name());
+
+        ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getBin() : UNKNOWN);
+        ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getMaskedPan() : UNKNOWN);
+        ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getToken() : UNKNOWN);
+        ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getPaymentSystem().name() : UNKNOWN);
 
         ProviderInfo providerInfo = event.getProviderInfo();
         ps.setString(l++, providerInfo.getTerminalId());
@@ -59,11 +63,9 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
         ps.setString(l++, providerInfo.getCountry());
 
         ReferenceInfo referenceInfo = event.getReferenceInfo();
-        if (referenceInfo.isSetMerchantInfo()) {
-            MerchantInfo merchantInfo = referenceInfo.getMerchantInfo();
-            ps.setString(l++, merchantInfo.getPartyId());
-            ps.setString(l++, merchantInfo.getShopId());
-        }
+        MerchantInfo merchantInfo = event.getReferenceInfo().getMerchantInfo();
+        ps.setString(l++, referenceInfo.isSetMerchantInfo() ? merchantInfo.getPartyId() : UNKNOWN);
+        ps.setString(l++, referenceInfo.isSetMerchantInfo() ? merchantInfo.getShopId() : UNKNOWN);
 
         ps.setLong(l++, event.getCost().getAmount());
         ps.setString(l++, event.getCost().getCurrency().getSymbolicCode());

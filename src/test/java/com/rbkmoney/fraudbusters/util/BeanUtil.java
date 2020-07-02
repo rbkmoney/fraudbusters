@@ -501,13 +501,12 @@ public class BeanUtil {
     }
 
     @NotNull
-    private static com.rbkmoney.damsel.fraudbusters.PaymentTool createBankCardResult() {
-        return com.rbkmoney.damsel.fraudbusters.PaymentTool.bank_card(
-                new com.rbkmoney.damsel.fraudbusters.BankCard()
+    private static PaymentTool createBankCardResult() {
+        return PaymentTool.bank_card(new BankCard()
                         .setBin("1234")
-                        .setCardToken("wewerwer")
+                        .setToken("wewerwer")
                         .setMaskedPan("433242")
-                        .setPaymentSystem("visa")
+                        .setPaymentSystem(BankCardPaymentSystem.visa)
         );
     }
 
