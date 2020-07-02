@@ -2,12 +2,7 @@ package com.rbkmoney.fraudbusters.listener.payment;
 
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import com.rbkmoney.fraudbusters.config.KafkaConfig;
-import com.rbkmoney.fraudbusters.config.properties.DefaultTemplateProperties;
-import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
-import com.rbkmoney.fraudbusters.domain.Event;
-import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.service.FraudManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -24,7 +19,7 @@ public class FraudPaymentListener {
 
     private final Repository<FraudPayment> repository;
 
-    @KafkaListener(topics = "${kafka.topic.fraud.payment}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.fraud.payment}", containerFactory = "fraudPaymentListenerContainerFactory")
     public void listen(List<FraudPayment> payments, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
                        @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {

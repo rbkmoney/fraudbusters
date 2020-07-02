@@ -1,26 +1,14 @@
 package com.rbkmoney.fraudbusters.repository;
 
 import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.fraudbusters.FraudInfo;
-import com.rbkmoney.damsel.fraudbusters.FraudPayment;
-import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
+import com.rbkmoney.damsel.domain.ClientInfo;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
-import com.rbkmoney.fraudbusters.constant.EventField;
-import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.domain.FraudRequest;
-import com.rbkmoney.fraudbusters.domain.Metadata;
-import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
-import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
-import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.FraudPaymentRepository;
-import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
-import com.rbkmoney.fraudbusters.util.TimestampUtil;
-import com.rbkmoney.fraudo.constant.ResultStatus;
-import com.rbkmoney.fraudo.model.ResultModel;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -118,12 +106,14 @@ public class FraudPaymentRepositoryTest {
     }
 
     @NotNull
-    private FraudPayment createFraudPayment(String id) {
+    public static FraudPayment createFraudPayment(String id) {
         return new FraudPayment()
                 .setId(id)
-                .setLastChangeTime("2016-03-22T06:12:27Z")
-                .setPartyId("party_id")
-                .setShopId("shop_id")
+                .setEventTime("2016-03-22T06:12:27Z")
+                .setReferenceInfo(ReferenceInfo.merchant_info(
+                        new MerchantInfo()
+                                .setPartyId("party_id")
+                                .setShopId("shop_id")))
                 .setCost(new Cash()
                         .setAmount(124L)
                         .setCurrency(new CurrencyRef()
@@ -150,7 +140,4 @@ public class FraudPaymentRepositoryTest {
                         .setTempalteId("template_id")
                         .setDescription("desc"));
     }
-
-
-
 }

@@ -24,9 +24,9 @@ public class FraudPaymentBatchPreparedStatementSetter implements BatchPreparedSt
         ContactInfo contactInfo = extractContactInfo(payment);
         int l = 1;
         ps.setString(l++, payment.getId());
-        ps.setString(l++, payment.getLastChangeTime());
-        ps.setString(l++, payment.getPartyId());
-        ps.setString(l++, payment.getShopId());
+        ps.setString(l++, payment.getEventTime());
+        ps.setString(l++, payment.getReferenceInfo().getMerchantInfo().getPartyId());
+        ps.setString(l++, payment.getReferenceInfo().getMerchantInfo().getShopId());
         ps.setLong(l++, payment.getCost().getAmount());
         ps.setString(l++, payment.getCost().getCurrency().getSymbolicCode());
         ps.setString(l++, payment.getPayer().getSetField().getFieldName());

@@ -83,6 +83,8 @@ public abstract class KafkaAbstractTest {
     public String eventSinkTopic;
     @Value("${kafka.topic.event.sink.aggregated}")
     public String aggregatedEventSink;
+    @Value("${kafka.topic.fraud.payment}")
+    public String fraudPaymentTopic;
 
     @Before
     public void setUp(){
@@ -123,6 +125,7 @@ public abstract class KafkaAbstractTest {
             initTopic("group_p2p_reference");
             initTopic("event_sink");
             initTopic("aggregated_event_sink");
+            initTopic("fraud_payment");
         }
 
         @NotNull

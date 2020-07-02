@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS fraud.fraud_payment;
 create table fraud.fraud_payment (
 
   id String,
-  lastChangeTime String,
+  eventTime String,
 
   partyId String,
   shopId String,
