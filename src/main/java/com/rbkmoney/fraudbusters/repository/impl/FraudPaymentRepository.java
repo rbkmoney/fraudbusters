@@ -20,9 +20,9 @@ public class FraudPaymentRepository implements Repository<FraudPayment> {
     private final JdbcTemplate jdbcTemplate;
 
     private static final String INSERT = "INSERT INTO fraud.fraud_payment " +
-            " (id, eventTime, partyId, shopId, amount, currency, payerType, paymentToolType, cardToken, paymentSystem, " +
+            " (timestamp, id, eventTime, partyId, shopId, amount, currency, payerType, paymentToolType, cardToken, paymentSystem, " +
             "maskedPan, issuerCountry, email, ip, fingerprint, status, rrn, providerId, terminalId, tempalateId, description)" +
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
     public void insert(FraudPayment value) {

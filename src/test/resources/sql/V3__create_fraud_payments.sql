@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS fraud.fraud_payment;
 
 create table fraud.fraud_payment (
 
+  timestamp Date,
   id String,
   eventTime String,
 
@@ -32,5 +33,5 @@ create table fraud.fraud_payment (
   description String
 
 ) ENGINE = MergeTree()
-PARTITION BY id
-ORDER BY (id);
+PARTITION BY toYYYYMM (timestamp)
+ORDER BY (partyId, shopId, paymentToolType, status, currency, providerId, fingerprint, cardToken, id);

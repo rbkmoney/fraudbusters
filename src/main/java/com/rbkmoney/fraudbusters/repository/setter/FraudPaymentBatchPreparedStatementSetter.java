@@ -4,6 +4,8 @@ import com.rbkmoney.damsel.domain.ClientInfo;
 import com.rbkmoney.damsel.domain.ContactInfo;
 import com.rbkmoney.damsel.domain.PaymentTool;
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
+import com.rbkmoney.fraudbusters.domain.TimeProperties;
+import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
@@ -22,7 +24,9 @@ public class FraudPaymentBatchPreparedStatementSetter implements BatchPreparedSt
         PaymentTool paymentTool = extractPaymentTool(payment);
         ClientInfo clientInfo = extractClientInfo(payment);
         ContactInfo contactInfo = extractContactInfo(payment);
+        TimeProperties timeProperties = TimestampUtil.generateTimeProperties();
         int l = 1;
+        ps.setObject(l++, timeProperties.getTimestamp());
         ps.setString(l++, payment.getId());
         ps.setString(l++, payment.getEventTime());
         ps.setString(l++, payment.getReferenceInfo().getMerchantInfo().getPartyId());
