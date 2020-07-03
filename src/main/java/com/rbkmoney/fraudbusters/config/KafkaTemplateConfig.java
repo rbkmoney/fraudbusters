@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters.config;
 import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.Refund;
+import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import com.rbkmoney.fraudbusters.config.properties.KafkaSslProperties;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
@@ -72,6 +73,11 @@ public class KafkaTemplateConfig {
     @Bean
     public KafkaTemplate<String, ScoresResult<P2PModel>> p2PModelKafkaTemplate() {
         return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerJsonConfigs()));
+    }
+
+    @Bean
+    public KafkaTemplate<String, FraudPayment> kafkaFraudPaymentTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerThriftConfigs()));
     }
 
 }

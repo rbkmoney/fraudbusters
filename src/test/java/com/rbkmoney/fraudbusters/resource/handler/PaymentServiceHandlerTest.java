@@ -17,7 +17,7 @@ class PaymentServiceHandlerTest {
 
     PaymentServiceHandler paymentServiceHandler = new PaymentServiceHandler(
             new ListTemplateValidatorImpl(new PaymentTemplateValidator()),
-            null, null, null);
+            null, null, null, null);
 
     @Test
     void validateCompilationTemplateEmptyList() throws TException {

@@ -10,6 +10,7 @@ import com.rbkmoney.fraudbusters.constant.RefundStatus;
 import com.rbkmoney.fraudbusters.domain.Chargeback;
 import com.rbkmoney.fraudbusters.domain.Payment;
 import com.rbkmoney.fraudbusters.domain.Refund;
+import com.rbkmoney.fraudbusters.repository.FraudPaymentRepositoryTest;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsRefundRepository;
@@ -280,4 +281,23 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         maps = jdbcTemplate.queryForList("SELECT * from fraud.refund");
         Assert.assertEquals(2, maps.size());
     }
+
+
+    @Test
+    public void testFraudPayment() throws URISyntaxException, TException, InterruptedException {
+        THClientBuilder clientBuilder = new THClientBuilder()
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment/v1/", serverPort)))
+                .withNetworkTimeout(300000);
+        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
+
+        //Payment
+        client.insertFraudPayments(List.of(FraudPaymentRepositoryTest.createFraudPayment("inv")));
+        Thread.sleep(TIMEOUT);
+
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.fraud_payment");
+        Assert.assertEquals(1, maps.size());
+        Assert.assertEquals("kek@kek.ru", maps.get(0).get("email"));
+
+    }
+
 }

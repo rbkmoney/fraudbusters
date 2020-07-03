@@ -125,9 +125,9 @@ public class BeanUtil {
         return Payer.customer(new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(), new ContactInfo()));
     }
 
-    private static PaymentTool createBankCard() {
-        return new PaymentTool() {{
-            BankCard value = new BankCard(
+    private static com.rbkmoney.damsel.domain.PaymentTool createBankCard() {
+        return new com.rbkmoney.damsel.domain.PaymentTool() {{
+            com.rbkmoney.damsel.domain.BankCard value = new com.rbkmoney.damsel.domain.BankCard(
                     "477bba133c182267fe5f086924abdc5db71f77bfc27f01f2843f2cdc69d89f05",
                     BankCardPaymentSystem.mastercard,
                     BIN,
@@ -376,7 +376,7 @@ public class BeanUtil {
         ContactInfo contactInfo = new ContactInfo();
         contactInfo.setEmail(TEST_MAIL_RU);
         DisposablePaymentResource resource = new DisposablePaymentResource();
-        ClientInfo clientInfo = createClientInfo();
+        com.rbkmoney.damsel.domain.ClientInfo clientInfo = createClientInfo();
         resource.setClientInfo(clientInfo);
         resource.setPaymentTool(createBankCard());
         payerResource.setResource(resource);
@@ -400,8 +400,8 @@ public class BeanUtil {
     }
 
     @NotNull
-    public static ClientInfo createClientInfo() {
-        ClientInfo clientInfo = new ClientInfo();
+    public static com.rbkmoney.damsel.domain.ClientInfo createClientInfo() {
+        com.rbkmoney.damsel.domain.ClientInfo clientInfo = new com.rbkmoney.damsel.domain.ClientInfo();
         clientInfo.setFingerprint("finger");
         clientInfo.setIpAddress("123.123.123.123");
         return clientInfo;
@@ -505,7 +505,7 @@ public class BeanUtil {
         return PaymentTool.bank_card(new BankCard()
                         .setBin("1234")
                         .setToken("wewerwer")
-                        .setMaskedPan("433242")
+                        .setLastDigits("433242")
                         .setPaymentSystem(BankCardPaymentSystem.visa)
         );
     }

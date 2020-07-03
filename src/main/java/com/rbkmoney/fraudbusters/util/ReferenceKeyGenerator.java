@@ -32,7 +32,7 @@ public class ReferenceKeyGenerator {
         } else if (!StringUtil.isNullOrEmpty(shopId) && !StringUtil.isNullOrEmpty(partyId)) {
             return partyId + SEPARATOR + shopId;
         }
-        throw new UnknownReferenceException();
+        return TemplateLevel.DEFAULT.name();
     }
 
     public static String generateTemplateKeyByList(String... ids) {

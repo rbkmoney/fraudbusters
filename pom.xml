@@ -25,7 +25,7 @@
 
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <damsel.version>1.354-86029b4</damsel.version>
+        <damsel.version>1.425-1473355</damsel.version>
         <woody.thrift.version>1.1.15</woody.thrift.version>
         <geck.version>0.6.7</geck.version>
         <fraudo.version>0.0.17</fraudo.version>
@@ -34,7 +34,7 @@
         <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
         <kafka.common.lib.version>0.0.9</kafka.common.lib.version>
         <clickhouse-jdbc.version>0.2.4</clickhouse-jdbc.version>
-        <fraudbusters-proto.version>1.42-7b207a1</fraudbusters-proto.version>
+        <fraudbusters-proto.version>1.43-3b2d35a</fraudbusters-proto.version>
         <machinegun-proto.version>1.12-ebae56f</machinegun-proto.version>
 
         <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>

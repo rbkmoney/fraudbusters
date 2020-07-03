@@ -63,6 +63,8 @@ kafka:
       group:
         list: group_p2p_list
         reference: group_p2p_reference
+    fraud:
+      payment: fraud_payment
 
   ssl:
     enable: false

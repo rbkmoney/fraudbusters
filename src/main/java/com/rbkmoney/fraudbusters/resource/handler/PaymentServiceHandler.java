@@ -8,6 +8,7 @@ import org.apache.thrift.TException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.List;
 
@@ -15,6 +16,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
+
+    @Value("${kafka.topic.fraud.payment}")
+    private String fraudPaymentTopic;
 
     @Value("${kafka.topic.event.sink.payment}")
     public String paymentEventTopic;
@@ -29,6 +33,7 @@ public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
     private final KafkaTemplate<String, Payment> paymentKafkaTemplate;
     private final KafkaTemplate<String, Refund> refundKafkaTemplate;
     private final KafkaTemplate<String, Chargeback> chargebackKafkaTemplate;
+    private final KafkaTemplate<String, FraudPayment> kafkaFraudPaymentTemplate;
 
     @Override
     public ValidateTemplateResponse validateCompilationTemplate(List<Template> list) throws TException {
@@ -41,8 +46,8 @@ public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
     }
 
     @Override
-    public void insertFraudPayments(List<FraudPayment> list) throws TException {
-
+    public void insertFraudPayments(List<FraudPayment> payments) throws TException {
+        payments.forEach(p -> kafkaFraudPaymentTemplate.send(fraudPaymentTopic, p));
     }
 
     @Override

@@ -53,7 +53,7 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
         ps.setString(l++, TBaseUtil.unionFieldToEnum(paymentTool, PaymentToolType.class).name());
 
         ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getBin() : UNKNOWN);
-        ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getMaskedPan() : UNKNOWN);
+        ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getLastDigits() : UNKNOWN);
         ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getToken() : UNKNOWN);
         ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getPaymentSystem().name() : UNKNOWN);
 
