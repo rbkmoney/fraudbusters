@@ -61,7 +61,7 @@ public class P2PContextToP2PModelConverter implements Converter<Context, P2PMode
                             payerModel.setBin(bankCard.getBin());
                             payerModel.setBinCountryCode(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
                             payerModel.setCardToken(bankCard.getToken());
-                            payerModel.setPan(bankCard.getMaskedPan());
+                            payerModel.setPan(bankCard.getLastDigits());
                             payerModel.setBankName(bankCard.getBankName());
                         }
                 );

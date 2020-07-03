@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
+import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import com.rbkmoney.fraudbusters.config.properties.KafkaSslProperties;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
@@ -227,6 +228,20 @@ public class KafkaConfig {
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         DefaultKafkaConsumerFactory<String, ScoresResult<P2PModel>> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(), new P2PResultDeserializer());
+        factory.setConsumerFactory(consumerFactory);
+        factory.setConcurrency(listenResultConcurrency);
+        factory.setBatchListener(true);
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, FraudPayment> fraudPaymentListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, FraudPayment> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
+        final Map<String, Object> props = createDefaultProperties(consumerGroup);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
+        DefaultKafkaConsumerFactory<String, FraudPayment> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
+                new StringDeserializer(), new FraudPaymentDeserializer());
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(listenResultConcurrency);
         factory.setBatchListener(true);

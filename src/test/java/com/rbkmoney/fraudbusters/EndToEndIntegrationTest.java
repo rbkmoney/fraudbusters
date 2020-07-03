@@ -1,10 +1,7 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
-import com.rbkmoney.damsel.fraudbusters.PaymentValidateServiceSrv;
-import com.rbkmoney.damsel.fraudbusters.PriorityId;
-import com.rbkmoney.damsel.fraudbusters.Template;
-import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
@@ -13,6 +10,7 @@ import com.rbkmoney.fraudbusters.constant.RefundStatus;
 import com.rbkmoney.fraudbusters.domain.Chargeback;
 import com.rbkmoney.fraudbusters.domain.Payment;
 import com.rbkmoney.fraudbusters.domain.Refund;
+import com.rbkmoney.fraudbusters.repository.FraudPaymentRepositoryTest;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
@@ -48,6 +46,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -173,9 +172,9 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @Test
     public void testValidation() throws URISyntaxException, TException {
         THClientBuilder clientBuilder = new THClientBuilder()
-                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment/v1/", serverPort)))
                 .withNetworkTimeout(300000);
-        PaymentValidateServiceSrv.Iface client = clientBuilder.build(PaymentValidateServiceSrv.Iface.class);
+        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
 
         ValidateTemplateResponse validateTemplateResponse = client.validateCompilationTemplate(
                 List.of(new Template()
@@ -246,6 +245,23 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
+    }
+
+    @Test
+    public void testFraudPayment() throws URISyntaxException, TException, InterruptedException {
+        THClientBuilder clientBuilder = new THClientBuilder()
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment/v1/", serverPort)))
+                .withNetworkTimeout(300000);
+        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
+
+        //Payment
+        client.insertFraudPayments(List.of(FraudPaymentRepositoryTest.createFraudPayment("inv")));
+        Thread.sleep(TIMEOUT);
+
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.fraud_payment");
+        Assert.assertEquals(1, maps.size());
+        Assert.assertEquals("kek@kek.ru", maps.get(0).get("email"));
+
     }
 
 }

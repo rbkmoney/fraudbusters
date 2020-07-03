@@ -1,14 +1,18 @@
 package com.rbkmoney.fraudbusters.config;
 
+import com.rbkmoney.damsel.fraudbusters.FraudPayment;
+import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.converter.CheckedResultToRiskScoreConverter;
 import com.rbkmoney.fraudbusters.converter.ContextToFraudRequestConverter;
 import com.rbkmoney.fraudbusters.converter.P2PContextToP2PModelConverter;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
+import com.rbkmoney.fraudbusters.fraud.ListTemplateValidator;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.resource.handler.FraudInspectorHandler;
 import com.rbkmoney.fraudbusters.resource.handler.FraudP2PInspectorHandler;
+import com.rbkmoney.fraudbusters.resource.handler.PaymentServiceHandler;
 import com.rbkmoney.fraudbusters.stream.P2PTemplateVisitorImpl;
 import com.rbkmoney.fraudbusters.stream.TemplateVisitorImpl;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +29,10 @@ public class ResourceConfig {
     @Value("${kafka.topic.p2p.result}")
     private String requestP2PReplyTopic;
 
+    @Value("${kafka.topic.fraud.payment}")
+    private String fraudPaymentTopic;
+
+
     @Bean
     public InspectorProxySrv.Iface fraudInspectorHandler(KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate,
                                                          CheckedResultToRiskScoreConverter checkedResultToRiskScoreConverter,
@@ -39,6 +47,13 @@ public class ResourceConfig {
                                                                                          P2PContextToP2PModelConverter requestConverter,
                                                                                          P2PTemplateVisitorImpl templateListVisitor) {
         return new FraudP2PInspectorHandler(requestP2PReplyTopic, resultConverter, requestConverter, templateListVisitor, p2PModelKafkaTemplate);
+    }
+
+
+    @Bean
+    public PaymentServiceSrv.Iface paymentServiceHandler(ListTemplateValidator paymentTemplatesValidator,
+                                                  KafkaTemplate<String, FraudPayment> kafkaFraudPaymentTemplate) {
+        return new PaymentServiceHandler(fraudPaymentTopic, paymentTemplatesValidator, kafkaFraudPaymentTemplate);
     }
 
 }
