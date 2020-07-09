@@ -12,8 +12,8 @@ import com.rbkmoney.fraudbusters.domain.Payment;
 import com.rbkmoney.fraudbusters.domain.Refund;
 import com.rbkmoney.fraudbusters.repository.FraudPaymentRepositoryTest;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
+import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsChargebackRepository;
+import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsRefundRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
@@ -97,10 +97,10 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     Repository<Payment> repository;
 
     @Autowired
-    ChargebackRepository chargebackRepository;
+    AnalyticsChargebackRepository analyticsChargebackRepository;
 
     @Autowired
-    RefundRepository refundRepository;
+    AnalyticsRefundRepository analyticsRefundRepository;
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -131,8 +131,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
-        ChInitializer.initAllScripts(clickHouseContainer);
-
         String globalRef = UUID.randomUUID().toString();
         produceTemplate(globalRef, TEMPLATE, templateTopic);
         produceReference(true, null, null, globalRef);
@@ -172,7 +170,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @Test
     public void testValidation() throws URISyntaxException, TException {
         THClientBuilder clientBuilder = new THClientBuilder()
-                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment/v1/", serverPort)))
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
                 .withNetworkTimeout(300000);
         PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
 
@@ -225,7 +223,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        chargebackRepository.insert(convertContextToPayment(context, ChargebackStatus.accepted.name(), new Chargeback()));
+        analyticsChargebackRepository.insert(convertContextToPayment(context, ChargebackStatus.accepted.name(), new Chargeback()));
 
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
@@ -236,16 +234,54 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        refundRepository.insert(convertContextToPayment(context, RefundStatus.failed.name(), new Refund()));
+        analyticsRefundRepository.insert(convertContextToPayment(context, RefundStatus.failed.name(), new Refund()));
 
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        refundRepository.insert(convertContextToPayment(context, RefundStatus.succeeded.name(), new Refund()));
+        analyticsRefundRepository.insert(convertContextToPayment(context, RefundStatus.succeeded.name(), new Refund()));
 
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
     }
+
+    @Test
+    public void testLoadData() throws URISyntaxException, TException, InterruptedException {
+        THClientBuilder clientBuilder = new THClientBuilder()
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
+                .withNetworkTimeout(300000);
+        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
+
+        //Test empty lists
+        client.insertPayments(List.of());
+        client.insertRefunds(List.of());
+        client.insertChargebacks(List.of());
+
+        //Payment
+        client.insertPayments(List.of(createPayment(PaymentStatus.captured)));
+        Thread.sleep(TIMEOUT);
+
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.payment");
+        Assert.assertEquals(1, maps.size());
+        Assert.assertEquals("email", maps.get(0).get("email"));
+
+        //Chargeback
+        client.insertChargebacks(List.of(createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.accepted),
+                createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.cancelled)));
+        Thread.sleep(TIMEOUT);
+
+        maps = jdbcTemplate.queryForList("SELECT * from fraud.chargeback");
+        Assert.assertEquals(2, maps.size());
+
+        //Refund
+        client.insertRefunds(List.of(createRefund(com.rbkmoney.damsel.fraudbusters.RefundStatus.succeeded),
+                createRefund(com.rbkmoney.damsel.fraudbusters.RefundStatus.failed)));
+        Thread.sleep(TIMEOUT);
+
+        maps = jdbcTemplate.queryForList("SELECT * from fraud.refund");
+        Assert.assertEquals(2, maps.size());
+    }
+
 
     @Test
     public void testFraudPayment() throws URISyntaxException, TException, InterruptedException {

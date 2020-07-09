@@ -104,18 +104,6 @@ public class EventP2PRepositoryTest {
     }
 
     @Test
-    public void insert() throws SQLException {
-        eventP2PRepository.insert(scoresResultToEventConverter
-                .convert(createScoresResult(ResultStatus.ACCEPT, BeanUtil.createP2PModel()))
-        );
-
-        Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
-                (resultSet, i) -> resultSet.getInt("cnt"));
-
-        assertEquals(1, count.intValue());
-    }
-
-    @Test
     public void insertBatch() throws SQLException {
         eventP2PRepository.insertBatch(
                 createBatch().stream()

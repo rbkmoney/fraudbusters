@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.PaymentInfo;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
+import com.rbkmoney.fraudbusters.constant.PayerType;
 import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.Metadata;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
@@ -67,8 +68,23 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
         PayerFieldExtractor.getBankCard(context.getPayment().getPayment().getPayer()).ifPresent(bankCard -> {
             metadata.setMaskedPan(bankCard.getLastDigits());
             metadata.setBankName(bankCard.getBankName());
+            metadata.setPayerType(getPayerType(context.getPayment().getPayment().getPayer()));
+            metadata.setTokenProvider(bankCard.isSetTokenProvider() ? bankCard.getTokenProvider().name() : ClickhouseUtilsValue.UNKNOWN);
         });
         return metadata;
+    }
+
+    @NotNull
+    private String getPayerType(Payer payer) {
+        if (payer.isSetPaymentResource()) {
+            return PayerType.PAYMENT_RESOURCE.name();
+        } else if (payer.isSetRecurrent()) {
+            return PayerType.RECURRENT.name();
+        } else if (payer.isSetCustomer()) {
+            return PayerType.CUSTOMER.name();
+        } else {
+            return ClickhouseUtilsValue.UNKNOWN;
+        }
     }
 
 }

@@ -7,9 +7,8 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
-import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.model.TimeWindow;
 import com.rbkmoney.fraudo.payment.aggregator.CountPaymentAggregator;
@@ -29,8 +28,8 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
 
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
     private final PaymentRepository paymentRepository;
-    private final RefundRepository refundRepository;
-    private final ChargebackRepository chargebackRepository;
+    private final AggregationRepository analytitcsRefundRepository;
+    private final AggregationRepository analyticsChargebackRepository;
 
     @Override
     @BasicMetric("count")
@@ -71,13 +70,13 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
     @Override
     @BasicMetric("countChargeback")
     public Integer countChargeback(PaymentCheckedField paymentCheckedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getCount(paymentCheckedField, paymentModel, timeWindow, list, chargebackRepository::countOperationByFieldWithGroupBy, false);
+        return getCount(paymentCheckedField, paymentModel, timeWindow, list, analyticsChargebackRepository::countOperationByFieldWithGroupBy, false);
     }
 
     @Override
     @BasicMetric("countRefund")
     public Integer countRefund(PaymentCheckedField paymentCheckedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getCount(paymentCheckedField, paymentModel, timeWindow, list, refundRepository::countOperationByFieldWithGroupBy, false);
+        return getCount(paymentCheckedField, paymentModel, timeWindow, list, analytitcsRefundRepository::countOperationByFieldWithGroupBy, false);
     }
 
     @NotNull

@@ -1,5 +1,8 @@
 package com.rbkmoney.fraudbusters.config;
 
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
+import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import com.rbkmoney.fraudbusters.config.properties.KafkaSslProperties;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
@@ -50,6 +53,21 @@ public class KafkaTemplateConfig {
     @Bean
     public KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate() {
         return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerJsonConfigs()));
+    }
+
+    @Bean
+    public KafkaTemplate<String, Payment> paymentKafkaTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerThriftConfigs()));
+    }
+
+    @Bean
+    public KafkaTemplate<String, Refund> refundKafkaTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerThriftConfigs()));
+    }
+
+    @Bean
+    public KafkaTemplate<String, Chargeback> chargebackKafkaTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerThriftConfigs()));
     }
 
     @Bean

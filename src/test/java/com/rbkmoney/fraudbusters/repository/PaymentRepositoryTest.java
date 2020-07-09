@@ -11,7 +11,7 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
-import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
+import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsPaymentRepositoryImpl;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertEquals;
 @ActiveProfiles("full-prod")
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = {PaymentRepositoryImpl.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
+@ContextConfiguration(classes = {AnalyticsPaymentRepositoryImpl.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
         DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class}, initializers = PaymentRepositoryTest.Initializer.class)
 public class PaymentRepositoryTest {
 
@@ -56,7 +56,7 @@ public class PaymentRepositoryTest {
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Autowired
-    private PaymentRepositoryImpl paymentRepository;
+    private AnalyticsPaymentRepositoryImpl paymentRepository;
 
     @Autowired
     DBPaymentFieldResolver DBPaymentFieldResolver;
@@ -77,7 +77,6 @@ public class PaymentRepositoryTest {
                             "clickhouse.db.user=" + clickHouseContainer.getUsername(),
                             "clickhouse.db.password=" + clickHouseContainer.getPassword())
                     .applyTo(configurableApplicationContext.getEnvironment());
-
             initDb();
         }
     }

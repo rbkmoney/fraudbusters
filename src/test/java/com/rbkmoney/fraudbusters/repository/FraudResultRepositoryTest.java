@@ -93,23 +93,14 @@ public class FraudResultRepositoryTest {
         try (Connection connection = ChInitializer.getSystemConn(clickHouseContainer)) {
             execAllInFile(connection, "sql/db_init.sql");
             execAllInFile(connection, "sql/TEST_analytics_data.sql");
+            execAllInFile(connection, "sql/V4__create_payment.sql");
+            execAllInFile(connection, "sql/V5__create_payment.sql");
         }
     }
 
     @Before
     public void setUp() throws Exception {
         initDb();
-    }
-
-    @Test
-    public void insert() throws SQLException {
-        fraudResultRepository.insert(fraudResultToEventConverter
-                .convert(createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel()))
-        );
-
-        Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
-                (resultSet, i) -> resultSet.getInt("cnt"));
-        assertEquals(1, count.intValue());
     }
 
     @Test

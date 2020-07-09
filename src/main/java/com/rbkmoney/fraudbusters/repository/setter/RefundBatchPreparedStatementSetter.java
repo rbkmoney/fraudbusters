@@ -17,25 +17,25 @@ import java.util.List;
 import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
 
 @RequiredArgsConstructor
-public class PaymentBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
+public class RefundBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
     public static final String FIELDS = " timestamp, eventTimeHour, eventTime, " +
             "id, " +
             "email, ip, fingerprint, " +
-            "bin, maskedPan, cardToken, paymentSystem, paymentTool, " +
+            "bin, maskedPan, cardToken, paymentSystem, paymentTool , " +
             "terminal, providerId, bankCountry, " +
             "partyId, shopId, " +
             "amount, currency, " +
-            "status, errorCode, errorReason, " +
+            "status, errorCode, errorReason, paymentId, " +
             "payerType, tokenProvider";
 
-    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
+    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
-    private final List<Payment> batch;
+    private final List<Refund> batch;
 
     @Override
     public void setValues(PreparedStatement ps, int i) throws SQLException {
-        Payment event = batch.get(i);
+        Refund event = batch.get(i);
         int l = 1;
         TimeProperties timeProperties = TimestampUtil.generateTimePropertiesByString(event.getEventTime());
         ps.setObject(l++, timeProperties.getTimestamp());
@@ -71,9 +71,11 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
         ps.setString(l++, event.getCost().getCurrency().getSymbolicCode());
 
         ps.setObject(l++, event.getStatus());
+
         Error error = event.getError();
         ps.setString(l++, error == null ? null : error.getErrorCode());
         ps.setString(l++, error == null ? null : error.getErrorReason());
+        ps.setString(l++, event.getPaymentId());
 
         ps.setString(l++, event.isSetPayerType() ? event.getPayerType().name() : UNKNOWN);
         ps.setString(l, paymentTool.isSetBankCard() && paymentTool.getBankCard().isSetTokenProvider() ?

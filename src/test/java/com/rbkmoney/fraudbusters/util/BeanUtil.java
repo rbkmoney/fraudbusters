@@ -1,6 +1,9 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.base.Content;
+import com.rbkmoney.damsel.domain.BankCard;
+import com.rbkmoney.damsel.domain.ClientInfo;
+import com.rbkmoney.damsel.domain.PaymentTool;
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.p2p_insp.Identity;
@@ -432,5 +435,85 @@ public class BeanUtil {
         payment.setPartyId(context.getPayment().getParty().getPartyId());
         payment.setShopId(context.getPayment().getShop().getId());
         return payment;
+    }
+
+    public static Payment createPayment(PaymentStatus status) {
+        return new Payment()
+                .setStatus(status)
+                .setClientInfo(createEmail())
+                .setCost(createCash()
+                )
+                .setEventTime(String.valueOf(LocalDateTime.now()))
+                .setId("payment_id")
+                .setPaymentTool(createBankCardResult())
+                .setProviderInfo(createProviderInfo()
+                )
+                .setReferenceInfo(createReferenceInfo());
+    }
+
+    private static ProviderInfo createProviderInfo() {
+        return new ProviderInfo()
+                .setProviderId("provider_id")
+                .setCountry("RUS")
+                .setTerminalId("terminal_id");
+    }
+
+    public static Refund createRefund(RefundStatus status) {
+        return new Refund()
+                .setStatus(status)
+                .setPaymentId("payment_id")
+                .setClientInfo(createEmail())
+                .setCost(createCash())
+                .setEventTime(String.valueOf(LocalDateTime.now()))
+                .setId("payment_id")
+                .setPaymentTool(createBankCardResult())
+                .setProviderInfo(createProviderInfo())
+                .setReferenceInfo(createReferenceInfo());
+    }
+
+    private static Cash createCash() {
+        return new Cash()
+                .setAmount(9000L)
+                .setCurrency(new CurrencyRef().setSymbolicCode("RUB"));
+    }
+
+    public static Chargeback createChargeback(ChargebackStatus status) {
+        return new Chargeback()
+                .setStatus(status)
+                .setPaymentId("payment_id")
+                .setClientInfo(createEmail())
+                .setCost(createCash())
+                .setEventTime(String.valueOf(LocalDateTime.now()))
+                .setId("payment_id")
+                .setCategory(ChargebackCategory.fraud)
+                .setChargebackCode("123")
+                .setPaymentTool(createBankCardResult())
+                .setProviderInfo(createProviderInfo())
+                .setReferenceInfo(createReferenceInfo());
+    }
+
+    @NotNull
+    private static ReferenceInfo createReferenceInfo() {
+        return ReferenceInfo.merchant_info(
+                new MerchantInfo()
+                        .setPartyId(P_ID)
+                        .setShopId(ID_VALUE_SHOP));
+    }
+
+    @NotNull
+    private static PaymentTool createBankCardResult() {
+        return PaymentTool.bank_card(new BankCard()
+                        .setBin("1234")
+                        .setToken("wewerwer")
+                        .setLastDigits("433242")
+                        .setPaymentSystem(BankCardPaymentSystem.visa)
+        );
+    }
+
+    private static com.rbkmoney.damsel.fraudbusters.ClientInfo createEmail() {
+        return new com.rbkmoney.damsel.fraudbusters.ClientInfo()
+                .setEmail(EMAIL)
+                .setFingerprint("fingerprint")
+                .setIp("123.123.123.123");
     }
 }

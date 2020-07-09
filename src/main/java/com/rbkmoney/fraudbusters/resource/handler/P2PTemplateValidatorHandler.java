@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class P2PServiceHandler implements P2PServiceSrv.Iface {
+public class P2PTemplateValidatorHandler implements P2PServiceSrv.Iface {
 
     private final ListTemplateValidator p2pTemplatesValidator;
 

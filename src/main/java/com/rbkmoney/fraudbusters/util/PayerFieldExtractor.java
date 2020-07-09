@@ -4,9 +4,12 @@ import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.domain.ClientInfo;
 import com.rbkmoney.damsel.domain.ContactInfo;
 import com.rbkmoney.damsel.domain.Payer;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.Optional;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PayerFieldExtractor {
 
     public static Optional<ContactInfo> getContactInfo(Payer payer) {

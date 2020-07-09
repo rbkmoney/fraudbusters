@@ -6,6 +6,8 @@ public enum BaseField {
     eventTime,
     eventTimeHour,
 
+    id,
+
     partyId,
     shopId,
     providerId,

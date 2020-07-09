@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.repository.setter;
+package com.rbkmoney.fraudbusters.repository.impl.analytics;
 
 import com.rbkmoney.fraudbusters.constant.field.PaymentField;
 import com.rbkmoney.fraudbusters.domain.Payment;
