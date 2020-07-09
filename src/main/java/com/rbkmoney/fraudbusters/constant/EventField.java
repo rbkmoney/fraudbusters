@@ -23,6 +23,8 @@ public enum EventField {
     bankName,
     paymentId,
     checkedTemplate,
+    payerType,
+    tokenProvider,
     cardToken
 
 }
