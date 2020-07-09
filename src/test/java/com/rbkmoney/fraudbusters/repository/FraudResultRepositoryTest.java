@@ -93,6 +93,7 @@ public class FraudResultRepositoryTest {
         try (Connection connection = ChInitializer.getSystemConn(clickHouseContainer)) {
             execAllInFile(connection, "sql/db_init.sql");
             execAllInFile(connection, "sql/TEST_analytics_data.sql");
+            execAllInFile(connection, "sql/V4__create_payment.sql");
             execAllInFile(connection, "sql/V5__create_payment.sql");
         }
     }

@@ -1,10 +1,8 @@
 package com.rbkmoney.fraudbusters.repository.setter;
 
-import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.domain.PaymentTool;
 import com.rbkmoney.damsel.fraudbusters.Error;
 import com.rbkmoney.damsel.fraudbusters.*;
-import com.rbkmoney.fraudbusters.constant.FraudPaymentTool;
 import com.rbkmoney.fraudbusters.constant.PaymentToolType;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -28,9 +26,10 @@ public class RefundBatchPreparedStatementSetter implements BatchPreparedStatemen
             "terminal, providerId, bankCountry, " +
             "partyId, shopId, " +
             "amount, currency, " +
-            "status, errorCode, errorReason, paymentId";
+            "status, errorCode, errorReason, paymentId, " +
+            "payerType, tokenProvider";
 
-    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
+    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
     private final List<Refund> batch;
 
@@ -76,7 +75,11 @@ public class RefundBatchPreparedStatementSetter implements BatchPreparedStatemen
         Error error = event.getError();
         ps.setString(l++, error == null ? null : error.getErrorCode());
         ps.setString(l++, error == null ? null : error.getErrorReason());
-        ps.setString(l, event.getPaymentId());
+        ps.setString(l++, event.getPaymentId());
+
+        ps.setString(l++, event.isSetPayerType() ? event.getPayerType().name() : UNKNOWN);
+        ps.setString(l, paymentTool.isSetBankCard() && paymentTool.getBankCard().isSetTokenProvider() ?
+                paymentTool.getBankCard().getTokenProvider().name() : UNKNOWN);
     }
 
     @Override
