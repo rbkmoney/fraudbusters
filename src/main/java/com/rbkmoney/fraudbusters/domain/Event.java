@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters.domain;
 
 import lombok.Data;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
 @Data
@@ -30,5 +29,8 @@ public class Event {
     private String cardToken;
     private String paymentId;
     private String checkedTemplate;
+
+    private String payerType;
+    private String tokenProvider;
 
 }

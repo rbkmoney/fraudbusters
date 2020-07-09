@@ -10,8 +10,8 @@ import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
-import com.rbkmoney.fraudbusters.repository.setter.EventBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.EventParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.setter.EventBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +34,9 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
 
     private static final String INSERT = "INSERT INTO fraud.events_unique " +
             " (timestamp, eventTimeHour, eventTime, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount, " +
-            "country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName, cardToken, paymentId, checkedTemplate)" +
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName, cardToken, paymentId, checkedTemplate," +
+            "payerType, tokenProvider)" +
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
     public void insert(Event value) {

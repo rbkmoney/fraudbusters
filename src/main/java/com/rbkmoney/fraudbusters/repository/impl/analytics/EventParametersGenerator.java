@@ -2,12 +2,15 @@ package com.rbkmoney.fraudbusters.repository.impl.analytics;
 
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.domain.Event;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EventParametersGenerator {
 
     @NotNull
@@ -34,6 +37,8 @@ public class EventParametersGenerator {
         Optional.ofNullable(value.getCardToken()).ifPresent(v -> parameters.put(EventField.cardToken.name(), v));
         Optional.ofNullable(value.getPaymentId()).ifPresent(v -> parameters.put(EventField.paymentId.name(), v));
         Optional.ofNullable(value.getCheckedTemplate()).ifPresent(v -> parameters.put(EventField.checkedTemplate.name(), v));
+        Optional.ofNullable(value.getPayerType()).ifPresent(v -> parameters.put(EventField.payerType.name(), v));
+        Optional.ofNullable(value.getTokenProvider()).ifPresent(v -> parameters.put(EventField.tokenProvider.name(), v));
         return parameters;
     }
 

@@ -16,4 +16,7 @@ public class Metadata {
     private String maskedPan;
     private String bankName;
 
+    private String payerType;
+    private String tokenProvider;
+
 }
