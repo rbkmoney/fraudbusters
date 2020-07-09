@@ -20,9 +20,10 @@ import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.PaymentModelFieldResolver;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
-import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
+import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsChargebackRepository;
+import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsRefundRepository;
 import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
@@ -48,10 +49,10 @@ public class FraudoConfig {
 
     @Bean
     public CountPaymentAggregator<PaymentModel, PaymentCheckedField> countAggregator(PaymentRepository paymentRepository,
-                                                                                     RefundRepository refundRepository,
-                                                                                     ChargebackRepository chargebackRepository,
+                                                                                     AnalyticsRefundRepository analyticsRefundRepository,
+                                                                                     AnalyticsChargebackRepository analyticsChargebackRepository,
                                                                                      DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new CountAggregatorImpl(dbPaymentFieldResolver, paymentRepository, refundRepository, chargebackRepository);
+        return new CountAggregatorImpl(dbPaymentFieldResolver, paymentRepository, analyticsRefundRepository, analyticsChargebackRepository);
     }
 
     @Bean
@@ -62,10 +63,10 @@ public class FraudoConfig {
 
     @Bean
     public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumAggregator(PaymentRepository paymentRepository,
-                                                                                 RefundRepository refundRepository,
-                                                                                 ChargebackRepository chargebackRepository,
+                                                                                 AnalyticsRefundRepository analyticsRefundRepository,
+                                                                                 AnalyticsChargebackRepository analyticsChargebackRepository,
                                                                                  DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new SumAggregatorImpl(dbPaymentFieldResolver, paymentRepository, refundRepository, chargebackRepository);
+        return new SumAggregatorImpl(dbPaymentFieldResolver, paymentRepository, analyticsRefundRepository, analyticsChargebackRepository);
     }
 
     @Bean

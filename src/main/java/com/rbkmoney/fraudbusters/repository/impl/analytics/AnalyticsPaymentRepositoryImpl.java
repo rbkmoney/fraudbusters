@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.repository.impl;
+package com.rbkmoney.fraudbusters.repository.impl.analytics;
 
 import com.google.common.collect.Lists;
 import com.rbkmoney.fraudbusters.constant.AnalyticStatus;
@@ -10,9 +10,6 @@ import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
-import com.rbkmoney.fraudbusters.repository.setter.BaseRawParametersGenerator;
-import com.rbkmoney.fraudbusters.repository.setter.PaymentBatchPreparedStatementSetter;
-import com.rbkmoney.fraudbusters.repository.setter.PaymentParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,16 +28,10 @@ import java.util.Map;
 @Profile("full-prod")
 @Component
 @RequiredArgsConstructor
-public class PaymentRepositoryImpl implements Repository<Payment>, PaymentRepository {
+public class AnalyticsPaymentRepositoryImpl implements Repository<Payment>, PaymentRepository {
 
     private final AggregationGeneralRepository aggregationGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
-
-    private static final String INSERT = String.format(
-            "INSERT INTO %1s (%2s) VALUES (%3s)",
-            EventSource.ANALYTIC_EVENTS_SINK.getTable(),
-            BaseRawParametersGenerator.BASE_RAW_PARAMETERS,
-            BaseRawParametersGenerator.BASE_RAW_PARAMETERS_MARK);
 
     @Override
     public void insert(Payment payment) {
@@ -57,9 +48,6 @@ public class PaymentRepositoryImpl implements Repository<Payment>, PaymentReposi
     @Override
     public void insertBatch(List<Payment> batch) {
         log.debug("PaymentRepository insertBatch batch: {}", batch);
-        if (batch != null && !batch.isEmpty()) {
-            jdbcTemplate.batchUpdate(INSERT, new PaymentBatchPreparedStatementSetter(batch));
-        }
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters.repository.setter;
 
 import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.domain.PaymentTool;
-import com.rbkmoney.damsel.fraudbusters.Error;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.constant.FraudPaymentTool;
 import com.rbkmoney.fraudbusters.constant.PaymentToolType;
@@ -19,24 +18,24 @@ import java.util.List;
 import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
 
 @RequiredArgsConstructor
-public class PaymentBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
+public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
     public static final String FIELDS = " timestamp, eventTimeHour, eventTime, " +
             "id, " +
             "email, ip, fingerprint, " +
-            "bin, maskedPan, cardToken, paymentSystem, paymentTool, " +
+            "bin, maskedPan, cardToken, paymentSystem, paymentTool , " +
             "terminal, providerId, bankCountry, " +
             "partyId, shopId, " +
             "amount, currency, " +
-            "status, errorCode, errorReason";
+            "status, category, chargebackCode, paymentId";
 
-    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
+    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
-    private final List<Payment> batch;
+    private final List<Chargeback> batch;
 
     @Override
     public void setValues(PreparedStatement ps, int i) throws SQLException {
-        Payment event = batch.get(i);
+        Chargeback event = batch.get(i);
         int l = 1;
         TimeProperties timeProperties = TimestampUtil.generateTimePropertiesByString(event.getEventTime());
         ps.setObject(l++, timeProperties.getTimestamp());
@@ -72,9 +71,12 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
         ps.setString(l++, event.getCost().getCurrency().getSymbolicCode());
 
         ps.setObject(l++, event.getStatus());
-        Error error = event.getError();
-        ps.setString(l++, error == null ? null : error.getErrorCode());
-        ps.setString(l, error == null ? null : error.getErrorReason());
+
+        ps.setObject(l++, event.getCategory());
+        ps.setString(l++, event.getChargebackCode());
+
+        ps.setString(l, event.getPaymentId());
+
     }
 
     @Override

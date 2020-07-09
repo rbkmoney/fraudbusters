@@ -15,6 +15,7 @@ public class ChInitializer {
             execAllInFile(connection, "sql/V2__create_events_p2p.sql");
             execAllInFile(connection, "sql/V3__create_fraud_payments.sql");
             execAllInFile(connection, "sql/TEST_analytics_data.sql");
+            execAllInFile(connection, "sql/V4__create_payment.sql");
         }
     }
 

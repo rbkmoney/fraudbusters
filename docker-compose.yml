@@ -86,7 +86,7 @@ services:
       - 8990:8022
 
    wblist:
-     image: dr2.rbkmoney.com/rbkmoney/wb-list-manager:98dbbb82e54ea37c234e521f57ecd092cf20a298
+     image: dr2.rbkmoney.com/rbkmoney/wb-list-manager:d5ee1b86445e20f45d0271f86696446f57fc829b
      hostname: wblist
      container_name: wblist
      environment:
@@ -104,7 +104,7 @@ services:
        - 8991:8022
 
    fraudbusters:
-     image: dr2.rbkmoney.com/rbkmoney/fraudbusters:0e06ea2537ebfe971d1885d76101970b0db64899
+     image: dr2.rbkmoney.com/rbkmoney/fraudbusters:d3b25090affa6c04314909e36dbfabb9ba4be9de
      hostname: fraudbusters
      container_name: fraudbusters
      environment:
@@ -135,7 +135,7 @@ services:
      restart: unless-stopped
 
    fb-management:
-     image: dr2.rbkmoney.com/rbkmoney/fraudbusters-management:08e165429d3a91d9d734de0b968a77e00b737c19
+     image: dr2.rbkmoney.com/rbkmoney/fraudbusters-management:ecb5272c2c5920d4911959e3ec2b90e90c07377d
      hostname: fb-management
      container_name: fb-management
      environment:

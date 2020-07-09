@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.resource.handler;
 
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
-import com.rbkmoney.fraudbusters.fraud.p2p.validator. P2PTemplateValidator;
+import com.rbkmoney.fraudbusters.fraud.p2p.validator.P2PTemplateValidator;
 import com.rbkmoney.fraudbusters.fraud.validator.ListTemplateValidatorImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 @Slf4j
 class P2PServiceHandlerTest {
 
-    P2PServiceHandler p2PServiceHandler = new P2PServiceHandler(
+    P2PTemplateValidatorHandler p2PServiceHandler = new P2PTemplateValidatorHandler(
             new ListTemplateValidatorImpl(new P2PTemplateValidator()));
 
     @Test

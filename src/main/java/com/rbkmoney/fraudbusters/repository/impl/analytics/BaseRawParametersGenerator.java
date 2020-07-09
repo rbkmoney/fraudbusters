@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.repository.setter;
+package com.rbkmoney.fraudbusters.repository.impl.analytics;
 
 import com.rbkmoney.fraudbusters.constant.field.BaseField;
 import com.rbkmoney.fraudbusters.domain.BaseRaw;
@@ -13,8 +13,8 @@ import java.util.Optional;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BaseRawParametersGenerator {
 
-    public static final String BASE_RAW_PARAMETERS = " timestamp,eventTimeHour,eventTime, " +
-            "shopId, partyId, " +
+    public static final String BASE_RAW_PARAMETERS = " timestamp, eventTimeHour, eventTime, " +
+            "id, " +
             "email, providerId, " +
             "amount, currency, " +
             "status, errorReason, errorCode, " +

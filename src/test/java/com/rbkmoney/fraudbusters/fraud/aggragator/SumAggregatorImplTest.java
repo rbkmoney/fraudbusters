@@ -5,9 +5,8 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
-import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
-import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsPaymentRepositoryImpl;
 import com.rbkmoney.fraudo.model.TimeWindow;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,11 +20,11 @@ import static org.mockito.Mockito.when;
 public class SumAggregatorImplTest {
 
     @Mock
-    private PaymentRepositoryImpl paymentRepository;
+    private AnalyticsPaymentRepositoryImpl paymentRepository;
     @Mock
-    private RefundRepository refundRepository;
+    private AggregationRepository analyticsRefundRepository;
     @Mock
-    private ChargebackRepository chargebackRepository;
+    private AggregationRepository analyticsChargebackRepository;
     @Mock
     private DBPaymentFieldResolver DBPaymentFieldResolver;
 
@@ -42,7 +41,7 @@ public class SumAggregatorImplTest {
         when(paymentRepository.sumOperationSuccessWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
         when(paymentRepository.sumOperationErrorWithGroupBy(any(), any(), any(), any(), any(), any())).thenReturn(1050100L);
 
-        sumAggregator = new SumAggregatorImpl(DBPaymentFieldResolver, paymentRepository, refundRepository, chargebackRepository);
+        sumAggregator = new SumAggregatorImpl(DBPaymentFieldResolver, paymentRepository, analyticsRefundRepository, analyticsChargebackRepository);
     }
 
     @Test

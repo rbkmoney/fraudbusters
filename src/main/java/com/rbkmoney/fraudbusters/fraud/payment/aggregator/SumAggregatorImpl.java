@@ -7,9 +7,8 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
-import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.model.TimeWindow;
 import com.rbkmoney.fraudo.payment.aggregator.SumPaymentAggregator;
@@ -27,8 +26,8 @@ public class SumAggregatorImpl implements SumPaymentAggregator<PaymentModel, Pay
 
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
     private final PaymentRepository paymentRepository;
-    private final RefundRepository refundRepository;
-    private final ChargebackRepository chargebackRepository;
+    private final AggregationRepository refundRepository;
+    private final AggregationRepository chargebackRepository;
 
     @Override
     public Double sum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
