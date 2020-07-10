@@ -164,6 +164,11 @@
             <artifactId>custom-actuator-endpoints</artifactId>
             <version>0.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>wb-list-proto</artifactId>
+            <version>${wb.list.proto.version}</version>
+        </dependency>
 
         <!-- Test libs -->
         <dependency>
@@ -193,11 +198,6 @@
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney</groupId>
-            <artifactId>wb-list-proto</artifactId>
-            <version>${wb.list.proto.version}</version>
         </dependency>
         <dependency>
             <groupId>org.rnorth.duct-tape</groupId>
