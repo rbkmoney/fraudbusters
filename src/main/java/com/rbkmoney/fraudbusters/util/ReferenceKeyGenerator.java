@@ -5,7 +5,6 @@ import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.exception.UnknownReferenceException;
 import org.springframework.util.StringUtils;
-import org.testcontainers.shaded.io.netty.util.internal.StringUtil;
 
 public class ReferenceKeyGenerator {
 
@@ -27,9 +26,9 @@ public class ReferenceKeyGenerator {
 
     @Deprecated
     public static String generateTemplateKey(String partyId, String shopId) {
-        if (StringUtil.isNullOrEmpty(shopId) && !StringUtil.isNullOrEmpty(partyId)) {
+        if (StringUtils.isEmpty(shopId) && !StringUtils.isEmpty(partyId)) {
             return partyId;
-        } else if (!StringUtil.isNullOrEmpty(shopId) && !StringUtil.isNullOrEmpty(partyId)) {
+        } else if (!StringUtils.isEmpty(shopId) && !StringUtils.isEmpty(partyId)) {
             return partyId + SEPARATOR + shopId;
         }
         return TemplateLevel.DEFAULT.name();
@@ -53,7 +52,7 @@ public class ReferenceKeyGenerator {
                 resultKeyBuilder = new StringBuilder()
                         .append(id);
             } else {
-                if (!StringUtil.isNullOrEmpty(id)) {
+                if (!StringUtils.isEmpty(id)) {
                     resultKeyBuilder
                             .append(SEPARATOR)
                             .append(id);
