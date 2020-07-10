@@ -127,15 +127,4 @@ public class PreLoadTest extends KafkaAbstractTest {
         Assert.assertEquals(RiskScore.low, riskScore);
     }
 
-    @Test
-    public void aggregateStreamTest() throws ExecutionException, InterruptedException {
-        produceMessageToEventSink(BeanUtil.createMessageCreateInvoice(BeanUtil.SOURCE_ID));
-        produceMessageToEventSink(BeanUtil.createMessageCreateInvoice(BeanUtil.SOURCE_ID + "_1"));
-        produceMessageToEventSink(BeanUtil.createMessageCreateInvoice(BeanUtil.SOURCE_ID + "_2"));
-        produceMessageToEventSink(BeanUtil.createMessageCreateInvoice(BeanUtil.SOURCE_ID + "_3"));
-        produceMessageToEventSink(BeanUtil.createMessagePaymentStared(BeanUtil.SOURCE_ID));
-        produceMessageToEventSink(BeanUtil.createMessagePaymentStared(BeanUtil.SOURCE_ID + "_2"));
-        produceMessageToEventSink(BeanUtil.createMessageInvoiceCaptured(BeanUtil.SOURCE_ID));
-    }
-
 }
