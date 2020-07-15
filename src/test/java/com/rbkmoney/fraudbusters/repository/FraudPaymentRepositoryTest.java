@@ -131,13 +131,13 @@ public class FraudPaymentRepositoryTest {
                                                 .setFingerprint("12nj23njL23:4343nk:ff")))
                                 .setContactInfo(new ContactInfo()
                                         .setEmail("kek@kek.ru"))))
-                .setStatus(PaymentStatus.captured)
                 .setRrn("rrrrrn")
                 .setRoute(new PaymentRoute()
                         .setTerminal(new TerminalRef(123))
                         .setProvider(new ProviderRef(567)))
                 .setFraudInfo(new FraudInfo()
                         .setTempalteId("template_id")
-                        .setDescription("desc"));
+                        .setDescription("desc")
+                .setCheckStatus("ads"));
     }
 }
