@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    private static final long PRELOAD_TIMEOUT = 20L;
+    private static final long PRELOAD_TIMEOUT = 30L;
     private static final int COUNT_PRELOAD_TASKS = 8;
 
     private final ConsumerFactory<String, Command> templateListenerFactory;
