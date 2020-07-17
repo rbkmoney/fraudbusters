@@ -34,8 +34,10 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    private static final long PRELOAD_TIMEOUT = 20L;
     private static final int COUNT_PRELOAD_TASKS = 8;
+
+    @Value("${preload.timeout:20}")
+    private long preloadTimeout;
 
     private final ConsumerFactory<String, Command> templateListenerFactory;
     private final ConsumerFactory<String, Command> groupListenerFactory;
@@ -106,7 +108,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
             );
 
             tasks.forEach(executorService::submit);
-            long timeout = PRELOAD_TIMEOUT * COUNT_PRELOAD_TASKS;
+            long timeout = preloadTimeout * COUNT_PRELOAD_TASKS;
             boolean await = latch.await(timeout, TimeUnit.SECONDS);
 
             if (!await) {
@@ -123,9 +125,9 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     }
 
     private void waitPreLoad(CountDownLatch latch, ConsumerFactory<String, Command> groupListenerFactory, String topic, CommandListener listener) {
-        Consumer<String, Command> consumer = groupListenerFactory.createConsumer();
-        preloadListener.preloadToLastOffsetInPartition(consumer, topic, 0, listener::listen);
-        consumer.close();
+        try (Consumer<String, Command> consumer = groupListenerFactory.createConsumer()) {
+            preloadListener.preloadToLastOffsetInPartition(consumer, topic, 0, listener::listen);
+        }
         latch.countDown();
     }
 

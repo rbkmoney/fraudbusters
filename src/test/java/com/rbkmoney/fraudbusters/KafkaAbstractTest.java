@@ -3,14 +3,12 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
-import com.rbkmoney.fraudbusters.listener.p2p.TemplateP2PReferenceListener;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.service.FraudManagementService;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
-import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -37,7 +35,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.KafkaContainer;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -61,7 +58,28 @@ public abstract class KafkaAbstractTest {
     public static final String CONFLUENT_PLATFORM_VERSION = "5.0.1";
 
     @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION).withEmbeddedZookeeper();
+    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
+            .withEmbeddedZookeeper()
+            .withCommand("bash -c 'echo Waiting for Kafka to be ready... && \n" +
+                    "                                cub kafka-ready -b broker:9092 1 60 && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic wb-list-command  && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic wb-list-event-sink && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic result  && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic p2p_result  && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic fraud_payment && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic payment_event && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic refund_event && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic chargeback_event && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template_p2p && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template_reference && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template_p2p_reference && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_list && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_p2p_list && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_reference && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_p2p_reference && \n" +
+                    "                                echo Waiting 60 seconds for Connect to be ready... && \n" +
+                    "                                sleep 60'");
 
     @Value("${kafka.topic.template}")
     public String templateTopic;
@@ -115,30 +133,6 @@ public abstract class KafkaAbstractTest {
             TestPropertyValues
                     .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
                     .applyTo(configurableApplicationContext.getEnvironment());
-            initTopic("template");
-            initTopic("template_p2p");
-            initTopic("template_reference");
-            initTopic("template_p2p_reference");
-            initTopic("group_list");
-            initTopic("group_p2p_list");
-            initTopic("group_reference");
-            initTopic("group_p2p_reference");
-            initTopic("event_sink");
-            initTopic("aggregated_event_sink");
-            initTopic("fraud_payment");
-        }
-
-        @NotNull
-        private <T> Consumer<String, T> initTopic(String topicName) {
-            Consumer<String, T> consumer = createConsumer(CommandDeserializer.class);
-            try {
-                consumer.subscribe(Collections.singletonList(topicName));
-                consumer.poll(Duration.ofMillis(100L));
-            } catch (Exception e) {
-                log.error("KafkaAbstractTest initialize e: ", e);
-            }
-            consumer.close();
-            return consumer;
         }
     }
 
@@ -212,31 +206,11 @@ public abstract class KafkaAbstractTest {
         }
     }
 
-    void produceReferenceWithWait(boolean isGlobal, String identityId, String idTemplate, int timeout) throws InterruptedException, ExecutionException {
-        produceP2PReference(isGlobal, identityId, idTemplate);
-        try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(referenceTopic));
-            Unreliables.retryUntilTrue(timeout, TimeUnit.SECONDS, () -> {
-                ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
-                return !records.isEmpty();
-            });
-        }
-    }
-
     void produceGroupReference(String party, String shopId, String idGroup) throws InterruptedException, ExecutionException {
         try (Producer<String, Command> producer = createProducer()) {
             Command command = BeanUtil.createGroupReferenceCommand(party, shopId, idGroup);
             String key = ReferenceKeyGenerator.generateTemplateKey(party, shopId);
             ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(groupReferenceTopic, key, command);
-            producer.send(producerRecord).get();
-        }
-    }
-
-    void produceGroupReference(String identityId, String idGroup) throws InterruptedException, ExecutionException {
-        try (Producer<String, Command> producer = createProducer()) {
-            Command command = BeanUtil.createP2PGroupReferenceCommand(identityId, idGroup);
-            String key = ReferenceKeyGenerator.generateTemplateKeyByList(identityId);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(groupReferenceTopicP2P, key, command);
             producer.send(producerRecord).get();
         }
     }
@@ -251,14 +225,5 @@ public abstract class KafkaAbstractTest {
         command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
         return command;
     }
-
-    void produceMessageToEventSink(MachineEvent machineEvent) throws InterruptedException, ExecutionException {
-        try (Producer<String, SinkEvent> producer = createProducerAggr()) {
-            SinkEvent sinkEvent = new SinkEvent();
-            sinkEvent.setEvent(machineEvent);
-            ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(eventSinkTopic,
-                    sinkEvent.getEvent().getSourceId(), sinkEvent);
-            producer.send(producerRecord).get();
-        }
-    }
+    
 }

@@ -13,6 +13,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
+
 @RequiredArgsConstructor
 public class FraudPaymentBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
@@ -40,8 +42,8 @@ public class FraudPaymentBatchPreparedStatementSetter implements BatchPreparedSt
         ps.setString(l++, paymentTool.getBankCard().getBin() + paymentTool.getBankCard().getLastDigits());
         ps.setString(l++, paymentTool.getBankCard().getIssuerCountry().name());
         ps.setString(l++, contactInfo.getEmail());
-        ps.setString(l++, clientInfo.getIpAddress());
-        ps.setString(l++, clientInfo.getFingerprint());
+        ps.setString(l++, clientInfo != null ? clientInfo.getIpAddress() : UNKNOWN);
+        ps.setString(l++, clientInfo != null ? clientInfo.getFingerprint() : UNKNOWN);
         ps.setString(l++, payment.getFraudInfo().getCheckStatus());
         ps.setString(l++, payment.getRrn());
         ps.setLong(l++, payment.getRoute().getProvider().getId());
@@ -63,7 +65,7 @@ public class FraudPaymentBatchPreparedStatementSetter implements BatchPreparedSt
         if (payment.getPayer().isSetPaymentResource()) {
             return payment.getPayer().getPaymentResource().getResource().getClientInfo();
         }
-        throw new IllegalStateException("ClientInfo must be set for " + payment.getId());
+        return null;
     }
 
     private PaymentTool extractPaymentTool(FraudPayment payment) {
