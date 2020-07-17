@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.converter;
 
+import com.rbkmoney.damsel.domain.Cash;
 import com.rbkmoney.damsel.domain.Payer;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.Party;
@@ -43,7 +44,9 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
                 );
 
         paymentModel.setShopId(payment.getShop().getId());
-        paymentModel.setAmount(payment.getPayment().getCost().getAmount());
+        Cash cost = payment.getPayment().getCost();
+        paymentModel.setAmount(cost.getAmount());
+        paymentModel.setCurrency(cost.getCurrency().symbolic_code);
 
         PayerFieldExtractor.getClientInfo(payer).ifPresent(info -> {
             paymentModel.setIp(info.getIpAddress());
