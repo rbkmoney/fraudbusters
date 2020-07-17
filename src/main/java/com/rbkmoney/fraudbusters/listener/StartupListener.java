@@ -125,9 +125,9 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     }
 
     private void waitPreLoad(CountDownLatch latch, ConsumerFactory<String, Command> groupListenerFactory, String topic, CommandListener listener) {
-        Consumer<String, Command> consumer = groupListenerFactory.createConsumer();
-        preloadListener.preloadToLastOffsetInPartition(consumer, topic, 0, listener::listen);
-        consumer.close();
+        try (Consumer<String, Command> consumer = groupListenerFactory.createConsumer()) {
+            preloadListener.preloadToLastOffsetInPartition(consumer, topic, 0, listener::listen);
+        }
         latch.countDown();
     }
 
