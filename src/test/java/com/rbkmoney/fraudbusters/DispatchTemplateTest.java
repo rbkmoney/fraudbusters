@@ -32,12 +32,12 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class)
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = "preload.timeout=100")
 public class DispatchTemplateTest extends KafkaAbstractTest {
 
     public static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
-    public static final int TIMEOUT = 20;
+    public static final int TIMEOUT = 100;
 
     @Autowired
     private Pool<ParserRuleContext> templatePoolImpl;

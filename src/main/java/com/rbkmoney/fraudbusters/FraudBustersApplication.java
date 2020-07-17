@@ -32,9 +32,6 @@ public class FraudBustersApplication extends SpringApplication {
     @Autowired
     private FirstFindP2PVisitorImpl<P2PModel, P2PCheckedField> p2pRuleVisitor;
 
-    @Autowired
-    private StartupListener startupListener;
-
     public static void main(String[] args) {
         SpringApplication.run(FraudBustersApplication.class, args);
     }
