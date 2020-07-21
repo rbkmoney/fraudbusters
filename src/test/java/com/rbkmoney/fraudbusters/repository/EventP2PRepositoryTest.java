@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.constant.ScoresType;
 import com.rbkmoney.fraudbusters.converter.ScoresResultToEventConverter;
 import com.rbkmoney.fraudbusters.converter.ScoresResultToEventP2PConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
+import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
@@ -128,7 +129,7 @@ public class EventP2PRepositoryTest {
     private ScoresResult<P2PModel> createScoresResult(ResultStatus status, P2PModel p2PModel) {
         ScoresResult<P2PModel> value2 = new ScoresResult<>();
         CheckedResultModel resultModel = new CheckedResultModel();
-        resultModel.setResultModel(new ResultModel(status, "test", null));
+        resultModel.setResultModel(new ConcreteResultModel(status, "test", null));
         resultModel.setCheckedTemplate("RULE");
         value2.setRequest(p2PModel);
         HashMap<String, CheckedResultModel> map = new HashMap<>();

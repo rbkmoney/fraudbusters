@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.rbkmoney.fraudo.model.ResultModel;
 import lombok.Data;
 
 @Data
@@ -10,7 +9,7 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CheckedResultModel {
 
-    private ResultModel resultModel;
+    private ConcreteResultModel resultModel;
     private String checkedTemplate;
 
 }

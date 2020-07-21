@@ -1,10 +1,12 @@
 package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
+import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
-import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.BaseModel;
 import com.rbkmoney.fraudo.model.ResultModel;
+import com.rbkmoney.fraudo.model.RuleResult;
+import com.rbkmoney.fraudo.utils.ResultUtils;
 import com.rbkmoney.fraudo.visitor.TemplateVisitor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +28,16 @@ public class RuleApplierImpl<T extends BaseModel> implements RuleApplier<T> {
         ParserRuleContext parseContext = templatePool.get(templateKey);
         if (parseContext != null) {
             ResultModel resultModel = templateVisitor.visit(parseContext, model);
-            if (!ResultStatus.NORMAL.equals(resultModel.getResultStatus())) {
+            Optional<RuleResult> firstNotNotifyStatus = ResultUtils.findFirstNotNotifyStatus(resultModel);
+            if (firstNotNotifyStatus.isPresent()) {
                 log.info("applyRules resultModel: {}", resultModel);
                 CheckedResultModel checkedResultModel = new CheckedResultModel();
-                checkedResultModel.setResultModel(resultModel);
+                ConcreteResultModel concreteResultModel = new ConcreteResultModel();
+                RuleResult ruleResult = firstNotNotifyStatus.get();
+                concreteResultModel.setResultStatus(ruleResult.getResultStatus());
+                concreteResultModel.setRuleChecked(ruleResult.getRuleChecked());
+                concreteResultModel.setNotificationsRule(ResultUtils.getNotifications(resultModel));
+                checkedResultModel.setResultModel(concreteResultModel);
                 checkedResultModel.setCheckedTemplate(templateKey);
                 return Optional.of(checkedResultModel);
             }

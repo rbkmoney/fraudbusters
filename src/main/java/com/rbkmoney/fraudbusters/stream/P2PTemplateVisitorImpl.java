@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
+import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudo.constant.ResultStatus;
@@ -37,7 +38,7 @@ public class P2PTemplateVisitorImpl implements TemplateVisitor<P2PModel, Checked
 
     @NotNull
     private CheckedResultModel createDefaultResult() {
-        ResultModel resultModel = new ResultModel();
+        ConcreteResultModel resultModel = new ConcreteResultModel();
         resultModel.setResultStatus(ResultStatus.THREE_DS);
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setResultModel(resultModel);
