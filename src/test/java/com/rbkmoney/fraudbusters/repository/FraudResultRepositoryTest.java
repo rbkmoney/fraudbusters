@@ -4,10 +4,7 @@ import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
-import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.domain.FraudRequest;
-import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.domain.Metadata;
+import com.rbkmoney.fraudbusters.domain.*;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
@@ -128,7 +125,7 @@ public class FraudResultRepositoryTest {
     private FraudResult createFraudResult(ResultStatus decline, PaymentModel paymentModel) {
         FraudResult value2 = new FraudResult();
         CheckedResultModel resultModel = new CheckedResultModel();
-        resultModel.setResultModel(new ResultModel(decline, "test",null));
+        resultModel.setResultModel(new ConcreteResultModel(decline, "test",null));
         resultModel.setCheckedTemplate("RULE");
 
         value2.setResultModel(resultModel);

@@ -2,11 +2,11 @@ package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
+import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
-import com.rbkmoney.fraudo.model.ResultModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +40,7 @@ public class TemplateVisitorImpl implements TemplateVisitor<PaymentModel, Checke
 
     @NotNull
     private CheckedResultModel createDefaultResult() {
-        ResultModel resultModel = new ResultModel();
+        ConcreteResultModel resultModel = new ConcreteResultModel();
         resultModel.setResultStatus(ResultStatus.THREE_DS);
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setResultModel(resultModel);
