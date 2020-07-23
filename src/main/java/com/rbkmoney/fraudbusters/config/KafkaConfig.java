@@ -1,10 +1,6 @@
 package com.rbkmoney.fraudbusters.config;
 
-import com.rbkmoney.damsel.fraudbusters.Chargeback;
-import com.rbkmoney.damsel.fraudbusters.Command;
-import com.rbkmoney.damsel.fraudbusters.Payment;
-import com.rbkmoney.damsel.fraudbusters.Refund;
-import com.rbkmoney.damsel.fraudbusters.FraudPayment;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.config.properties.KafkaSslProperties;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
@@ -77,7 +73,17 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ConsumerFactory<String, Command> timeTemplateListenerFactory() {
+        return createDefaultConsumerFactory(TEMPLATE_GROUP_ID);
+    }
+
+    @Bean
     public ConsumerFactory<String, Command> groupListenerFactory() {
+        return createDefaultConsumerFactory(GROUP_LIST_GROUP_ID);
+    }
+
+    @Bean
+    public ConsumerFactory<String, Command> timeGroupListenerFactory() {
         return createDefaultConsumerFactory(GROUP_LIST_GROUP_ID);
     }
 
@@ -86,8 +92,19 @@ public class KafkaConfig {
         return createDefaultConsumerFactory(REFERENCE_GROUP_ID);
     }
 
+
+    @Bean
+    public ConsumerFactory<String, Command> timeReferenceListenerFactory() {
+        return createDefaultConsumerFactory(REFERENCE_GROUP_ID);
+    }
+
     @Bean
     public ConsumerFactory<String, Command> groupReferenceListenerFactory() {
+        return createDefaultConsumerFactory(GROUP_LIST_REFERENCE_GROUP_ID);
+    }
+
+    @Bean
+    public ConsumerFactory<String, Command> timeGroupReferenceListenerFactory() {
         return createDefaultConsumerFactory(GROUP_LIST_REFERENCE_GROUP_ID);
     }
 
@@ -136,6 +153,12 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> timeTemplateListenerContainerFactory(
+            ConsumerFactory<String, Command> timeTemplateListenerFactory) {
+        return createDefaultFactory(timeTemplateListenerFactory);
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Command> templateP2PListenerContainerFactory(
             ConsumerFactory<String, Command> templateP2PListenerFactory) {
         return createDefaultFactory(templateP2PListenerFactory);
@@ -145,6 +168,12 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, Command> groupListenerContainerFactory(
             ConsumerFactory<String, Command> groupListenerFactory) {
         return createDefaultFactory(groupListenerFactory);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> timeGroupListenerContainerFactory(
+            ConsumerFactory<String, Command> timeGroupListenerFactory) {
+        return createDefaultFactory(timeGroupListenerFactory);
     }
 
     @Bean
@@ -160,6 +189,12 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> timeReferenceListenerContainerFactory(
+            ConsumerFactory<String, Command> timeReferenceListenerFactory) {
+        return createDefaultFactory(timeReferenceListenerFactory);
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Command> referenceP2PListenerContainerFactory(
             ConsumerFactory<String, Command> referenceP2PListenerFactory) {
         return createDefaultFactory(referenceP2PListenerFactory);
@@ -169,6 +204,12 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, Command> groupReferenceListenerContainerFactory(
             ConsumerFactory<String, Command> groupReferenceListenerFactory) {
         return createDefaultFactory(groupReferenceListenerFactory);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Command> timeGroupReferenceListenerContainerFactory(
+            ConsumerFactory<String, Command> timeGroupReferenceListenerFactory) {
+        return createDefaultFactory(timeGroupReferenceListenerFactory);
     }
 
     @Bean

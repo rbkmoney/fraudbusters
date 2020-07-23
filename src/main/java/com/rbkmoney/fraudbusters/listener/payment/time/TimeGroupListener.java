@@ -20,7 +20,7 @@ public class TimeGroupListener extends AbstractTimeGroupCommandListenerExecutor 
     private final TimePool<List<String>> timeGroupPoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.full.group.list}", containerFactory = "groupListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.full.group.list}", containerFactory = "timeGroupListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("TimeGroupListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetGroup()) {

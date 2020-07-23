@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters.listener.payment;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.GroupReference;
-import com.rbkmoney.fraudbusters.listener.AbstractGroupCommandListenerExecutor;
 import com.rbkmoney.fraudbusters.listener.AbstractPoolCommandListenerExecutor;
 import com.rbkmoney.fraudbusters.listener.CommandListener;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
@@ -26,7 +25,7 @@ public class GroupReferenceListener extends AbstractPoolCommandListenerExecutor 
         log.info("GroupReferenceListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetGroupReference()) {
             GroupReference reference = command.getCommandBody().getGroupReference();
-            String key = ReferenceKeyGenerator.generateTemplateKey(reference.getPartyId(), reference.getShopId());
+            String key = ReferenceKeyGenerator.generateTemplateKeyByList(reference.getPartyId(), reference.getShopId());
             GroupReference groupReference = command.getCommandBody().getGroupReference();
             execCommand(command, key, groupReferencePoolImpl, groupReference::getGroupId);
         }
