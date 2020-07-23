@@ -13,12 +13,13 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FullTemplateVisitorImpl implements TemplateVisitor<PaymentModel, CheckedResultModel> {
+public class FullTemplateVisitorImpl implements TemplateVisitor<PaymentModel, List<CheckedResultModel>> {
 
     private static final String RULE_NOT_CHECKED = "RULE_NOT_CHECKED";
 
@@ -28,16 +29,22 @@ public class FullTemplateVisitorImpl implements TemplateVisitor<PaymentModel, Ch
     private final TimePool<String> timeGroupReferencePoolImpl;
 
     @Override
-    public CheckedResultModel visit(PaymentModel paymentModel) {
+    public List<CheckedResultModel> visit(PaymentModel paymentModel) {
         String partyId = paymentModel.getPartyId();
         Long timestamp = initTimestamp(paymentModel);
-        String partyShopKey = ReferenceKeyGenerator.generateTemplateKey(partyId, paymentModel.getShopId());
-        return fullRuleApplier.apply(paymentModel, timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), timestamp))
-                .orElse(fullRuleApplier.applyForAny(paymentModel, timeGroupPoolImpl.get(timeGroupReferencePoolImpl.get(partyId, timestamp), timestamp))
-                        .orElse(fullRuleApplier.applyForAny(paymentModel, timeGroupPoolImpl.get(timeGroupReferencePoolImpl.get(partyShopKey, timestamp), timestamp))
-                                .orElse(fullRuleApplier.apply(paymentModel, timeReferencePoolImpl.get(partyId, timestamp))
-                                        .orElse(fullRuleApplier.apply(paymentModel, timeReferencePoolImpl.get(partyShopKey, timestamp))
-                                                .orElse(createDefaultResult())))));
+        List<CheckedResultModel> checkedResultModels = new ArrayList<>();
+        String partyShopKey = ReferenceKeyGenerator.generateTemplateKeyByList(partyId, paymentModel.getShopId());
+        fullRuleApplier.apply(paymentModel, timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), timestamp))
+                .ifPresent(checkedResultModels::add);
+        fullRuleApplier.applyForAny(paymentModel, timeGroupPoolImpl.get(timeGroupReferencePoolImpl.get(partyId, timestamp), timestamp))
+                .ifPresent(checkedResultModels::add);
+        fullRuleApplier.applyForAny(paymentModel, timeGroupPoolImpl.get(timeGroupReferencePoolImpl.get(partyShopKey, timestamp), timestamp))
+                .ifPresent(checkedResultModels::add);
+        fullRuleApplier.apply(paymentModel, timeReferencePoolImpl.get(partyId, timestamp))
+                .ifPresent(checkedResultModels::add);
+        fullRuleApplier.apply(paymentModel, timeReferencePoolImpl.get(partyShopKey, timestamp))
+                .ifPresent(checkedResultModels::add);
+        return checkedResultModels;
     }
 
     private long initTimestamp(PaymentModel paymentModel) {

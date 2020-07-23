@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.listener.payment;
+package com.rbkmoney.fraudbusters.listener.events;
 
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import com.rbkmoney.fraudbusters.config.KafkaConfig;
