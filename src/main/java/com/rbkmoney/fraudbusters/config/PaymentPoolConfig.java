@@ -16,22 +16,22 @@ public class PaymentPoolConfig {
 
     @Bean
     public Pool<List<String>> groupPoolImpl() {
-        return new GroupPoolImpl();
+        return new PoolImpl<>();
     }
 
     @Bean
     public Pool<String> referencePoolImpl() {
-        return new ReferencePoolImpl();
+        return new PoolImpl();
     }
 
     @Bean
     public Pool<String> groupReferencePoolImpl() {
-        return new GroupReferencePoolImpl();
+        return new PoolImpl();
     }
 
     @Bean
     public Pool<ParserRuleContext> templatePoolImpl() {
-        return new TemplatePoolImpl();
+        return new PoolImpl();
     }
 
     @Bean

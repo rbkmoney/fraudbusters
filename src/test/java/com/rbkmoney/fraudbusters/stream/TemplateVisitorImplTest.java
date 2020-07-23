@@ -2,9 +2,8 @@ package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.template.pool.GroupPoolImpl;
-import com.rbkmoney.fraudbusters.template.pool.GroupReferencePoolImpl;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
+import com.rbkmoney.fraudbusters.template.pool.PoolImpl;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import org.junit.Assert;
@@ -37,9 +36,9 @@ public class TemplateVisitorImplTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
 
-        groupPoolImpl = new GroupPoolImpl();
-        referencePoolImpl = new GroupReferencePoolImpl();
-        groupReferencePoolImpl = new GroupReferencePoolImpl();
+        groupPoolImpl = new PoolImpl<>();
+        referencePoolImpl = new PoolImpl<>();
+        groupReferencePoolImpl = new PoolImpl<>();
 
         templateVisitor = new TemplateVisitorImpl(ruleApplier, groupPoolImpl, referencePoolImpl, groupReferencePoolImpl);
     }
