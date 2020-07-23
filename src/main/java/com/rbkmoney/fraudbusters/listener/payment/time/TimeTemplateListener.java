@@ -1,13 +1,13 @@
-package com.rbkmoney.fraudbusters.listener.payment;
+package com.rbkmoney.fraudbusters.listener.payment.time;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.CommandType;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.fraud.payment.validator.PaymentTemplateValidator;
-import com.rbkmoney.fraudbusters.listener.AbstractPoolCommandListenerExecutor;
 import com.rbkmoney.fraudbusters.listener.CommandListener;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
+import com.rbkmoney.fraudbusters.template.pool.time.TimePool;
+import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.FraudoPaymentParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,31 +24,32 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TemplateListener extends AbstractPoolCommandListenerExecutor implements CommandListener {
+public class TimeTemplateListener extends AbstractTimePoolCommandListenerExecutor implements CommandListener {
 
     private final FraudContextParser<FraudoPaymentParser.ParseContext> paymentContextParser;
     private final PaymentTemplateValidator paymentTemplateValidator;
-    private final Pool<ParserRuleContext> templatePoolImpl;
+    private final TimePool<ParserRuleContext> timeTemplateTimePoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.template}", containerFactory = "templateListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.full.template}", containerFactory = "templateListenerContainerFactory")
     public void listen(@Payload Command command) {
-        log.info("TemplateListener command: {}", command);
+        log.info("TimeTemplateListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetTemplate()) {
             Template template = command.getCommandBody().getTemplate();
             String templateString = new String(template.getTemplate(), StandardCharsets.UTF_8);
-            log.info("TemplateListener templateString: {}", templateString);
+            log.info("TimeTemplateListener templateString: {}", templateString);
             if (CommandType.CREATE.equals(command.command_type)) {
                 validateTemplate(template.getId(), templateString);
             }
-            execCommand(command, template.getId(), templatePoolImpl, paymentContextParser::parse, templateString);
+            Long timestamp = TimestampUtil.parseInstantFromString(command.getCommandTime()).toEpochMilli();
+            execCommand(command, template.getId(), timestamp, timeTemplateTimePoolImpl, paymentContextParser::parse, templateString);
         }
     }
 
     private void validateTemplate(String id, String templateString) {
         List<String> validate = paymentTemplateValidator.validate(templateString);
         if (!CollectionUtils.isEmpty(validate)) {
-            log.warn("TemplateListener templateId: {} validateError: {}", id, validate);
+            log.warn("TimeTemplateListener templateId: {} validateError: {}", id, validate);
         }
     }
 

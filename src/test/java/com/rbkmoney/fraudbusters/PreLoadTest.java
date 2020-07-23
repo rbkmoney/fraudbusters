@@ -36,6 +36,7 @@ import ru.yandex.clickhouse.ClickHouseDataSource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -94,6 +95,8 @@ public class PreLoadTest extends KafkaAbstractTest {
                 template.setTemplate(PreLoadTest.TEMPLATE.getBytes());
                 command.setCommandBody(CommandBody.template(template));
                 command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+                command.setCommandTime(LocalDateTime.now().toString());
+
                 ProducerRecord<String, Command> producerRecord = new ProducerRecord<>("template",
                         id, command);
                 producer.send(producerRecord).get();

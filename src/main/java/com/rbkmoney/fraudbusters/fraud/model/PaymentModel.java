@@ -17,4 +17,6 @@ public class PaymentModel extends BaseModel {
     private String shopId;
     private String partyId;
 
+    private Long timestamp;
+
 }

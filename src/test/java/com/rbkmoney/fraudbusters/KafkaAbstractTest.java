@@ -35,6 +35,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.KafkaContainer;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -172,6 +173,7 @@ public abstract class KafkaAbstractTest {
             value.setShopId(shopId);
             value.setIsGlobal(isGlobal);
             command.setCommandBody(CommandBody.reference(value));
+            command.setCommandTime(LocalDateTime.now().toString());
             String key = ReferenceKeyGenerator.generateTemplateKey(value);
             ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(referenceTopic, key, command);
             producer.send(producerRecord).get();
@@ -188,6 +190,8 @@ public abstract class KafkaAbstractTest {
             value.setIsGlobal(isGlobal);
 
             command.setCommandBody(CommandBody.p2p_reference(value));
+            command.setCommandTime(LocalDateTime.now().toString());
+
             String key = ReferenceKeyGenerator.generateP2PTemplateKey(value);
 
             ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(referenceTopicP2P, key, command);
@@ -223,6 +227,7 @@ public abstract class KafkaAbstractTest {
         template.setTemplate(templateString.getBytes());
         command.setCommandBody(CommandBody.template(template));
         command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        command.setCommandTime(LocalDateTime.now().toString());
         return command;
     }
     

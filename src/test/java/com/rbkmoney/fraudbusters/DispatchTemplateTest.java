@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -74,6 +75,8 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
             value.setTemplateId(id);
             command.setCommandBody(CommandBody.reference(value));
             command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+            command.setCommandTime(LocalDateTime.now().toString());
+
             ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(referenceTopic,
                     TemplateLevel.GLOBAL.name(), command);
             producer.send(producerRecord).get();

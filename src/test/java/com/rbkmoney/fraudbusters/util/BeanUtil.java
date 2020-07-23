@@ -224,6 +224,7 @@ public class BeanUtil {
         group.setTemplateIds(priorityIds);
         command.setCommandBody(CommandBody.group(group));
         command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        command.setCommandTime(LocalDateTime.now().toString());
         return command;
     }
 
@@ -246,6 +247,7 @@ public class BeanUtil {
                 .setGroupId(idGroup)
                 .setPartyId(party)
                 .setShopId(shopId)));
+        command.setCommandTime(LocalDateTime.now().toString());
         return command;
     }
 

@@ -18,7 +18,7 @@ public class TimestampUtil {
         return TimestampUtil.generateTimestampNowMillis(instant);
     }
 
-    private static Instant parseInstantFromString(String time) {
+    public static Instant parseInstantFromString(String time) {
         LocalDateTime date = LocalDateTime.parse(time, DateTimeFormatter.ISO_DATE_TIME);
         return date.toInstant(ZoneOffset.UTC);
     }

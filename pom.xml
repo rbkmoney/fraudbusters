@@ -33,7 +33,7 @@
         <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
         <kafka.common.lib.version>0.1.4</kafka.common.lib.version>
         <clickhouse-jdbc.version>0.2.4</clickhouse-jdbc.version>
-        <fraudbusters-proto.version>1.49-dc01fde</fraudbusters-proto.version>
+        <fraudbusters-proto.version>1.51-8e8d9a0</fraudbusters-proto.version>
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
 
         <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>

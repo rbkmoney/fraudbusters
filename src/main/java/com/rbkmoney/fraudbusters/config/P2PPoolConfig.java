@@ -17,22 +17,22 @@ public class P2PPoolConfig {
 
     @Bean
     public Pool<List<String>> groupP2PPoolImpl() {
-        return new PoolImpl();
+        return new PoolImpl<>();
     }
 
     @Bean
     public Pool<String> referenceP2PPoolImpl() {
-        return new PoolImpl();
+        return new PoolImpl<>();
     }
 
     @Bean
     public Pool<String> groupReferenceP2PPoolImpl() {
-        return new PoolImpl();
+        return new PoolImpl<>();
     }
 
     @Bean
     public Pool<ParserRuleContext> templateP2PPoolImpl() {
-        return new PoolImpl();
+        return new PoolImpl<>();
     }
 
     @Bean
