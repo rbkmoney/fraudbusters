@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import com.rbkmoney.fraudbusters.stream.impl.RuleApplierImpl;
 import com.rbkmoney.fraudbusters.stream.impl.TemplateVisitorImpl;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.template.pool.PoolImpl;
@@ -25,7 +26,7 @@ public class TemplateVisitorImplTest {
     public static final String TRUE_TEMPL = "true_templ";
 
     @Mock
-    private RuleApplier ruleApplier;
+    private RuleApplierImpl ruleApplier;
 
     private Pool<List<String>> groupPoolImpl;
     private Pool<String> referencePoolImpl;

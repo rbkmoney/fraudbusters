@@ -47,6 +47,8 @@ import static org.mockito.ArgumentMatchers.any;
 @ContextConfiguration(initializers = KafkaAbstractTest.Initializer.class)
 public abstract class KafkaAbstractTest {
 
+    protected static final long TIMEOUT = 1000L;
+
     @MockBean
     private FraudManagementService fraudManagementService;
 

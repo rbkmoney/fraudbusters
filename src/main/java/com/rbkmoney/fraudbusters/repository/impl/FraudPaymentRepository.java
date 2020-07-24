@@ -36,5 +36,4 @@ public class FraudPaymentRepository implements Repository<FraudPayment> {
         }
     }
 
-
 }

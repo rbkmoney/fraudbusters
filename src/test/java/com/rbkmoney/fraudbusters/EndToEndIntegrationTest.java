@@ -89,7 +89,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final int COUNTRY_GEO_ID = 12345;
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
-    public static final long TIMEOUT = 1000L;
     public static final String CAPTURED = "captured";
     public static final String FAILED = "failed";
 
@@ -243,45 +242,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
+
     }
-
-    @Test
-    public void testLoadData() throws URISyntaxException, TException, InterruptedException {
-        THClientBuilder clientBuilder = new THClientBuilder()
-                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
-                .withNetworkTimeout(300000);
-        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
-
-        //Test empty lists
-        client.insertPayments(List.of());
-        client.insertRefunds(List.of());
-        client.insertChargebacks(List.of());
-
-        //Payment
-        client.insertPayments(List.of(createPayment(PaymentStatus.captured)));
-        Thread.sleep(TIMEOUT);
-
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.payment");
-        Assert.assertEquals(1, maps.size());
-        Assert.assertEquals("email", maps.get(0).get("email"));
-
-        //Chargeback
-        client.insertChargebacks(List.of(createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.accepted),
-                createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.cancelled)));
-        Thread.sleep(TIMEOUT);
-
-        maps = jdbcTemplate.queryForList("SELECT * from fraud.chargeback");
-        Assert.assertEquals(2, maps.size());
-
-        //Refund
-        client.insertRefunds(List.of(createRefund(com.rbkmoney.damsel.fraudbusters.RefundStatus.succeeded),
-                createRefund(com.rbkmoney.damsel.fraudbusters.RefundStatus.failed)));
-        Thread.sleep(TIMEOUT);
-
-        maps = jdbcTemplate.queryForList("SELECT * from fraud.refund");
-        Assert.assertEquals(2, maps.size());
-    }
-
 
     @Test
     public void testFraudPayment() throws URISyntaxException, TException, InterruptedException {

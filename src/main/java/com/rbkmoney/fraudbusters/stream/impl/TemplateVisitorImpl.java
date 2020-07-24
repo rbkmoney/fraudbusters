@@ -4,7 +4,6 @@ import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.stream.RuleApplier;
 import com.rbkmoney.fraudbusters.stream.TemplateVisitor;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
@@ -23,7 +22,7 @@ public class TemplateVisitorImpl implements TemplateVisitor<PaymentModel, Checke
 
     private static final String RULE_NOT_CHECKED = "RULE_NOT_CHECKED";
 
-    private final RuleApplier<PaymentModel> ruleApplier;
+    private final RuleApplierImpl<PaymentModel> ruleApplier;
     private final Pool<List<String>> groupPoolImpl;
     private final Pool<String> referencePoolImpl;
     private final Pool<String> groupReferencePoolImpl;

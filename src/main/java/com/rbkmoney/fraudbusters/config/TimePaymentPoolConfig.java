@@ -3,7 +3,6 @@ package com.rbkmoney.fraudbusters.config;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.stream.impl.FullRuleApplierImpl;
-import com.rbkmoney.fraudbusters.stream.RuleApplier;
 import com.rbkmoney.fraudbusters.template.pool.TimePool;
 import com.rbkmoney.fraudbusters.template.pool.TimePoolImpl;
 import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
@@ -38,10 +37,10 @@ public class TimePaymentPoolConfig {
     }
 
     @Bean
-    public RuleApplier<PaymentModel> fullRuleApplier(FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> paymentRuleVisitor,
-                                                     TimePool<ParserRuleContext> templatePoolImpl,
-                                                     CheckedResultFactory checkedResultFactory) {
-        return new FullRuleApplierImpl(paymentRuleVisitor, templatePoolImpl, checkedResultFactory);
+    public FullRuleApplierImpl fullRuleApplier(FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> fullPaymentRuleVisitor,
+                                               TimePool<ParserRuleContext> templatePoolImpl,
+                                               CheckedResultFactory checkedResultFactory) {
+        return new FullRuleApplierImpl(fullPaymentRuleVisitor, templatePoolImpl, checkedResultFactory);
     }
 
 }

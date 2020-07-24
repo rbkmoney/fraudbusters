@@ -35,6 +35,7 @@ import com.rbkmoney.fraudo.p2p.visitor.impl.FirstFindP2PVisitorImpl;
 import com.rbkmoney.fraudo.payment.aggregator.CountPaymentAggregator;
 import com.rbkmoney.fraudo.payment.aggregator.SumPaymentAggregator;
 import com.rbkmoney.fraudo.payment.factory.FraudVisitorFactoryImpl;
+import com.rbkmoney.fraudo.payment.factory.FullVisitorFactoryImpl;
 import com.rbkmoney.fraudo.payment.resolver.PaymentGroupResolver;
 import com.rbkmoney.fraudo.payment.resolver.PaymentTimeWindowResolver;
 import com.rbkmoney.fraudo.payment.visitor.impl.FirstFindVisitorImpl;
@@ -47,11 +48,19 @@ import org.springframework.context.annotation.Configuration;
 public class FraudoConfig {
 
     @Bean
-    public CountPaymentAggregator<PaymentModel, PaymentCheckedField> countAggregator(PaymentRepository paymentRepository,
+    public CountPaymentAggregator<PaymentModel, PaymentCheckedField> countAggregator(PaymentRepository fraudResultRepository,
                                                                                      AnalyticsRefundRepository analyticsRefundRepository,
                                                                                      AnalyticsChargebackRepository analyticsChargebackRepository,
                                                                                      DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new CountAggregatorImpl(dbPaymentFieldResolver, paymentRepository, analyticsRefundRepository, analyticsChargebackRepository);
+        return new CountAggregatorImpl(dbPaymentFieldResolver, fraudResultRepository, analyticsRefundRepository, analyticsChargebackRepository);
+    }
+
+    @Bean
+    public CountPaymentAggregator<PaymentModel, PaymentCheckedField> countResultAggregator(PaymentRepository paymentRepositoryImpl,
+                                                                                           AnalyticsRefundRepository analyticsRefundRepository,
+                                                                                           AnalyticsChargebackRepository analyticsChargebackRepository,
+                                                                                           DBPaymentFieldResolver dbPaymentFieldResolver) {
+        return new CountAggregatorImpl(dbPaymentFieldResolver, paymentRepositoryImpl, analyticsRefundRepository, analyticsChargebackRepository);
     }
 
     @Bean
@@ -61,11 +70,19 @@ public class FraudoConfig {
     }
 
     @Bean
-    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumAggregator(PaymentRepository paymentRepository,
+    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumAggregator(PaymentRepository fraudResultRepository,
                                                                                  AnalyticsRefundRepository analyticsRefundRepository,
                                                                                  AnalyticsChargebackRepository analyticsChargebackRepository,
                                                                                  DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new SumAggregatorImpl(dbPaymentFieldResolver, paymentRepository, analyticsRefundRepository, analyticsChargebackRepository);
+        return new SumAggregatorImpl(dbPaymentFieldResolver, fraudResultRepository, analyticsRefundRepository, analyticsChargebackRepository);
+    }
+
+    @Bean
+    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumResultAggregator(PaymentRepository paymentRepositoryImpl,
+                                                                                       AnalyticsRefundRepository analyticsRefundRepository,
+                                                                                       AnalyticsChargebackRepository analyticsChargebackRepository,
+                                                                                       DBPaymentFieldResolver dbPaymentFieldResolver) {
+        return new SumAggregatorImpl(dbPaymentFieldResolver, paymentRepositoryImpl, analyticsRefundRepository, analyticsChargebackRepository);
     }
 
     @Bean
@@ -75,9 +92,15 @@ public class FraudoConfig {
     }
 
     @Bean
-    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueAggregator(PaymentRepository paymentRepository,
+    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueAggregator(PaymentRepository fraudResultRepository,
                                                                                           DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new UniqueValueAggregatorImpl(dbPaymentFieldResolver, paymentRepository);
+        return new UniqueValueAggregatorImpl(dbPaymentFieldResolver, fraudResultRepository);
+    }
+
+    @Bean
+    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueResultAggregator(PaymentRepository paymentRepositoryImpl,
+                                                                                                DBPaymentFieldResolver dbPaymentFieldResolver) {
+        return new UniqueValueAggregatorImpl(dbPaymentFieldResolver, paymentRepositoryImpl);
     }
 
     @Bean
@@ -107,9 +130,9 @@ public class FraudoConfig {
 
     @Bean
     public InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder(WbListServiceSrv.Iface wbListServiceSrv,
-                                                                               PaymentRepository paymentRepository,
+                                                                               PaymentRepository fraudResultRepository,
                                                                                DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, paymentRepository);
+        return new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, fraudResultRepository);
     }
 
     @Bean
@@ -131,6 +154,25 @@ public class FraudoConfig {
                 countAggregator,
                 sumAggregator,
                 uniqueValueAggregator,
+                countryResolver,
+                paymentInListFinder,
+                paymentModelFieldResolver,
+                new PaymentGroupResolver<>(paymentModelFieldResolver),
+                new PaymentTimeWindowResolver());
+    }
+
+    @Bean
+    public FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> fullPaymentRuleVisitor(
+            CountPaymentAggregator<PaymentModel, PaymentCheckedField> countResultAggregator,
+            SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumResultAggregator,
+            UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueResultAggregator,
+            CountryResolver<PaymentCheckedField> countryResolver,
+            InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder,
+            FieldResolver<PaymentModel, PaymentCheckedField> paymentModelFieldResolver) {
+        return new FullVisitorFactoryImpl().createVisitor(
+                countResultAggregator,
+                sumResultAggregator,
+                uniqueValueResultAggregator,
                 countryResolver,
                 paymentInListFinder,
                 paymentModelFieldResolver,

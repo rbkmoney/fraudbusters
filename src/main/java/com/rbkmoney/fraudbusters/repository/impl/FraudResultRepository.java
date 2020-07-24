@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
+@ActiveProfiles("simple")
 @RequiredArgsConstructor
 public class FraudResultRepository implements Repository<Event>, PaymentRepository {
 

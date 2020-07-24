@@ -28,7 +28,7 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
 
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
     private final PaymentRepository paymentRepository;
-    private final AggregationRepository analytitcsRefundRepository;
+    private final AggregationRepository analyticsRefundRepository;
     private final AggregationRepository analyticsChargebackRepository;
 
     @Override
@@ -76,7 +76,7 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
     @Override
     @BasicMetric("countRefund")
     public Integer countRefund(PaymentCheckedField paymentCheckedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getCount(paymentCheckedField, paymentModel, timeWindow, list, analytitcsRefundRepository::countOperationByFieldWithGroupBy, false);
+        return getCount(paymentCheckedField, paymentModel, timeWindow, list, analyticsRefundRepository::countOperationByFieldWithGroupBy, false);
     }
 
     @NotNull
@@ -89,7 +89,7 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
     private Integer getCount(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
                              AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Integer> aggregateFunction, boolean withCurrent) {
         try {
-            Instant now = Instant.now();
+            Instant now = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
 

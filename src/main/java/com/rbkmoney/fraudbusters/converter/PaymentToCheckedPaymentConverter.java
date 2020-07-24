@@ -9,6 +9,7 @@ import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
@@ -16,6 +17,7 @@ import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
 @Component
 public class PaymentToCheckedPaymentConverter implements Converter<Payment, CheckedPayment> {
 
+    @NonNull
     @Override
     public CheckedPayment convert(Payment payment) {
         CheckedPayment checkedPayment = new CheckedPayment();

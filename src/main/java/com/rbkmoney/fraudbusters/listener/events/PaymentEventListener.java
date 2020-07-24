@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters.listener.events;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.fraudbusters.config.KafkaConfig;
 import com.rbkmoney.fraudbusters.converter.PaymentToCheckedPaymentConverter;
 import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
@@ -52,19 +53,21 @@ public class PaymentEventListener {
 
     private CheckedPayment mapAndCheckResults(Payment payment) {
         CheckedPayment checkedPayment = paymentToCheckedPaymentConverter.convert(payment);
-        List<CheckedResultModel> listResults = fullTemplateVisitor.visit(paymentToPaymentModelConverter.convert(payment));
-        Optional<CheckedResultModel> first = listResults.stream()
-                .filter(checkedResultModel -> checkedResultModel.getCheckedTemplate() != null)
-                .findFirst();
-        if (first.isPresent()) {
-            CheckedResultModel checkedResultModel = first.get();
-            checkedPayment.setCheckedTemplate(checkedResultModel.getCheckedTemplate());
-            checkedPayment.setResultStatus(checkedResultModel.getResultModel().getResultStatus().name());
-            checkedPayment.setCheckedRule(checkedResultModel.getResultModel().getRuleChecked());
-            try {
-                checkedPayment.setCheckedResultsJson(objectMapper.writeValueAsString(listResults));
-            } catch (JsonProcessingException e) {
-                log.warn("PaymentEventListener problem with serialize json!");
+        if (PaymentStatus.processed.name().equals(checkedPayment.getPaymentStatus())) {
+            List<CheckedResultModel> listResults = fullTemplateVisitor.visit(paymentToPaymentModelConverter.convert(payment));
+            Optional<CheckedResultModel> first = listResults.stream()
+                    .filter(checkedResultModel -> checkedResultModel.getCheckedTemplate() != null)
+                    .findFirst();
+            if (first.isPresent()) {
+                CheckedResultModel checkedResultModel = first.get();
+                checkedPayment.setCheckedTemplate(checkedResultModel.getCheckedTemplate());
+                checkedPayment.setResultStatus(checkedResultModel.getResultModel().getResultStatus().name());
+                checkedPayment.setCheckedRule(checkedResultModel.getResultModel().getRuleChecked());
+                try {
+                    checkedPayment.setCheckedResultsJson(objectMapper.writeValueAsString(listResults));
+                } catch (JsonProcessingException e) {
+                    log.warn("PaymentEventListener problem with serialize json!");
+                }
             }
         }
         return checkedPayment;
