@@ -6,6 +6,7 @@ import com.rbkmoney.fraudbusters.stream.FullRuleApplierImpl;
 import com.rbkmoney.fraudbusters.stream.RuleApplier;
 import com.rbkmoney.fraudbusters.template.pool.time.TimePool;
 import com.rbkmoney.fraudbusters.template.pool.time.TimePoolImpl;
+import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
 import com.rbkmoney.fraudo.payment.visitor.impl.FirstFindVisitorImpl;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.springframework.context.annotation.Bean;
@@ -38,8 +39,9 @@ public class TimePaymentPoolConfig {
 
     @Bean
     public RuleApplier<PaymentModel> fullRuleApplier(FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> paymentRuleVisitor,
-                                                     TimePool<ParserRuleContext> templatePoolImpl) {
-        return new FullRuleApplierImpl(paymentRuleVisitor, templatePoolImpl);
+                                                     TimePool<ParserRuleContext> templatePoolImpl,
+                                                     CheckedResultFactory checkedResultFactory) {
+        return new FullRuleApplierImpl(paymentRuleVisitor, templatePoolImpl, checkedResultFactory);
     }
 
 }

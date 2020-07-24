@@ -1,12 +1,10 @@
 package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.template.pool.time.TimePool;
+import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
 import com.rbkmoney.fraudo.model.ResultModel;
-import com.rbkmoney.fraudo.model.RuleResult;
-import com.rbkmoney.fraudo.utils.ResultUtils;
 import com.rbkmoney.fraudo.visitor.TemplateVisitor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,25 +20,14 @@ public class FullRuleApplierImpl implements RuleApplier<PaymentModel> {
     private final TemplateVisitor<PaymentModel, ResultModel> templateVisitor;
 
     private final TimePool<ParserRuleContext> templatePool;
+    private final CheckedResultFactory checkedResultFactory;
 
     @Override
     public Optional<CheckedResultModel> apply(PaymentModel model, String templateKey) {
         ParserRuleContext parseContext = templatePool.get(templateKey, model.getTimestamp());
         if (parseContext != null) {
             ResultModel resultModel = templateVisitor.visit(parseContext, model);
-            Optional<RuleResult> firstNotNotifyStatus = ResultUtils.findFirstNotNotifyStatus(resultModel);
-            if (firstNotNotifyStatus.isPresent()) {
-                log.info("applyRules resultModel: {}", resultModel);
-                CheckedResultModel checkedResultModel = new CheckedResultModel();
-                ConcreteResultModel concreteResultModel = new ConcreteResultModel();
-                RuleResult ruleResult = firstNotNotifyStatus.get();
-                concreteResultModel.setResultStatus(ruleResult.getResultStatus());
-                concreteResultModel.setRuleChecked(ruleResult.getRuleChecked());
-                concreteResultModel.setNotificationsRule(ResultUtils.getNotifications(resultModel));
-                checkedResultModel.setResultModel(concreteResultModel);
-                checkedResultModel.setCheckedTemplate(templateKey);
-                return Optional.of(checkedResultModel);
-            }
+            return checkedResultFactory.createCheckedResult(templateKey, resultModel);
         }
         return Optional.empty();
     }

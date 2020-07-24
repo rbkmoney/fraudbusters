@@ -5,6 +5,7 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.stream.RuleApplierImpl;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.template.pool.PoolImpl;
+import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
 import com.rbkmoney.fraudo.payment.visitor.impl.FirstFindVisitorImpl;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.springframework.context.annotation.Bean;
@@ -37,8 +38,9 @@ public class PaymentPoolConfig {
 
     @Bean
     public RuleApplierImpl<PaymentModel> ruleApplier(FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> paymentRuleVisitor,
-                                                     Pool<ParserRuleContext> templatePoolImpl) {
-        return new RuleApplierImpl<>(paymentRuleVisitor, templatePoolImpl);
+                                                     Pool<ParserRuleContext> templatePoolImpl,
+                                                     CheckedResultFactory checkedResultFactory) {
+        return new RuleApplierImpl<>(paymentRuleVisitor, templatePoolImpl, checkedResultFactory);
     }
 
 }
