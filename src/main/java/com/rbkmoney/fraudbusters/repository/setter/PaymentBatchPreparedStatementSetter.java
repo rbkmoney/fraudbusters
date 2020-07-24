@@ -19,9 +19,10 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
             "partyId, shopId, " +
             "amount, currency, " +
             "status, errorCode, errorReason, " +
-            "payerType, tokenProvider";
+            "payerType, tokenProvider, " +
+            "checkedTemplate, checkedRule, resultStatus, checkedResultsJson";
 
-    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
+    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
     private final List<CheckedPayment> batch;
 
@@ -58,7 +59,11 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
         ps.setString(l++, checkedPayment.getErrorReason());
 
         ps.setString(l++, checkedPayment.getPayerType());
-        ps.setString(l, checkedPayment.getTokenProvider());
+        ps.setString(l++, checkedPayment.getTokenProvider());
+        ps.setString(l++, checkedPayment.getCheckedTemplate());
+        ps.setString(l++, checkedPayment.getCheckedRule());
+        ps.setString(l++, checkedPayment.getResultStatus());
+        ps.setString(l, checkedPayment.getCheckedResultsJson());
     }
 
     @Override
