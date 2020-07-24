@@ -4,7 +4,6 @@ import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.listener.StartupListener;
 import com.rbkmoney.fraudo.p2p.visitor.impl.FirstFindP2PVisitorImpl;
 import com.rbkmoney.fraudo.payment.visitor.impl.FirstFindVisitorImpl;
 import lombok.extern.slf4j.Slf4j;

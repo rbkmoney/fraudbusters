@@ -1,9 +1,7 @@
 package com.rbkmoney.fraudbusters.repository.impl;
 
-import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
-import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.setter.PaymentBatchPreparedStatementSetter;
 import lombok.RequiredArgsConstructor;

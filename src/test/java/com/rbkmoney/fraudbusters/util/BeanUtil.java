@@ -1,9 +1,6 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.base.Content;
-import com.rbkmoney.damsel.domain.BankCard;
-import com.rbkmoney.damsel.domain.ClientInfo;
-import com.rbkmoney.damsel.domain.PaymentTool;
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.p2p_insp.Identity;

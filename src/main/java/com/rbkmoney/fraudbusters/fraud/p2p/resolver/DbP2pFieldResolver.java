@@ -4,8 +4,8 @@ import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.constant.EventP2PField;
 import com.rbkmoney.fraudbusters.exception.UnknownFieldException;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
-import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
+import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
