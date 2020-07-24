@@ -7,6 +7,8 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
+
 @Component
 public class PaymentToPaymentModelConverter implements Converter<Payment, PaymentModel> {
 
@@ -17,7 +19,8 @@ public class PaymentToPaymentModelConverter implements Converter<Payment, Paymen
         paymentModel.setPartyId(payment.getReferenceInfo().getMerchantInfo().getPartyId());
         paymentModel.setShopId(payment.getReferenceInfo().getMerchantInfo().getShopId());
         paymentModel.setBin(payment.getPaymentTool().getBankCard().getBin());
-        paymentModel.setBinCountryCode(payment.getPaymentTool().getBankCard().getIssuerCountry().name());
+        paymentModel.setBinCountryCode(payment.getPaymentTool().getBankCard().isSetIssuerCountry() ?
+                payment.getPaymentTool().getBankCard().getIssuerCountry().name() : UNKNOWN);
         paymentModel.setCardToken(payment.getPaymentTool().getBankCard().getToken());
         paymentModel.setPan(payment.getPaymentTool().getBankCard().getLastDigits());
         paymentModel.setTimestamp(TimestampUtil.parseInstantFromString(payment.getEventTime()).toEpochMilli());

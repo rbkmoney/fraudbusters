@@ -16,9 +16,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PaymentEventListener {
 
-    private final Repository<Payment> repository;
+    private final Repository<CheckedPayment> repository;
     private final FullTemplateVisitorImpl fullTemplateVisitor;
     private final PaymentToPaymentModelConverter paymentToPaymentModelConverter;
     private final PaymentToCheckedPaymentConverter paymentToCheckedPaymentConverter;
@@ -38,27 +38,35 @@ public class PaymentEventListener {
                        @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {
             log.info("PaymentEventListener listen result size: {} partition: {} offset: {}", payments.size(), partition, offset);
-            payments.stream()
-                    .map(payment -> {
-                        CheckedPayment checkedPayment = paymentToCheckedPaymentConverter.convert(payment);
-                        List<CheckedResultModel> listResults = fullTemplateVisitor.visit(paymentToPaymentModelConverter.convert(payment));
-                        if (!CollectionUtils.isEmpty(listResults)) {
-                            checkedPayment.setCheckedTemplate(listResults.get(0).getCheckedTemplate());
-                            checkedPayment.setResultStatus(listResults.get(0).getResultModel().getResultStatus().name());
-                            try {
-                                checkedPayment.setCheckedResultsJson(objectMapper.writeValueAsString(listResults));
-                            } catch (JsonProcessingException e) {
-                                log.warn("PaymentEventListener problem with serialize json!");
-                            }
-                        }
-                        return checkedPayment;
-                    })
-                    .collect(Collectors.toList());
-            repository.insertBatch(payments);
+            repository.insertBatch(
+                    payments.stream()
+                            .map(this::mapAndCheckResults)
+                            .collect(Collectors.toList())
+            );
         } catch (Exception e) {
             log.warn("Error when PaymentEventListener listen e: ", e);
             Thread.sleep(KafkaConfig.THROTTLING_TIMEOUT);
             throw e;
         }
+    }
+
+    private CheckedPayment mapAndCheckResults(Payment payment) {
+        CheckedPayment checkedPayment = paymentToCheckedPaymentConverter.convert(payment);
+        List<CheckedResultModel> listResults = fullTemplateVisitor.visit(paymentToPaymentModelConverter.convert(payment));
+        Optional<CheckedResultModel> first = listResults.stream()
+                .filter(checkedResultModel -> checkedResultModel.getCheckedTemplate() != null)
+                .findFirst();
+        if (first.isPresent()) {
+            CheckedResultModel checkedResultModel = first.get();
+            checkedPayment.setCheckedTemplate(checkedResultModel.getCheckedTemplate());
+            checkedPayment.setResultStatus(checkedResultModel.getResultModel().getResultStatus().name());
+            checkedPayment.setCheckedRule(checkedResultModel.getResultModel().getRuleChecked());
+            try {
+                checkedPayment.setCheckedResultsJson(objectMapper.writeValueAsString(listResults));
+            } catch (JsonProcessingException e) {
+                log.warn("PaymentEventListener problem with serialize json!");
+            }
+        }
+        return checkedPayment;
     }
 }

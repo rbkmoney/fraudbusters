@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.template.pool.time;
 
 import lombok.ToString;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,7 +24,8 @@ public class TimePoolImpl<T> implements TimePool<T> {
 
     @Override
     public T get(String key, Long timestamp) {
-        return key != null && timestamp != null ? references.get(key).lowerEntry(timestamp).getValue() : null;
+        return key != null && timestamp != null && references.containsKey(key) && !CollectionUtils.isEmpty(references.get(key)) ?
+                references.get(key).lowerEntry(timestamp).getValue() : null;
     }
 
     @Override

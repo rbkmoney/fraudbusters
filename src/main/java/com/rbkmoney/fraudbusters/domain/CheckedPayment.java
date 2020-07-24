@@ -39,6 +39,7 @@ public class CheckedPayment {
     private String paymentStatus;
 
     private String checkedTemplate;
+    private String checkedRule;
     private String resultStatus;
     private String checkedResultsJson;
 
