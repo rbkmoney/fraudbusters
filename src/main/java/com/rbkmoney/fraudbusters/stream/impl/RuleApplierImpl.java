@@ -1,18 +1,15 @@
-package com.rbkmoney.fraudbusters.stream;
+package com.rbkmoney.fraudbusters.stream.impl;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
+import com.rbkmoney.fraudbusters.stream.RuleApplier;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
 import com.rbkmoney.fraudo.model.BaseModel;
 import com.rbkmoney.fraudo.model.ResultModel;
-import com.rbkmoney.fraudo.model.RuleResult;
-import com.rbkmoney.fraudo.utils.ResultUtils;
 import com.rbkmoney.fraudo.visitor.TemplateVisitor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +32,6 @@ public class RuleApplierImpl<T extends BaseModel> implements RuleApplier<T> {
         }
         return Optional.empty();
     }
-
 
     @Override
     public Optional<CheckedResultModel> applyForAny(T model, List<String> templateKeys) {

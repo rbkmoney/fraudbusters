@@ -1,9 +1,11 @@
-package com.rbkmoney.fraudbusters.stream;
+package com.rbkmoney.fraudbusters.stream.impl;
 
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import com.rbkmoney.fraudbusters.stream.RuleApplier;
+import com.rbkmoney.fraudbusters.stream.TemplateVisitor;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;

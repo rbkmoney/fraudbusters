@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.listener.payment.time;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
-import com.rbkmoney.fraudbusters.template.pool.time.TimePool;
+import com.rbkmoney.fraudbusters.template.pool.TimePool;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.function.Function;

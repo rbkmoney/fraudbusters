@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.config.properties.KafkaSslProperties;
+import com.rbkmoney.fraudbusters.constant.GroupPostfix;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
@@ -10,6 +11,7 @@ import com.rbkmoney.fraudbusters.service.ConsumerGroupIdService;
 import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,20 +36,7 @@ public class KafkaConfig {
 
     public static final long THROTTLING_TIMEOUT = 500L;
 
-    private static final String TEMPLATE_GROUP_ID = "template-listener";
-    private static final String TEMPLATE_P2P_GROUP_ID = "template-listener-p2p";
-
-    private static final String GROUP_LIST_GROUP_ID = "group-listener";
-    private static final String GROUP_P2P_LIST_GROUP_ID = "group-listener-p2p";
-
-    private static final String GROUP_LIST_REFERENCE_GROUP_ID = "group-reference-listener";
-    private static final String GROUP_P2P_LIST_REFERENCE_GROUP_ID = "group-reference-listener-p2p";
-
-    private static final String REFERENCE_GROUP_ID = "reference-listener";
-    private static final String REFERENCE_P2P_GROUP_ID = "reference-listener-p2p";
-
     private static final String EARLIEST = "earliest";
-    private static final String RESULT_AGGREGATOR = "result-aggregator";
 
     @Value("${kafka.max.poll.records}")
     private String maxPollRecords;
@@ -69,63 +58,63 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, Command> templateListenerFactory() {
-        return createDefaultConsumerFactory(TEMPLATE_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.TEMPLATE_GROUP_ID);
     }
 
     @Bean
     public ConsumerFactory<String, Command> timeTemplateListenerFactory() {
-        return createDefaultConsumerFactory(TEMPLATE_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.TEMPLATE_GROUP_ID);
     }
 
     @Bean
     public ConsumerFactory<String, Command> groupListenerFactory() {
-        return createDefaultConsumerFactory(GROUP_LIST_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.GROUP_LIST_GROUP_ID);
     }
 
     @Bean
     public ConsumerFactory<String, Command> timeGroupListenerFactory() {
-        return createDefaultConsumerFactory(GROUP_LIST_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.GROUP_LIST_GROUP_ID);
     }
 
     @Bean
     public ConsumerFactory<String, Command> referenceListenerFactory() {
-        return createDefaultConsumerFactory(REFERENCE_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.REFERENCE_GROUP_ID);
     }
 
 
     @Bean
     public ConsumerFactory<String, Command> timeReferenceListenerFactory() {
-        return createDefaultConsumerFactory(REFERENCE_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.REFERENCE_GROUP_ID);
     }
 
     @Bean
     public ConsumerFactory<String, Command> groupReferenceListenerFactory() {
-        return createDefaultConsumerFactory(GROUP_LIST_REFERENCE_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.GROUP_LIST_REFERENCE_GROUP_ID);
     }
 
     @Bean
     public ConsumerFactory<String, Command> timeGroupReferenceListenerFactory() {
-        return createDefaultConsumerFactory(GROUP_LIST_REFERENCE_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.GROUP_LIST_REFERENCE_GROUP_ID);
     }
 
     @Bean
     public ConsumerFactory<String, Command> templateP2PListenerFactory() {
-        return createDefaultConsumerFactory(TEMPLATE_P2P_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.TEMPLATE_P2P_GROUP_ID);
     }
 
     @Bean
     public ConsumerFactory<String, Command> groupP2PListenerFactory() {
-        return createDefaultConsumerFactory(GROUP_P2P_LIST_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.GROUP_P2P_LIST_GROUP_ID);
     }
 
     @Bean
     public ConsumerFactory<String, Command> referenceP2PListenerFactory() {
-        return createDefaultConsumerFactory(REFERENCE_P2P_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.REFERENCE_P2P_GROUP_ID);
     }
 
     @Bean
     public ConsumerFactory<String, Command> groupReferenceP2PListenerFactory() {
-        return createDefaultConsumerFactory(GROUP_P2P_LIST_REFERENCE_GROUP_ID);
+        return createDefaultConsumerFactory(GroupPostfix.GROUP_P2P_LIST_REFERENCE_GROUP_ID);
     }
 
     @NotNull
@@ -252,82 +241,42 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudResult> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, FraudResult> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
-        final Map<String, Object> props = createDefaultProperties(consumerGroup);
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
-        DefaultKafkaConsumerFactory<String, FraudResult> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
-                new StringDeserializer(), new FraudResultDeserializer());
-        factory.setConsumerFactory(consumerFactory);
-        factory.setConcurrency(listenResultConcurrency);
-        factory.setBatchListener(true);
-        return factory;
+        return createFactory(new FraudResultDeserializer());
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Payment> kafkaPaymentResultListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Payment> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
-        final Map<String, Object> props = createDefaultProperties(consumerGroup);
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
-        DefaultKafkaConsumerFactory<String, Payment> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
-                new StringDeserializer(), new PaymentDeserializer());
-        factory.setConsumerFactory(consumerFactory);
-        factory.setConcurrency(listenResultConcurrency);
-        factory.setBatchListener(true);
-        return factory;
+        return createFactory(new PaymentDeserializer());
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Refund> kafkaRefundResultListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Refund> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
-        final Map<String, Object> props = createDefaultProperties(consumerGroup);
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
-        DefaultKafkaConsumerFactory<String, Refund> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
-                new StringDeserializer(), new RefundDeserializer());
-        factory.setConsumerFactory(consumerFactory);
-        factory.setConcurrency(listenResultConcurrency);
-        factory.setBatchListener(true);
-        return factory;
+        return createFactory(new RefundDeserializer());
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Chargeback> kafkaChargebackResultListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Chargeback> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
-        final Map<String, Object> props = createDefaultProperties(consumerGroup);
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
-        DefaultKafkaConsumerFactory<String, Chargeback> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
-                new StringDeserializer(), new ChargebackDeserializer());
-        factory.setConsumerFactory(consumerFactory);
-        factory.setConcurrency(listenResultConcurrency);
-        factory.setBatchListener(true);
-        return factory;
+        return createFactory(new ChargebackDeserializer());
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ScoresResult<P2PModel>> kafkaListenerP2PResultContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, ScoresResult<P2PModel>> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
-        final Map<String, Object> props = createDefaultProperties(consumerGroup);
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
-        DefaultKafkaConsumerFactory<String, ScoresResult<P2PModel>> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
-                new StringDeserializer(), new P2PResultDeserializer());
-        factory.setConsumerFactory(consumerFactory);
-        factory.setConcurrency(listenResultConcurrency);
-        factory.setBatchListener(true);
-        return factory;
+        return createFactory(new P2PResultDeserializer());
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudPayment> fraudPaymentListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, FraudPayment> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        String consumerGroup = consumerGroupIdService.generateGroupId(RESULT_AGGREGATOR);
+        return createFactory(new FraudPaymentDeserializer());
+    }
+
+    @NotNull
+    private <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Deserializer<T> deserializer) {
+        ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        String consumerGroup = consumerGroupIdService.generateGroupId(GroupPostfix.RESULT_AGGREGATOR);
         final Map<String, Object> props = createDefaultProperties(consumerGroup);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
-        DefaultKafkaConsumerFactory<String, FraudPayment> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
-                new StringDeserializer(), new FraudPaymentDeserializer());
+        DefaultKafkaConsumerFactory<String, T> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
+                new StringDeserializer(), deserializer);
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(listenResultConcurrency);
         factory.setBatchListener(true);

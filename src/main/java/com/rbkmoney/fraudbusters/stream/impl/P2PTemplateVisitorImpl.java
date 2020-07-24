@@ -1,9 +1,11 @@
-package com.rbkmoney.fraudbusters.stream;
+package com.rbkmoney.fraudbusters.stream.impl;
 
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
+import com.rbkmoney.fraudbusters.stream.RuleApplier;
+import com.rbkmoney.fraudbusters.stream.TemplateVisitor;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,6 @@ public class P2PTemplateVisitorImpl implements TemplateVisitor<P2PModel, Checked
     @Override
     public CheckedResultModel visit(P2PModel p2PModel) {
         String identityId = p2PModel.getIdentityId();
-
         return ruleP2PApplier.apply(p2PModel, referenceP2PPoolImpl.get(TemplateLevel.GLOBAL.name()))
                 .orElse(ruleP2PApplier.applyForAny(p2PModel, groupP2PPoolImpl.get(groupReferenceP2PPoolImpl.get(identityId)))
                         .orElse(ruleP2PApplier.apply(p2PModel, referenceP2PPoolImpl.get(identityId))

@@ -9,7 +9,7 @@ import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.stream.FullTemplateVisitorImpl;
+import com.rbkmoney.fraudbusters.stream.impl.FullTemplateVisitorImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

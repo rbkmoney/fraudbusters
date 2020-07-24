@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
-import com.rbkmoney.fraudbusters.stream.RuleApplierImpl;
+import com.rbkmoney.fraudbusters.stream.impl.RuleApplierImpl;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.template.pool.PoolImpl;
 import com.rbkmoney.fraudbusters.util.CheckedResultFactory;

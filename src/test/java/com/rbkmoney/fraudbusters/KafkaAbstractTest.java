@@ -107,7 +107,7 @@ public abstract class KafkaAbstractTest {
 
     @Before
     public void setUp(){
-        Mockito.when(fraudManagementService.isNewShop(any(), any())).thenReturn(false);
+        Mockito.when(fraudManagementService.isNewShop(any())).thenReturn(false);
     }
 
     public static Producer<String, Command> createProducer() {

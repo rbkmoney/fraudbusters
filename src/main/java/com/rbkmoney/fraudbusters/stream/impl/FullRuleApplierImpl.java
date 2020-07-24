@@ -1,8 +1,9 @@
-package com.rbkmoney.fraudbusters.stream;
+package com.rbkmoney.fraudbusters.stream.impl;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.template.pool.time.TimePool;
+import com.rbkmoney.fraudbusters.stream.RuleApplier;
+import com.rbkmoney.fraudbusters.template.pool.TimePool;
 import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
 import com.rbkmoney.fraudo.model.ResultModel;
 import com.rbkmoney.fraudo.visitor.TemplateVisitor;

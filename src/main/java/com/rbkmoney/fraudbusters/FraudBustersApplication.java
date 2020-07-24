@@ -41,5 +41,7 @@ public class FraudBustersApplication extends SpringApplication {
         registry.stop();
         paymentRuleVisitor.close();
         p2pRuleVisitor.close();
+        log.info("FraudBustersApplication preDestroy finish!");
+
     }
 }

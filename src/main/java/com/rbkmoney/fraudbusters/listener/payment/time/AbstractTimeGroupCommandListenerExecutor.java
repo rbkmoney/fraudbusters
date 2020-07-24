@@ -3,7 +3,7 @@ package com.rbkmoney.fraudbusters.listener.payment.time;
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.Group;
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
-import com.rbkmoney.fraudbusters.template.pool.time.TimePool;
+import com.rbkmoney.fraudbusters.template.pool.TimePool;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.extern.slf4j.Slf4j;
 

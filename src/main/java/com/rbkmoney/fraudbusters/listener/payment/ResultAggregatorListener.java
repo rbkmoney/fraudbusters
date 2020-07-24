@@ -34,7 +34,7 @@ public class ResultAggregatorListener {
             List<Event> events = fraudResultToEventConverter.convertBatch(batch);
             if (defaultTemplateProperties.isEnable()) {
                 events.stream()
-                        .filter(e -> fraudManagementService.isNewShop(e.getPartyId(), e.getShopId()))
+                        .filter(e -> fraudManagementService.isNewShop(e.getShopId()))
                         .forEach(e -> fraudManagementService.createDefaultReference(e.getPartyId(), e.getShopId()));
             }
             repository.insertBatch(events);

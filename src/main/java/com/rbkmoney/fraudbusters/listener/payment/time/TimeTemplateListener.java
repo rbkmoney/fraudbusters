@@ -6,7 +6,7 @@ import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.fraud.payment.validator.PaymentTemplateValidator;
 import com.rbkmoney.fraudbusters.listener.CommandListener;
-import com.rbkmoney.fraudbusters.template.pool.time.TimePool;
+import com.rbkmoney.fraudbusters.template.pool.TimePool;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.FraudoPaymentParser;
 import lombok.RequiredArgsConstructor;

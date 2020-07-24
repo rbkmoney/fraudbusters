@@ -87,7 +87,7 @@ public class FraudManagementServiceTest {
     public void testIsNewShop(){
         MockitoAnnotations.initMocks(this);
         Mockito.when(fraudResultRepository.countOperationByField(anyString(), anyString(), anyLong(), anyLong())).thenReturn(0);
-        fraudManagementService.isNewShop("p1", "s1");
+        fraudManagementService.isNewShop("s1");
         Mockito.verify(fraudResultRepository).countOperationByField(anyString(), anyString(), anyLong(), anyLong());
     }
 

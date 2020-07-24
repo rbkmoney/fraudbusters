@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import com.rbkmoney.fraudbusters.stream.impl.TemplateVisitorImpl;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.template.pool.PoolImpl;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;

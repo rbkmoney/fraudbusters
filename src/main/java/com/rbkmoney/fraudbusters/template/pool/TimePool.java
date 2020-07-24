@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.template.pool.time;
+package com.rbkmoney.fraudbusters.template.pool;
 
 public interface TimePool<T> {
 

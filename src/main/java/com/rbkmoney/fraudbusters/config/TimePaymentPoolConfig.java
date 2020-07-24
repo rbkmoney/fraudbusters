@@ -2,10 +2,10 @@ package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.stream.FullRuleApplierImpl;
+import com.rbkmoney.fraudbusters.stream.impl.FullRuleApplierImpl;
 import com.rbkmoney.fraudbusters.stream.RuleApplier;
-import com.rbkmoney.fraudbusters.template.pool.time.TimePool;
-import com.rbkmoney.fraudbusters.template.pool.time.TimePoolImpl;
+import com.rbkmoney.fraudbusters.template.pool.TimePool;
+import com.rbkmoney.fraudbusters.template.pool.TimePoolImpl;
 import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
 import com.rbkmoney.fraudo.payment.visitor.impl.FirstFindVisitorImpl;
 import org.antlr.v4.runtime.ParserRuleContext;

@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.template.pool.time;
 
+import com.rbkmoney.fraudbusters.template.pool.TimePoolImpl;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 

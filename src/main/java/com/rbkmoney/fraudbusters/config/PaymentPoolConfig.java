@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.config;
 
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.stream.RuleApplierImpl;
+import com.rbkmoney.fraudbusters.stream.impl.RuleApplierImpl;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.fraudbusters.template.pool.PoolImpl;
 import com.rbkmoney.fraudbusters.util.CheckedResultFactory;

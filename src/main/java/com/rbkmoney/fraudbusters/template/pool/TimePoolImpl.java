@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.template.pool.time;
+package com.rbkmoney.fraudbusters.template.pool;
 
 import lombok.ToString;
 import org.springframework.util.CollectionUtils;
