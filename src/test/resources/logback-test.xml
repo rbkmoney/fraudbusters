@@ -7,4 +7,5 @@
         <appender-ref ref="CONSOLE"/>
     </root>
     <logger name="com.rbkmoney" level="ALL"/>
+    <logger name="com.rbkmoney.fraudbusters.stream.impl.FullTemplateVisitorImpl" level="ALL"/>
 </configuration>

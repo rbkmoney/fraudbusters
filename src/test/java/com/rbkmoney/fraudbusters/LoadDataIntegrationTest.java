@@ -64,8 +64,12 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE_2 =
             "rule:TEMPLATE: count(\"card_token\", 1000, \"party_id\", \"shop_id\") > 2  -> decline;";
 
+    private static final String TEMPLATE_CONCRETE =
+            "rule:TEMPLATE_CONCRETE: count(\"card_token\", 10) > 0  -> accept;";
+
     private static final int COUNTRY_GEO_ID = 12345;
     public static final String PAYMENT_1 = "payment_1";
+    public static final String PAYMENT_2 = "payment_2";
     public static final String PAYMENT_0 = "payment_0";
 
     private final String globalRef = UUID.randomUUID().toString();
@@ -118,7 +122,6 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
             });
         }
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
-        log.info("parserRuleContextTimePool: {}", parserRuleContextTimePool);
     }
 
     @Test
@@ -126,6 +129,7 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
     public void testLoadData() {
         String oldTime = String.valueOf(LocalDateTime.now());
         produceTemplate(globalRef, TEMPLATE_2, templateTopic);
+        Thread.sleep(TIMEOUT);
 
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
@@ -138,12 +142,23 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
         payment.setId(PAYMENT_1);
         insertWithTImeout(client, payment);
         insertListDefaultPayments(client, PaymentStatus.captured, PaymentStatus.failed);
-        checkDeclinePayment(PAYMENT_1, ResultStatus.DECLINE);
+        checkPayment(PAYMENT_1, ResultStatus.DECLINE, 1);
 
+        //check in past
         payment.setId(PAYMENT_0);
         payment.setEventTime(oldTime);
         insertWithTImeout(client, payment);
-        checkDeclinePayment(PAYMENT_0, ResultStatus.THREE_DS);
+        checkPayment(PAYMENT_0, ResultStatus.THREE_DS, 1);
+
+        String localId = UUID.randomUUID().toString();
+        produceTemplate(localId, TEMPLATE_CONCRETE, templateTopic);
+        produceReference(true, null, null, localId);
+        Thread.sleep(TIMEOUT);
+
+        payment.setId(PAYMENT_2);
+        payment.setEventTime(String.valueOf(LocalDateTime.now()));
+        insertWithTImeout(client, payment);
+        checkPayment(PAYMENT_2, ResultStatus.ACCEPT, 1);
 
         //Chargeback
         client.insertChargebacks(List.of(createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.accepted),
@@ -175,10 +190,10 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
         Thread.sleep(TIMEOUT);
     }
 
-    private void checkDeclinePayment(String payment1, ResultStatus status) {
+    private void checkPayment(String payment1, ResultStatus status, int expectedCount) {
         List<Map<String, Object>> maps = jdbcTemplate.queryForList(String.format("SELECT * from fraud.payment where id='%s'", payment1));
         log.info("SELECT : {}", maps);
-        assertEquals(1, maps.size());
+        assertEquals(expectedCount, maps.size());
         assertEquals(status.name(), maps.get(0).get("resultStatus"));
     }
 

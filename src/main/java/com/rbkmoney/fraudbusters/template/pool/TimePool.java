@@ -8,6 +8,8 @@ public interface TimePool<T> {
 
     void remove(String key, Long timestamp);
 
+    boolean contains(String key, Long timestamp);
+
     int size();
 
 }
