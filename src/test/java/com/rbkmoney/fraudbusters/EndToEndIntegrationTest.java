@@ -1,7 +1,10 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
-import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
+import com.rbkmoney.damsel.fraudbusters.PriorityId;
+import com.rbkmoney.damsel.fraudbusters.Template;
+import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
@@ -131,32 +134,32 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
         String globalRef = UUID.randomUUID().toString();
-        produceTemplate(globalRef, TEMPLATE, templateTopic);
+        produceTemplate(globalRef, TEMPLATE, kafkaTopics.getTemplate());
         produceReference(true, null, null, globalRef);
 
         String partyTemplate = UUID.randomUUID().toString();
-        produceTemplate(partyTemplate, TEMPLATE_CONCRETE, templateTopic);
+        produceTemplate(partyTemplate, TEMPLATE_CONCRETE, kafkaTopics.getTemplate());
         produceReference(false, P_ID, null, partyTemplate);
 
         String shopRef = UUID.randomUUID().toString();
-        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP, templateTopic);
+        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP, kafkaTopics.getTemplate());
         produceReference(false, P_ID, ID_VALUE_SHOP, shopRef);
 
         String groupTemplateDecline = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateDecline, GROUP_DECLINE, templateTopic);
+        produceTemplate(groupTemplateDecline, GROUP_DECLINE, kafkaTopics.getTemplate());
         String groupTemplateNormal = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateNormal, GROUP_NORMAL, templateTopic);
+        produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getTemplate());
 
         String groupId = UUID.randomUUID().toString();
         produceGroup(groupId, List.of(new PriorityId()
                 .setId(groupTemplateDecline)
                 .setPriority(2L), new PriorityId()
                 .setId(groupTemplateNormal)
-                .setPriority(1L)), groupTopic);
+                .setPriority(1L)), kafkaTopics.getGroupList());
         produceGroupReference(GROUP_P_ID, null, groupId);
 
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(groupTopic));
+            consumer.subscribe(List.of(kafkaTopics.getGroupList()));
             Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(100);
                 return !records.isEmpty();

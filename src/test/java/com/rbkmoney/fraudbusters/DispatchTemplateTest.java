@@ -49,11 +49,11 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
 
         String id = UUID.randomUUID().toString();
 
-        produceTemplate(id, TEMPLATE, templateTopic);
+        produceTemplate(id, TEMPLATE, kafkaTopics.getTemplate());
 
         //check message in topic
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(templateTopic));
+            consumer.subscribe(List.of(kafkaTopics.getTemplate()));
             Unreliables.retryUntilTrue(TIMEOUT, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
                 return !records.isEmpty();
@@ -76,7 +76,7 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
             command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
             command.setCommandTime(LocalDateTime.now().toString());
 
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(referenceTopic,
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getReference(),
                     TemplateLevel.GLOBAL.name(), command);
             producer.send(producerRecord).get();
         }

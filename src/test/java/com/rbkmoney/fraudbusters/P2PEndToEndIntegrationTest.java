@@ -105,11 +105,11 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
         }
 
         String globalRef = UUID.randomUUID().toString();
-        produceTemplate(globalRef, TEMPLATE, templateTopicP2P);
+        produceTemplate(globalRef, TEMPLATE, kafkaTopics.getP2pTemplate());
         produceP2PReference(true, null, globalRef);
 
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(templateTopicP2P));
+            consumer.subscribe(List.of(kafkaTopics.getP2pTemplate()));
             Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(100);
                 return !records.isEmpty();

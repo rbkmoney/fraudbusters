@@ -69,9 +69,6 @@ public class PreLoadTest extends KafkaAbstractTest {
     @LocalServerPort
     int serverPort;
 
-    @Value("${kafka.state.dir}")
-    private String stateDir;
-
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {

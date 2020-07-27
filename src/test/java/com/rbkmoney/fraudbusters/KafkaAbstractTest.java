@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
+import com.rbkmoney.fraudbusters.config.properties.KafkaTopics;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.service.FraudManagementService;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
@@ -26,6 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -44,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 import static org.mockito.ArgumentMatchers.any;
 
 @Slf4j
-@ContextConfiguration(initializers = KafkaAbstractTest.Initializer.class)
+@ContextConfiguration(initializers = KafkaAbstractTest.Initializer.class, classes = KafkaTopics.class)
 public abstract class KafkaAbstractTest {
 
     protected static final long TIMEOUT = 1000L;
@@ -84,22 +86,9 @@ public abstract class KafkaAbstractTest {
                     "                                echo Waiting 60 seconds for Connect to be ready... && \n" +
                     "                                sleep 60'");
 
-    @Value("${kafka.topic.template}")
-    public String templateTopic;
-    @Value("${kafka.topic.p2p-template}")
-    public String templateTopicP2P;
-    @Value("${kafka.topic.reference}")
-    public String referenceTopic;
-    @Value("${kafka.topic.p2p-reference}")
-    public String referenceTopicP2P;
-    @Value("${kafka.topic.group-list}")
-    public String groupTopic;
-    @Value("${kafka.topic.p2p-group-list}")
-    public String groupTopicP2P;
-    @Value("${kafka.topic.group-reference}")
-    public String groupReferenceTopic;
-    @Value("${kafka.topic.p2p-group-reference}")
-    public String groupReferenceTopicP2P;
+    @Autowired
+    protected KafkaTopics kafkaTopics;
+
     @Value("${kafka.topic.event.sink.initial}")
     public String eventSinkTopic;
     @Value("${kafka.topic.event.sink.aggregated}")
@@ -108,7 +97,7 @@ public abstract class KafkaAbstractTest {
     public String fraudPaymentTopic;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         Mockito.when(fraudManagementService.isNewShop(any())).thenReturn(false);
     }
 
@@ -177,7 +166,7 @@ public abstract class KafkaAbstractTest {
             command.setCommandBody(CommandBody.reference(value));
             command.setCommandTime(LocalDateTime.now().toString());
             String key = ReferenceKeyGenerator.generateTemplateKey(value);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(referenceTopic, key, command);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getReference(), key, command);
             producer.send(producerRecord).get();
         }
     }
@@ -196,7 +185,7 @@ public abstract class KafkaAbstractTest {
 
             String key = ReferenceKeyGenerator.generateP2PTemplateKey(value);
 
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(referenceTopicP2P, key, command);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getP2pReference(), key, command);
             producer.send(producerRecord).get();
         }
     }
@@ -204,7 +193,7 @@ public abstract class KafkaAbstractTest {
     void produceReferenceWithWait(boolean isGlobal, String party, String shopId, String idTemplate, int timeout) throws InterruptedException, ExecutionException {
         produceReference(isGlobal, party, shopId, idTemplate);
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(referenceTopic));
+            consumer.subscribe(List.of(kafkaTopics.getReference()));
             Unreliables.retryUntilTrue(timeout, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
                 return !records.isEmpty();
@@ -216,7 +205,7 @@ public abstract class KafkaAbstractTest {
         try (Producer<String, Command> producer = createProducer()) {
             Command command = BeanUtil.createGroupReferenceCommand(party, shopId, idGroup);
             String key = ReferenceKeyGenerator.generateTemplateKey(party, shopId);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(groupReferenceTopic, key, command);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getGroupReference(), key, command);
             producer.send(producerRecord).get();
         }
     }
