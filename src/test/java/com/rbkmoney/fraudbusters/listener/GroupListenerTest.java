@@ -21,7 +21,7 @@ public class GroupListenerTest {
 
     @Before
     public void init() {
-        groupPoolImpl = new PoolImpl<>();
+        groupPoolImpl = new PoolImpl<>("group");
         groupListener = new GroupListener(groupPoolImpl);
     }
 

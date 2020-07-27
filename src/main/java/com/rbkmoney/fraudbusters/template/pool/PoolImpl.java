@@ -1,14 +1,18 @@
 package com.rbkmoney.fraudbusters.template.pool;
 
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ToString
+@RequiredArgsConstructor
 public class PoolImpl<T> implements Pool<T> {
 
     private final Map<String, T> map = new ConcurrentHashMap<>();
+
+    private final String poolName;
 
     @Override
     public void add(String key, T reference) {
@@ -28,5 +32,10 @@ public class PoolImpl<T> implements Pool<T> {
     @Override
     public int size() {
         return map.size();
+    }
+
+    @Override
+    public String getName() {
+        return poolName;
     }
 }

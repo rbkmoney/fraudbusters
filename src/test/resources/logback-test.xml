@@ -6,6 +6,5 @@
     <root level="warn">
         <appender-ref ref="CONSOLE"/>
     </root>
-    <logger name="com.rbkmoney.fraudbusters.listener.payment" level="ALL"/>
-    <logger name="com.rbkmoney.fraudbusters.stream.impl" level="ALL"/>
+    <logger name="com.rbkmoney.fraudbusters.service.PoolMonitoringService" level="ALL"/>
 </configuration>

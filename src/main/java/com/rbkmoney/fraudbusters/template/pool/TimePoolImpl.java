@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.template.pool;
 
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
@@ -10,9 +11,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @ToString
+@RequiredArgsConstructor
 public class TimePoolImpl<T> implements TimePool<T> {
 
     private final Map<String, TreeMap<Long, T>> references = new ConcurrentHashMap<>();
+    private final String poolName;
 
     @Override
     public void add(String key, Long timestamp, T value) {
@@ -52,4 +55,10 @@ public class TimePoolImpl<T> implements TimePool<T> {
     public int size() {
         return references.size();
     }
+
+    @Override
+    public String getName() {
+        return poolName;
+    }
+
 }

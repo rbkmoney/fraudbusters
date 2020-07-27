@@ -38,9 +38,9 @@ public class TemplateVisitorImplTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
 
-        groupPoolImpl = new PoolImpl<>();
-        referencePoolImpl = new PoolImpl<>();
-        groupReferencePoolImpl = new PoolImpl<>();
+        groupPoolImpl = new PoolImpl<>("group");
+        referencePoolImpl = new PoolImpl<>("reference");
+        groupReferencePoolImpl = new PoolImpl<>("group-reference");
 
         templateVisitor = new TemplateVisitorImpl(ruleApplier, groupPoolImpl, referencePoolImpl, groupReferencePoolImpl);
     }

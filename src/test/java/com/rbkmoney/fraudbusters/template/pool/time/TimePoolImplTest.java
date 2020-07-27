@@ -10,7 +10,7 @@ class TimePoolImplTest {
 
     public static final String TEST = "Test";
     public static final String ID_REFERENCE = "id_reference-";
-    TimePoolImpl<String> timePool = new TimePoolImpl<>();
+    TimePoolImpl<String> timePool = new TimePoolImpl<>("time-pool");
 
     @Test
     void add() throws InterruptedException {

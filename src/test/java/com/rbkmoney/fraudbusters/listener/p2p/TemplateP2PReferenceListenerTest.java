@@ -22,7 +22,7 @@ public class TemplateP2PReferenceListenerTest {
 
     @Before
     public void init() {
-        templateP2PReferencePoolImpl = new PoolImpl<>();
+        templateP2PReferencePoolImpl = new PoolImpl<>("p2p-template-reference");
         templateP2PReferenceListener = new TemplateP2PReferenceListener(templateP2PReferencePoolImpl);
     }
 

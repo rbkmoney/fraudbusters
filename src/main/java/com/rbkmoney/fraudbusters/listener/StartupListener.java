@@ -11,6 +11,7 @@ import com.rbkmoney.fraudbusters.listener.payment.GroupListener;
 import com.rbkmoney.fraudbusters.listener.payment.GroupReferenceListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateReferenceListener;
+import com.rbkmoney.fraudbusters.service.PoolMonitoringService;
 import com.rbkmoney.fraudbusters.stream.FullToCompactStreamFactory;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.kafka.common.loader.PreloadListener;
@@ -71,10 +72,14 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private final PreloadListener<String, Command> preloadListener = new PreloadListenerImpl<>();
     private final KafkaTopics kafkaTopics;
 
+    private final PoolMonitoringService poolMonitoringService;
+
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
             long startPreloadTime = System.currentTimeMillis();
+
+            poolMonitoringService.addPoolsToMonitoring();
 
             initRewriteStream();
 

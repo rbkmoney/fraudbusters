@@ -19,7 +19,7 @@ public class GroupReferenceP2PListenerTest {
 
     @Before
     public void init() {
-        groupP2PReferencePoolImpl = new PoolImpl<>();
+        groupP2PReferencePoolImpl = new PoolImpl<>("p2p-reference");
         groupReferenceP2PListener = new GroupReferenceP2PListener(groupP2PReferencePoolImpl);
     }
 

@@ -18,22 +18,22 @@ public class TimePaymentPoolConfig {
 
     @Bean
     public TimePool<List<String>> timeGroupPoolImpl() {
-        return new TimePoolImpl<>();
+        return new TimePoolImpl<>("time-group-pool");
     }
 
     @Bean
     public TimePool<String> timeReferencePoolImpl() {
-        return new TimePoolImpl<>();
+        return new TimePoolImpl<>("time-reference-pool");
     }
 
     @Bean
     public TimePool<String> timeGroupReferencePoolImpl() {
-        return new TimePoolImpl<>();
+        return new TimePoolImpl<>("time-group-reference-pool");
     }
 
     @Bean
     public TimePool<ParserRuleContext> timeTemplatePoolImpl() {
-        return new TimePoolImpl<>();
+        return new TimePoolImpl<>("time-template-pool");
     }
 
     @Bean

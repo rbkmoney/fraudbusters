@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.template.pool;
 
-public interface TimePool<T> {
+public interface TimePool<T>  extends CheckedMetricPool {
 
     void add(String key, Long timestamp, T parseContext);
 
