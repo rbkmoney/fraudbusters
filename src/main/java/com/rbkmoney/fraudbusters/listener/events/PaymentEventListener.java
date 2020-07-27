@@ -13,6 +13,7 @@ import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.stream.impl.FullTemplateVisitorImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -34,11 +35,15 @@ public class PaymentEventListener {
 
     private final ObjectMapper objectMapper;
 
+    @Value("${result.full.check.enabled:true}")
+    private boolean isEnabledFullCheck;
+
     @KafkaListener(topics = "${kafka.topic.event.sink.payment}", containerFactory = "kafkaPaymentResultListenerContainerFactory")
     public void listen(List<Payment> payments, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
                        @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {
             log.info("PaymentEventListener listen result size: {} partition: {} offset: {}", payments.size(), partition, offset);
+            log.debug("PaymentEventListener listen result payments: {}", payments);
             repository.insertBatch(
                     payments.stream()
                             .map(this::mapAndCheckResults)
@@ -53,7 +58,7 @@ public class PaymentEventListener {
 
     private CheckedPayment mapAndCheckResults(Payment payment) {
         CheckedPayment checkedPayment = paymentToCheckedPaymentConverter.convert(payment);
-        if (PaymentStatus.processed.name().equals(checkedPayment.getPaymentStatus())) {
+        if (isEnabledFullCheck && PaymentStatus.processed.name().equals(checkedPayment.getPaymentStatus())) {
             List<CheckedResultModel> listResults = fullTemplateVisitor.visit(paymentToPaymentModelConverter.convert(payment));
             Optional<CheckedResultModel> first = listResults.stream()
                     .filter(checkedResultModel -> checkedResultModel.getCheckedTemplate() != null)

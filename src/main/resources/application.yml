@@ -101,4 +101,5 @@ default.template:
   enable: true
   countToCheckDays: 1000
 
-
+result.full.check:
+  enabled: true
