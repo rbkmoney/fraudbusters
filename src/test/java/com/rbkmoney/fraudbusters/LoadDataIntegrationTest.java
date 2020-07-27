@@ -112,10 +112,10 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
 
     @Before
     public void init() throws ExecutionException, InterruptedException, TException {
-        produceTemplate(globalRef, TEMPLATE, kafkaTopics.getTemplate());
+        produceTemplate(globalRef, TEMPLATE, kafkaTopics.getFullTemplate());
         produceReference(true, null, null, globalRef);
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(kafkaTopics.getTemplate()));
+            consumer.subscribe(List.of(kafkaTopics.getFullTemplate()));
             Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(100);
                 return !records.isEmpty();
@@ -128,7 +128,7 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
     @SneakyThrows
     public void testLoadData() {
         String oldTime = String.valueOf(LocalDateTime.now());
-        produceTemplate(globalRef, TEMPLATE_2, kafkaTopics.getTemplate());
+        produceTemplate(globalRef, TEMPLATE_2, kafkaTopics.getFullTemplate());
         Thread.sleep(TIMEOUT);
 
         THClientBuilder clientBuilder = new THClientBuilder()
@@ -151,7 +151,7 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
         checkPayment(PAYMENT_0, ResultStatus.THREE_DS, 1);
 
         String localId = UUID.randomUUID().toString();
-        produceTemplate(localId, TEMPLATE_CONCRETE, kafkaTopics.getTemplate());
+        produceTemplate(localId, TEMPLATE_CONCRETE, kafkaTopics.getFullTemplate());
         produceReference(true, null, null, localId);
         Thread.sleep(TIMEOUT);
 

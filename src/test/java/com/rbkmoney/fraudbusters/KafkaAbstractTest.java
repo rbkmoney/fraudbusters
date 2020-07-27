@@ -76,12 +76,16 @@ public abstract class KafkaAbstractTest {
                     "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic refund_event && \n" +
                     "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic chargeback_event && \n" +
                     "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --topic full_template && \n" +
                     "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template_p2p && \n" +
                     "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template_reference && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --topic full_template_reference && \n" +
                     "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template_p2p_reference && \n" +
                     "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_list && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --topic full_group_list && \n" +
                     "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_p2p_list && \n" +
                     "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_reference && \n" +
+                    "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --topic full_group_reference && \n" +
                     "                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_p2p_reference && \n" +
                     "                                echo Waiting 60 seconds for Connect to be ready... && \n" +
                     "                                sleep 60'");
@@ -105,15 +109,6 @@ public abstract class KafkaAbstractTest {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class.getName());
-        return new KafkaProducer<>(props);
-    }
-
-    public static Producer<String, SinkEvent> createProducerAggr() {
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("aggr"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class.getName());
         return new KafkaProducer<>(props);
@@ -166,7 +161,7 @@ public abstract class KafkaAbstractTest {
             command.setCommandBody(CommandBody.reference(value));
             command.setCommandTime(LocalDateTime.now().toString());
             String key = ReferenceKeyGenerator.generateTemplateKey(value);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getReference(), key, command);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getFullReference(), key, command);
             producer.send(producerRecord).get();
         }
     }
@@ -193,7 +188,7 @@ public abstract class KafkaAbstractTest {
     void produceReferenceWithWait(boolean isGlobal, String party, String shopId, String idTemplate, int timeout) throws InterruptedException, ExecutionException {
         produceReference(isGlobal, party, shopId, idTemplate);
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(kafkaTopics.getReference()));
+            consumer.subscribe(List.of(kafkaTopics.getFullReference()));
             Unreliables.retryUntilTrue(timeout, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
                 return !records.isEmpty();
@@ -205,7 +200,7 @@ public abstract class KafkaAbstractTest {
         try (Producer<String, Command> producer = createProducer()) {
             Command command = BeanUtil.createGroupReferenceCommand(party, shopId, idGroup);
             String key = ReferenceKeyGenerator.generateTemplateKey(party, shopId);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getGroupReference(), key, command);
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getFullGroupReference(), key, command);
             producer.send(producerRecord).get();
         }
     }
@@ -221,5 +216,14 @@ public abstract class KafkaAbstractTest {
         command.setCommandTime(LocalDateTime.now().toString());
         return command;
     }
-    
+
+    protected static void waitingTopic(String topicName) {
+        try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
+            consumer.subscribe(List.of(topicName));
+            Unreliables.retryUntilTrue(360, TimeUnit.SECONDS, () -> {
+                ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
+                return !records.isEmpty();
+            });
+        }
+    }
 }

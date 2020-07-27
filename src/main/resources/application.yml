@@ -49,10 +49,10 @@ kafka:
     reference: template_reference
     group-list: group_list
     group-reference: group_reference
-    full-template: template
-    full-reference: template_reference
-    full-group-list: group_list
-    full-group-reference: group_reference
+    full-template: full_template
+    full-reference: full_template_reference
+    full-group-list: full_group_list
+    full-group-reference: full_group_reference
     p2p-result: p2p_result
     p2p-template: template_p2p
     p2p-reference: template_p2p_reference

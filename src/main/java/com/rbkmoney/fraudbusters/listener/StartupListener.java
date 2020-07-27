@@ -76,10 +76,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
         try {
             long startPreloadTime = System.currentTimeMillis();
 
-            fullToCompactStreamFactory.create(kafkaTopics.getFullTemplate(), kafkaTopics.getTemplate(), rewriteStreamProperties);
-            fullToCompactStreamFactory.create(kafkaTopics.getFullReference(), kafkaTopics.getReference(), rewriteStreamProperties);
-            fullToCompactStreamFactory.create(kafkaTopics.getFullGroupList(), kafkaTopics.getGroupList(), rewriteStreamProperties);
-            fullToCompactStreamFactory.create(kafkaTopics.getFullGroupReference(), kafkaTopics.getGroupReference(), rewriteStreamProperties);
+            initRewriteStream();
 
             ExecutorService executorService = Executors.newFixedThreadPool(COUNT_PRELOAD_TASKS);
             CountDownLatch latch = new CountDownLatch(COUNT_PRELOAD_TASKS);
@@ -110,6 +107,17 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
             log.error("StartupListener onApplicationEvent e: ", e);
             Thread.currentThread().interrupt();
         }
+    }
+
+    private void initRewriteStream() {
+        fullToCompactStreamFactory.create(kafkaTopics.getFullTemplate(), kafkaTopics.getTemplate(),
+                "template-stream", rewriteStreamProperties);
+        fullToCompactStreamFactory.create(kafkaTopics.getFullReference(), kafkaTopics.getReference(),
+                "reference-stream", rewriteStreamProperties);
+        fullToCompactStreamFactory.create(kafkaTopics.getFullGroupList(), kafkaTopics.getGroupList(),
+                "group-stream", rewriteStreamProperties);
+        fullToCompactStreamFactory.create(kafkaTopics.getFullGroupReference(), kafkaTopics.getGroupReference(),
+                "group-ref-stream", rewriteStreamProperties);
     }
 
     private void waitPreLoad(CountDownLatch latch, ConsumerFactory<String, Command> groupListenerFactory, String topic, CommandListener listener) {

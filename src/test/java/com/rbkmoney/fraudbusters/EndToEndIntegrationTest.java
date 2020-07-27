@@ -17,13 +17,10 @@ import com.rbkmoney.fraudbusters.repository.FraudPaymentRepositoryTest;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsRefundRepository;
-import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,7 +28,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -52,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -134,38 +129,29 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
         String globalRef = UUID.randomUUID().toString();
-        produceTemplate(globalRef, TEMPLATE, kafkaTopics.getTemplate());
+        produceTemplate(globalRef, TEMPLATE, kafkaTopics.getFullTemplate());
         produceReference(true, null, null, globalRef);
 
         String partyTemplate = UUID.randomUUID().toString();
-        produceTemplate(partyTemplate, TEMPLATE_CONCRETE, kafkaTopics.getTemplate());
+        produceTemplate(partyTemplate, TEMPLATE_CONCRETE, kafkaTopics.getFullTemplate());
         produceReference(false, P_ID, null, partyTemplate);
 
         String shopRef = UUID.randomUUID().toString();
-        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP, kafkaTopics.getTemplate());
+        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP, kafkaTopics.getFullTemplate());
         produceReference(false, P_ID, ID_VALUE_SHOP, shopRef);
 
         String groupTemplateDecline = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateDecline, GROUP_DECLINE, kafkaTopics.getTemplate());
+        produceTemplate(groupTemplateDecline, GROUP_DECLINE, kafkaTopics.getFullTemplate());
         String groupTemplateNormal = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getTemplate());
+        produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getFullTemplate());
 
         String groupId = UUID.randomUUID().toString();
         produceGroup(groupId, List.of(new PriorityId()
                 .setId(groupTemplateDecline)
                 .setPriority(2L), new PriorityId()
                 .setId(groupTemplateNormal)
-                .setPriority(1L)), kafkaTopics.getGroupList());
+                .setPriority(1L)), kafkaTopics.getFullGroupList());
         produceGroupReference(GROUP_P_ID, null, groupId);
-
-        try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(kafkaTopics.getGroupList()));
-            Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
-                ConsumerRecords<String, Object> records = consumer.poll(100);
-                return !records.isEmpty();
-            });
-        }
-
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
     }
 
@@ -186,7 +172,12 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     }
 
     @Test
-    public void test() throws URISyntaxException, TException, InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
+    public void test() throws URISyntaxException, TException, InterruptedException{
+        waitingTopic(kafkaTopics.getTemplate());
+        waitingTopic(kafkaTopics.getGroupList());
+        waitingTopic(kafkaTopics.getReference());
+        waitingTopic(kafkaTopics.getGroupReference());
+
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
@@ -262,7 +253,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.fraud_payment");
         Assert.assertEquals(1, maps.size());
         Assert.assertEquals("kek@kek.ru", maps.get(0).get("email"));
-
     }
 
 }

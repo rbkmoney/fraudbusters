@@ -29,6 +29,7 @@ public class TemplateVisitorImpl implements TemplateVisitor<PaymentModel, Checke
 
     @Override
     public CheckedResultModel visit(PaymentModel paymentModel) {
+        log.debug("TemplateVisitorImpl visit paymentModel: {}", paymentModel);
         String partyId = paymentModel.getPartyId();
         String partyShopKey = ReferenceKeyGenerator.generateTemplateKey(partyId, paymentModel.getShopId());
         return ruleApplier.apply(paymentModel, referencePoolImpl.get(TemplateLevel.GLOBAL.name()))

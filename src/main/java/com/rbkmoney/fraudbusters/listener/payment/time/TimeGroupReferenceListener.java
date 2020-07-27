@@ -22,7 +22,7 @@ public class TimeGroupReferenceListener extends AbstractTimePoolCommandListenerE
     @Override
     @KafkaListener(topics = "${kafka.topic.full-group-reference}", containerFactory = "timeGroupReferenceListenerContainerFactory")
     public void listen(@Payload Command command) {
-        log.info("GroupReferenceListener command: {}", command);
+        log.info("TimeGroupReferenceListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetGroupReference()) {
             GroupReference reference = command.getCommandBody().getGroupReference();
             String key = ReferenceKeyGenerator.generateTemplateKeyByList(reference.getPartyId(), reference.getShopId());

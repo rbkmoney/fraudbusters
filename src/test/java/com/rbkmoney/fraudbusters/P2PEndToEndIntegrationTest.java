@@ -34,6 +34,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -111,8 +112,8 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
             consumer.subscribe(List.of(kafkaTopics.getP2pTemplate()));
             Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
-                ConsumerRecords<String, Object> records = consumer.poll(100);
-                return !records.isEmpty();
+                ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1));
+                return records.isEmpty();
             });
         }
 

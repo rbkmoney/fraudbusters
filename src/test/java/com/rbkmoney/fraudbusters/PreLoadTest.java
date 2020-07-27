@@ -7,12 +7,9 @@ import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
-import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.thrift.TException;
@@ -20,8 +17,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.rnorth.ducttape.unreliables.Unreliables;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -35,11 +30,8 @@ import ru.yandex.clickhouse.ClickHouseDataSource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -73,6 +65,8 @@ public class PreLoadTest extends KafkaAbstractTest {
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
+        public static final String FULL_TEMPLATE = "full_template";
+
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             try {
@@ -94,17 +88,9 @@ public class PreLoadTest extends KafkaAbstractTest {
                 command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
                 command.setCommandTime(LocalDateTime.now().toString());
 
-                ProducerRecord<String, Command> producerRecord = new ProducerRecord<>("template",
+                ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(FULL_TEMPLATE,
                         id, command);
                 producer.send(producerRecord).get();
-            }
-
-            try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-                consumer.subscribe(List.of("template"));
-                Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
-                    ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
-                    return !records.isEmpty();
-                });
             }
         }
     }
@@ -115,7 +101,10 @@ public class PreLoadTest extends KafkaAbstractTest {
     }
 
     @Test
-    public void inspectPaymentTest() throws URISyntaxException, TException, ExecutionException, InterruptedException {
+    public void inspectPaymentTest() throws URISyntaxException, TException {
+        waitingTopic(kafkaTopics.getTemplate());
+        waitingTopic(kafkaTopics.getReference());
+
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
