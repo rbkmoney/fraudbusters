@@ -20,7 +20,7 @@ public class TemplateP2PReferenceListener extends AbstractPoolCommandListenerExe
     private final Pool<String> referenceP2PPoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.p2p.reference}", containerFactory = "referenceP2PListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.p2p-reference}", containerFactory = "referenceP2PListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("TemplateP2PReferenceListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetP2pReference()) {

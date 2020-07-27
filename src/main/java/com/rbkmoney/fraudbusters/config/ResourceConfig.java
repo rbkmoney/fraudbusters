@@ -22,7 +22,7 @@ public class ResourceConfig {
     @Value("${kafka.topic.result}")
     private String requestReplyTopic;
 
-    @Value("${kafka.topic.p2p.result}")
+    @Value("${kafka.topic.p2p-result}")
     private String requestP2PReplyTopic;
 
     @Bean

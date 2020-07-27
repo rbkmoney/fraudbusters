@@ -21,7 +21,7 @@ public class GroupListener extends AbstractGroupCommandListenerExecutor implemen
     private final Pool<List<String>> groupPoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.group.list}", containerFactory = "groupListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.group-list}", containerFactory = "groupListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("GroupListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetGroup()) {

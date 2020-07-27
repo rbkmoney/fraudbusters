@@ -86,19 +86,19 @@ public abstract class KafkaAbstractTest {
 
     @Value("${kafka.topic.template}")
     public String templateTopic;
-    @Value("${kafka.topic.p2p.template}")
+    @Value("${kafka.topic.p2p-template}")
     public String templateTopicP2P;
     @Value("${kafka.topic.reference}")
     public String referenceTopic;
-    @Value("${kafka.topic.p2p.reference}")
+    @Value("${kafka.topic.p2p-reference}")
     public String referenceTopicP2P;
-    @Value("${kafka.topic.group.list}")
+    @Value("${kafka.topic.group-list}")
     public String groupTopic;
-    @Value("${kafka.topic.p2p.group.list}")
+    @Value("${kafka.topic.p2p-group-list}")
     public String groupTopicP2P;
-    @Value("${kafka.topic.group.reference}")
+    @Value("${kafka.topic.group-reference}")
     public String groupReferenceTopic;
-    @Value("${kafka.topic.p2p.group.reference}")
+    @Value("${kafka.topic.p2p-group-reference}")
     public String groupReferenceTopicP2P;
     @Value("${kafka.topic.event.sink.initial}")
     public String eventSinkTopic;

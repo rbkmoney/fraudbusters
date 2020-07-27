@@ -21,7 +21,7 @@ public class GroupP2PListener extends AbstractGroupCommandListenerExecutor imple
     private final Pool<List<String>> groupP2PPoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.p2p.group.list}", containerFactory = "groupP2PListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.p2p-group-list}", containerFactory = "groupP2PListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("GroupP2PListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetGroup()) {

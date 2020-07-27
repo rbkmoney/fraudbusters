@@ -20,7 +20,7 @@ public class GroupReferenceListener extends AbstractPoolCommandListenerExecutor 
     private final Pool<String> groupReferencePoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.group.reference}", containerFactory = "groupReferenceListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.group-reference}", containerFactory = "groupReferenceListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("GroupReferenceListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetGroupReference()) {

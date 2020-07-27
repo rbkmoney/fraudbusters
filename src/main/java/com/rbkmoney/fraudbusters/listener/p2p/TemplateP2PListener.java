@@ -31,7 +31,7 @@ public class TemplateP2PListener extends AbstractPoolCommandListenerExecutor imp
     private final Pool<ParserRuleContext> templateP2PPoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.p2p.template}", containerFactory = "templateP2PListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.p2p-template}", containerFactory = "templateP2PListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("TemplateP2PListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetTemplate()) {
