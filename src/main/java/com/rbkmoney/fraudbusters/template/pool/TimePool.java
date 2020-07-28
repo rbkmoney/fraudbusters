@@ -1,6 +1,8 @@
 package com.rbkmoney.fraudbusters.template.pool;
 
-public interface TimePool<T>  extends CheckedMetricPool {
+import java.util.Set;
+
+public interface TimePool<T> extends CheckedMetricPool {
 
     void add(String key, Long timestamp, T parseContext);
 
@@ -8,8 +10,14 @@ public interface TimePool<T>  extends CheckedMetricPool {
 
     void remove(String key, Long timestamp);
 
+    void cleanUntil(String key, Long timestamp);
+
     boolean contains(String key, Long timestamp);
 
     int size();
+
+    int deepSize();
+
+    Set<String> keySet();
 
 }

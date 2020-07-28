@@ -97,3 +97,5 @@ default.template:
 
 result.full.check:
   enabled: true
+
+time.pool.cleanup.gap: 60

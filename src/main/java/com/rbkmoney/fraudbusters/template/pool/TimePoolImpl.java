@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,6 +48,17 @@ public class TimePoolImpl<T> implements TimePool<T> {
     }
 
     @Override
+    public void cleanUntil(String key, Long timestamp) {
+        if (references.get(key) != null
+                && references.get(key).lowerEntry(timestamp) != null
+                && references.get(key).lowerEntry(timestamp).getKey() < timestamp) {
+            Long nearTimestamp = references.get(key).lowerEntry(timestamp).getKey();
+            references.get(key).remove(nearTimestamp);
+            cleanUntil(key, nearTimestamp);
+        }
+    }
+
+    @Override
     public boolean contains(String key, Long timestamp) {
         return references.containsKey(key) && references.get(key) != null && references.get(key).containsKey(timestamp);
     }
@@ -54,6 +66,19 @@ public class TimePoolImpl<T> implements TimePool<T> {
     @Override
     public int size() {
         return references.size();
+    }
+
+    @Override
+    public int deepSize() {
+        return references.values().stream()
+                .map(TreeMap::size)
+                .mapToInt(Integer::intValue)
+                .sum();
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return references.keySet();
     }
 
     @Override
