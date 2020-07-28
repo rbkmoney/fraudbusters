@@ -31,7 +31,7 @@ public class TemplateVisitorImpl implements TemplateVisitor<PaymentModel, Checke
     public CheckedResultModel visit(PaymentModel paymentModel) {
         log.debug("TemplateVisitorImpl visit paymentModel: {}", paymentModel);
         String partyId = paymentModel.getPartyId();
-        String partyShopKey = ReferenceKeyGenerator.generateTemplateKeyByList(partyId, paymentModel.getShopId());
+        String partyShopKey = ReferenceKeyGenerator.generateTemplateKey(partyId, paymentModel.getShopId());
         return ruleApplier.apply(paymentModel, referencePoolImpl.get(TemplateLevel.GLOBAL.name()))
                 .orElse(ruleApplier.applyForAny(paymentModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyId)))
                         .orElse(ruleApplier.applyForAny(paymentModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyShopKey)))
