@@ -199,7 +199,7 @@ public abstract class KafkaAbstractTest {
     void produceGroupReference(String party, String shopId, String idGroup) throws InterruptedException, ExecutionException {
         try (Producer<String, Command> producer = createProducer()) {
             Command command = BeanUtil.createGroupReferenceCommand(party, shopId, idGroup);
-            String key = ReferenceKeyGenerator.generateTemplateKey(party, shopId);
+            String key = ReferenceKeyGenerator.generateTemplateKeyByList(party, shopId);
             ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getFullGroupReference(), key, command);
             producer.send(producerRecord).get();
         }
@@ -220,7 +220,7 @@ public abstract class KafkaAbstractTest {
     protected static void waitingTopic(String topicName) {
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
             consumer.subscribe(List.of(topicName));
-            Unreliables.retryUntilTrue(360, TimeUnit.SECONDS, () -> {
+            Unreliables.retryUntilTrue(20, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
                 return !records.isEmpty();
             });

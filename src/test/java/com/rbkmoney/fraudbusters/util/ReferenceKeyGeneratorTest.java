@@ -8,13 +8,13 @@ public class ReferenceKeyGeneratorTest {
 
     @Test
     public void generateTemplateKey() {
-        String key = ReferenceKeyGenerator.generateTemplateKey("partyId", "shopId");
+        String key = ReferenceKeyGenerator.generateTemplateKeyByList("partyId", "shopId");
         Assert.assertEquals("partyId_shopId", key);
 
-        key = ReferenceKeyGenerator.generateTemplateKey("partyId", null);
+        key = ReferenceKeyGenerator.generateTemplateKeyByList("partyId", null);
         Assert.assertEquals("partyId", key);
 
-        key = ReferenceKeyGenerator.generateTemplateKey(null, "shopId");
+        key = ReferenceKeyGenerator.generateTemplateKeyByList(null, "shopId");
         Assert.assertEquals("DEFAULT", key);
     }
 

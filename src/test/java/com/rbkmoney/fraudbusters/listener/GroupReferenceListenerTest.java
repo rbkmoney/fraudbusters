@@ -27,15 +27,15 @@ public class GroupReferenceListenerTest {
     @Test
     public void listen() {
         groupReferenceListener.listen(BeanUtil.createGroupReferenceCommand(PARTY, null, GROUP_REF_1));
-        String ref = groupReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKey(PARTY, null));
+        String ref = groupReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKeyByList(PARTY, null));
         Assert.assertEquals(GROUP_REF_1, ref);
 
         groupReferenceListener.listen(BeanUtil.createGroupReferenceCommand(PARTY, SHOP_ID, GROUP_REF_1));
-        ref = groupReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKey(PARTY, SHOP_ID));
+        ref = groupReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKeyByList(PARTY, SHOP_ID));
         Assert.assertEquals(GROUP_REF_1, ref);
 
         groupReferenceListener.listen(BeanUtil.createDeleteGroupReferenceCommand(PARTY, SHOP_ID, GROUP_REF_1));
-        ref = groupReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKey(PARTY, SHOP_ID));
+        ref = groupReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKeyByList(PARTY, SHOP_ID));
         Assert.assertNull(ref);
     }
 }

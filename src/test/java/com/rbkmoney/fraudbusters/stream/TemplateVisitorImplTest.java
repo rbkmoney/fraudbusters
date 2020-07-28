@@ -58,7 +58,7 @@ public class TemplateVisitorImplTest {
         //check group party pool
         List<String> templateIds = List.of(TEMPLATE_1);
         groupPoolImpl.add(GROUP_1, templateIds);
-        String key = ReferenceKeyGenerator.generateTemplateKey(PARTY_ID, null);
+        String key = ReferenceKeyGenerator.generateTemplateKeyByList(PARTY_ID, null);
         groupReferencePoolImpl.add(key, GROUP_1);
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setCheckedTemplate(TRUE_TEMPL);
