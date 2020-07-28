@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel, PaymentCheckedField> {
 
-    private static final int CURRENT_ONE = 1;
+    public static final int CURRENT_ONE = 1;
 
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
     private final PaymentRepository paymentRepository;

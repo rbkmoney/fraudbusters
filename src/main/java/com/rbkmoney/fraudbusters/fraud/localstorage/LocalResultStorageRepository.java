@@ -1,48 +1,50 @@
 package com.rbkmoney.fraudbusters.fraud.localstorage;
 
+import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
-import com.rbkmoney.fraudbusters.repository.AggregationRepository;
+import com.rbkmoney.fraudbusters.repository.PaymentRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class LocalResultStorageRepository implements AggregationRepository {
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class LocalResultStorageRepository implements PaymentRepository {
 
-    private final ThreadLocal<List<CheckedPayment>> localStorage = ThreadLocal.withInitial(ArrayList::new);
+    private final LocalResultStorage localStorage;
 
     @Override
     public Integer countOperationByField(String fieldName, String value, Long from, Long to) {
         List<CheckedPayment> checkedPayments = localStorage.get();
-        return (int) checkedPayments.stream()
+        int count = (int) checkedPayments.stream()
                 .filter(checkedPayment -> checkedPayment.getEventTime() >= from
                         && checkedPayment.getEventTime() <= to
-                        && filterByFields(fieldName, value, checkedPayment))
+                        && checkValueFields(fieldName, value, checkedPayment))
                 .count();
+        log.debug("LocalResultStorageRepository countOperationByField: {}", count);
+        return count;
     }
 
     @Override
     public Integer countOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
         List<CheckedPayment> checkedPayments = localStorage.get();
-        return (int) checkedPayments.stream()
-                .filter(checkedPayment ->
-                        checkedPayment.getEventTime() >= from
-                                && checkedPayment.getEventTime() <= to
-                                && fieldModels.stream()
-                                .allMatch(fieldModel -> filterByFields(fieldModel.getName(), fieldModel.getValue(), checkedPayment)))
+        int count = (int) checkedPayments.stream()
+                .filter(checkedPayment -> checkValueFields(from, to, fieldModels, checkedPayment))
                 .count();
+        log.debug("LocalResultStorageRepository countOperationByFieldWithGroupBy: {}", count);
+        return count;
     }
 
     @Override
     public Long sumOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
         List<CheckedPayment> checkedPayments = localStorage.get();
         return checkedPayments.stream()
-                .filter(checkedPayment ->
-                        checkedPayment.getEventTime() >= from
-                                && checkedPayment.getEventTime() <= to
-                                && fieldModels.stream()
-                                .allMatch(fieldModel -> filterByFields(fieldModel.getName(), fieldModel.getValue(), checkedPayment)))
+                .filter(checkedPayment -> checkValueFields(from, to, fieldModels, checkedPayment))
                 .mapToLong(CheckedPayment::getAmount)
                 .sum();
     }
@@ -53,7 +55,7 @@ public class LocalResultStorageRepository implements AggregationRepository {
         return (int) checkedPayments.stream()
                 .filter(checkedPayment -> checkedPayment.getEventTime() >= from
                         && checkedPayment.getEventTime() <= to
-                        && filterByFields(fieldNameBy, value, checkedPayment))
+                        && checkValueFields(fieldNameBy, value, checkedPayment))
                 .map(checkedPayment -> valueByName(fieldNameCount, checkedPayment))
                 .distinct()
                 .count();
@@ -63,16 +65,56 @@ public class LocalResultStorageRepository implements AggregationRepository {
     public Integer uniqCountOperationWithGroupBy(String fieldNameBy, String value, String fieldNameCount, Long from, Long to, List<FieldModel> fieldModels) {
         List<CheckedPayment> checkedPayments = localStorage.get();
         return (int) checkedPayments.stream()
-                .filter(checkedPayment -> checkedPayment.getEventTime() >= from
-                        && checkedPayment.getEventTime() <= to
-                        && fieldModels.stream()
-                        .allMatch(fieldModel -> filterByFields(fieldModel.getName(), fieldModel.getValue(), checkedPayment)))
+                .filter(checkedPayment -> checkValueFields(from, to, fieldModels, checkedPayment))
                 .map(checkedPayment -> valueByName(fieldNameCount, checkedPayment))
                 .distinct()
                 .count();
     }
 
-    private boolean filterByFields(String fieldName, String value, CheckedPayment checkedPayment) {
+    private boolean checkValueFields(Long from, Long to, List<FieldModel> fieldModels, CheckedPayment checkedPayment) {
+        return checkedPayment.getEventTime() >= from
+                && checkedPayment.getEventTime() <= to
+                && fieldModels.stream()
+                .allMatch(fieldModel -> checkValueFields(fieldModel.getName(), fieldModel.getValue(), checkedPayment));
+    }
+
+    @Override
+    public Integer countOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+        List<CheckedPayment> checkedPayments = localStorage.get();
+        return (int) checkedPayments.stream()
+                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment, PaymentStatus.captured))
+                .count();
+    }
+
+    @Override
+    public Integer countOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels, String errorCode) {
+        List<CheckedPayment> checkedPayments = localStorage.get();
+        return (int) checkedPayments.stream()
+                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment, PaymentStatus.failed)
+                        && errorCode.equals(checkedPayment.getErrorCode()))
+                .count();
+    }
+
+    @Override
+    public Long sumOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+        List<CheckedPayment> checkedPayments = localStorage.get();
+        return checkedPayments.stream()
+                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment, PaymentStatus.captured))
+                .mapToLong(CheckedPayment::getAmount)
+                .sum();
+    }
+
+    @Override
+    public Long sumOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels, String errorCode) {
+        List<CheckedPayment> checkedPayments = localStorage.get();
+        return checkedPayments.stream()
+                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment, PaymentStatus.failed)
+                        && errorCode.equals(checkedPayment.getErrorCode()))
+                .mapToLong(CheckedPayment::getAmount)
+                .sum();
+    }
+
+    private boolean checkValueFields(String fieldName, String value, CheckedPayment checkedPayment) {
         if (value != null) {
             return value.equals(valueByName(fieldName, checkedPayment));
         }
@@ -80,7 +122,7 @@ public class LocalResultStorageRepository implements AggregationRepository {
     }
 
     private String valueByName(String fieldName, CheckedPayment checkedPayment) {
-        PaymentCheckedField byValue = PaymentCheckedField.getByValue(fieldName);
+        PaymentCheckedField byValue = PaymentCheckedField.valueOf(fieldName);
         switch (byValue) {
             case IP:
                 return checkedPayment.getIp();
@@ -107,6 +149,14 @@ public class LocalResultStorageRepository implements AggregationRepository {
             default:
                 return null;
         }
+    }
+
+    private boolean filterByStatusAndFields(Long from, Long to, List<FieldModel> fieldModels, CheckedPayment checkedPayment, PaymentStatus paymentStatus) {
+        return checkedPayment.getEventTime() >= from
+                && checkedPayment.getEventTime() <= to
+                && fieldModels.stream()
+                .allMatch(fieldModel -> checkValueFields(fieldModel.getName(), fieldModel.getValue(), checkedPayment))
+                && paymentStatus.name().equals(checkedPayment.getPaymentStatus());
     }
 
 }

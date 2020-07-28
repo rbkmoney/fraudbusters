@@ -9,6 +9,7 @@ import com.rbkmoney.fraudbusters.converter.PaymentToCheckedPaymentConverter;
 import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
+import com.rbkmoney.fraudbusters.fraud.localstorage.LocalResultStorage;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.stream.impl.FullTemplateVisitorImpl;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class PaymentEventListener {
     private final PaymentToPaymentModelConverter paymentToPaymentModelConverter;
     private final PaymentToCheckedPaymentConverter paymentToCheckedPaymentConverter;
 
+    private final LocalResultStorage localResultStorage;
     private final ObjectMapper objectMapper;
 
     @Value("${result.full.check.enabled:true}")
@@ -49,6 +51,7 @@ public class PaymentEventListener {
                             .map(this::mapAndCheckResults)
                             .collect(Collectors.toList())
             );
+            localResultStorage.clear();
         } catch (Exception e) {
             log.warn("Error when PaymentEventListener listen e: ", e);
             Thread.sleep(KafkaConfig.THROTTLING_TIMEOUT);
@@ -75,6 +78,7 @@ public class PaymentEventListener {
                 }
             }
         }
+        localResultStorage.get().add(checkedPayment);
         return checkedPayment;
     }
 }

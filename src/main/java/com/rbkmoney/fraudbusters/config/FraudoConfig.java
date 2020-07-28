@@ -3,6 +3,8 @@ package com.rbkmoney.fraudbusters.config;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
+import com.rbkmoney.fraudbusters.fraud.localstorage.LocalResultStorageRepository;
+import com.rbkmoney.fraudbusters.fraud.localstorage.aggregator.LocalCountAggregatorDecorator;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.aggregator.CountP2PAggregatorImpl;
@@ -56,11 +58,14 @@ public class FraudoConfig {
     }
 
     @Bean
-    public CountPaymentAggregator<PaymentModel, PaymentCheckedField> countResultAggregator(PaymentRepository paymentRepositoryImpl,
-                                                                                           AnalyticsRefundRepository analyticsRefundRepository,
-                                                                                           AnalyticsChargebackRepository analyticsChargebackRepository,
-                                                                                           DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new CountAggregatorImpl(dbPaymentFieldResolver, paymentRepositoryImpl, analyticsRefundRepository, analyticsChargebackRepository);
+    public CountPaymentAggregator<PaymentModel, PaymentCheckedField> countResultAggregator(
+            LocalResultStorageRepository localResultStorageRepository,
+            PaymentRepository paymentRepositoryImpl,
+            AnalyticsRefundRepository analyticsRefundRepository,
+            AnalyticsChargebackRepository analyticsChargebackRepository,
+            DBPaymentFieldResolver dbPaymentFieldResolver) {
+        CountAggregatorImpl countAggregatorDecorator = new CountAggregatorImpl(dbPaymentFieldResolver, paymentRepositoryImpl, analyticsRefundRepository, analyticsChargebackRepository);
+        return new LocalCountAggregatorDecorator(countAggregatorDecorator, dbPaymentFieldResolver, localResultStorageRepository);
     }
 
     @Bean

@@ -140,14 +140,14 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
 
         Payment payment = createPayment(PaymentStatus.processed);
         payment.setId(PAYMENT_1);
-        insertWithTImeout(client, payment);
+        insertWithTimeout(client, List.of(payment));
         insertListDefaultPayments(client, PaymentStatus.captured, PaymentStatus.failed);
         checkPayment(PAYMENT_1, ResultStatus.DECLINE, 1);
 
         //check in past
         payment.setId(PAYMENT_0);
         payment.setEventTime(oldTime);
-        insertWithTImeout(client, payment);
+        insertWithTimeout(client, payment);
         checkPayment(PAYMENT_0, ResultStatus.THREE_DS, 1);
 
         String localId = UUID.randomUUID().toString();
@@ -157,7 +157,7 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
 
         payment.setId(PAYMENT_2);
         payment.setEventTime(String.valueOf(LocalDateTime.now()));
-        insertWithTImeout(client, payment);
+        insertWithTimeout(client, payment);
         checkPayment(PAYMENT_2, ResultStatus.ACCEPT, 1);
 
         //Chargeback
@@ -178,15 +178,19 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
     }
 
     private void checkInsertingBatch(PaymentServiceSrv.Iface client) throws TException, InterruptedException {
-        insertListDefaultPayments(client, PaymentStatus.processed, PaymentStatus.processed);
+        insertWithTimeout(client, List.of(createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed)));
         List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_PAYMENT.getTable());
-        assertEquals(2, maps.size());
+        assertEquals(5, maps.size());
         assertEquals("email", maps.get(0).get("email"));
         Thread.sleep(TIMEOUT);
     }
 
-    private void insertWithTImeout(PaymentServiceSrv.Iface client, Payment payment) throws TException, InterruptedException {
-        client.insertPayments(List.of(payment));
+    private void insertWithTimeout(PaymentServiceSrv.Iface client, Payment payment) throws TException, InterruptedException {
+        insertWithTimeout(client, List.of(payment));
+    }
+
+    private void insertWithTimeout(PaymentServiceSrv.Iface client, List<Payment> payments) throws TException, InterruptedException {
+        client.insertPayments(payments);
         Thread.sleep(TIMEOUT);
     }
 
@@ -198,8 +202,7 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
     }
 
     private void insertListDefaultPayments(PaymentServiceSrv.Iface client, PaymentStatus processed, PaymentStatus processed2) throws TException, InterruptedException {
-        insertWithTImeout(client, createPayment(processed));
-        insertWithTImeout(client, createPayment(processed2));
+        insertWithTimeout(client, List.of(createPayment(processed), createPayment(processed2)));
     }
 
 }
