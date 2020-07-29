@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.yandex.clickhouse.ClickHouseDataSource;
 
@@ -31,6 +32,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = "kafka.listen.result.concurrency=1")
+@ContextConfiguration(initializers = KafkaAbstractTest.Initializer.class)
 public class PreLoadTest extends KafkaAbstractTest {
 
     private static final String TEMPLATE = "rule: 12 >= 1\n" +
@@ -51,8 +53,6 @@ public class PreLoadTest extends KafkaAbstractTest {
     @LocalServerPort
     int serverPort;
 
-    private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
-
     @Before
     public void init() throws ExecutionException, InterruptedException {
         produceTemplate(TEST, TEMPLATE, kafkaTopics.getFullTemplate());
@@ -63,8 +63,11 @@ public class PreLoadTest extends KafkaAbstractTest {
 
     @Test
     public void inspectPaymentTest() throws URISyntaxException, TException {
+        waitingTopic(kafkaTopics.getTemplate());
+        waitingTopic(kafkaTopics.getReference());
+
         THClientBuilder clientBuilder = new THClientBuilder()
-                .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_inspector/v1", serverPort)))
                 .withNetworkTimeout(300000);
         client = clientBuilder.build(InspectorProxySrv.Iface.class);
 
