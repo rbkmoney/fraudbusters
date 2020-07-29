@@ -93,16 +93,17 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
             ExecutorService executorService = Executors.newFixedThreadPool(COUNT_PRELOAD_TASKS);
             CountDownLatch latch = new CountDownLatch(COUNT_PRELOAD_TASKS);
+
             List<Runnable> tasks = List.of(
                     () -> waitPreLoad(latch, templateListenerFactory, kafkaTopics.getTemplate(), templateListener),
                     () -> waitPreLoad(latch, referenceListenerFactory, kafkaTopics.getReference(), templateReferenceListener),
                     () -> waitPreLoad(latch, groupListenerFactory, kafkaTopics.getGroupList(), groupListener),
                     () -> waitPreLoad(latch, groupReferenceListenerFactory, kafkaTopics.getGroupReference(), groupReferenceListener),
 
-                    () -> waitPreLoad(latch, timeTemplateListenerFactory, kafkaTopics.getTemplate(), timeTemplateListener),
-                    () -> waitPreLoad(latch, timeReferenceListenerFactory, kafkaTopics.getReference(), timeTemplateReferenceListener),
-                    () -> waitPreLoad(latch, timeGroupListenerFactory, kafkaTopics.getGroupList(), timeGroupListener),
-                    () -> waitPreLoad(latch, timeGroupReferenceListenerFactory, kafkaTopics.getGroupReference(), timeGroupReferenceListener),
+                    () -> waitPreLoad(latch, timeTemplateListenerFactory, kafkaTopics.getFullTemplate(), timeTemplateListener),
+                    () -> waitPreLoad(latch, timeReferenceListenerFactory, kafkaTopics.getFullReference(), timeTemplateReferenceListener),
+                    () -> waitPreLoad(latch, timeGroupListenerFactory, kafkaTopics.getFullGroupList(), timeGroupListener),
+                    () -> waitPreLoad(latch, timeGroupReferenceListenerFactory, kafkaTopics.getFullGroupReference(), timeGroupReferenceListener),
 
                     () -> waitPreLoad(latch, templateP2PListenerFactory, kafkaTopics.getP2pTemplate(), templateP2PListener),
                     () -> waitPreLoad(latch, referenceP2PListenerFactory, kafkaTopics.getP2pReference(), templateP2PReferenceListener),
