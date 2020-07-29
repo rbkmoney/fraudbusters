@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.listener.events;
 
 import com.rbkmoney.damsel.fraudbusters.Chargeback;
-import com.rbkmoney.fraudbusters.config.KafkaConfig;
+import com.rbkmoney.fraudbusters.config.listeners.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class ChargebackEventListener {
             repository.insertBatch(chargeback);
         } catch (Exception e) {
             log.warn("Error when ChargebackEventListener listen e: ", e);
-            Thread.sleep(KafkaConfig.THROTTLING_TIMEOUT);
+            Thread.sleep(ListenersConfigurationService.THROTTLING_TIMEOUT);
             throw e;
         }
     }

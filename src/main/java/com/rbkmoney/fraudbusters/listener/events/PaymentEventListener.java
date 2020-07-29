@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
-import com.rbkmoney.fraudbusters.config.KafkaConfig;
+import com.rbkmoney.fraudbusters.config.listeners.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.converter.PaymentToCheckedPaymentConverter;
 import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
@@ -54,7 +54,7 @@ public class PaymentEventListener {
             localResultStorage.clear();
         } catch (Exception e) {
             log.warn("Error when PaymentEventListener listen e: ", e);
-            Thread.sleep(KafkaConfig.THROTTLING_TIMEOUT);
+            Thread.sleep(ListenersConfigurationService.THROTTLING_TIMEOUT);
             throw e;
         }
     }

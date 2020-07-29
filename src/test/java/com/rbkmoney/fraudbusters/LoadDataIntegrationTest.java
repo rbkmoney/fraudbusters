@@ -124,6 +124,8 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
             });
         }
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
+
+        Thread.sleep(TIMEOUT);
     }
 
     @Test

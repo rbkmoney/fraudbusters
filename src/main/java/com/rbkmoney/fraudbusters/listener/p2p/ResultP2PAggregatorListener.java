@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.listener.p2p;
 
-import com.rbkmoney.fraudbusters.config.KafkaConfig;
+import com.rbkmoney.fraudbusters.config.listeners.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.converter.ScoresResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
@@ -27,7 +27,7 @@ public class ResultP2PAggregatorListener {
             eventP2PRepository.insertBatch(scoresResultToEventConverter.convertBatch(batch));
         } catch (Exception e) {
             log.warn("Error when ResultP2PAggregatorListener listen e: ", e);
-            Thread.sleep(KafkaConfig.THROTTLING_TIMEOUT);
+            Thread.sleep(ListenersConfigurationService.THROTTLING_TIMEOUT);
             throw e;
         }
     }

@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.listener.payment;
 
-import com.rbkmoney.fraudbusters.config.KafkaConfig;
+import com.rbkmoney.fraudbusters.config.listeners.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.config.properties.DefaultTemplateProperties;
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.Event;
@@ -40,7 +40,7 @@ public class ResultAggregatorListener {
             repository.insertBatch(events);
         } catch (Exception e) {
             log.warn("Error when ResultAggregatorListener listen e: ", e);
-            Thread.sleep(KafkaConfig.THROTTLING_TIMEOUT);
+            Thread.sleep(ListenersConfigurationService.THROTTLING_TIMEOUT);
             throw e;
         }
     }
