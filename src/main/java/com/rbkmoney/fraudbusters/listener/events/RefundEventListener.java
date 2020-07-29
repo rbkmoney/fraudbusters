@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.listener.events;
 
 import com.rbkmoney.damsel.fraudbusters.Refund;
-import com.rbkmoney.fraudbusters.config.listeners.ListenersConfigurationService;
+import com.rbkmoney.fraudbusters.config.service.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

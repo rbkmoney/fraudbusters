@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.fraud.localstorage.aggregator;
 
-import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.AggregateGroupingFunction;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
@@ -92,7 +91,6 @@ public class LocalSumAggregatorDecorator implements SumPaymentAggregator<Payment
     }
 
     @NotNull
-    @BasicMetric("getSumWindowed")
     private Double getSum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
                           AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction, boolean withCurrent) {
         try {

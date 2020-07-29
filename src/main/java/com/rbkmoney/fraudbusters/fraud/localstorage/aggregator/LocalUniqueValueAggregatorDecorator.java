@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.fraud.localstorage.aggregator;
 
-import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.localstorage.LocalResultStorageRepository;
@@ -26,7 +25,6 @@ public class LocalUniqueValueAggregatorDecorator implements UniqueValueAggregato
     private final LocalResultStorageRepository localStorageRepository;
 
     @Override
-    @BasicMetric("countUniqueValueWindowed")
     public Integer countUniqueValue(PaymentCheckedField countField,
                                     PaymentModel paymentModel,
                                     PaymentCheckedField onField,

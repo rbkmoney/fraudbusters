@@ -6,11 +6,11 @@ import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
+import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsRefundRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
-import com.rbkmoney.fraudbusters.template.pool.TimePool;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
@@ -89,7 +89,7 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
     JdbcTemplate jdbcTemplate;
 
     @Autowired
-    TimePool<ParserRuleContext> parserRuleContextTimePool;
+    HistoricalPool<ParserRuleContext> parserRuleContextTimePool;
 
     @LocalServerPort
     int serverPort;

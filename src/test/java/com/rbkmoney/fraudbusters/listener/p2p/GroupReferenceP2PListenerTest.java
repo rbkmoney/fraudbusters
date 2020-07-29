@@ -1,8 +1,8 @@
 package com.rbkmoney.fraudbusters.listener.p2p;
 
 import com.rbkmoney.fraudbusters.exception.UnknownReferenceException;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
-import com.rbkmoney.fraudbusters.template.pool.PoolImpl;
+import com.rbkmoney.fraudbusters.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.PoolImpl;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import org.junit.Assert;

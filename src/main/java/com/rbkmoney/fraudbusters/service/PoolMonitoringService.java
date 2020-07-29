@@ -1,8 +1,8 @@
 package com.rbkmoney.fraudbusters.service;
 
-import com.rbkmoney.fraudbusters.template.pool.CheckedMetricPool;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
-import com.rbkmoney.fraudbusters.template.pool.TimePool;
+import com.rbkmoney.fraudbusters.pool.CheckedMetricPool;
+import com.rbkmoney.fraudbusters.pool.HistoricalPool;
+import com.rbkmoney.fraudbusters.pool.Pool;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import java.util.Set;
 public class PoolMonitoringService {
 
     public static final String POOL_METRIC = "pool-metric-";
-    private final List<TimePool> timePools;
+    private final List<HistoricalPool> timePools;
     private final List<Pool> pools;
     private final MeterRegistry registry;
 
@@ -34,7 +34,7 @@ public class PoolMonitoringService {
     public void cleanOldValues() {
         long now = Instant.now().toEpochMilli();
         if (!CollectionUtils.isEmpty(timePools)) {
-            for (TimePool timePool : timePools) {
+            for (HistoricalPool timePool : timePools) {
                 Set<String> set = timePool.keySet();
                 for (String key : set) {
                     long stampOfOldestData = now - Duration.ofDays(timeGap).toMillis();
@@ -64,12 +64,12 @@ public class PoolMonitoringService {
         }
     }
 
-    private void checkTimePool(List<TimePool> pools) {
+    private void checkTimePool(List<HistoricalPool> pools) {
         log.trace("PoolMonitoringService checkTimePool: size: {} pools: {} ", pools.size(), pools);
         if (!CollectionUtils.isEmpty(pools)) {
-            for (TimePool timePool : pools) {
+            for (HistoricalPool timePool : pools) {
                 Gauge gauge = Gauge
-                        .builder(POOL_METRIC + timePool.getName(), timePool, TimePool::deepSize)
+                        .builder(POOL_METRIC + timePool.getName(), timePool, HistoricalPool::deepSize)
                         .register(registry);
                 log.trace("PoolMonitoringService checkTimePool gauge: {}", gauge.value());
             }

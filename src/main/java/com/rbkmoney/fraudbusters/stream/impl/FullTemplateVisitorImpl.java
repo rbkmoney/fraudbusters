@@ -4,8 +4,8 @@ import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.stream.TemplateVisitor;
-import com.rbkmoney.fraudbusters.template.pool.TimePool;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +25,9 @@ public class FullTemplateVisitorImpl implements TemplateVisitor<PaymentModel, Li
     private static final String RULE_NOT_CHECKED = "RULE_NOT_CHECKED";
 
     private final FullRuleApplierImpl fullRuleApplier;
-    private final TimePool<List<String>> timeGroupPoolImpl;
-    private final TimePool<String> timeReferencePoolImpl;
-    private final TimePool<String> timeGroupReferencePoolImpl;
+    private final HistoricalPool<List<String>> timeGroupPoolImpl;
+    private final HistoricalPool<String> timeReferencePoolImpl;
+    private final HistoricalPool<String> timeGroupReferencePoolImpl;
 
     @Override
     public List<CheckedResultModel> visit(PaymentModel paymentModel) {

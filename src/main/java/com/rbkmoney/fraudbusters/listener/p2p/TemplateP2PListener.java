@@ -7,7 +7,7 @@ import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.fraud.p2p.validator.P2PTemplateValidator;
 import com.rbkmoney.fraudbusters.listener.AbstractPoolCommandListenerExecutor;
 import com.rbkmoney.fraudbusters.listener.CommandListener;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.Pool;
 import com.rbkmoney.fraudo.FraudoP2PParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

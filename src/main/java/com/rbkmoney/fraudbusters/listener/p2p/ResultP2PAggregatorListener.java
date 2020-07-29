@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.listener.p2p;
 
-import com.rbkmoney.fraudbusters.config.listeners.ListenersConfigurationService;
+import com.rbkmoney.fraudbusters.config.service.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.converter.ScoresResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;

@@ -2,8 +2,8 @@ package com.rbkmoney.fraudbusters.stream.impl;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.stream.RuleApplier;
-import com.rbkmoney.fraudbusters.template.pool.TimePool;
 import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
 import com.rbkmoney.fraudo.model.ResultModel;
 import com.rbkmoney.fraudo.visitor.TemplateVisitor;
@@ -20,7 +20,7 @@ public class FullRuleApplierImpl implements RuleApplier<PaymentModel> {
 
     private final TemplateVisitor<PaymentModel, ResultModel> templateVisitor;
 
-    private final TimePool<ParserRuleContext> templatePool;
+    private final HistoricalPool<ParserRuleContext> templatePool;
     private final CheckedResultFactory checkedResultFactory;
 
     @Override
