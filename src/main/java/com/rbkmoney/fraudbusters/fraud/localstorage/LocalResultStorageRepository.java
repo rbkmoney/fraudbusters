@@ -43,32 +43,38 @@ public class LocalResultStorageRepository implements PaymentRepository {
     @Override
     public Long sumOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
         List<CheckedPayment> checkedPayments = localStorage.get();
-        return checkedPayments.stream()
+        long sum = checkedPayments.stream()
                 .filter(checkedPayment -> checkValueFields(from, to, fieldModels, checkedPayment))
                 .mapToLong(CheckedPayment::getAmount)
                 .sum();
+        log.debug("LocalResultStorageRepository sumOperationByFieldWithGroupBy: {}", sum);
+        return sum;
     }
 
     @Override
     public Integer uniqCountOperation(String fieldNameBy, String value, String fieldNameCount, Long from, Long to) {
         List<CheckedPayment> checkedPayments = localStorage.get();
-        return (int) checkedPayments.stream()
+        long count = checkedPayments.stream()
                 .filter(checkedPayment -> checkedPayment.getEventTime() >= from
                         && checkedPayment.getEventTime() <= to
                         && checkValueFields(fieldNameBy, value, checkedPayment))
                 .map(checkedPayment -> valueByName(fieldNameCount, checkedPayment))
                 .distinct()
                 .count();
+        log.debug("LocalResultStorageRepository uniqCountOperation: {}", count);
+        return (int) count;
     }
 
     @Override
     public Integer uniqCountOperationWithGroupBy(String fieldNameBy, String value, String fieldNameCount, Long from, Long to, List<FieldModel> fieldModels) {
         List<CheckedPayment> checkedPayments = localStorage.get();
-        return (int) checkedPayments.stream()
+        long count = checkedPayments.stream()
                 .filter(checkedPayment -> checkValueFields(from, to, fieldModels, checkedPayment))
                 .map(checkedPayment -> valueByName(fieldNameCount, checkedPayment))
                 .distinct()
                 .count();
+        log.debug("LocalResultStorageRepository uniqCountOperation: {}", count);
+        return (int) count;
     }
 
     private boolean checkValueFields(Long from, Long to, List<FieldModel> fieldModels, CheckedPayment checkedPayment) {

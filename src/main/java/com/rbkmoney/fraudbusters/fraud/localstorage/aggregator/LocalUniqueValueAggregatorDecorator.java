@@ -42,7 +42,7 @@ public class LocalUniqueValueAggregatorDecorator implements UniqueValueAggregato
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), fieldModels);
             int result = localUniqCountOperation + uniq;
-            log.debug("LocalStorageCountAggregatorImpl countUniqueValue: {}", result);
+            log.debug("LocalUniqueValueAggregatorDecorator countUniqueValue: {}", result);
             return result;
         } catch (Exception e) {
             log.warn("LocalUniqueValueAggregatorDecorator error when getCount e: ", e);

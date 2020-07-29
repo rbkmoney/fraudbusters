@@ -5,6 +5,8 @@ import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.localstorage.LocalResultStorageRepository;
 import com.rbkmoney.fraudbusters.fraud.localstorage.aggregator.LocalCountAggregatorDecorator;
+import com.rbkmoney.fraudbusters.fraud.localstorage.aggregator.LocalSumAggregatorDecorator;
+import com.rbkmoney.fraudbusters.fraud.localstorage.aggregator.LocalUniqueValueAggregatorDecorator;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.aggregator.CountP2PAggregatorImpl;
@@ -83,11 +85,13 @@ public class FraudoConfig {
     }
 
     @Bean
-    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumResultAggregator(PaymentRepository paymentRepositoryImpl,
+    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumResultAggregator(LocalResultStorageRepository localResultStorageRepository,
+                                                                                       PaymentRepository paymentRepositoryImpl,
                                                                                        AnalyticsRefundRepository analyticsRefundRepository,
                                                                                        AnalyticsChargebackRepository analyticsChargebackRepository,
                                                                                        DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new SumAggregatorImpl(dbPaymentFieldResolver, paymentRepositoryImpl, analyticsRefundRepository, analyticsChargebackRepository);
+        SumAggregatorImpl sumAggregator = new SumAggregatorImpl(dbPaymentFieldResolver, paymentRepositoryImpl, analyticsRefundRepository, analyticsChargebackRepository);
+        return new LocalSumAggregatorDecorator(sumAggregator, dbPaymentFieldResolver, localResultStorageRepository);
     }
 
     @Bean
@@ -103,9 +107,11 @@ public class FraudoConfig {
     }
 
     @Bean
-    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueResultAggregator(PaymentRepository paymentRepositoryImpl,
+    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueResultAggregator(LocalResultStorageRepository localResultStorageRepository,
+                                                                                                PaymentRepository fraudResultRepository,
                                                                                                 DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new UniqueValueAggregatorImpl(dbPaymentFieldResolver, paymentRepositoryImpl);
+        UniqueValueAggregatorImpl uniqueValueAggregator = new UniqueValueAggregatorImpl(dbPaymentFieldResolver, fraudResultRepository);
+        return new LocalUniqueValueAggregatorDecorator(uniqueValueAggregator, dbPaymentFieldResolver, localResultStorageRepository);
     }
 
     @Bean

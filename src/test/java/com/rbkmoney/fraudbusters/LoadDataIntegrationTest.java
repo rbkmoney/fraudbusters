@@ -59,7 +59,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class LoadDataIntegrationTest extends KafkaAbstractTest {
 
     private static final String TEMPLATE =
-            "rule:TEMPLATE: count(\"card_token\", 1000, \"party_id\", \"shop_id\") > 5  -> decline;";
+            "rule:TEMPLATE: sum(\"card_token\", 1000, \"party_id\", \"shop_id\") > 0 " +
+                    " and unique(\"email\", \"ip\", 1444) < 2 " +
+                    " and count(\"card_token\", 1000, \"party_id\", \"shop_id\") > 5  -> decline";
 
     private static final String TEMPLATE_2 =
             "rule:TEMPLATE: count(\"card_token\", 1000, \"party_id\", \"shop_id\") > 2  -> decline;";

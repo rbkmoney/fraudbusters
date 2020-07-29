@@ -39,7 +39,7 @@ public class LocalSumAggregatorDecorator implements SumPaymentAggregator<Payment
                 instantFrom.getEpochSecond(),
                 instantTo.getEpochSecond(), eventFields);
         Double resultSum = checkedLong(localSum) + sum;
-        log.debug("LocalStorageCountAggregatorImpl sum: {}", resultSum);
+        log.debug("LocalSumAggregatorDecorator sum: {}", resultSum);
         return resultSum;
     }
 
@@ -48,7 +48,7 @@ public class LocalSumAggregatorDecorator implements SumPaymentAggregator<Payment
         Double sumSuccess = sumAggregatorImpl.sumSuccess(checkedField, paymentModel, timeWindow, list);
         Double resultCount = getSum(checkedField, paymentModel, timeWindow, list, localStorageRepository::sumOperationSuccessWithGroupBy)
                 + sumSuccess;
-        log.debug("LocalStorageCountAggregatorImpl sumSuccess: {}", resultCount);
+        log.debug("LocalSumAggregatorDecorator sumSuccess: {}", resultCount);
         return resultCount;
     }
 
@@ -67,10 +67,10 @@ public class LocalSumAggregatorDecorator implements SumPaymentAggregator<Payment
                     instantTo.getEpochSecond(),
                     eventFields, errorCode);
             Double result = checkedLong(localSum) + sumError;
-            log.debug("LocalStorageCountAggregatorImpl field: {} value: {}  sumError: {}", resolve.getName(), resolve.getValue(), result);
+            log.debug("LocalSumAggregatorDecorator field: {} value: {}  sumError: {}", resolve.getName(), resolve.getValue(), result);
             return result;
         } catch (Exception e) {
-            log.warn("SumAggregatorImpl error when sumError e: ", e);
+            log.warn("LocalSumAggregatorDecorator error when sumError e: ", e);
             throw new RuleFunctionException(e);
         }
     }
