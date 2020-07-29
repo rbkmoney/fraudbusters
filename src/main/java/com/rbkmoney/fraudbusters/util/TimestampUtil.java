@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import org.springframework.lang.NonNull;
 
 import java.time.Instant;
@@ -16,6 +17,10 @@ public class TimestampUtil {
     public static Long generateTimestampWithParse(String time) {
         Instant instant = parseInstantFromString(time);
         return TimestampUtil.generateTimestampNowMillis(instant);
+    }
+
+    public static Instant instantFromPaymentModel(PaymentModel paymentModel) {
+        return paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
     }
 
     public static Instant parseInstantFromString(String time) {

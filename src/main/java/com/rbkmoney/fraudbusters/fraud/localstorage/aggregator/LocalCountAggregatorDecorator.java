@@ -31,7 +31,7 @@ public class LocalCountAggregatorDecorator implements CountPaymentAggregator<Pay
     public Integer count(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
         Integer count = countAggregator.count(checkedField, paymentModel, timeWindow, list);
         FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
-        Instant now = Instant.ofEpochMilli(paymentModel.getTimestamp());
+        Instant now = TimestampUtil.instantFromPaymentModel(paymentModel);
         Instant instantFrom = Instant.ofEpochMilli(TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()));
         Instant instantTo = Instant.ofEpochMilli(TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()));
         Integer localCount = localStorageRepository.countOperationByField(checkedField.name(), resolve.getValue(),
@@ -54,7 +54,7 @@ public class LocalCountAggregatorDecorator implements CountPaymentAggregator<Pay
                               String errorCode, List<PaymentCheckedField> list) {
         try {
             Integer countError = countAggregator.countError(checkedField, paymentModel, timeWindow, errorCode, list);
-            Instant now = Instant.ofEpochMilli(paymentModel.getTimestamp());
+            Instant now = TimestampUtil.instantFromPaymentModel(paymentModel);
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
             Instant instantFrom = Instant.ofEpochMilli(TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()));
@@ -86,7 +86,7 @@ public class LocalCountAggregatorDecorator implements CountPaymentAggregator<Pay
     private Integer getCount(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
                              AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Integer> aggregateFunction) {
         try {
-            Instant now = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
+            Instant now = TimestampUtil.instantFromPaymentModel(paymentModel);
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
             Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
