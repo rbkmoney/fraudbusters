@@ -12,7 +12,7 @@ import com.rbkmoney.fraudbusters.listener.payment.GroupReferenceListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateReferenceListener;
 import com.rbkmoney.fraudbusters.service.PoolMonitoringService;
-import com.rbkmoney.fraudbusters.stream.FullToCompactStreamFactory;
+import com.rbkmoney.fraudbusters.stream.StreamManager;
 import com.rbkmoney.fraudbusters.template.pool.Pool;
 import com.rbkmoney.kafka.common.loader.PreloadListener;
 import com.rbkmoney.kafka.common.loader.PreloadListenerImpl;
@@ -27,7 +27,6 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,8 +42,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     @Value("${preload.timeout:20}")
     private long preloadTimeout;
 
-    private final FullToCompactStreamFactory fullToCompactStreamFactory;
-    private final Properties rewriteStreamProperties;
+    private final StreamManager streamManager;
 
     private final ConsumerFactory<String, Command> templateListenerFactory;
     private final ConsumerFactory<String, Command> groupListenerFactory;
@@ -115,14 +113,10 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     }
 
     private void initRewriteStream() {
-        fullToCompactStreamFactory.create(kafkaTopics.getFullTemplate(), kafkaTopics.getTemplate(),
-                "template-stream", rewriteStreamProperties);
-        fullToCompactStreamFactory.create(kafkaTopics.getFullReference(), kafkaTopics.getReference(),
-                "reference-stream", rewriteStreamProperties);
-        fullToCompactStreamFactory.create(kafkaTopics.getFullGroupList(), kafkaTopics.getGroupList(),
-                "group-stream", rewriteStreamProperties);
-        fullToCompactStreamFactory.create(kafkaTopics.getFullGroupReference(), kafkaTopics.getGroupReference(),
-                "group-ref-stream", rewriteStreamProperties);
+        streamManager.createStream(kafkaTopics.getFullTemplate(), kafkaTopics.getTemplate(), "template-stream");
+        streamManager.createStream(kafkaTopics.getFullReference(), kafkaTopics.getReference(), "reference-stream");
+        streamManager.createStream(kafkaTopics.getFullGroupList(), kafkaTopics.getGroupList(), "group-stream");
+        streamManager.createStream(kafkaTopics.getFullGroupReference(), kafkaTopics.getGroupReference(), "group-ref-stream");
     }
 
     private void waitPreLoad(CountDownLatch latch, ConsumerFactory<String, Command> groupListenerFactory, String topic, CommandListener listener) {
