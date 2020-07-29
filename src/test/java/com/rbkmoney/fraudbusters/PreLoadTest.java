@@ -103,7 +103,6 @@ public class PreLoadTest extends KafkaAbstractTest {
     @Test
     public void inspectPaymentTest() throws URISyntaxException, TException {
         waitingTopic(kafkaTopics.getTemplate());
-        waitingTopic(kafkaTopics.getReference());
 
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))

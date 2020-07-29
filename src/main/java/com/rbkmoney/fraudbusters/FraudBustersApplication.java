@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.stream.StreamManager;
 import com.rbkmoney.fraudo.p2p.visitor.impl.FirstFindP2PVisitorImpl;
 import com.rbkmoney.fraudo.payment.visitor.impl.FirstFindVisitorImpl;
+import com.rbkmoney.fraudo.payment.visitor.impl.FullVisitorImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -26,6 +27,7 @@ public class FraudBustersApplication extends SpringApplication {
 
     private final KafkaListenerEndpointRegistry registry;
     private final FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> paymentRuleVisitor;
+    private final FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> fullPaymentRuleVisitor;
     private final FirstFindP2PVisitorImpl<P2PModel, P2PCheckedField> p2pRuleVisitor;
     private final StreamManager streamManager;
 
@@ -39,6 +41,7 @@ public class FraudBustersApplication extends SpringApplication {
         streamManager.stop();
         registry.stop();
         paymentRuleVisitor.close();
+        fullPaymentRuleVisitor.close();
         p2pRuleVisitor.close();
         log.info("FraudBustersApplication preDestroy finish!");
     }

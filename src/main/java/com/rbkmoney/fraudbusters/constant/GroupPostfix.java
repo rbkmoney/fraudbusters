@@ -19,5 +19,10 @@ public class GroupPostfix {
     public static final String REFERENCE_P2P_GROUP_ID = "reference-listener-p2p";
 
     public static final String RESULT_AGGREGATOR = "result-aggregator";
+    public static final String P2P_RESULT_AGGREGATOR = "p2p-result-aggregator";
+    public static final String PAYMENT_AGGREGATOR = "payment-aggregator";
+    public static final String REFUND_AGGREGATOR = "refund-aggregator";
+    public static final String CHARGEBACK_AGGREGATOR = "chargeback-aggregator";
+    public static final String FRAUD_PAYMENT_AGGREGATOR = "fraud-payment-aggregator";
 
 }

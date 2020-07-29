@@ -241,38 +241,38 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudResult> kafkaListenerContainerFactory() {
-        return createFactory(new FraudResultDeserializer());
+        return createFactory(new FraudResultDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Payment> kafkaPaymentResultListenerContainerFactory() {
-        return createFactory(new PaymentDeserializer());
+        return createFactory(new PaymentDeserializer(), GroupPostfix.PAYMENT_AGGREGATOR);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Refund> kafkaRefundResultListenerContainerFactory() {
-        return createFactory(new RefundDeserializer());
+        return createFactory(new RefundDeserializer(), GroupPostfix.REFUND_AGGREGATOR);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Chargeback> kafkaChargebackResultListenerContainerFactory() {
-        return createFactory(new ChargebackDeserializer());
+        return createFactory(new ChargebackDeserializer(), GroupPostfix.CHARGEBACK_AGGREGATOR);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ScoresResult<P2PModel>> kafkaListenerP2PResultContainerFactory() {
-        return createFactory(new P2PResultDeserializer());
+        return createFactory(new P2PResultDeserializer(), GroupPostfix.P2P_RESULT_AGGREGATOR);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudPayment> fraudPaymentListenerContainerFactory() {
-        return createFactory(new FraudPaymentDeserializer());
+        return createFactory(new FraudPaymentDeserializer(), GroupPostfix.FRAUD_PAYMENT_AGGREGATOR);
     }
 
     @NotNull
-    private <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Deserializer<T> deserializer) {
+    private <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Deserializer<T> deserializer, String groupId) {
         ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        String consumerGroup = consumerGroupIdService.generateGroupId(GroupPostfix.RESULT_AGGREGATOR);
+        String consumerGroup = consumerGroupIdService.generateGroupId(groupId);
         final Map<String, Object> props = createDefaultProperties(consumerGroup);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         DefaultKafkaConsumerFactory<String, T> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
