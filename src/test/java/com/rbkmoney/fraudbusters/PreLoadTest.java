@@ -17,13 +17,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.yandex.clickhouse.ClickHouseDataSource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -59,13 +57,12 @@ public class PreLoadTest extends KafkaAbstractTest {
     public void init() throws ExecutionException, InterruptedException {
         produceTemplate(TEST, TEMPLATE, kafkaTopics.getFullTemplate());
         produceReferenceWithWait(true, null, null, TEST, 10);
+
+        Thread.sleep(TIMEOUT * 4);
     }
 
     @Test
     public void inspectPaymentTest() throws URISyntaxException, TException {
-        waitingTopic(kafkaTopics.getTemplate());
-        waitingTopic(kafkaTopics.getReference());
-
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
