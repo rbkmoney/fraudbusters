@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.fraud.localstorage.aggregator;
 
-import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.AggregateGroupingFunction;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;

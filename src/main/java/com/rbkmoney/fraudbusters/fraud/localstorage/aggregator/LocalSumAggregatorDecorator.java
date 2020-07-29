@@ -15,7 +15,6 @@ import com.rbkmoney.fraudo.payment.aggregator.SumPaymentAggregator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.List;

@@ -10,7 +10,6 @@ import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
-import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
