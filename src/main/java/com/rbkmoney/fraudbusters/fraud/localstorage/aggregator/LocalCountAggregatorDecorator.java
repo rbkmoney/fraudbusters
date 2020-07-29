@@ -28,7 +28,6 @@ public class LocalCountAggregatorDecorator implements CountPaymentAggregator<Pay
     private final LocalResultStorageRepository localStorageRepository;
 
     @Override
-    @BasicMetric("count")
     public Integer count(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
         Integer count = countAggregator.count(checkedField, paymentModel, timeWindow, list);
         FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
@@ -42,7 +41,6 @@ public class LocalCountAggregatorDecorator implements CountPaymentAggregator<Pay
     }
 
     @Override
-    @BasicMetric("countSuccess")
     public Integer countSuccess(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
         Integer countError = countAggregator.countSuccess(checkedField, paymentModel, timeWindow, list);
         Integer resultCount = getCount(checkedField, paymentModel, timeWindow, list, localStorageRepository::countOperationSuccessWithGroupBy)
@@ -52,7 +50,6 @@ public class LocalCountAggregatorDecorator implements CountPaymentAggregator<Pay
     }
 
     @Override
-    @BasicMetric("countError")
     public Integer countError(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow,
                               String errorCode, List<PaymentCheckedField> list) {
         try {
@@ -92,11 +89,9 @@ public class LocalCountAggregatorDecorator implements CountPaymentAggregator<Pay
             Instant now = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
-
             Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields);
-
             log.debug("LocalStorageCountAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), count);
             return count;
         } catch (Exception e) {

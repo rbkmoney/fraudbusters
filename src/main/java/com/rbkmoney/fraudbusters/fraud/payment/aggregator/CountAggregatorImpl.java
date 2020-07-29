@@ -48,7 +48,7 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
     public Integer countError(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow,
                               String errorCode, List<PaymentCheckedField> list) {
         try {
-            Instant now = Instant.now();
+            Instant now = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
             if (StringUtils.isEmpty(resolve.getValue())) {

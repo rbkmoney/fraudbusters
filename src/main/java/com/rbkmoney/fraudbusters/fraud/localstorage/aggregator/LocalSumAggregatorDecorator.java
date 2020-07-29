@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.fraud.payment.aggregator;
+package com.rbkmoney.fraudbusters.fraud.localstorage.aggregator;
 
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
@@ -22,7 +22,7 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-public class SumAggregatorImpl implements SumPaymentAggregator<PaymentModel, PaymentCheckedField> {
+public class LocalSumAggregatorDecorator implements SumPaymentAggregator<PaymentModel, PaymentCheckedField> {
 
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
     private final PaymentRepository paymentRepository;
@@ -30,23 +30,20 @@ public class SumAggregatorImpl implements SumPaymentAggregator<PaymentModel, Pay
     private final AggregationRepository chargebackRepository;
 
     @Override
-    @BasicMetric("sum")
     public Double sum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
         return getSum(checkedField, paymentModel, timeWindow, list, paymentRepository::sumOperationByFieldWithGroupBy);
     }
 
     @Override
-    @BasicMetric("sumSuccess")
     public Double sumSuccess(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
         return getSum(checkedField, paymentModel, timeWindow, list, paymentRepository::sumOperationSuccessWithGroupBy);
     }
 
     @Override
-    @BasicMetric("sumError")
     public Double sumError(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, String errorCode,
                            List<PaymentCheckedField> list) {
         try {
-            Instant now = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
+            Instant now = Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             if (StringUtils.isEmpty(resolve.getValue())) {
                 return Double.valueOf(checkedLong(paymentModel.getAmount()));
@@ -85,7 +82,7 @@ public class SumAggregatorImpl implements SumPaymentAggregator<PaymentModel, Pay
     private Double getSum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
                           AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction, boolean withCurrent) {
         try {
-            Instant now = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
+            Instant now = Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             if (StringUtils.isEmpty(resolve.getValue())) {
                 return Double.valueOf(checkedLong(paymentModel.getAmount()));
