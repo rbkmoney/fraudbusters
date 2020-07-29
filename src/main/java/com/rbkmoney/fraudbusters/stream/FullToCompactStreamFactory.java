@@ -28,10 +28,7 @@ public class FullToCompactStreamFactory {
             builder.stream(fromTopic, Consumed.with(Serdes.String(), commandSerde))
                     .peek((key, value) -> log.debug("FullToCompactStreamFactory key: {}", key))
                     .to(toTopic, Produced.with(Serdes.String(), commandSerde));
-            KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), streamsConfiguration);
-            kafkaStreams.start();
-            log.info("FullToCompactStreamFactory start stream kafkaStreams: {}", kafkaStreams.allMetadata());
-            return kafkaStreams;
+            return new KafkaStreams(builder.build(), streamsConfiguration);
         } catch (Exception e) {
             log.error("WbListStreamFactory error when create stream e: ", e);
             throw new RuntimeException(e);

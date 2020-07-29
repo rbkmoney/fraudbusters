@@ -22,6 +22,8 @@ public class StreamManager {
     public void createStream(String fullTemplate, String template, String s) {
         KafkaStreams kafkaStreams = fullToCompactStreamFactory.create(fullTemplate, template,
                 s, rewriteStreamProperties);
+        kafkaStreams.start();
+        log.info("FullToCompactStreamFactory start stream kafkaStreams: {}", kafkaStreams.allMetadata());
         kafkaStreamsStorage.add(kafkaStreams);
     }
 
