@@ -2,13 +2,18 @@ package com.rbkmoney.fraudbusters.listener.payment.time;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.template.pool.TimePool;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Slf4j
 public class AbstractTimePoolCommandListenerExecutor {
+
+    @Getter
+    private final AtomicBoolean isTemplateReady = new AtomicBoolean(false);
 
     protected <T> void execCommand(Command command, String key, Long time, TimePool<T> pool, Supplier<T> supplier) {
         switch (command.command_type) {

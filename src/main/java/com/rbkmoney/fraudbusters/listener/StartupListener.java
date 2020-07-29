@@ -20,16 +20,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -41,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    private static final int COUNT_PRELOAD_TASKS = 8;
+    private static final int COUNT_PRELOAD_TASKS = 12;
 
     @Value("${preload.timeout:20}")
     private long preloadTimeout;
@@ -57,6 +53,16 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private final GroupListener groupListener;
     private final GroupReferenceListener groupReferenceListener;
     private final TemplateReferenceListener templateReferenceListener;
+
+    private final ConsumerFactory<String, Command> timeTemplateListenerFactory;
+    private final ConsumerFactory<String, Command> timeGroupListenerFactory;
+    private final ConsumerFactory<String, Command> timeReferenceListenerFactory;
+    private final ConsumerFactory<String, Command> timeGroupReferenceListenerFactory;
+
+    private final TemplateListener timeTemplateListener;
+    private final GroupListener timeGroupListener;
+    private final GroupReferenceListener timeGroupReferenceListener;
+    private final TemplateReferenceListener timeTemplateReferenceListener;
 
     private final ConsumerFactory<String, Command> templateP2PListenerFactory;
     private final ConsumerFactory<String, Command> groupP2PListenerFactory;
@@ -92,6 +98,11 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
                     () -> waitPreLoad(latch, referenceListenerFactory, kafkaTopics.getReference(), templateReferenceListener),
                     () -> waitPreLoad(latch, groupListenerFactory, kafkaTopics.getGroupList(), groupListener),
                     () -> waitPreLoad(latch, groupReferenceListenerFactory, kafkaTopics.getGroupReference(), groupReferenceListener),
+
+                    () -> waitPreLoad(latch, timeTemplateListenerFactory, kafkaTopics.getTemplate(), timeTemplateListener),
+                    () -> waitPreLoad(latch, timeReferenceListenerFactory, kafkaTopics.getReference(), timeTemplateReferenceListener),
+                    () -> waitPreLoad(latch, timeGroupListenerFactory, kafkaTopics.getGroupList(), timeGroupListener),
+                    () -> waitPreLoad(latch, timeGroupReferenceListenerFactory, kafkaTopics.getGroupReference(), timeGroupReferenceListener),
 
                     () -> waitPreLoad(latch, templateP2PListenerFactory, kafkaTopics.getP2pTemplate(), templateP2PListener),
                     () -> waitPreLoad(latch, referenceP2PListenerFactory, kafkaTopics.getP2pReference(), templateP2PReferenceListener),

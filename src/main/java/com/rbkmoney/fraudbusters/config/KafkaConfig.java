@@ -271,9 +271,14 @@ public class KafkaConfig {
 
     @NotNull
     private <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Deserializer<T> deserializer, String groupId) {
-        ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
         String consumerGroup = consumerGroupIdService.generateGroupId(groupId);
         final Map<String, Object> props = createDefaultProperties(consumerGroup);
+        return createFactoryWithProps(deserializer, props);
+    }
+
+    @NotNull
+    private <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactoryWithProps(Deserializer<T> deserializer, Map<String, Object> props) {
+        ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         DefaultKafkaConsumerFactory<String, T> consumerFactory = new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(), deserializer);
