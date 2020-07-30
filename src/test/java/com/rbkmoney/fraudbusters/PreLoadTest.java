@@ -62,8 +62,9 @@ public class PreLoadTest extends KafkaAbstractTest {
     }
 
     @Test
-    public void inspectPaymentTest() throws URISyntaxException, TException, InterruptedException {
-        Thread.sleep(TIMEOUT * 10);
+    public void inspectPaymentTest() throws URISyntaxException, TException {
+        waitingTopic(kafkaTopics.getTemplate());
+        waitingTopic(kafkaTopics.getReference());
 
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format("http://localhost:%s/fraud_inspector/v1", serverPort)))
