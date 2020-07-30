@@ -57,14 +57,13 @@ public class PreLoadTest extends KafkaAbstractTest {
     public void init() throws ExecutionException, InterruptedException {
         produceTemplate(TEST, TEMPLATE, kafkaTopics.getFullTemplate());
         produceReferenceWithWait(true, null, null, TEST, 10);
-
-        Thread.sleep(TIMEOUT * 4);
+        waitingTopic(kafkaTopics.getFullTemplate());
+        waitingTopic(kafkaTopics.getFullReference());
     }
 
     @Test
-    public void inspectPaymentTest() throws URISyntaxException, TException {
-        waitingTopic(kafkaTopics.getTemplate());
-        waitingTopic(kafkaTopics.getReference());
+    public void inspectPaymentTest() throws URISyntaxException, TException, InterruptedException {
+        Thread.sleep(TIMEOUT * 10);
 
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format("http://localhost:%s/fraud_inspector/v1", serverPort)))
