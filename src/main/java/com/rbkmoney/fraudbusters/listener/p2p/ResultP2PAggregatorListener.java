@@ -20,7 +20,7 @@ public class ResultP2PAggregatorListener {
     private final EventP2PRepository eventP2PRepository;
     private final ScoresResultToEventConverter scoresResultToEventConverter;
 
-    @KafkaListener(topics = "${kafka.topic.p2p-result}", containerFactory = "kafkaListenerP2PResultContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.p2p-result}", containerFactory = "kafkaP2PResultListenerContainerFactory")
     public void listen(List<ScoresResult<P2PModel>> batch) throws InterruptedException {
         try {
             log.info("ResultP2PAggregatorListener listen result: {}", batch);

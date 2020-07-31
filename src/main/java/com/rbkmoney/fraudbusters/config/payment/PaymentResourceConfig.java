@@ -15,14 +15,14 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class PaymentResourceConfig {
 
     @Value("${kafka.topic.result}")
-    private String requestReplyTopic;
+    private String resultTopic;
 
     @Bean
     public InspectorProxySrv.Iface fraudInspectorHandler(KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate,
                                                          CheckedResultToRiskScoreConverter checkedResultToRiskScoreConverter,
                                                          ContextToFraudRequestConverter requestConverter,
                                                          TemplateVisitorImpl templateVisitor) {
-        return new FraudInspectorHandler(requestReplyTopic, checkedResultToRiskScoreConverter, requestConverter, templateVisitor, kafkaFraudResultTemplate);
+        return new FraudInspectorHandler(resultTopic, checkedResultToRiskScoreConverter, requestConverter, templateVisitor, kafkaFraudResultTemplate);
     }
 
 }

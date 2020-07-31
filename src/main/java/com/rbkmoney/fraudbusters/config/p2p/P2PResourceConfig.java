@@ -15,14 +15,14 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class P2PResourceConfig {
 
     @Value("${kafka.topic.p2p-result}")
-    private String requestP2PReplyTopic;
+    private String requestP2PResultTopic;
 
     @Bean
     public com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface fraudP2PInspectorHandler(KafkaTemplate<String, ScoresResult<P2PModel>> p2PModelKafkaTemplate,
                                                                                          CheckedResultToRiskScoreConverter resultConverter,
                                                                                          P2PContextToP2PModelConverter requestConverter,
                                                                                          P2PTemplateVisitorImpl templateListVisitor) {
-        return new FraudP2PInspectorHandler(requestP2PReplyTopic, resultConverter, requestConverter, templateListVisitor, p2PModelKafkaTemplate);
+        return new FraudP2PInspectorHandler(requestP2PResultTopic, resultConverter, requestConverter, templateListVisitor, p2PModelKafkaTemplate);
     }
 
 }

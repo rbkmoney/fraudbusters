@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -51,7 +50,6 @@ public class ListenersConfigurationService {
     private final ConsumerGroupIdService consumerGroupIdService;
     private final KafkaSslProperties kafkaSslProperties;
 
-    @NotNull
     public Map<String, Object> createDefaultProperties(String value) {
         final Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -62,7 +60,6 @@ public class ListenersConfigurationService {
         return props;
     }
 
-    @NotNull
     public ConcurrentKafkaListenerContainerFactory<String, Command> createDefaultFactory(ConsumerFactory<String, Command> stringCommandConsumerFactory) {
         ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(stringCommandConsumerFactory);
@@ -94,14 +91,12 @@ public class ListenersConfigurationService {
         return template;
     }
 
-    @NotNull
     public <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Deserializer<T> deserializer, String groupId) {
         String consumerGroup = consumerGroupIdService.generateGroupId(groupId);
         final Map<String, Object> props = createDefaultProperties(consumerGroup);
         return createFactoryWithProps(deserializer, props);
     }
 
-    @NotNull
     public <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactoryWithProps(Deserializer<T> deserializer, Map<String, Object> props) {
         ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
@@ -113,7 +108,6 @@ public class ListenersConfigurationService {
         return factory;
     }
 
-    @NotNull
     public ConsumerFactory<String, Command> createDefaultConsumerFactory(String groupListReferenceGroupId) {
         String value = consumerGroupIdService.generateRandomGroupId(groupListReferenceGroupId);
         final Map<String, Object> props = createDefaultProperties(value);

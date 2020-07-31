@@ -46,12 +46,12 @@ public class AggregatorKafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, ScoresResult<P2PModel>> kafkaListenerP2PResultContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, ScoresResult<P2PModel>> kafkaP2PResultListenerContainerFactory() {
         return listenersConfigurationService.createFactory(new P2PResultDeserializer(), GroupPostfix.P2P_RESULT_AGGREGATOR);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, FraudPayment> fraudPaymentListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, FraudPayment> kafkaFraudPaymentListenerContainerFactory() {
         return listenersConfigurationService.createFactory(new FraudPaymentDeserializer(), GroupPostfix.FRAUD_PAYMENT_AGGREGATOR);
     }
 
@@ -70,9 +70,8 @@ public class AggregatorKafkaConfig {
         return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs()));
     }
 
-
     @Bean
-    public KafkaTemplate<String, FraudPayment> kafkaFraudPaymentTemplate() {
+    public KafkaTemplate<String, FraudPayment> fraudPaymentKafkaTemplate() {
         return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs()));
     }
 
