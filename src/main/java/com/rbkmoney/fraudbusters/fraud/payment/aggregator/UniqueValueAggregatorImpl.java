@@ -34,7 +34,7 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentM
                                     TimeWindow timeWindow,
                                     List<PaymentCheckedField> list) {
         try {
-            Instant now = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
+            Instant timestamp = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(countField, paymentModel);
             if (StringUtils.isEmpty(resolve.getValue())) {
                 return CURRENT_ONE;
@@ -42,8 +42,8 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentM
             List<FieldModel> fieldModels = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
             Integer uniqCountOperation = paymentRepository.uniqCountOperationWithGroupBy(resolve.getName(), resolve.getValue(),
                     dbPaymentFieldResolver.resolve(onField),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), fieldModels);
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getStartWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getEndWindowTime()), fieldModels);
             return uniqCountOperation + CURRENT_ONE;
         } catch (Exception e) {
             log.warn("UniqueValueAggregatorImpl error when getCount e: ", e);

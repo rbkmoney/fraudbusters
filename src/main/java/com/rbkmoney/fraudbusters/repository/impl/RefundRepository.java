@@ -27,8 +27,7 @@ public class RefundRepository implements Repository<Refund> {
 
     @Override
     public void insert(Refund refund) {
-        log.debug("RefundRepository insert refund: {}", refund);
-
+        throw new UnsupportedOperationException("Method insertBatch is not support!");
     }
 
     @Override

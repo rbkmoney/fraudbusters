@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel, PaymentCheckedField> {
 
-    public static final int CURRENT_ONE = 1;
+    private static final int CURRENT_ONE = 1;
 
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
     private final PaymentRepository paymentRepository;
@@ -48,15 +48,15 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
     public Integer countError(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow,
                               String errorCode, List<PaymentCheckedField> list) {
         try {
-            Instant now = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
+            Instant timestamp = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
             if (StringUtils.isEmpty(resolve.getValue())) {
                 return CURRENT_ONE;
             }
             Integer count = paymentRepository.countOperationErrorWithGroupBy(resolve.getName(), resolve.getValue(),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getStartWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getEndWindowTime()),
                     eventFields, errorCode);
 
             log.debug("CountAggregatorImpl field: {} value: {}  countError: {}", resolve.getName(), resolve.getValue(), count);
@@ -89,7 +89,7 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
     private Integer getCount(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
                              AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Integer> aggregateFunction, boolean withCurrent) {
         try {
-            Instant now = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
+            Instant timestamp = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
 
@@ -98,8 +98,8 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
             }
 
             Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields);
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getStartWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getEndWindowTime()), eventFields);
 
             log.debug("CountAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), count);
             return withCurrent ? count + CURRENT_ONE : count;

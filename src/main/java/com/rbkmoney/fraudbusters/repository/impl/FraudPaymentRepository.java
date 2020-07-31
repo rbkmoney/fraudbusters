@@ -25,7 +25,7 @@ public class FraudPaymentRepository implements Repository<FraudPayment> {
 
     @Override
     public void insert(FraudPayment value) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Method insertBatch is not support!");
     }
 
     @Override

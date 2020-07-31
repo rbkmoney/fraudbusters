@@ -74,7 +74,7 @@ public class PaymentEventListener {
                 try {
                     checkedPayment.setCheckedResultsJson(objectMapper.writeValueAsString(listResults));
                 } catch (JsonProcessingException e) {
-                    log.warn("PaymentEventListener problem with serialize json!");
+                    log.warn("PaymentEventListener problem with serialize json! listResults: {}", listResults);
                 }
             }
         }

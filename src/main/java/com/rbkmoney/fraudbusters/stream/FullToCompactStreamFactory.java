@@ -30,7 +30,7 @@ public class FullToCompactStreamFactory {
                     .to(toTopic, Produced.with(Serdes.String(), commandSerde));
             return new KafkaStreams(builder.build(), streamsConfiguration);
         } catch (Exception e) {
-            log.error("WbListStreamFactory error when create stream e: ", e);
+            log.error("Error when create stream e: ", e);
             throw new RuntimeException(e);
         }
     }

@@ -26,8 +26,7 @@ public class ChargebackRepository implements Repository<Chargeback> {
 
     @Override
     public void insert(Chargeback chargeback) {
-        log.debug("ChargebackRepository insert chargeback: {}", chargeback);
-
+        throw new UnsupportedOperationException("Method insertBatch is not support!");
     }
 
     @Override

@@ -150,14 +150,4 @@ public class PaymentRepositoryTest {
         assertEquals(Integer.valueOf(1), sum);
     }
 
-    @Test
-    public void batchInsertTest() {
-        ArrayList<Payment> batch = new ArrayList<>();
-        batch.add(convertContextToPayment(createContext(), "captured", new Payment()));
-        paymentRepository.insertBatch(batch);
-
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("select * from " + EventSource.ANALYTIC_EVENTS_SINK.getTable());
-        Assert.assertFalse(maps.isEmpty());
-    }
-
 }
