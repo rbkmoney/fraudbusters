@@ -29,21 +29,21 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentM
     @Override
     @BasicMetric("countUniqueValueWindowed")
     public Integer countUniqueValue(PaymentCheckedField countField,
-                                    PaymentModel payoutModel,
+                                    PaymentModel paymentModel,
                                     PaymentCheckedField onField,
                                     TimeWindow timeWindow,
                                     List<PaymentCheckedField> list) {
         try {
-            Instant now = Instant.now();
-            FieldModel resolve = dbPaymentFieldResolver.resolve(countField, payoutModel);
+            Instant timestamp = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
+            FieldModel resolve = dbPaymentFieldResolver.resolve(countField, paymentModel);
             if (StringUtils.isEmpty(resolve.getValue())) {
                 return CURRENT_ONE;
             }
-            List<FieldModel> fieldModels = dbPaymentFieldResolver.resolveListFields(payoutModel, list);
+            List<FieldModel> fieldModels = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
             Integer uniqCountOperation = paymentRepository.uniqCountOperationWithGroupBy(resolve.getName(), resolve.getValue(),
                     dbPaymentFieldResolver.resolve(onField),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), fieldModels);
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getStartWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getEndWindowTime()), fieldModels);
             return uniqCountOperation + CURRENT_ONE;
         } catch (Exception e) {
             log.warn("UniqueValueAggregatorImpl error when getCount e: ", e);

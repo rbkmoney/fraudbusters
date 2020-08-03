@@ -1,8 +1,10 @@
 package com.rbkmoney.fraudbusters.repository;
 
 import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.domain.ClientInfo;
-import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.fraudbusters.FraudInfo;
+import com.rbkmoney.damsel.fraudbusters.FraudPayment;
+import com.rbkmoney.damsel.fraudbusters.MerchantInfo;
+import com.rbkmoney.damsel.fraudbusters.ReferenceInfo;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
@@ -29,9 +31,7 @@ import org.testcontainers.containers.ClickHouseContainer;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.rbkmoney.fraudbusters.util.ChInitializer.execAllInFile;
 import static org.junit.Assert.assertEquals;

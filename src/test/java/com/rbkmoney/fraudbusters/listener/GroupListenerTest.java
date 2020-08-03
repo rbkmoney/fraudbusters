@@ -2,8 +2,8 @@ package com.rbkmoney.fraudbusters.listener;
 
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.fraudbusters.listener.payment.GroupListener;
-import com.rbkmoney.fraudbusters.template.pool.GroupPoolImpl;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.PoolImpl;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,7 +21,7 @@ public class GroupListenerTest {
 
     @Before
     public void init() {
-        groupPoolImpl = new GroupPoolImpl();
+        groupPoolImpl = new PoolImpl<>("group");
         groupListener = new GroupListener(groupPoolImpl);
     }
 

@@ -7,7 +7,7 @@ import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.fraud.payment.validator.PaymentTemplateValidator;
 import com.rbkmoney.fraudbusters.listener.AbstractPoolCommandListenerExecutor;
 import com.rbkmoney.fraudbusters.listener.CommandListener;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.Pool;
 import com.rbkmoney.fraudo.FraudoPaymentParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class TemplateListener extends AbstractPoolCommandListenerExecutor implem
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetTemplate()) {
             Template template = command.getCommandBody().getTemplate();
             String templateString = new String(template.getTemplate(), StandardCharsets.UTF_8);
-            log.info("TemplateP2PListener templateString: {}", templateString);
+            log.info("TemplateListener templateString: {}", templateString);
             if (CommandType.CREATE.equals(command.command_type)) {
                 validateTemplate(template.getId(), templateString);
             }

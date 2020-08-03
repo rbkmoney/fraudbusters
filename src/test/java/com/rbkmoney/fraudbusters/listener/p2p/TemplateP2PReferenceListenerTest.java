@@ -2,21 +2,13 @@ package com.rbkmoney.fraudbusters.listener.p2p;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.exception.UnknownReferenceException;
-import com.rbkmoney.fraudbusters.template.pool.GroupReferencePoolImpl;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.PoolImpl;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.Date;
-
-import static java.time.ZoneOffset.UTC;
 
 public class TemplateP2PReferenceListenerTest {
 
@@ -30,7 +22,7 @@ public class TemplateP2PReferenceListenerTest {
 
     @Before
     public void init() {
-        templateP2PReferencePoolImpl = new GroupReferencePoolImpl();
+        templateP2PReferencePoolImpl = new PoolImpl<>("p2p-template-reference");
         templateP2PReferenceListener = new TemplateP2PReferenceListener(templateP2PReferencePoolImpl);
     }
 

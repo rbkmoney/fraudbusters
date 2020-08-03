@@ -28,7 +28,7 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
 
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
     private final PaymentRepository paymentRepository;
-    private final AggregationRepository analytitcsRefundRepository;
+    private final AggregationRepository analyticsRefundRepository;
     private final AggregationRepository analyticsChargebackRepository;
 
     @Override
@@ -48,15 +48,15 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
     public Integer countError(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow,
                               String errorCode, List<PaymentCheckedField> list) {
         try {
-            Instant now = Instant.now();
+            Instant timestamp = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
             if (StringUtils.isEmpty(resolve.getValue())) {
                 return CURRENT_ONE;
             }
             Integer count = paymentRepository.countOperationErrorWithGroupBy(resolve.getName(), resolve.getValue(),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getStartWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getEndWindowTime()),
                     eventFields, errorCode);
 
             log.debug("CountAggregatorImpl field: {} value: {}  countError: {}", resolve.getName(), resolve.getValue(), count);
@@ -76,7 +76,7 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
     @Override
     @BasicMetric("countRefund")
     public Integer countRefund(PaymentCheckedField paymentCheckedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getCount(paymentCheckedField, paymentModel, timeWindow, list, analytitcsRefundRepository::countOperationByFieldWithGroupBy, false);
+        return getCount(paymentCheckedField, paymentModel, timeWindow, list, analyticsRefundRepository::countOperationByFieldWithGroupBy, false);
     }
 
     @NotNull
@@ -89,7 +89,7 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
     private Integer getCount(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
                              AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Integer> aggregateFunction, boolean withCurrent) {
         try {
-            Instant now = Instant.now();
+            Instant timestamp = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
 
@@ -98,8 +98,8 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
             }
 
             Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()), eventFields);
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getStartWindowTime()),
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getEndWindowTime()), eventFields);
 
             log.debug("CountAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), count);
             return withCurrent ? count + CURRENT_ONE : count;

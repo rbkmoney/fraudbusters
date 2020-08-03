@@ -39,7 +39,7 @@ public class AnalyticsRefundRepository implements Repository<Refund>, Aggregatio
 
     @Override
     public void insertBatch(List<Refund> batch) {
-
+        throw new UnsupportedOperationException("Method insertBatch is not support!");
     }
 
     @Override

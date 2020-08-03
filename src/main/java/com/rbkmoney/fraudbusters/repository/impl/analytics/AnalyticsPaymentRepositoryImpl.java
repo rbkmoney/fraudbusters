@@ -47,7 +47,7 @@ public class AnalyticsPaymentRepositoryImpl implements Repository<Payment>, Paym
 
     @Override
     public void insertBatch(List<Payment> batch) {
-        log.debug("PaymentRepository insertBatch batch: {}", batch);
+        throw new UnsupportedOperationException("Method insertBatch is not support!");
     }
 
     @Override

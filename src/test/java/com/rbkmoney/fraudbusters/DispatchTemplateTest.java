@@ -4,9 +4,8 @@ import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.CommandBody;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
+import com.rbkmoney.fraudbusters.pool.Pool;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
-import com.rbkmoney.fraudo.FraudoPaymentParser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -23,6 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -49,11 +49,11 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
 
         String id = UUID.randomUUID().toString();
 
-        produceTemplate(id, TEMPLATE, templateTopic);
+        produceTemplate(id, TEMPLATE, kafkaTopics.getTemplate());
 
         //check message in topic
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(templateTopic));
+            consumer.subscribe(List.of(kafkaTopics.getTemplate()));
             Unreliables.retryUntilTrue(TIMEOUT, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
                 return !records.isEmpty();
@@ -74,7 +74,9 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
             value.setTemplateId(id);
             command.setCommandBody(CommandBody.reference(value));
             command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(referenceTopic,
+            command.setCommandTime(LocalDateTime.now().toString());
+
+            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getReference(),
                     TemplateLevel.GLOBAL.name(), command);
             producer.send(producerRecord).get();
         }

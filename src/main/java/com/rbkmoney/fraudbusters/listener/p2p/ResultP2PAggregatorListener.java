@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.listener.p2p;
 
-import com.rbkmoney.fraudbusters.config.KafkaConfig;
+import com.rbkmoney.fraudbusters.config.service.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.converter.ScoresResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
@@ -20,14 +20,14 @@ public class ResultP2PAggregatorListener {
     private final EventP2PRepository eventP2PRepository;
     private final ScoresResultToEventConverter scoresResultToEventConverter;
 
-    @KafkaListener(topics = "${kafka.topic.p2p.result}", containerFactory = "kafkaListenerP2PResultContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.p2p-result}", containerFactory = "kafkaP2PResultListenerContainerFactory")
     public void listen(List<ScoresResult<P2PModel>> batch) throws InterruptedException {
         try {
             log.info("ResultP2PAggregatorListener listen result: {}", batch);
             eventP2PRepository.insertBatch(scoresResultToEventConverter.convertBatch(batch));
         } catch (Exception e) {
             log.warn("Error when ResultP2PAggregatorListener listen e: ", e);
-            Thread.sleep(KafkaConfig.THROTTLING_TIMEOUT);
+            Thread.sleep(ListenersConfigurationService.THROTTLING_TIMEOUT);
             throw e;
         }
     }

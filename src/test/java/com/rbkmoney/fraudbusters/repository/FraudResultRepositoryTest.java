@@ -15,7 +15,6 @@ import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
-import com.rbkmoney.fraudo.model.ResultModel;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -91,7 +90,8 @@ public class FraudResultRepositoryTest {
             execAllInFile(connection, "sql/db_init.sql");
             execAllInFile(connection, "sql/TEST_analytics_data.sql");
             execAllInFile(connection, "sql/V4__create_payment.sql");
-            execAllInFile(connection, "sql/V5__create_payment.sql");
+            execAllInFile(connection, "sql/V5__add_fields.sql");
+            execAllInFile(connection, "sql/V6__add_result_fields_payment.sql");
         }
     }
 

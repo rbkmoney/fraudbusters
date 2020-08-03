@@ -7,7 +7,6 @@ import com.rbkmoney.fraudo.FraudoPaymentParser;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.DiagnosticErrorListener;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

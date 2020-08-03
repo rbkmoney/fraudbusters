@@ -3,8 +3,8 @@ package com.rbkmoney.fraudbusters.fraud.payment.resolver;
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.exception.UnknownFieldException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
-import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
+import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;

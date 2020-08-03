@@ -10,21 +10,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(SpringRunner.class)
 @TestPropertySource(properties = {"fraud.management.url=http://127.0.0.1:8089"})
@@ -89,7 +87,7 @@ public class FraudManagementServiceTest {
     public void testIsNewShop(){
         MockitoAnnotations.initMocks(this);
         Mockito.when(fraudResultRepository.countOperationByField(anyString(), anyString(), anyLong(), anyLong())).thenReturn(0);
-        fraudManagementService.isNewShop("p1", "s1");
+        fraudManagementService.isNewShop("s1");
         Mockito.verify(fraudResultRepository).countOperationByField(anyString(), anyString(), anyLong(), anyLong());
     }
 

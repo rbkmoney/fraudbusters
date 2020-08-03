@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.repository;
 
-import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 
 import java.util.List;

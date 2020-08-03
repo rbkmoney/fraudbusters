@@ -39,7 +39,7 @@ public class AnalyticsChargebackRepository implements Repository<Chargeback>, Ag
 
     @Override
     public void insertBatch(List<Chargeback> batch) {
-        throw new UnsupportedOperationException("AnalyticsChargebackRepository method insertBatch is not support!");
+        throw new UnsupportedOperationException("Method insertBatch is not support!");
     }
 
     @Override

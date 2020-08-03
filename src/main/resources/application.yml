@@ -47,25 +47,25 @@ kafka:
     result: result
     template: template
     reference: template_reference
+    group-list: group_list
+    group-reference: group_reference
+    full-template: full_template
+    full-reference: full_template_reference
+    full-group-list: full_group_list
+    full-group-reference: full_group_reference
+    p2p-result: p2p_result
+    p2p-template: template_p2p
+    p2p-reference: template_p2p_reference
+    p2p-group-list: group_p2p_list
+    p2p-group-reference: group_p2p_reference
     event.sink:
       initial: event_sink
       aggregated: aggregated_event_sink
       payment: payment_event
       refund: refund_event
       chargeback: chargeback_event
-    group:
-      list: group_list
-      reference: group_reference
-    p2p:
-      result: p2p_result
-      template: template_p2p
-      reference: template_p2p_reference
-      group:
-        list: group_p2p_list
-        reference: group_p2p_reference
     fraud:
       payment: fraud_payment
-
   ssl:
     enable: false
     keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12
@@ -95,4 +95,7 @@ default.template:
   enable: true
   countToCheckDays: 1000
 
+result.full.check:
+  enabled: true
 
+time.pool.cleanup.gap: 60

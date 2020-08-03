@@ -19,7 +19,7 @@ public class FraudManagementService {
     private final FraudManagementClient fraudManagementClient;
     private final DefaultTemplateProperties properties;
 
-    public boolean isNewShop(String partyId, String shopId) {
+    public boolean isNewShop(String shopId) {
         Long to = Instant.now().toEpochMilli();
         Long from = Instant.now().minus(properties.getCountToCheckDays(), ChronoUnit.DAYS).toEpochMilli();
         return repository.countOperationByField("shopId", shopId, from, to) == 0;

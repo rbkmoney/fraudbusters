@@ -1,9 +1,6 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.base.Content;
-import com.rbkmoney.damsel.domain.BankCard;
-import com.rbkmoney.damsel.domain.ClientInfo;
-import com.rbkmoney.damsel.domain.PaymentTool;
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.p2p_insp.Identity;
@@ -55,6 +52,7 @@ public class BeanUtil {
     public static final String TRANSFER_ID = "transferId";
     public static final String IDENTITY_ID = "identityId";
     public static final String RUB = "RUB";
+    public static final String TOKEN = "wewerwer";
 
     public static Context createContext() {
         String pId = P_ID;
@@ -224,6 +222,7 @@ public class BeanUtil {
         group.setTemplateIds(priorityIds);
         command.setCommandBody(CommandBody.group(group));
         command.setCommandType(com.rbkmoney.damsel.fraudbusters.CommandType.CREATE);
+        command.setCommandTime(LocalDateTime.now().toString());
         return command;
     }
 
@@ -246,6 +245,7 @@ public class BeanUtil {
                 .setGroupId(idGroup)
                 .setPartyId(party)
                 .setShopId(shopId)));
+        command.setCommandTime(LocalDateTime.now().toString());
         return command;
     }
 
@@ -441,13 +441,11 @@ public class BeanUtil {
         return new Payment()
                 .setStatus(status)
                 .setClientInfo(createEmail())
-                .setCost(createCash()
-                )
+                .setCost(createCash())
                 .setEventTime(String.valueOf(LocalDateTime.now()))
                 .setId("payment_id")
                 .setPaymentTool(createBankCardResult())
-                .setProviderInfo(createProviderInfo()
-                )
+                .setProviderInfo(createProviderInfo())
                 .setReferenceInfo(createReferenceInfo());
     }
 
@@ -504,7 +502,7 @@ public class BeanUtil {
     private static PaymentTool createBankCardResult() {
         return PaymentTool.bank_card(new BankCard()
                         .setBin("1234")
-                        .setToken("wewerwer")
+                        .setToken(TOKEN)
                         .setLastDigits("433242")
                         .setPaymentSystem(BankCardPaymentSystem.visa)
         );

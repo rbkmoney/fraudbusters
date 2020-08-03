@@ -7,7 +7,7 @@ import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.fraud.p2p.validator.P2PTemplateValidator;
 import com.rbkmoney.fraudbusters.listener.AbstractPoolCommandListenerExecutor;
 import com.rbkmoney.fraudbusters.listener.CommandListener;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.Pool;
 import com.rbkmoney.fraudo.FraudoP2PParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class TemplateP2PListener extends AbstractPoolCommandListenerExecutor imp
     private final Pool<ParserRuleContext> templateP2PPoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.p2p.template}", containerFactory = "templateP2PListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.p2p-template}", containerFactory = "templateP2PListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("TemplateP2PListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetTemplate()) {

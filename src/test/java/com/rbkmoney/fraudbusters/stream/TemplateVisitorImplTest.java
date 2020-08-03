@@ -2,9 +2,10 @@ package com.rbkmoney.fraudbusters.stream;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.template.pool.GroupPoolImpl;
-import com.rbkmoney.fraudbusters.template.pool.GroupReferencePoolImpl;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.PoolImpl;
+import com.rbkmoney.fraudbusters.stream.impl.RuleApplierImpl;
+import com.rbkmoney.fraudbusters.stream.impl.TemplateVisitorImpl;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import org.junit.Assert;
@@ -25,7 +26,7 @@ public class TemplateVisitorImplTest {
     public static final String TRUE_TEMPL = "true_templ";
 
     @Mock
-    private RuleApplier ruleApplier;
+    private RuleApplierImpl ruleApplier;
 
     private Pool<List<String>> groupPoolImpl;
     private Pool<String> referencePoolImpl;
@@ -37,9 +38,9 @@ public class TemplateVisitorImplTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
 
-        groupPoolImpl = new GroupPoolImpl();
-        referencePoolImpl = new GroupReferencePoolImpl();
-        groupReferencePoolImpl = new GroupReferencePoolImpl();
+        groupPoolImpl = new PoolImpl<>("group");
+        referencePoolImpl = new PoolImpl<>("reference");
+        groupReferencePoolImpl = new PoolImpl<>("group-reference");
 
         templateVisitor = new TemplateVisitorImpl(ruleApplier, groupPoolImpl, referencePoolImpl, groupReferencePoolImpl);
     }
@@ -57,7 +58,7 @@ public class TemplateVisitorImplTest {
         //check group party pool
         List<String> templateIds = List.of(TEMPLATE_1);
         groupPoolImpl.add(GROUP_1, templateIds);
-        String key = ReferenceKeyGenerator.generateTemplateKey(PARTY_ID, null);
+        String key = ReferenceKeyGenerator.generateTemplateKeyByList(PARTY_ID, null);
         groupReferencePoolImpl.add(key, GROUP_1);
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setCheckedTemplate(TRUE_TEMPL);

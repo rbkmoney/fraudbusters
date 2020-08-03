@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters.repository.impl;
 
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import com.rbkmoney.fraudbusters.repository.Repository;
-
 import com.rbkmoney.fraudbusters.repository.setter.FraudPaymentBatchPreparedStatementSetter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +25,7 @@ public class FraudPaymentRepository implements Repository<FraudPayment> {
 
     @Override
     public void insert(FraudPayment value) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Method insertBatch is not support!");
     }
 
     @Override
@@ -36,6 +35,5 @@ public class FraudPaymentRepository implements Repository<FraudPayment> {
             jdbcTemplate.batchUpdate(INSERT, new FraudPaymentBatchPreparedStatementSetter(payments));
         }
     }
-
 
 }

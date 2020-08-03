@@ -4,7 +4,7 @@ import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.P2PGroupReference;
 import com.rbkmoney.fraudbusters.listener.AbstractPoolCommandListenerExecutor;
 import com.rbkmoney.fraudbusters.listener.CommandListener;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.Pool;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class GroupReferenceP2PListener extends AbstractPoolCommandListenerExecut
     private final Pool<String> groupReferenceP2PPoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.p2p.group.reference}", containerFactory = "groupReferenceP2PListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.p2p-group-reference}", containerFactory = "groupReferenceP2PListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("GroupP2PReferenceListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetP2pGroupReference()) {

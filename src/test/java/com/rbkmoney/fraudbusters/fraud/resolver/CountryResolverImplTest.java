@@ -5,7 +5,6 @@ import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
-import com.rbkmoney.fraudo.resolver.CountryResolver;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;

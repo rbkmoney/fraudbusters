@@ -14,8 +14,6 @@ public class ScoresResultToEventP2PConverter implements Converter<P2PModel, Even
     @Override
     public EventP2P convert(P2PModel source) {
         EventP2P eventP2P = new EventP2P();
-        Long timestamp = source.getTimestamp();
-
         TimeProperties timeProperties = TimestampUtil.generateTimeProperties();
         eventP2P.setTimestamp(timeProperties.getTimestamp());
         eventP2P.setEventTime(timeProperties.getEventTime());
@@ -38,7 +36,6 @@ public class ScoresResultToEventP2PConverter implements Converter<P2PModel, Even
         eventP2P.setBankName(sender.getBankName());
         eventP2P.setCardTokenFrom(sender.getCardToken());
         eventP2P.setCardTokenTo(source.getReceiver().getCardToken());
-
         return eventP2P;
     }
 

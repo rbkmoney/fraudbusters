@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.listener;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
+import com.rbkmoney.fraudbusters.config.properties.KafkaTopics;
 import com.rbkmoney.fraudbusters.exception.StartException;
 import com.rbkmoney.fraudbusters.listener.p2p.GroupP2PListener;
 import com.rbkmoney.fraudbusters.listener.p2p.GroupReferenceP2PListener;
@@ -10,7 +11,9 @@ import com.rbkmoney.fraudbusters.listener.payment.GroupListener;
 import com.rbkmoney.fraudbusters.listener.payment.GroupReferenceListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateReferenceListener;
-import com.rbkmoney.fraudbusters.template.pool.Pool;
+import com.rbkmoney.fraudbusters.pool.Pool;
+import com.rbkmoney.fraudbusters.service.PoolMonitoringService;
+import com.rbkmoney.fraudbusters.stream.StreamManager;
 import com.rbkmoney.kafka.common.loader.PreloadListener;
 import com.rbkmoney.kafka.common.loader.PreloadListenerImpl;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +37,12 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    private static final int COUNT_PRELOAD_TASKS = 8;
+    private static final int COUNT_PRELOAD_TASKS = 12;
 
     @Value("${preload.timeout:20}")
     private long preloadTimeout;
+
+    private final StreamManager streamManager;
 
     private final ConsumerFactory<String, Command> templateListenerFactory;
     private final ConsumerFactory<String, Command> groupListenerFactory;
@@ -48,6 +53,16 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private final GroupListener groupListener;
     private final GroupReferenceListener groupReferenceListener;
     private final TemplateReferenceListener templateReferenceListener;
+
+    private final ConsumerFactory<String, Command> timeTemplateListenerFactory;
+    private final ConsumerFactory<String, Command> timeGroupListenerFactory;
+    private final ConsumerFactory<String, Command> timeReferenceListenerFactory;
+    private final ConsumerFactory<String, Command> timeGroupReferenceListenerFactory;
+
+    private final TemplateListener timeTemplateListener;
+    private final GroupListener timeGroupListener;
+    private final GroupReferenceListener timeGroupReferenceListener;
+    private final TemplateReferenceListener timeTemplateReferenceListener;
 
     private final ConsumerFactory<String, Command> templateP2PListenerFactory;
     private final ConsumerFactory<String, Command> groupP2PListenerFactory;
@@ -63,48 +78,37 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private final Pool<ParserRuleContext> templateP2PPoolImpl;
 
     private final PreloadListener<String, Command> preloadListener = new PreloadListenerImpl<>();
+    private final KafkaTopics kafkaTopics;
 
-    @Value("${kafka.topic.template}")
-    private String topicTemplate;
-
-    @Value("${kafka.topic.reference}")
-    private String topicReference;
-
-    @Value("${kafka.topic.group.list}")
-    private String topicGroup;
-
-    @Value("${kafka.topic.group.reference}")
-    private String topicGroupReference;
-
-    @Value("${kafka.topic.p2p.template}")
-    private String topicP2PTemplate;
-
-    @Value("${kafka.topic.p2p.reference}")
-    private String topicP2PReference;
-
-    @Value("${kafka.topic.p2p.group.list}")
-    private String topicP2PGroup;
-
-    @Value("${kafka.topic.p2p.group.reference}")
-    private String topicP2PGroupReference;
+    private final PoolMonitoringService poolMonitoringService;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
             long startPreloadTime = System.currentTimeMillis();
 
+            poolMonitoringService.addPoolsToMonitoring();
+
+            initRewriteStream();
+
             ExecutorService executorService = Executors.newFixedThreadPool(COUNT_PRELOAD_TASKS);
             CountDownLatch latch = new CountDownLatch(COUNT_PRELOAD_TASKS);
-            List<Runnable> tasks = List.of(
-                    () -> waitPreLoad(latch, templateListenerFactory, topicTemplate, templateListener),
-                    () -> waitPreLoad(latch, referenceListenerFactory, topicReference, templateReferenceListener),
-                    () -> waitPreLoad(latch, groupListenerFactory, topicGroup, groupListener),
-                    () -> waitPreLoad(latch, groupReferenceListenerFactory, topicGroupReference, groupReferenceListener),
 
-                    () -> waitPreLoad(latch, templateP2PListenerFactory, topicP2PTemplate, templateP2PListener),
-                    () -> waitPreLoad(latch, referenceP2PListenerFactory, topicP2PReference, templateP2PReferenceListener),
-                    () -> waitPreLoad(latch, groupP2PListenerFactory, topicP2PGroup, groupP2PListener),
-                    () -> waitPreLoad(latch, groupReferenceP2PListenerFactory, topicP2PGroupReference, groupReferenceP2PListener)
+            List<Runnable> tasks = List.of(
+                    () -> waitPreLoad(latch, templateListenerFactory, kafkaTopics.getTemplate(), templateListener),
+                    () -> waitPreLoad(latch, referenceListenerFactory, kafkaTopics.getReference(), templateReferenceListener),
+                    () -> waitPreLoad(latch, groupListenerFactory, kafkaTopics.getGroupList(), groupListener),
+                    () -> waitPreLoad(latch, groupReferenceListenerFactory, kafkaTopics.getGroupReference(), groupReferenceListener),
+
+                    () -> waitPreLoad(latch, timeTemplateListenerFactory, kafkaTopics.getFullTemplate(), timeTemplateListener),
+                    () -> waitPreLoad(latch, timeReferenceListenerFactory, kafkaTopics.getFullReference(), timeTemplateReferenceListener),
+                    () -> waitPreLoad(latch, timeGroupListenerFactory, kafkaTopics.getFullGroupList(), timeGroupListener),
+                    () -> waitPreLoad(latch, timeGroupReferenceListenerFactory, kafkaTopics.getFullGroupReference(), timeGroupReferenceListener),
+
+                    () -> waitPreLoad(latch, templateP2PListenerFactory, kafkaTopics.getP2pTemplate(), templateP2PListener),
+                    () -> waitPreLoad(latch, referenceP2PListenerFactory, kafkaTopics.getP2pReference(), templateP2PReferenceListener),
+                    () -> waitPreLoad(latch, groupP2PListenerFactory, kafkaTopics.getP2pGroupList(), groupP2PListener),
+                    () -> waitPreLoad(latch, groupReferenceP2PListenerFactory, kafkaTopics.getP2pGroupReference(), groupReferenceP2PListener)
             );
 
             tasks.forEach(executorService::submit);
@@ -122,6 +126,13 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
             log.error("StartupListener onApplicationEvent e: ", e);
             Thread.currentThread().interrupt();
         }
+    }
+
+    private void initRewriteStream() {
+        streamManager.createStream(kafkaTopics.getFullTemplate(), kafkaTopics.getTemplate(), "template-stream");
+        streamManager.createStream(kafkaTopics.getFullReference(), kafkaTopics.getReference(), "reference-stream");
+        streamManager.createStream(kafkaTopics.getFullGroupList(), kafkaTopics.getGroupList(), "group-stream");
+        streamManager.createStream(kafkaTopics.getFullGroupReference(), kafkaTopics.getGroupReference(), "group-ref-stream");
     }
 
     private void waitPreLoad(CountDownLatch latch, ConsumerFactory<String, Command> groupListenerFactory, String topic, CommandListener listener) {
