@@ -83,7 +83,7 @@ public class LocalCountAggregatorDecorator implements CountPaymentAggregator<Pay
 
     @NotNull
     private Integer getCount(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
-                             AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Integer> aggregateFunction) {
+                             AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Integer> aggregateFunction) {
         try {
             Instant now = TimestampUtil.instantFromPaymentModel(paymentModel);
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);

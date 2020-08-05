@@ -18,6 +18,7 @@ public class ChInitializer {
             execAllInFile(connection, "sql/V4__create_payment.sql");
             execAllInFile(connection, "sql/V5__add_fields.sql");
             execAllInFile(connection, "sql/V6__add_result_fields_payment.sql");
+            execAllInFile(connection, "sql/V7__add_fields.sql");
         }
     }
 

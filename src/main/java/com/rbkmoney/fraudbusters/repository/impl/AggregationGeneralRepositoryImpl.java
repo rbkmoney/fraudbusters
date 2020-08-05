@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -21,7 +20,7 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Integer countOperationByField(String table, String fieldName, String value, Long from, Long to) {
+    public Integer countOperationByField(String table, String fieldName, Object value, Long from, Long to) {
         String sql = String.format(
                 "select %1$s, count() as cnt " +
                         "from %2$s " +
@@ -31,15 +30,15 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
                         "and eventTime <= ? " +
                         "and %1$s = ? " +
                         "group by %1$s", fieldName, table);
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, value);
+        List<Object> params = AggregationUtil.generateParams(from, to, value);
         log.debug("AggregationGeneralRepositoryImpl countOperationByField sql: {} params: {}", sql, params);
         return jdbcTemplate.query(sql, params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Integer countOperationByFieldWithGroupBy(String table, String fieldName, String value, Long from, Long to,
+    public Integer countOperationByFieldWithGroupBy(String table, String fieldName, Object value, Long from, Long to,
                                                     List<FieldModel> fieldModels) {
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value);
+        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value);
 
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, count() as cnt " +
@@ -57,9 +56,9 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
     }
 
     @Override
-    public Long sumOperationByFieldWithGroupBy(String table, String fieldName, String value, Long from, Long to,
+    public Long sumOperationByFieldWithGroupBy(String table, String fieldName, Object value, Long from, Long to,
                                                List<FieldModel> fieldModels) {
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value);
+        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value);
 
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, sum(amount) as sum " +
@@ -78,7 +77,7 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
     }
 
     @Override
-    public Integer uniqCountOperation(String table, String fieldNameBy, String value, String fieldNameCount, Long from, Long to) {
+    public Integer uniqCountOperation(String table, String fieldNameBy, Object value, String fieldNameCount, Long from, Long to) {
         String sql = String.format(
                 "select %1$s, uniq(%2$s) as cnt " +
                         "from %3$s " +
@@ -88,13 +87,13 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
                         "and eventTime <= ? " +
                         "and %1$s = ? " +
                         "group by %1$s", fieldNameBy, fieldNameCount, table);
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, value);
+        List<Object> params = AggregationUtil.generateParams(from, to, value);
         log.debug("AggregationGeneralRepositoryImpl uniqCountOperation sql: {} params: {}", sql, params);
         return jdbcTemplate.query(sql, params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Integer uniqCountOperationWithGroupBy(String table, String fieldNameBy, String value, String fieldNameCount,
+    public Integer uniqCountOperationWithGroupBy(String table, String fieldNameBy, Object value, String fieldNameCount,
                                                  Long from, Long to, List<FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, uniq(%2$s) as cnt " +
@@ -106,7 +105,7 @@ public class AggregationGeneralRepositoryImpl implements AggregationGeneralRepos
                         "and %1$s = ? ", fieldNameBy, fieldNameCount, table));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldNameBy));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value);
+        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value);
         String sqlResult = resultSql.toString();
         log.debug("AggregationGeneralRepositoryImpl uniqCountOperationWithGroupBy sql: {} params: {}", sqlResult, params);
         return jdbcTemplate.query(sqlResult, params.toArray(), new CountExtractor());

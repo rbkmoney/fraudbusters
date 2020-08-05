@@ -25,15 +25,15 @@ public class AggregationUtil {
         return sql.append(sqlGroupBy.toString());
     }
 
-    public static ArrayList<Object> generateParams(Long from, Long to, List<FieldModel> fieldModels, String value) {
+    public static List<Object> generateParams(Long from, Long to, List<FieldModel> fieldModels, Object value) {
         return generateParams(from, to, fieldModels, value, null);
     }
 
-    public static ArrayList<Object> generateParams(Long from, Long to, List<FieldModel> fieldModels, String value, String status) {
+    public static List<Object> generateParams(Long from, Long to, List<FieldModel> fieldModels, Object value, String status) {
         return generateParams(from, to, fieldModels, value, status, null);
     }
 
-    public static ArrayList<Object> generateParams(Long from, Long to, List<FieldModel> fieldModels, String value, String status, String errorCode) {
+    public static List<Object> generateParams(Long from, Long to, List<FieldModel> fieldModels, Object value, String status, String errorCode) {
         Instant instantFrom = Instant.ofEpochMilli(from);
         LocalDate dateFrom = instantFrom.atZone(UTC).toLocalDate();
         Instant instantTo = Instant.ofEpochMilli(to);
@@ -41,16 +41,16 @@ public class AggregationUtil {
         return initParams(fieldModels, dateFrom, dateTo, instantFrom.getEpochSecond(), instantTo.getEpochSecond(), value, status, errorCode);
     }
 
-    public static ArrayList<Object> generateParams(Long from, Long to, String value) {
+    public static List<Object> generateParams(Long from, Long to, Object value) {
         return generateParams(from, to, null, value);
     }
 
-    public static ArrayList<Object> generateStatusParams(Long from, Long to, String value, String status) {
+    public static List<Object> generateStatusParams(Long from, Long to, Object value, String status) {
         return generateParams(from, to, null, value, status);
     }
 
     @NotNull
-    private static ArrayList<Object> initParams(List<FieldModel> lastParams, Object... args) {
+    private static List<Object> initParams(List<FieldModel> lastParams, Object... args) {
         ArrayList<Object> objects = new ArrayList<>();
         if (args != null) {
             Arrays.stream(args)

@@ -59,8 +59,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class LoadDataIntegrationTest extends KafkaAbstractTest {
 
     private static final String TEMPLATE =
-            "rule:TEMPLATE: sum(\"card_token\", 1000, \"party_id\", \"shop_id\") > 0 " +
-                    " and unique(\"email\", \"ip\", 1444) < 2 " +
+            "rule:TEMPLATE: " +
+                    "sum(\"card_token\", 1000, \"party_id\", \"shop_id\", \"mobile\") > 0 " +
+                    " and unique(\"email\", \"ip\", 1444, \"recurrent\") < 2 and isRecurrent() == false" +
                     " and count(\"card_token\", 1000, \"party_id\", \"shop_id\") > 5  -> decline";
 
     private static final String TEMPLATE_2 =
@@ -77,19 +78,7 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
     private final String globalRef = UUID.randomUUID().toString();
 
     @Autowired
-    Repository<CheckedPayment> repository;
-
-    @Autowired
-    AnalyticsChargebackRepository analyticsChargebackRepository;
-
-    @Autowired
-    AnalyticsRefundRepository analyticsRefundRepository;
-
-    @Autowired
     JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    HistoricalPool<ParserRuleContext> parserRuleContextTimePool;
 
     @LocalServerPort
     int serverPort;

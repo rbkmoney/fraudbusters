@@ -58,15 +58,15 @@ public class DbP2pFieldResolver {
         }
         switch (field) {
             case IP:
-                return EventField.ip.name();
+                return EventP2PField.ip.name();
             case EMAIL:
-                return EventField.email.name();
+                return EventP2PField.email.name();
             case BIN:
-                return EventField.bin.name();
+                return EventP2PField.bin.name();
             case PAN:
-                return EventField.maskedPan.name();
+                return EventP2PField.maskedPan.name();
             case FINGERPRINT:
-                return EventField.fingerprint.name();
+                return EventP2PField.fingerprint.name();
             case IDENTITY_ID:
                 return EventP2PField.identityId.name();
             case CARD_TOKEN_FROM:

@@ -46,6 +46,10 @@ public class DBPaymentFieldResolver {
                 return new FieldModel(EventField.cardToken.name(), model.getCardToken());
             case PAN:
                 return new FieldModel(EventField.maskedPan.name(), model.getPan());
+            case MOBILE:
+                return new FieldModel(EventField.mobile.name(), model.isMobile());
+            case RECURRENT:
+                return new FieldModel(EventField.recurrent.name(), model.isRecurrent());
             default:
                 throw new UnknownFieldException();
         }
@@ -72,6 +76,10 @@ public class DBPaymentFieldResolver {
                 return EventField.shopId.name();
             case CARD_TOKEN:
                 return EventField.cardToken.name();
+            case MOBILE:
+                return EventField.mobile.name();
+            case RECURRENT:
+                return EventField.recurrent.name();
             default:
                 throw new UnknownFieldException();
         }

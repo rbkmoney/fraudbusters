@@ -81,13 +81,13 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
 
     @NotNull
     private Integer getCount(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
-                             AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Integer> aggregateFunction) {
+                             AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Integer> aggregateFunction) {
         return getCount(checkedField, paymentModel, timeWindow, list, aggregateFunction, true);
     }
 
     @NotNull
     private Integer getCount(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
-                             AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Integer> aggregateFunction, boolean withCurrent) {
+                             AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Integer> aggregateFunction, boolean withCurrent) {
         try {
             Instant timestamp = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);

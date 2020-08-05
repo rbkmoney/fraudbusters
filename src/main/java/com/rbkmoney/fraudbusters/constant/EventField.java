@@ -25,6 +25,9 @@ public enum EventField {
     checkedTemplate,
     payerType,
     tokenProvider,
-    cardToken
+    cardToken,
+
+    mobile,
+    recurrent
 
 }

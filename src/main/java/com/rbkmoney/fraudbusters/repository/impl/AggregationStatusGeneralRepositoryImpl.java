@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -21,7 +20,7 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Integer countOperationByField(String table, String fieldName, String value, Long from, Long to, String status) {
+    public Integer countOperationByField(String table, String fieldName, Object value, Long from, Long to, String status) {
         String sql = String.format(
                 "select %1$s, count() as cnt " +
                         "from %2$s " +
@@ -31,15 +30,15 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
                         "and eventTime <= ? " +
                         "and %1$s = ? and status = ? " +
                         "group by %1$s", fieldName, table);
-        ArrayList<Object> params = AggregationUtil.generateStatusParams(from, to, value, status);
+        List<Object> params = AggregationUtil.generateStatusParams(from, to, value, status);
         log.debug("AggregationGeneralRepositoryImpl countOperationByField sql: {} params: {}", sql, params);
         return jdbcTemplate.query(sql, params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Integer countOperationByFieldWithGroupBy(String table, String fieldName, String value, Long from, Long to,
+    public Integer countOperationByFieldWithGroupBy(String table, String fieldName, Object value, Long from, Long to,
                                                     List<FieldModel> fieldModels, String status) {
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, status, value);
+        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, status);
 
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, count() as cnt " +
@@ -47,8 +46,8 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
                         "where timestamp >= ? " +
                         "and timestamp <= ? " +
                         "and eventTime >= ? " +
-                        "and eventTime <= ? and status = ? " +
-                        "and %1$s = ? ", fieldName, table));
+                        "and eventTime <= ?  " +
+                        "and %1$s = ? and status = ? ", fieldName, table));
         StringBuilder sqlGroupBy = new StringBuilder(String.format(" group by %1$s ", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
         String sqlResult = resultSql.toString();
@@ -57,9 +56,9 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
     }
 
     @Override
-    public Long sumOperationByFieldWithGroupBy(String table, String fieldName, String value, Long from, Long to,
+    public Long sumOperationByFieldWithGroupBy(String table, String fieldName, Object value, Long from, Long to,
                                                List<FieldModel> fieldModels, String status) {
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, status, value);
+        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, status);
 
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, sum(amount) as sum " +
@@ -67,8 +66,8 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
                         "where timestamp >= ? " +
                         "and timestamp <= ? " +
                         "and eventTime >= ? " +
-                        "and eventTime <= ? and status = ? " +
-                        "and %1$s = ? ", fieldName, table));
+                        "and eventTime <= ?  " +
+                        "and %1$s = ? and status = ?", fieldName, table));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
 
@@ -78,7 +77,7 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
     }
 
     @Override
-    public Integer uniqCountOperation(String table, String fieldNameBy, String value, String fieldNameCount,
+    public Integer uniqCountOperation(String table, String fieldNameBy, Object value, String fieldNameCount,
                                       Long from, Long to, String status) {
         String sql = String.format(
                 "select %1$s, uniq(%2$s) as cnt " +
@@ -89,13 +88,13 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
                         "and eventTime <= ? " +
                         "and %1$s = ? and status = ? " +
                         "group by %1$s", fieldNameBy, fieldNameCount, table);
-        ArrayList<Object> params = AggregationUtil.generateStatusParams(from, to, value, status);
+        List<Object> params = AggregationUtil.generateStatusParams(from, to, value, status);
         log.debug("AggregationGeneralRepositoryImpl uniqCountOperation sql: {} params: {}", sql, params);
         return jdbcTemplate.query(sql, params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Integer uniqCountOperationWithGroupBy(String table, String fieldNameBy, String value, String fieldNameCount,
+    public Integer uniqCountOperationWithGroupBy(String table, String fieldNameBy, Object value, String fieldNameCount,
                                                  Long from, Long to, List<FieldModel> fieldModels, String status) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, uniq(%2$s) as cnt " +
@@ -107,7 +106,7 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
                         "and %1$s = ? and status = ? ", fieldNameBy, fieldNameCount, table));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldNameBy));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, status);
+        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, status);
         String sqlResult = resultSql.toString();
         log.debug("AggregationGeneralRepositoryImpl uniqCountOperationWithGroupBy sql: {} params: {}", sqlResult, params);
         return jdbcTemplate.query(sqlResult, params.toArray(), new CountExtractor());

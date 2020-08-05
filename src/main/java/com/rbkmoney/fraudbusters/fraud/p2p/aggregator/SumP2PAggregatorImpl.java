@@ -33,7 +33,7 @@ public class SumP2PAggregatorImpl implements SumAggregator<P2PModel, P2PCheckedF
     @NotNull
     @BasicMetric(value = "getSumWindowed", extraTags = "p2p")
     private Double getSum(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list,
-                          AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction) {
+                          AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Long> aggregateFunction) {
         try {
             Instant now = Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, p2pModel);

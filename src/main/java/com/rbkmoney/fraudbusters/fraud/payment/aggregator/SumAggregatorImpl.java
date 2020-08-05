@@ -76,14 +76,14 @@ public class SumAggregatorImpl implements SumPaymentAggregator<PaymentModel, Pay
 
     @NotNull
     private Double getSum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
-                          AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction) {
+                          AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Long> aggregateFunction) {
         return getSum(checkedField, paymentModel, timeWindow, list, aggregateFunction, true);
     }
 
     @NotNull
     @BasicMetric("getSumWindowed")
     private Double getSum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
-                          AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction, boolean withCurrent) {
+                          AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Long> aggregateFunction, boolean withCurrent) {
         try {
             Instant timestamp = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);

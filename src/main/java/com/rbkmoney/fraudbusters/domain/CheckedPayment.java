@@ -25,6 +25,8 @@ public class CheckedPayment {
     private String bankCountry;
     private String payerType;
     private String tokenProvider;
+    private boolean mobile;
+    private boolean recurrent;
 
     private String partyId;
     private String shopId;

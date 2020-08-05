@@ -19,7 +19,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,38 +50,38 @@ public class AnalyticsPaymentRepositoryImpl implements Repository<Payment>, Paym
     }
 
     @Override
-    public Integer countOperationByField(String fieldName, String value, Long from, Long to) {
+    public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
         return aggregationGeneralRepository.countOperationByField(EventSource.ANALYTIC_EVENTS_SINK.getTable(), fieldName,
                 value, from, to);
     }
 
     @Override
-    public Integer countOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
         return aggregationGeneralRepository.countOperationByFieldWithGroupBy(EventSource.ANALYTIC_EVENTS_SINK.getTable(),
                 fieldName, value, from, to, fieldModels);
     }
 
     @Override
-    public Long sumOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
         return aggregationGeneralRepository.sumOperationByFieldWithGroupBy(EventSource.ANALYTIC_EVENTS_SINK.getTable(),
                 fieldName, value, from, to, fieldModels);
     }
 
     @Override
-    public Integer uniqCountOperation(String fieldNameBy, String value, String fieldNameCount, Long from, Long to) {
+    public Integer uniqCountOperation(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to) {
         return aggregationGeneralRepository.uniqCountOperation(EventSource.ANALYTIC_EVENTS_SINK.getTable(), fieldNameBy,
                 value, fieldNameCount, from, to);
     }
 
     @Override
-    public Integer uniqCountOperationWithGroupBy(String fieldNameBy, String value, String fieldNameCount, Long from, Long to,
+    public Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to,
                                                  List<FieldModel> fieldModels) {
         return aggregationGeneralRepository.uniqCountOperationWithGroupBy(EventSource.ANALYTIC_EVENTS_SINK.getTable(),
                 fieldNameBy, value, fieldNameCount, from, to, fieldModels);
     }
 
     @Override
-    public Integer countOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to,
+    public Integer countOperationSuccessWithGroupBy(String fieldName, Object value, Long from, Long to,
                                                     List<FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, count() as cnt " +
@@ -94,13 +93,13 @@ public class AnalyticsPaymentRepositoryImpl implements Repository<Payment>, Paym
                         "and %1$s = ? and status = ? ", fieldName, EventSource.ANALYTIC_EVENTS_SINK.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, AnalyticStatus.captured.name());
+        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, AnalyticStatus.captured.name());
         log.debug("AnalyticRepository countOperationSuccessWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Integer countOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
+    public Integer countOperationErrorWithGroupBy(String fieldName, Object value, Long from, Long to,
                                                   List<FieldModel> fieldModels, String errorCode) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, count() as cnt " +
@@ -112,14 +111,14 @@ public class AnalyticsPaymentRepositoryImpl implements Repository<Payment>, Paym
                         "and %1$s = ? and status = ? and errorCode=? ", fieldName, EventSource.ANALYTIC_EVENTS_SINK.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value,
+        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value,
                 AnalyticStatus.failed.name(), errorCode);
         log.debug("AnalyticRepository countOperationErrorWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Long sumOperationSuccessWithGroupBy(String fieldName, String value, Long from, Long to,
+    public Long sumOperationSuccessWithGroupBy(String fieldName, Object value, Long from, Long to,
                                                List<FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, sum(amount) as sum " +
@@ -131,13 +130,13 @@ public class AnalyticsPaymentRepositoryImpl implements Repository<Payment>, Paym
                         "and %1$s = ? and status = ? ", fieldName, EventSource.ANALYTIC_EVENTS_SINK.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, AnalyticStatus.captured.name());
+        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, AnalyticStatus.captured.name());
         log.debug("AnalyticRepository sumOperationSuccessWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
     @Override
-    public Long sumOperationErrorWithGroupBy(String fieldName, String value, Long from, Long to,
+    public Long sumOperationErrorWithGroupBy(String fieldName, Object value, Long from, Long to,
                                              List<FieldModel> fieldModels, String errorCode) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, sum(amount) as sum " +
@@ -149,7 +148,7 @@ public class AnalyticsPaymentRepositoryImpl implements Repository<Payment>, Paym
                         "and %1$s = ? and status = ? and errorCode=? ", fieldName, EventSource.ANALYTIC_EVENTS_SINK.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        ArrayList<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value,
+        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value,
                 AnalyticStatus.failed.name(), errorCode);
         log.debug("AnalyticRepository sumOperationErrorWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());

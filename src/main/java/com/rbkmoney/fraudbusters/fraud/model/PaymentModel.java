@@ -19,4 +19,7 @@ public class PaymentModel extends BaseModel {
 
     private Long timestamp;
 
+    private boolean mobile;
+    private boolean recurrent;
+
 }
