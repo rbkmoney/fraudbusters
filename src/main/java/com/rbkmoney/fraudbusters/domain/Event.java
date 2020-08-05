@@ -33,4 +33,7 @@ public class Event {
     private String payerType;
     private String tokenProvider;
 
+    private boolean mobile;
+    private boolean recurrent;
+
 }

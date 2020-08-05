@@ -12,7 +12,6 @@ import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
-import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.SneakyThrows;
@@ -33,13 +32,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.rbkmoney.fraudbusters.util.ChInitializer.execAllInFile;
+import static com.rbkmoney.fraudbusters.util.ChInitializer.initAllScripts;
 import static org.junit.Assert.assertEquals;
 
 @Slf4j
@@ -80,24 +78,12 @@ public class FraudResultRepositoryTest {
                             "clickhouse.db.user=" + clickHouseContainer.getUsername(),
                             "clickhouse.db.password=" + clickHouseContainer.getPassword())
                     .applyTo(configurableApplicationContext.getEnvironment());
-
-            initDb();
-        }
-    }
-
-    private static void initDb() throws SQLException {
-        try (Connection connection = ChInitializer.getSystemConn(clickHouseContainer)) {
-            execAllInFile(connection, "sql/db_init.sql");
-            execAllInFile(connection, "sql/TEST_analytics_data.sql");
-            execAllInFile(connection, "sql/V4__create_payment.sql");
-            execAllInFile(connection, "sql/V5__add_fields.sql");
-            execAllInFile(connection, "sql/V6__add_result_fields_payment.sql");
         }
     }
 
     @Before
     public void setUp() throws Exception {
-        initDb();
+        initAllScripts(clickHouseContainer);
     }
 
     @Test

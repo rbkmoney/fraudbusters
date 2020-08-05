@@ -31,12 +31,6 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
     private final AggregationGeneralRepository aggregationGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
 
-    private static final String INSERT = "INSERT INTO fraud.events_unique " +
-            " (timestamp, eventTimeHour, eventTime, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount, " +
-            "country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName, cardToken, paymentId, checkedTemplate," +
-            "payerType, tokenProvider)" +
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
     @Override
     public void insert(Event value) {
         log.debug("EventRepository insert value: {}", value);
@@ -54,7 +48,7 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
     public void insertBatch(List<Event> events) {
         log.debug("EventRepository insertBatch events: {}", events);
         if (events != null && !events.isEmpty()) {
-            jdbcTemplate.batchUpdate(INSERT, new EventBatchPreparedStatementSetter(events));
+            jdbcTemplate.batchUpdate(EventBatchPreparedStatementSetter.INSERT, new EventBatchPreparedStatementSetter(events));
         }
     }
 
