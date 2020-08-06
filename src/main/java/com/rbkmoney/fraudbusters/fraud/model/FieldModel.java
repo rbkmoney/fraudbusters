@@ -8,6 +8,6 @@ import lombok.Data;
 public class FieldModel {
 
     private String name;
-    private String value;
+    private Object value;
 
 }

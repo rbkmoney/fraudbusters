@@ -61,6 +61,8 @@ public class PaymentToCheckedPaymentConverter implements Converter<Payment, Chec
         checkedPayment.setPayerType(payment.isSetPayerType() ? payment.getPayerType().name() : UNKNOWN);
         checkedPayment.setTokenProvider(paymentTool.isSetBankCard() && paymentTool.getBankCard().isSetTokenProvider() ?
                 paymentTool.getBankCard().getTokenProvider().name() : UNKNOWN);
+        checkedPayment.setMobile(payment.isMobile());
+        checkedPayment.setRecurrent(payment.isRecurrent());
         return checkedPayment;
     }
 

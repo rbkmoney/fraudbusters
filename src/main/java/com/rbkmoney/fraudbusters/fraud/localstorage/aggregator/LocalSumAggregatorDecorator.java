@@ -86,13 +86,13 @@ public class LocalSumAggregatorDecorator implements SumPaymentAggregator<Payment
 
     @NotNull
     private Double getSum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
-                          AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction) {
+                          AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Long> aggregateFunction) {
         return getSum(checkedField, paymentModel, timeWindow, list, aggregateFunction, true);
     }
 
     @NotNull
     private Double getSum(PaymentCheckedField checkedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list,
-                          AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Long> aggregateFunction, boolean withCurrent) {
+                          AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Long> aggregateFunction, boolean withCurrent) {
         try {
             Instant now = TimestampUtil.instantFromPaymentModel(paymentModel);
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, paymentModel);

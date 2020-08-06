@@ -11,6 +11,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
+    public static final String INSERT = "INSERT INTO fraud.events_unique " +
+            " (timestamp, eventTimeHour, eventTime, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount, " +
+            "country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName, cardToken, paymentId, checkedTemplate," +
+            "payerType, tokenProvider, mobile, recurrent)" +
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
     private final List<Event> batch;
 
     @Override
@@ -40,7 +46,9 @@ public class EventBatchPreparedStatementSetter implements BatchPreparedStatement
         ps.setString(l++, event.getPaymentId());
         ps.setString(l++, event.getCheckedTemplate());
         ps.setString(l++, event.getPayerType());
-        ps.setString(l, event.getTokenProvider());
+        ps.setString(l++, event.getTokenProvider());
+        ps.setObject(l++, event.isMobile());
+        ps.setObject(l, event.isRecurrent());
     }
 
     @Override

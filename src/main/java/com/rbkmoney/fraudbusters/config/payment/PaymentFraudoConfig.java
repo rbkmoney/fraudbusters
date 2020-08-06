@@ -30,6 +30,7 @@ import com.rbkmoney.fraudo.payment.factory.FraudVisitorFactoryImpl;
 import com.rbkmoney.fraudo.payment.factory.FullVisitorFactoryImpl;
 import com.rbkmoney.fraudo.payment.resolver.PaymentGroupResolver;
 import com.rbkmoney.fraudo.payment.resolver.PaymentTimeWindowResolver;
+import com.rbkmoney.fraudo.payment.resolver.PaymentTypeResolver;
 import com.rbkmoney.fraudo.payment.visitor.impl.FirstFindVisitorImpl;
 import com.rbkmoney.fraudo.resolver.CountryResolver;
 import com.rbkmoney.fraudo.resolver.FieldResolver;
@@ -86,7 +87,8 @@ public class PaymentFraudoConfig {
             UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueAggregator,
             CountryResolver<PaymentCheckedField> countryResolver,
             InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder,
-            FieldResolver<PaymentModel, PaymentCheckedField> paymentModelFieldResolver) {
+            FieldResolver<PaymentModel, PaymentCheckedField> paymentModelFieldResolver,
+            PaymentTypeResolver<PaymentModel> paymentTypeResolver) {
         return new FraudVisitorFactoryImpl().createVisitor(
                 countAggregator,
                 sumAggregator,
@@ -95,7 +97,8 @@ public class PaymentFraudoConfig {
                 paymentInListFinder,
                 paymentModelFieldResolver,
                 new PaymentGroupResolver<>(paymentModelFieldResolver),
-                new PaymentTimeWindowResolver());
+                new PaymentTimeWindowResolver(),
+                paymentTypeResolver);
     }
 
 
@@ -136,7 +139,8 @@ public class PaymentFraudoConfig {
             UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueResultAggregator,
             CountryResolver<PaymentCheckedField> countryResolver,
             InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder,
-            FieldResolver<PaymentModel, PaymentCheckedField> paymentModelFieldResolver) {
+            FieldResolver<PaymentModel, PaymentCheckedField> paymentModelFieldResolver,
+            PaymentTypeResolver<PaymentModel> paymentTypeResolver) {
         return new FullVisitorFactoryImpl().createVisitor(
                 countResultAggregator,
                 sumResultAggregator,
@@ -145,7 +149,8 @@ public class PaymentFraudoConfig {
                 paymentInListFinder,
                 paymentModelFieldResolver,
                 new PaymentGroupResolver<>(paymentModelFieldResolver),
-                new PaymentTimeWindowResolver());
+                new PaymentTimeWindowResolver(),
+                paymentTypeResolver);
     }
 
 }

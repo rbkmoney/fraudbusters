@@ -12,7 +12,7 @@ public class PaymentFieldValueFilter {
 
     private final PaymentFieldValueResolver paymentFieldValueResolver;
 
-    public boolean filter(String fieldName, String value, CheckedPayment checkedPayment) {
+    public <T> boolean filter(String fieldName, T value, CheckedPayment checkedPayment) {
         Optional<String> valueByName = paymentFieldValueResolver.resolve(fieldName, checkedPayment);
         if (value != null && valueByName.isPresent()) {
             return value.equals(valueByName.get());

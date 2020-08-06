@@ -6,14 +6,14 @@ import java.util.List;
 
 public interface AggregationRepository {
 
-    Integer countOperationByField(String fieldName, String value, Long from, Long to);
+    Integer countOperationByField(String fieldName, Object value, Long from, Long to);
 
-    Integer countOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels);
+    Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels);
 
-    Long sumOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels);
+    Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels);
 
-    Integer uniqCountOperation(String fieldNameBy, String value, String fieldNameCount, Long from, Long to);
+    Integer uniqCountOperation(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to);
 
-    Integer uniqCountOperationWithGroupBy(String fieldNameBy, String value, String fieldNameCount, Long from, Long to, List<FieldModel> fieldModels);
+    Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to, List<FieldModel> fieldModels);
 
 }

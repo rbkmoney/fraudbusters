@@ -54,25 +54,25 @@ public class EventP2PRepository implements Repository<EventP2P>, AggregationRepo
         }
     }
 
-    public Integer countOperationByField(String fieldName, String value, Long from, Long to) {
+    public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
         return aggregationGeneralRepository.countOperationByField(EventSource.FRAUD_EVENTS_P_TO_P.getTable(), fieldName, value, from, to);
     }
 
-    public Integer countOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
         return aggregationGeneralRepository.countOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_P_TO_P.getTable(),
                 fieldName, value, from, to, fieldModels);
     }
 
-    public Long sumOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
         return aggregationGeneralRepository.sumOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_P_TO_P.getTable(),
                 fieldName, value, from, to, fieldModels);
     }
 
-    public Integer uniqCountOperation(String fieldNameBy, String value, String fieldNameCount, Long from, Long to) {
+    public Integer uniqCountOperation(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to) {
         return aggregationGeneralRepository.uniqCountOperation(EventSource.FRAUD_EVENTS_P_TO_P.getTable(), fieldNameBy, value, fieldNameCount, from, to);
     }
 
-    public Integer uniqCountOperationWithGroupBy(String fieldNameBy, String value, String fieldNameCount, Long from,
+    public Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from,
                                                  Long to, List<FieldModel> fieldModels) {
         return aggregationGeneralRepository.uniqCountOperationWithGroupBy(EventSource.FRAUD_EVENTS_P_TO_P.getTable(),
                 fieldNameBy, value, fieldNameCount, from, to, fieldModels);

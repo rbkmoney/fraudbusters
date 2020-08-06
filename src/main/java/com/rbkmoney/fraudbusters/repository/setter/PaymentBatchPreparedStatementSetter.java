@@ -20,9 +20,9 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
             "amount, currency, " +
             "status, errorCode, errorReason, " +
             "payerType, tokenProvider, " +
-            "checkedTemplate, checkedRule, resultStatus, checkedResultsJson";
+            "checkedTemplate, checkedRule, resultStatus, checkedResultsJson, mobile, recurrent";
 
-    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
+    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
     private final List<CheckedPayment> batch;
 
@@ -55,15 +55,17 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
         ps.setString(l++, checkedPayment.getCurrency());
 
         ps.setObject(l++, checkedPayment.getPaymentStatus());
-        ps.setString(l++, checkedPayment.getErrorCode());
-        ps.setString(l++, checkedPayment.getErrorReason());
+        ps.setObject(l++, checkedPayment.getErrorCode());
+        ps.setObject(l++, checkedPayment.getErrorReason());
 
-        ps.setString(l++, checkedPayment.getPayerType());
-        ps.setString(l++, checkedPayment.getTokenProvider());
-        ps.setString(l++, checkedPayment.getCheckedTemplate());
-        ps.setString(l++, checkedPayment.getCheckedRule());
-        ps.setString(l++, checkedPayment.getResultStatus());
-        ps.setString(l, checkedPayment.getCheckedResultsJson());
+        ps.setObject(l++, checkedPayment.getPayerType());
+        ps.setObject(l++, checkedPayment.getTokenProvider());
+        ps.setObject(l++, checkedPayment.getCheckedTemplate());
+        ps.setObject(l++, checkedPayment.getCheckedRule());
+        ps.setObject(l++, checkedPayment.getResultStatus());
+        ps.setObject(l++, checkedPayment.getCheckedResultsJson());
+        ps.setObject(l++, checkedPayment.isMobile());
+        ps.setObject(l, checkedPayment.isRecurrent());
     }
 
     @Override

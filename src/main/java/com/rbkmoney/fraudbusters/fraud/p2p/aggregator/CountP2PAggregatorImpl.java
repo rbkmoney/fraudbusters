@@ -34,7 +34,7 @@ public class CountP2PAggregatorImpl implements CountAggregator<P2PModel, P2PChec
 
     @NotNull
     private Integer getCount(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list,
-                             AggregateGroupingFunction<String, String, Long, Long, List<FieldModel>, Integer> aggregateFunction) {
+                             AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Integer> aggregateFunction) {
         try {
             Instant now = Instant.now();
             FieldModel resolve = dbP2pFieldResolver.resolve(checkedField, p2pModel);

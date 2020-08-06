@@ -43,31 +43,31 @@ public class AnalyticsChargebackRepository implements Repository<Chargeback>, Ag
     }
 
     @Override
-    public Integer countOperationByField(String fieldName, String value, Long from, Long to) {
+    public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
         return aggregationStatusGeneralRepository.countOperationByField(EventSource.ANALYTIC_EVENTS_SINK_CHARGEBACK.getTable(),
                 fieldName, value, from, to, ChargebackStatus.accepted.name());
     }
 
     @Override
-    public Integer countOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
         return aggregationStatusGeneralRepository.countOperationByFieldWithGroupBy(EventSource.ANALYTIC_EVENTS_SINK_CHARGEBACK.getTable(),
                 fieldName, value, from, to, fieldModels, ChargebackStatus.accepted.name());
     }
 
     @Override
-    public Long sumOperationByFieldWithGroupBy(String fieldName, String value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
         return aggregationStatusGeneralRepository.sumOperationByFieldWithGroupBy(EventSource.ANALYTIC_EVENTS_SINK_CHARGEBACK.getTable(),
                 fieldName, value, from, to, fieldModels, ChargebackStatus.accepted.name());
     }
 
     @Override
-    public Integer uniqCountOperation(String fieldNameBy, String value, String fieldNameCount, Long from, Long to) {
+    public Integer uniqCountOperation(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to) {
         return aggregationStatusGeneralRepository.uniqCountOperation(EventSource.ANALYTIC_EVENTS_SINK_CHARGEBACK.getTable(),
                 fieldNameBy, value, fieldNameCount, from, to, ChargebackStatus.accepted.name());
     }
 
     @Override
-    public Integer uniqCountOperationWithGroupBy(String fieldNameBy, String value, String fieldNameCount, Long from, Long to, List<FieldModel> fieldModels) {
+    public Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to, List<FieldModel> fieldModels) {
         return aggregationStatusGeneralRepository.uniqCountOperationWithGroupBy(EventSource.ANALYTIC_EVENTS_SINK_CHARGEBACK.getTable(),
                 fieldNameBy, value, fieldNameCount, from, to, fieldModels, ChargebackStatus.accepted.name());
     }
