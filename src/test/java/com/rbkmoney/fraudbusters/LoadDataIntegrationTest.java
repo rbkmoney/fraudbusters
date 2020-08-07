@@ -5,18 +5,12 @@ import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.fraudbusters.constant.EventSource;
-import com.rbkmoney.fraudbusters.domain.CheckedPayment;
-import com.rbkmoney.fraudbusters.pool.HistoricalPool;
-import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsRefundRepository;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.thrift.TException;
@@ -54,7 +48,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @Slf4j
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = "kafka.listen.result.concurrency=1")
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
+        properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true"})
 @ContextConfiguration(initializers = LoadDataIntegrationTest.Initializer.class)
 public class LoadDataIntegrationTest extends KafkaAbstractTest {
 

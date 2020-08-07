@@ -33,6 +33,8 @@ spring:
 kafka:
   bootstrap.servers: "localhost:29092"
   backoff.interval: 1000
+  historical.listener:
+    enable: false
   reply:
     timeout: 15000
     consumer.group: reply-consumer
