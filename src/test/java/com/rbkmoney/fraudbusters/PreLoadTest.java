@@ -31,7 +31,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @Slf4j
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = "kafka.listen.result.concurrency=1")
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
+        properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true"})
 @ContextConfiguration(initializers = KafkaAbstractTest.Initializer.class)
 public class PreLoadTest extends KafkaAbstractTest {
 
