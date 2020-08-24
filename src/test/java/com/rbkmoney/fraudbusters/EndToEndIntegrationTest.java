@@ -164,7 +164,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
 
         Thread.sleep(TIMEOUT * 10);
-
     }
 
     @Test
