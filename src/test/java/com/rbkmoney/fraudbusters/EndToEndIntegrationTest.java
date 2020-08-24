@@ -53,7 +53,6 @@ import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@Ignore
 @Slf4j
 @RunWith(SpringRunner.class)
 @ActiveProfiles("full-prod")
@@ -86,7 +85,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE_CONCRETE_SHOP =
             "rule:TEMPLATE_CONCRETE_SHOP:  sum(\"email\", 10) >= 18000  -> accept;";
 
-    private static final int COUNTRY_GEO_ID = 12345;
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
     public static final String CAPTURED = "captured";
@@ -127,14 +125,12 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            log.info("kafka.bootstrap.servers={}", kafka.getBootstrapServers());
             TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
                     "clickhouse.db.user=" + clickHouseContainer.getUsername(),
                     "clickhouse.db.password=" + clickHouseContainer.getPassword(),
                     "kafka.bootstrap.servers=" + kafka.getBootstrapServers())
                     .applyTo(configurableApplicationContext.getEnvironment());
-            LocationInfo info = new LocationInfo();
-            info.setCountryGeoId(COUNTRY_GEO_ID);
-
             ChInitializer.initAllScripts(clickHouseContainer);
         }
     }

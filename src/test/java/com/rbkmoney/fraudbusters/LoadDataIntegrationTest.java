@@ -94,8 +94,6 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
                     "clickhouse.db.password=" + clickHouseContainer.getPassword(),
                     "kafka.bootstrap.servers=" + kafka.getBootstrapServers())
                     .applyTo(configurableApplicationContext.getEnvironment());
-            LocationInfo info = new LocationInfo();
-            info.setCountryGeoId(COUNTRY_GEO_ID);
             ChInitializer.initAllScripts(clickHouseContainer);
         }
     }
