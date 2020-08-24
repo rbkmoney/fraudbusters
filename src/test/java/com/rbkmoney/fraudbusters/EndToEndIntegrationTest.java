@@ -176,7 +176,10 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Test
     public void test() throws URISyntaxException, TException, InterruptedException{
-        Thread.sleep(TIMEOUT * 30);
+        waitingTopic(kafkaTopics.getTemplate());
+        waitingTopic(kafkaTopics.getGroupList());
+        waitingTopic(kafkaTopics.getReference());
+        waitingTopic(kafkaTopics.getGroupReference());
 
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))

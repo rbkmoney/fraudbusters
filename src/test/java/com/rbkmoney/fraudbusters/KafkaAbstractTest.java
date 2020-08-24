@@ -198,7 +198,7 @@ public abstract class KafkaAbstractTest {
     protected static void waitingTopic(String topicName) {
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
             consumer.subscribe(List.of(topicName));
-            Unreliables.retryUntilTrue(240, TimeUnit.SECONDS, () -> {
+            Unreliables.retryUntilTrue(600, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
                 return !records.isEmpty();
             });
