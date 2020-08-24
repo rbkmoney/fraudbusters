@@ -27,6 +27,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
+import org.testcontainers.containers.KafkaContainer;
 import ru.yandex.clickhouse.ClickHouseDataSource;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
@@ -70,13 +71,19 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
+    @ClassRule
+    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
+            .withEmbeddedZookeeper()
+            .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
+
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
             TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
                     "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword())
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getBootstrapServers())
                     .applyTo(configurableApplicationContext.getEnvironment());
             LocationInfo info = new LocationInfo();
             info.setCountryGeoId(COUNTRY_GEO_ID);
@@ -109,14 +116,7 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
         produceTemplate(globalRef, TEMPLATE, kafkaTopics.getP2pTemplate());
         produceP2PReference(true, null, globalRef);
 
-        try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(kafkaTopics.getP2pTemplate()));
-            Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
-                ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1));
-                return records.isEmpty();
-            });
-        }
-
+        waitingTopic(kafkaTopics.getP2pTemplate());
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
 
         Thread.sleep(TIMEOUT * 3);
@@ -141,4 +141,8 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
         Assert.assertEquals(RiskScore.fatal, inspectResult.scores.get(FRAUD));
     }
 
+    @Override
+    protected String getBootstrapServers() {
+        return kafka.getBootstrapServers();
+    }
 }

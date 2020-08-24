@@ -5,11 +5,13 @@ import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
+import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +24,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.KafkaContainer;
 import ru.yandex.clickhouse.ClickHouseDataSource;
 
 import java.net.URI;
@@ -57,6 +60,11 @@ public class PreLoadTest extends KafkaAbstractTest {
     @LocalServerPort
     int serverPort;
 
+    @ClassRule
+    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
+            .withEmbeddedZookeeper()
+            .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
+
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
@@ -90,4 +98,8 @@ public class PreLoadTest extends KafkaAbstractTest {
         Assert.assertEquals(RiskScore.low, riskScore);
     }
 
+    @Override
+    protected String getBootstrapServers() {
+        return kafka.getBootstrapServers();
+    }
 }

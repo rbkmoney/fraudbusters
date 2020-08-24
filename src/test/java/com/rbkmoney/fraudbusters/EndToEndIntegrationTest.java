@@ -18,6 +18,7 @@ import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsRefundRepository;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
+import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +39,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.event.annotation.BeforeTestMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
+import org.testcontainers.containers.KafkaContainer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -112,6 +113,16 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
+    @ClassRule
+    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
+            .withEmbeddedZookeeper()
+            .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
+
+    @Override
+    protected String getBootstrapServers() {
+        return kafka.getBootstrapServers();
+    }
+
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @SneakyThrows
         @Override
@@ -119,16 +130,13 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
             log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
             TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
                     "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword())
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getBootstrapServers())
                     .applyTo(configurableApplicationContext.getEnvironment());
             LocationInfo info = new LocationInfo();
             info.setCountryGeoId(COUNTRY_GEO_ID);
 
             ChInitializer.initAllScripts(clickHouseContainer);
-
-            TestPropertyValues
-                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
-                    .applyTo(configurableApplicationContext.getEnvironment());
         }
     }
 

@@ -7,6 +7,7 @@ import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
+import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
@@ -31,6 +32,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
+import org.testcontainers.containers.KafkaContainer;
 
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -72,6 +74,11 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
 
     private final String globalRef = UUID.randomUUID().toString();
 
+    @ClassRule
+    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
+            .withEmbeddedZookeeper()
+            .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
+
     @Autowired
     JdbcTemplate jdbcTemplate;
 
@@ -88,7 +95,8 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
             log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
             TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
                     "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword())
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getBootstrapServers())
                     .applyTo(configurableApplicationContext.getEnvironment());
             LocationInfo info = new LocationInfo();
             info.setCountryGeoId(COUNTRY_GEO_ID);
@@ -100,16 +108,8 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
     public void init() throws ExecutionException, InterruptedException, TException {
         produceTemplate(globalRef, TEMPLATE, kafkaTopics.getFullTemplate());
         produceReference(true, null, null, globalRef);
-        try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(kafkaTopics.getFullTemplate()));
-            Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
-                ConsumerRecords<String, Object> records = consumer.poll(100);
-                return !records.isEmpty();
-            });
-        }
+        waitingTopic(kafkaTopics.getFullTemplate());
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
-
-        Thread.sleep(TIMEOUT * 3);
     }
 
     @Test
@@ -191,6 +191,11 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
 
     private void insertListDefaultPayments(PaymentServiceSrv.Iface client, PaymentStatus processed, PaymentStatus processed2) throws TException, InterruptedException {
         insertWithTimeout(client, List.of(createPayment(processed), createPayment(processed2)));
+    }
+
+    @Override
+    protected String getBootstrapServers() {
+        return kafka.getBootstrapServers();
     }
 
 }

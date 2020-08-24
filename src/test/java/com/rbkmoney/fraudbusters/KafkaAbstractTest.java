@@ -7,7 +7,6 @@ import com.rbkmoney.fraudbusters.config.properties.KafkaTopics;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.service.FraudManagementService;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
-import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
@@ -24,17 +23,12 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.containers.KafkaContainer;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -63,11 +57,6 @@ public abstract class KafkaAbstractTest {
 
     public static final String CONFLUENT_PLATFORM_VERSION = "5.0.1";
 
-    @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
-            .withEmbeddedZookeeper()
-            .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
-
     @Autowired
     protected KafkaTopics kafkaTopics;
 
@@ -83,18 +72,18 @@ public abstract class KafkaAbstractTest {
         Mockito.when(fraudManagementService.isNewShop(any())).thenReturn(false);
     }
 
-    public static Producer<String, Command> createProducer() {
+    public Producer<String, Command> createProducer() {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class.getName());
         return new KafkaProducer<>(props);
     }
 
-    static <T> Consumer<String, T> createConsumer(Class clazz) {
+    <T> Consumer<String, T> createConsumer(Class clazz) {
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, clazz);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
@@ -186,7 +175,7 @@ public abstract class KafkaAbstractTest {
         return command;
     }
 
-    protected static void waitingTopic(String topicName) {
+    protected void waitingTopic(String topicName) {
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
             consumer.subscribe(List.of(topicName));
             Unreliables.retryUntilTrue(120, TimeUnit.SECONDS, () -> {
@@ -195,4 +184,6 @@ public abstract class KafkaAbstractTest {
             });
         }
     }
+
+    protected abstract String getBootstrapServers();
 }
