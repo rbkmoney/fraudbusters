@@ -7,4 +7,6 @@
         <appender-ref ref="CONSOLE"/>
     </root>
     <logger name="com.rbkmoney" level="ALL"/>
+    <logger name="org.testcontainers" level="ALL"/>
+
 </configuration>
