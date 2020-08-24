@@ -78,8 +78,8 @@ public abstract class KafkaAbstractTest {
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class.getName());
-        props.put(ProducerConfig.RETRIES_CONFIG, 100);
-        props.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 200);
+        props.put(ProducerConfig.RETRIES_CONFIG, 200);
+        props.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
         return new KafkaProducer<>(props);
     }
 
@@ -180,7 +180,7 @@ public abstract class KafkaAbstractTest {
     protected void waitingTopic(String topicName) {
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
             consumer.subscribe(List.of(topicName));
-            Unreliables.retryUntilTrue(120, TimeUnit.SECONDS, () -> {
+            Unreliables.retryUntilTrue(240, TimeUnit.SECONDS, () -> {
                 ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
                 return !records.isEmpty();
             });
