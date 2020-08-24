@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
 import org.testcontainers.containers.KafkaContainer;
@@ -144,5 +145,10 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
     @Override
     protected String getBootstrapServers() {
         return kafka.getBootstrapServers();
+    }
+
+    @AfterTestClass
+    public void afterTest(){
+        kafka.stop();
     }
 }

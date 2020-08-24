@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 import org.testcontainers.containers.KafkaContainer;
@@ -113,4 +114,8 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         return kafka.getBootstrapServers();
     }
 
+    @AfterTestClass
+    public void afterTest(){
+        kafka.stop();
+    }
 }

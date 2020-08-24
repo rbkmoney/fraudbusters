@@ -23,6 +23,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 import ru.yandex.clickhouse.ClickHouseDataSource;
@@ -101,5 +102,10 @@ public class PreLoadTest extends KafkaAbstractTest {
     @Override
     protected String getBootstrapServers() {
         return kafka.getBootstrapServers();
+    }
+
+    @AfterTestClass
+    public void afterTest(){
+        kafka.stop();
     }
 }
