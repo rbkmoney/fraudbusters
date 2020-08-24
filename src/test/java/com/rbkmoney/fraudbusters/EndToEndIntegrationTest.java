@@ -125,6 +125,10 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
             info.setCountryGeoId(COUNTRY_GEO_ID);
 
             ChInitializer.initAllScripts(clickHouseContainer);
+
+            TestPropertyValues
+                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
+                    .applyTo(configurableApplicationContext.getEnvironment());
         }
     }
 

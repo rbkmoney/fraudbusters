@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 import static org.mockito.ArgumentMatchers.any;
 
 @Slf4j
-@ContextConfiguration(initializers = KafkaAbstractTest.Initializer.class, classes = KafkaTopics.class)
+@ContextConfiguration(classes = KafkaTopics.class)
 public abstract class KafkaAbstractTest {
 
     protected static final long TIMEOUT = 1000L;
@@ -90,15 +90,6 @@ public abstract class KafkaAbstractTest {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class.getName());
         return new KafkaProducer<>(props);
-    }
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            TestPropertyValues
-                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-        }
     }
 
     static <T> Consumer<String, T> createConsumer(Class clazz) {

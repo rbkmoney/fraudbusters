@@ -14,7 +14,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,7 +36,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
         properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true"})
-@ContextConfiguration(initializers = KafkaAbstractTest.Initializer.class)
+@ContextConfiguration(initializers = PreLoadTest.Initializer.class)
 public class PreLoadTest extends KafkaAbstractTest {
 
     private static final String TEMPLATE = "rule: 12 >= 1\n" +
@@ -53,6 +56,15 @@ public class PreLoadTest extends KafkaAbstractTest {
 
     @LocalServerPort
     int serverPort;
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            TestPropertyValues
+                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
+                    .applyTo(configurableApplicationContext.getEnvironment());
+        }
+    }
 
     @Before
     public void init() throws ExecutionException, InterruptedException {
