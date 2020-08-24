@@ -156,8 +156,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceGroupReference(GROUP_P_ID, null, groupId);
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
 
-        Thread.sleep(TIMEOUT * 3);
     }
+
     @Test
     public void test() throws URISyntaxException, TException, InterruptedException{
         waitingTopic(kafkaTopics.getTemplate());
@@ -224,6 +224,38 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
 
+    }
+
+    @Test
+    public void testValidation() throws URISyntaxException, TException {
+        THClientBuilder clientBuilder = new THClientBuilder()
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
+                .withNetworkTimeout(300000);
+        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
+
+        ValidateTemplateResponse validateTemplateResponse = client.validateCompilationTemplate(
+                List.of(new Template()
+                        .setId("dfsdf")
+                        .setTemplate(TEMPLATE.getBytes()))
+        );
+
+        Assert.assertTrue(validateTemplateResponse.getErrors().isEmpty());
+    }
+
+    @Test
+    public void testFraudPayment() throws URISyntaxException, TException, InterruptedException {
+        THClientBuilder clientBuilder = new THClientBuilder()
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment/v1/", serverPort)))
+                .withNetworkTimeout(300000);
+        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
+
+        //Payment
+        client.insertFraudPayments(List.of(FraudPaymentRepositoryTest.createFraudPayment("inv")));
+        Thread.sleep(TIMEOUT);
+
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.fraud_payment");
+        Assert.assertEquals(1, maps.size());
+        Assert.assertEquals("kek@kek.ru", maps.get(0).get("email"));
     }
 
 }
