@@ -31,6 +31,7 @@ public class ListenersConfigurationService {
     public static final long THROTTLING_TIMEOUT = 500L;
 
     private static final String EARLIEST = "earliest";
+    public static final int MAX_WAIT_FETCH_MS = 7000;
 
     @Value("${kafka.max.poll.records}")
     private String maxPollRecords;
@@ -94,6 +95,14 @@ public class ListenersConfigurationService {
     public <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Deserializer<T> deserializer, String groupId) {
         String consumerGroup = consumerGroupIdService.generateGroupId(groupId);
         final Map<String, Object> props = createDefaultProperties(consumerGroup);
+        return createFactoryWithProps(deserializer, props);
+    }
+
+    public <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Deserializer<T> deserializer, String groupId, Integer fetchMinBytes) {
+        String consumerGroup = consumerGroupIdService.generateGroupId(groupId);
+        final Map<String, Object> props = createDefaultProperties(consumerGroup);
+        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, fetchMinBytes);
+        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, MAX_WAIT_FETCH_MS);
         return createFactoryWithProps(deserializer, props);
     }
 

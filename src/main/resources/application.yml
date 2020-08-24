@@ -77,6 +77,7 @@ kafka:
     server-keystore-location: src/main/resources/cert/truststore.p12
   state:
     dir: tmp/state-store/
+  aggr.payment.min.bytes: 50000
 
 clickhouse.db:
   url: "jdbc:clickhouse://localhost:8123/default"
