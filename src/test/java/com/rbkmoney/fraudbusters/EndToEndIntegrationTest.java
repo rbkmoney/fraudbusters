@@ -23,10 +23,7 @@ import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +36,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
 import org.testcontainers.containers.KafkaContainer;
@@ -168,15 +166,14 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceGroupReference(GROUP_P_ID, null, groupId);
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
 
-    }
-
-    @Test
-    public void test() throws URISyntaxException, TException, InterruptedException{
         waitingTopic(kafkaTopics.getTemplate());
         waitingTopic(kafkaTopics.getGroupList());
         waitingTopic(kafkaTopics.getReference());
         waitingTopic(kafkaTopics.getGroupReference());
+    }
 
+    @Test
+    public void test() throws URISyntaxException, TException, InterruptedException{
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
@@ -268,6 +265,11 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.fraud_payment");
         Assert.assertEquals(1, maps.size());
         Assert.assertEquals("kek@kek.ru", maps.get(0).get("email"));
+    }
+
+    @AfterTestClass
+    public void afterTest(){
+        kafka.stop();
     }
 
 }
