@@ -153,6 +153,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceTemplate(groupTemplateDecline, GROUP_DECLINE, kafkaTopics.getFullTemplate());
         String groupTemplateNormal = UUID.randomUUID().toString();
         produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getFullTemplate());
+        waitingTopic(kafkaTopics.getFullTemplate());
 
         String groupId = UUID.randomUUID().toString();
         produceGroup(groupId, List.of(new PriorityId()
@@ -163,11 +164,21 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceGroupReference(GROUP_P_ID, null, groupId);
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
 
-        Thread.sleep(TIMEOUT * 10);
+        waitingTopic(kafkaTopics.getGroupList());
+        waitingTopic(kafkaTopics.getReference());
+        waitingTopic(kafkaTopics.getGroupReference());
     }
 
     @Test
     public void test() throws URISyntaxException, TException, InterruptedException{
+        testFraudRules();
+
+        testValidation();
+
+        testFraudPayment();
+    }
+
+    private void testFraudRules() throws URISyntaxException, InterruptedException, TException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
@@ -226,10 +237,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
-
     }
 
-    @Test
     public void testValidation() throws URISyntaxException, TException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
@@ -245,7 +254,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         Assert.assertTrue(validateTemplateResponse.getErrors().isEmpty());
     }
 
-    @Test
     public void testFraudPayment() throws URISyntaxException, TException, InterruptedException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format("http://localhost:%s/fraud_payment/v1/", serverPort)))
