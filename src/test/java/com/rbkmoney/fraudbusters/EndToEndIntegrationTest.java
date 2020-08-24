@@ -153,7 +153,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceTemplate(groupTemplateDecline, GROUP_DECLINE, kafkaTopics.getFullTemplate());
         String groupTemplateNormal = UUID.randomUUID().toString();
         produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getFullTemplate());
-        waitingTopic(kafkaTopics.getFullTemplate());
 
         String groupId = UUID.randomUUID().toString();
         produceGroup(groupId, List.of(new PriorityId()
@@ -164,9 +163,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceGroupReference(GROUP_P_ID, null, groupId);
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
 
-        waitingTopic(kafkaTopics.getGroupList());
-        waitingTopic(kafkaTopics.getReference());
-        waitingTopic(kafkaTopics.getGroupReference());
+        Thread.sleep(TIMEOUT * 10);
+
     }
 
     @Test
