@@ -130,21 +130,21 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
         String globalRef = UUID.randomUUID().toString();
-        produceTemplate(globalRef, TEMPLATE, kafkaTopics.getTemplate());
+        produceTemplate(globalRef, TEMPLATE, kafkaTopics.getFullTemplate());
         produceReference(true, null, null, globalRef);
 
         String partyTemplate = UUID.randomUUID().toString();
-        produceTemplate(partyTemplate, TEMPLATE_CONCRETE, kafkaTopics.getTemplate());
+        produceTemplate(partyTemplate, TEMPLATE_CONCRETE, kafkaTopics.getFullTemplate());
         produceReference(false, P_ID, null, partyTemplate);
 
         String shopRef = UUID.randomUUID().toString();
-        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP, kafkaTopics.getTemplate());
+        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP, kafkaTopics.getFullTemplate());
         produceReference(false, P_ID, ID_VALUE_SHOP, shopRef);
 
         String groupTemplateDecline = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateDecline, GROUP_DECLINE, kafkaTopics.getTemplate());
+        produceTemplate(groupTemplateDecline, GROUP_DECLINE, kafkaTopics.getFullTemplate());
         String groupTemplateNormal = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getTemplate());
+        produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getFullTemplate());
 
         String groupId = UUID.randomUUID().toString();
         produceGroup(groupId, List.of(new PriorityId()
@@ -176,10 +176,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Test
     public void test() throws URISyntaxException, TException, InterruptedException{
-        waitingTopic(kafkaTopics.getTemplate());
-        waitingTopic(kafkaTopics.getGroupList());
-        waitingTopic(kafkaTopics.getReference());
-        waitingTopic(kafkaTopics.getGroupReference());
+        Thread.sleep(TIMEOUT * 30);
 
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
