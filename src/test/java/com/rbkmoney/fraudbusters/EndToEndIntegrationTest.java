@@ -166,7 +166,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceGroupReference(GROUP_P_ID, null, groupId);
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
 
-        waitingTopic(kafkaTopics.getTemplate());
+        waitingTopic(kafkaTopics.getFullTemplate());
         waitingTopic(kafkaTopics.getGroupList());
         waitingTopic(kafkaTopics.getReference());
         waitingTopic(kafkaTopics.getGroupReference());
