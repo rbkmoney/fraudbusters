@@ -130,21 +130,21 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
         String globalRef = UUID.randomUUID().toString();
-        produceTemplate(globalRef, TEMPLATE, kafkaTopics.getFullTemplate());
+        produceTemplate(globalRef, TEMPLATE, kafkaTopics.getTemplate());
         produceReference(true, null, null, globalRef);
 
         String partyTemplate = UUID.randomUUID().toString();
-        produceTemplate(partyTemplate, TEMPLATE_CONCRETE, kafkaTopics.getFullTemplate());
+        produceTemplate(partyTemplate, TEMPLATE_CONCRETE, kafkaTopics.getTemplate());
         produceReference(false, P_ID, null, partyTemplate);
 
         String shopRef = UUID.randomUUID().toString();
-        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP, kafkaTopics.getFullTemplate());
+        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP, kafkaTopics.getTemplate());
         produceReference(false, P_ID, ID_VALUE_SHOP, shopRef);
 
         String groupTemplateDecline = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateDecline, GROUP_DECLINE, kafkaTopics.getFullTemplate());
+        produceTemplate(groupTemplateDecline, GROUP_DECLINE, kafkaTopics.getTemplate());
         String groupTemplateNormal = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getFullTemplate());
+        produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getTemplate());
 
         String groupId = UUID.randomUUID().toString();
         produceGroup(groupId, List.of(new PriorityId()

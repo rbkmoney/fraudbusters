@@ -179,7 +179,7 @@ public abstract class KafkaAbstractTest {
             Command command = BeanUtil.createGroupReferenceCommand(party, shopId, idGroup);
             String key = ReferenceKeyGenerator.generateTemplateKeyByList(party, shopId);
             ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getFullGroupReference(), key, command);
-            producer.send(producerRecord);
+            producer.send(producerRecord).get();
         }
     }
 
