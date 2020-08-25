@@ -5,7 +5,6 @@ import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
-import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.constant.ChargebackStatus;
@@ -23,7 +22,10 @@ import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,7 +155,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceTemplate(groupTemplateDecline, GROUP_DECLINE, kafkaTopics.getFullTemplate());
         String groupTemplateNormal = UUID.randomUUID().toString();
         produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getFullTemplate());
-        waitingTopic(kafkaTopics.getFullTemplate());
+
 
         String groupId = UUID.randomUUID().toString();
         produceGroup(groupId, List.of(new PriorityId()
@@ -164,14 +166,18 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceGroupReference(GROUP_P_ID, null, groupId);
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
 
-        waitingTopic(kafkaTopics.getGroupList());
-        waitingTopic(kafkaTopics.getReference());
-        waitingTopic(kafkaTopics.getGroupReference());
     }
 
     @Test
-    public void test() throws URISyntaxException, TException, InterruptedException{
-        testFraudRules();
+    public void test() throws URISyntaxException, TException, InterruptedException {
+//        waitingTopic(kafkaTopics.getFullTemplate());
+//        waitingTopic(kafkaTopics.getGroupList());
+//        waitingTopic(kafkaTopics.getReference());
+//        waitingTopic(kafkaTopics.getGroupReference());
+//
+//        testFraudRules();
+
+        Thread.sleep(TIMEOUT * 5);
 
         testValidation();
 
