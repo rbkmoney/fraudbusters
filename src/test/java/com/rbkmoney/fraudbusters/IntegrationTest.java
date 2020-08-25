@@ -24,6 +24,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.mockito.Mockito;
@@ -76,6 +77,13 @@ public abstract class IntegrationTest {
     @Before
     public void setUp() {
         Mockito.when(fraudManagementService.isNewShop(any())).thenReturn(false);
+    }
+
+    @SneakyThrows
+    @AfterClass
+    public static void after() {
+        kafka.after();
+        Thread.sleep(TIMEOUT * 10);
     }
 
     @ClassRule
