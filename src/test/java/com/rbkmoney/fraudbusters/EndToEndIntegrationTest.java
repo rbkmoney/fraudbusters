@@ -124,7 +124,6 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         String groupTemplateNormal = UUID.randomUUID().toString();
         produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getFullTemplate());
 
-
         String groupId = UUID.randomUUID().toString();
         produceGroup(groupId, List.of(new PriorityId()
                 .setId(groupTemplateDecline)
