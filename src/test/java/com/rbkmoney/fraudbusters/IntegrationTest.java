@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters;
 
+import com.rbkmoney.CustomEmbeddedKafkaRule;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
@@ -24,7 +25,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.mockito.Mockito;
@@ -35,7 +35,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.ClickHouseContainer;
 
@@ -74,13 +73,21 @@ public abstract class IntegrationTest {
     @Value("${kafka.topic.fraud.payment}")
     public String fraudPaymentTopic;
 
+    static {
+        try {
+            Thread.sleep(TIMEOUT * 30);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Before
     public void setUp() {
         Mockito.when(fraudManagementService.isNewShop(any())).thenReturn(false);
     }
 
     @ClassRule
-    public static EmbeddedKafkaRule kafka = new EmbeddedKafkaRule(1, true, 1,
+    public static CustomEmbeddedKafkaRule kafka = new CustomEmbeddedKafkaRule(1, true, 1,
             "wb-list-event-sink"
             , "result"
             , "p2p_result"
