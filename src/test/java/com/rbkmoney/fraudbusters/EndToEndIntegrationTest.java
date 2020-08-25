@@ -46,6 +46,7 @@ import org.testcontainers.containers.KafkaContainer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -115,6 +116,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     @ClassRule
     public static KafkaContainer kafka = new KafkaContainer()
             .withEmbeddedZookeeper()
+            .withStartupTimeout(Duration.ofSeconds(240))
             .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
 
     @Override
@@ -138,7 +140,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     }
 
     @Before
-    public void init() throws ExecutionException, InterruptedException, SQLException, TException {
+    public void init() throws ExecutionException, InterruptedException, TException {
         String globalRef = UUID.randomUUID().toString();
         produceTemplate(globalRef, TEMPLATE, kafkaTopics.getFullTemplate());
         produceReference(true, null, null, globalRef);
@@ -170,14 +172,12 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Test
     public void test() throws URISyntaxException, TException, InterruptedException {
-//        waitingTopic(kafkaTopics.getFullTemplate());
-//        waitingTopic(kafkaTopics.getGroupList());
-//        waitingTopic(kafkaTopics.getReference());
-//        waitingTopic(kafkaTopics.getGroupReference());
-//
-//        testFraudRules();
+        waitingTopic(kafkaTopics.getFullTemplate());
+        waitingTopic(kafkaTopics.getGroupList());
+        waitingTopic(kafkaTopics.getReference());
+        waitingTopic(kafkaTopics.getGroupReference());
 
-        Thread.sleep(TIMEOUT * 5);
+        testFraudRules();
 
         testValidation();
 

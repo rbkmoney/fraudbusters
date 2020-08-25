@@ -59,7 +59,6 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
                     "AND in(countryBy(\"country_bank\"), \"RUS\") \n" +
                     " -> decline;";
 
-    private static final int COUNTRY_GEO_ID = 12345;
     public static final long TIMEOUT = 2000L;
     public static final String FRAUD = "fraud";
     public static final String IDENT_ID = "identId";
