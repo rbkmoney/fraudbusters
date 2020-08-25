@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.CustomEmbeddedKafkaRule;
 import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.p2p_insp.InspectResult;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
@@ -23,7 +22,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
-import org.testcontainers.containers.KafkaContainer;
 import ru.yandex.clickhouse.ClickHouseDataSource;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
@@ -67,26 +65,7 @@ public class P2PEndToEndIntegrationTest extends IntegrationTest {
         return dataSource.getConnection();
     }
     @ClassRule
-    public static EmbeddedKafkaRule kafka = new EmbeddedKafkaRule(1, true, 1,
-            "wb-list-event-sink"
-            , "result"
-            , "p2p_result"
-            , "fraud_payment"
-            , "payment_event"
-            , "refund_event"
-            , "chargeback_event"
-            , "template"
-            , "full_template"
-            , "template_p2p"
-            , "template_reference"
-            , "full_template_reference"
-            , "template_p2p_reference"
-            , "group_list"
-            , "full_group_list"
-            , "group_p2p_list"
-            , "group_reference"
-            , "full_group_reference"
-            , "group_p2p_reference");
+    public static EmbeddedKafkaRule kafka = createKafka();
 
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");

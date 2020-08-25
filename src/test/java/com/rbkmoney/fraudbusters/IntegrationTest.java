@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.CustomEmbeddedKafkaRule;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
@@ -8,11 +7,9 @@ import com.rbkmoney.fraudbusters.config.properties.KafkaTopics;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.service.FraudManagementService;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
-import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -26,18 +23,13 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.containers.ClickHouseContainer;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -195,7 +187,7 @@ public abstract class IntegrationTest {
     }
 
     protected static EmbeddedKafkaRule createKafka() {
-        return new CustomEmbeddedKafkaRule(1, true, 1,
+        return new EmbeddedKafkaRule(1, true, 1,
                 "wb-list-event-sink"
                 , "result"
                 , "p2p_result"

@@ -1,13 +1,11 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.CustomEmbeddedKafkaRule;
 import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
-import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +24,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
-import org.testcontainers.containers.KafkaContainer;
 import ru.yandex.clickhouse.ClickHouseDataSource;
 
 import java.net.URI;
@@ -62,26 +59,7 @@ public class PreLoadTest extends IntegrationTest {
     @LocalServerPort
     int serverPort;
     @ClassRule
-    public static EmbeddedKafkaRule kafka = new EmbeddedKafkaRule(1, true, 1,
-            "wb-list-event-sink"
-            , "result"
-            , "p2p_result"
-            , "fraud_payment"
-            , "payment_event"
-            , "refund_event"
-            , "chargeback_event"
-            , "template"
-            , "full_template"
-            , "template_p2p"
-            , "template_reference"
-            , "full_template_reference"
-            , "template_p2p_reference"
-            , "group_list"
-            , "full_group_list"
-            , "group_p2p_list"
-            , "group_reference"
-            , "full_group_reference"
-            , "group_p2p_reference");
+    public static EmbeddedKafkaRule kafka = createKafka();
 
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");

@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.CustomEmbeddedKafkaRule;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
@@ -71,26 +70,7 @@ public class LoadDataIntegrationTest extends IntegrationTest {
     @LocalServerPort
     int serverPort;
     @ClassRule
-    public static EmbeddedKafkaRule kafka = new EmbeddedKafkaRule(1, true, 1,
-            "wb-list-event-sink"
-            , "result"
-            , "p2p_result"
-            , "fraud_payment"
-            , "payment_event"
-            , "refund_event"
-            , "chargeback_event"
-            , "template"
-            , "full_template"
-            , "template_p2p"
-            , "template_reference"
-            , "full_template_reference"
-            , "template_p2p_reference"
-            , "group_list"
-            , "full_group_list"
-            , "group_p2p_list"
-            , "group_reference"
-            , "full_group_reference"
-            , "group_p2p_reference");
+    public static EmbeddedKafkaRule kafka = createKafka();
 
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");

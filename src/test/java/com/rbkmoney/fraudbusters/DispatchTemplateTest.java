@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.CustomEmbeddedKafkaRule;
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.CommandBody;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
@@ -12,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.checkerframework.checker.index.qual.SameLen;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -53,26 +51,7 @@ public class DispatchTemplateTest extends IntegrationTest {
     @Autowired
     private Pool<String> referencePoolImpl;
     @ClassRule
-    public static EmbeddedKafkaRule kafka = new EmbeddedKafkaRule(1, true, 1,
-            "wb-list-event-sink"
-            , "result"
-            , "p2p_result"
-            , "fraud_payment"
-            , "payment_event"
-            , "refund_event"
-            , "chargeback_event"
-            , "template"
-            , "full_template"
-            , "template_p2p"
-            , "template_reference"
-            , "full_template_reference"
-            , "template_p2p_reference"
-            , "group_list"
-            , "full_group_list"
-            , "group_p2p_list"
-            , "group_reference"
-            , "full_group_reference"
-            , "group_p2p_reference");
+    public static EmbeddedKafkaRule kafka = createKafka();
 
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
