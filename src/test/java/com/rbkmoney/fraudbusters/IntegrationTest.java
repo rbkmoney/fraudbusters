@@ -35,6 +35,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.ClickHouseContainer;
 
@@ -49,7 +50,7 @@ import java.util.concurrent.TimeUnit;
 import static org.mockito.ArgumentMatchers.any;
 
 @Slf4j
-@ContextConfiguration(classes = KafkaTopics.class, initializers = IntegrationTest.Initializer.class)
+@ContextConfiguration(classes = KafkaTopics.class)
 public abstract class IntegrationTest {
 
     protected static final long TIMEOUT = 1000L;
@@ -73,62 +74,14 @@ public abstract class IntegrationTest {
     @Value("${kafka.topic.fraud.payment}")
     public String fraudPaymentTopic;
 
-    static {
-        try {
-            Thread.sleep(TIMEOUT * 30);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Before
     public void setUp() {
         Mockito.when(fraudManagementService.isNewShop(any())).thenReturn(false);
     }
 
-    @ClassRule
-    public static CustomEmbeddedKafkaRule kafka = new CustomEmbeddedKafkaRule(1, true, 1,
-            "wb-list-event-sink"
-            , "result"
-            , "p2p_result"
-            , "fraud_payment"
-            , "payment_event"
-            , "refund_event"
-            , "chargeback_event"
-            , "template"
-            , "full_template"
-            , "template_p2p"
-            , "template_reference"
-            , "full_template_reference"
-            , "template_p2p_reference"
-            , "group_list"
-            , "full_group_list"
-            , "group_p2p_list"
-            , "group_reference"
-            , "full_group_reference"
-            , "group_p2p_reference");
-
-    @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
-            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
-                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer);
-        }
-    }
-
     public Producer<String, Command> createProducer() {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getEmbeddedKafka().getBrokersAsString());
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, getBrokersAsString());
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class.getName());
@@ -139,7 +92,7 @@ public abstract class IntegrationTest {
 
     <T> Consumer<String, T> createConsumer(Class clazz) {
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getEmbeddedKafka().getBrokersAsString());
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, getBrokersAsString());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, clazz);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
@@ -241,4 +194,28 @@ public abstract class IntegrationTest {
         }
     }
 
+    protected static EmbeddedKafkaRule createKafka() {
+        return new CustomEmbeddedKafkaRule(1, true, 1,
+                "wb-list-event-sink"
+                , "result"
+                , "p2p_result"
+                , "fraud_payment"
+                , "payment_event"
+                , "refund_event"
+                , "chargeback_event"
+                , "template"
+                , "full_template"
+                , "template_p2p"
+                , "template_reference"
+                , "full_template_reference"
+                , "template_p2p_reference"
+                , "group_list"
+                , "full_group_list"
+                , "group_p2p_list"
+                , "group_reference"
+                , "full_group_reference"
+                , "group_p2p_reference");
+    }
+
+    protected abstract String getBrokersAsString();
 }

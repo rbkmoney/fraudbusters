@@ -1,27 +1,30 @@
 package com.rbkmoney.fraudbusters;
 
+import com.rbkmoney.CustomEmbeddedKafkaRule;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.fraudbusters.constant.EventSource;
+import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.ClickHouseContainer;
 
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -66,6 +69,50 @@ public class LoadDataIntegrationTest extends IntegrationTest {
 
     @LocalServerPort
     int serverPort;
+    @ClassRule
+    public static CustomEmbeddedKafkaRule kafka = new CustomEmbeddedKafkaRule(1, true, 1,
+            "wb-list-event-sink"
+            , "result"
+            , "p2p_result"
+            , "fraud_payment"
+            , "payment_event"
+            , "refund_event"
+            , "chargeback_event"
+            , "template"
+            , "full_template"
+            , "template_p2p"
+            , "template_reference"
+            , "full_template_reference"
+            , "template_p2p_reference"
+            , "group_list"
+            , "full_group_list"
+            , "group_p2p_list"
+            , "group_reference"
+            , "full_group_reference"
+            , "group_p2p_reference");
+
+    @ClassRule
+    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+
+    @Override
+    protected String getBrokersAsString() {
+        return kafka.getEmbeddedKafka().getBrokersAsString();
+    }
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
+            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
+                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
+                    .applyTo(configurableApplicationContext.getEnvironment());
+            ChInitializer.initAllScripts(clickHouseContainer);
+        }
+    }
 
     @Before
     public void init() throws ExecutionException, InterruptedException, TException {
