@@ -114,9 +114,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer()
+    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
             .withEmbeddedZookeeper()
-            .withStartupTimeout(Duration.ofSeconds(240))
             .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
 
     @Override
@@ -273,11 +272,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.fraud_payment");
         Assert.assertEquals(1, maps.size());
         Assert.assertEquals("kek@kek.ru", maps.get(0).get("email"));
-    }
-
-    @AfterTestClass
-    public void afterTest(){
-        kafka.stop();
     }
 
 }

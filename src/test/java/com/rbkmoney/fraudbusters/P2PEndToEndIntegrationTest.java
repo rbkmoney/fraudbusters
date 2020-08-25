@@ -72,7 +72,7 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer()
+    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
             .withEmbeddedZookeeper()
             .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
 
@@ -144,8 +144,4 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
         return kafka.getBootstrapServers();
     }
 
-    @AfterTestClass
-    public void afterTest(){
-        kafka.stop();
-    }
 }

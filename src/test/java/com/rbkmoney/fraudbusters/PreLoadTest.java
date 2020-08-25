@@ -104,8 +104,4 @@ public class PreLoadTest extends KafkaAbstractTest {
         return kafka.getBootstrapServers();
     }
 
-    @AfterTestClass
-    public void afterTest(){
-        kafka.stop();
-    }
 }
