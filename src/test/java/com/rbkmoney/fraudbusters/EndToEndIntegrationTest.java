@@ -12,7 +12,6 @@ import com.rbkmoney.fraudbusters.constant.RefundStatus;
 import com.rbkmoney.fraudbusters.domain.Chargeback;
 import com.rbkmoney.fraudbusters.domain.Payment;
 import com.rbkmoney.fraudbusters.domain.Refund;
-import com.rbkmoney.fraudbusters.repository.FraudPaymentRepositoryTest;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsRefundRepository;
@@ -44,7 +43,6 @@ import org.testcontainers.containers.ClickHouseContainer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -172,8 +170,6 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         testFraudRules();
 
         testValidation();
-
-        testFraudPayment();
     }
 
     private void testFraudRules() throws URISyntaxException, InterruptedException, TException {
@@ -250,21 +246,6 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         );
 
         Assert.assertTrue(validateTemplateResponse.getErrors().isEmpty());
-    }
-
-    public void testFraudPayment() throws URISyntaxException, TException, InterruptedException {
-        THClientBuilder clientBuilder = new THClientBuilder()
-                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment/v1/", serverPort)))
-                .withNetworkTimeout(300000);
-        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
-
-        //Payment
-        client.insertFraudPayments(List.of(FraudPaymentRepositoryTest.createFraudPayment("inv")));
-        Thread.sleep(TIMEOUT);
-
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.fraud_payment");
-        Assert.assertEquals(1, maps.size());
-        Assert.assertEquals("kek@kek.ru", maps.get(0).get("email"));
     }
 
 }
