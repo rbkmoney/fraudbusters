@@ -35,6 +35,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -107,7 +108,7 @@ public class EndToEndIntegrationTest extends IntegrationTest {
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
     @ClassRule
-    public static CustomEmbeddedKafkaRule kafka = new CustomEmbeddedKafkaRule(1, true, 1,
+    public static EmbeddedKafkaRule kafka = new EmbeddedKafkaRule(1, true, 1,
             "wb-list-event-sink"
             , "result"
             , "p2p_result"

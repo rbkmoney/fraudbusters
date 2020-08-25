@@ -21,6 +21,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -70,7 +71,7 @@ public class LoadDataIntegrationTest extends IntegrationTest {
     @LocalServerPort
     int serverPort;
     @ClassRule
-    public static CustomEmbeddedKafkaRule kafka = new CustomEmbeddedKafkaRule(1, true, 1,
+    public static EmbeddedKafkaRule kafka = new EmbeddedKafkaRule(1, true, 1,
             "wb-list-event-sink"
             , "result"
             , "p2p_result"
