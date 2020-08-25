@@ -21,7 +21,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 import ru.yandex.clickhouse.ClickHouseDataSource;
@@ -39,7 +38,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
         properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true"})
 @ContextConfiguration(initializers = PreLoadTest.Initializer.class)
-public class PreLoadTest extends KafkaAbstractTest {
+public class PreLoadTest extends IntegrationTest {
 
     private static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
@@ -58,20 +57,6 @@ public class PreLoadTest extends KafkaAbstractTest {
 
     @LocalServerPort
     int serverPort;
-
-    @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
-            .withEmbeddedZookeeper()
-            .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            TestPropertyValues
-                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-        }
-    }
 
     @Before
     public void init() throws ExecutionException, InterruptedException {
@@ -97,16 +82,4 @@ public class PreLoadTest extends KafkaAbstractTest {
         Assert.assertEquals(RiskScore.low, riskScore);
     }
 
-    @Override
-    protected String getBootstrapServers() {
-        return kafka.getBootstrapServers();
-    }
-
-    @AfterClass
-    @SneakyThrows
-    public static void destroy(){
-        kafka.stop();
-        kafka.close();
-        Thread.sleep(TIMEOUT * 20);
-    }
 }

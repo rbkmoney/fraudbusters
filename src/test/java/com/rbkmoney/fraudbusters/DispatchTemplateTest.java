@@ -38,7 +38,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = "kafka.listen.result.concurrency=1")
 @ContextConfiguration(initializers = DispatchTemplateTest.Initializer.class)
-public class DispatchTemplateTest extends KafkaAbstractTest {
+public class DispatchTemplateTest extends IntegrationTest {
 
     public static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
@@ -48,20 +48,6 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
     private Pool<ParserRuleContext> templatePoolImpl;
     @Autowired
     private Pool<String> referencePoolImpl;
-
-    @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
-            .withEmbeddedZookeeper()
-            .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            TestPropertyValues
-                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-        }
-    }
 
     @Test
     public void testPools() throws ExecutionException, InterruptedException {
@@ -105,16 +91,4 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         });
     }
 
-    @Override
-    protected String getBootstrapServers() {
-        return kafka.getBootstrapServers();
-    }
-
-    @AfterClass
-    @SneakyThrows
-    public static void destroy(){
-        kafka.stop();
-        kafka.close();
-        Thread.sleep(TIMEOUT * 20);
-    }
 }

@@ -1,21 +1,16 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
-import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.p2p_insp.InspectResult;
-import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.thrift.TException;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -23,7 +18,6 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
 import org.testcontainers.containers.KafkaContainer;
@@ -34,11 +28,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -48,7 +40,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = "kafka.listen.result.concurrency=1")
 @ContextConfiguration(initializers = P2PEndToEndIntegrationTest.Initializer.class)
-public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
+public class P2PEndToEndIntegrationTest extends IntegrationTest {
 
     private static final String TEMPLATE =
             "rule: count(\"email\", 10, 0, \"identity_id\") > 1  AND count(\"email\", 10) < 3 " +
@@ -65,26 +57,6 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
     int serverPort;
 
     private static String SERVICE_P2P_URL = "http://localhost:%s/fraud_p2p_inspector/v1";
-
-    @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
-    @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
-            .withEmbeddedZookeeper()
-            .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
-                    "kafka.bootstrap.servers=" + kafka.getBootstrapServers())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-        }
-    }
 
     private Connection getSystemConn() throws SQLException {
         ClickHouseProperties properties = new ClickHouseProperties();
@@ -137,16 +109,4 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
         Assert.assertEquals(RiskScore.fatal, inspectResult.scores.get(FRAUD));
     }
 
-    @Override
-    protected String getBootstrapServers() {
-        return kafka.getBootstrapServers();
-    }
-
-    @AfterClass
-    @SneakyThrows
-    public static void destroy(){
-        kafka.stop();
-        kafka.close();
-        Thread.sleep(TIMEOUT * 20);
-    }
 }

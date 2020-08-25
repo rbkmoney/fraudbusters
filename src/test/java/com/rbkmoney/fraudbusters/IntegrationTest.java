@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.config.properties.KafkaTopics;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.service.FraudManagementService;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
+import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
@@ -24,13 +25,18 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.containers.ClickHouseContainer;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -43,16 +49,10 @@ import java.util.concurrent.TimeUnit;
 import static org.mockito.ArgumentMatchers.any;
 
 @Slf4j
-@ContextConfiguration(classes = KafkaTopics.class)
-public abstract class KafkaAbstractTest {
+@ContextConfiguration(classes = KafkaTopics.class, initializers = IntegrationTest.Initializer.class)
+public abstract class IntegrationTest {
 
     protected static final long TIMEOUT = 1000L;
-
-    @SneakyThrows
-    @BeforeClass
-    public static void start() {
-        Thread.sleep(TIMEOUT * 10);
-    }
 
     @MockBean
     private FraudManagementService fraudManagementService;
@@ -62,8 +62,6 @@ public abstract class KafkaAbstractTest {
 
     @MockBean
     WbListServiceSrv.Iface wbListServiceSrv;
-
-    public static final String CONFLUENT_PLATFORM_VERSION = "5.0.1";
 
     @Autowired
     protected KafkaTopics kafkaTopics;
@@ -80,9 +78,49 @@ public abstract class KafkaAbstractTest {
         Mockito.when(fraudManagementService.isNewShop(any())).thenReturn(false);
     }
 
+    @ClassRule
+    public static EmbeddedKafkaRule kafka = new EmbeddedKafkaRule(1, true, 1,
+            "wb-list-event-sink"
+            , "result"
+            , "p2p_result"
+            , "fraud_payment"
+            , "payment_event"
+            , "refund_event"
+            , "chargeback_event"
+            , "template"
+            , "full_template"
+            , "template_p2p"
+            , "template_reference"
+            , "full_template_reference"
+            , "template_p2p_reference"
+            , "group_list"
+            , "full_group_list"
+            , "group_p2p_list"
+            , "group_reference"
+            , "full_group_reference"
+            , "group_p2p_reference");
+
+    @ClassRule
+    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
+            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
+                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
+                    .applyTo(configurableApplicationContext.getEnvironment());
+            ChInitializer.initAllScripts(clickHouseContainer);
+        }
+    }
+
     public Producer<String, Command> createProducer() {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getEmbeddedKafka().getBrokersAsString());
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class.getName());
@@ -93,7 +131,7 @@ public abstract class KafkaAbstractTest {
 
     <T> Consumer<String, T> createConsumer(Class clazz) {
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getEmbeddedKafka().getBrokersAsString());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, clazz);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
@@ -195,5 +233,4 @@ public abstract class KafkaAbstractTest {
         }
     }
 
-    protected abstract String getBootstrapServers();
 }

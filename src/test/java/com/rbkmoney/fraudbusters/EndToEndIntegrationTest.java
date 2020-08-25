@@ -17,12 +17,14 @@ import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsRefundRepository;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
-import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +34,12 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
-import org.testcontainers.containers.KafkaContainer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -56,8 +58,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
         properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true"})
-@ContextConfiguration(initializers = EndToEndIntegrationTest.Initializer.class)
-public class EndToEndIntegrationTest extends KafkaAbstractTest {
+public class EndToEndIntegrationTest extends IntegrationTest {
 
     private static final String TEMPLATE =
             "rule:TEMPLATE: count(\"email\", 10, 0, \"party_id\", \"shop_id\") > 1  AND count(\"email\", 10) < 3 " +
@@ -103,34 +104,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     int serverPort;
 
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
-
-    @ClassRule(order = 1)
-    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
-            .withEmbeddedZookeeper()
-            .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
-
-    @ClassRule(order = 2)
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
-    @Override
-    protected String getBootstrapServers() {
-        return kafka.getBootstrapServers();
-    }
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            log.info("kafka.bootstrap.servers={}", kafka.getBootstrapServers());
-            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
-                    "kafka.bootstrap.servers=" + kafka.getBootstrapServers())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer);
-        }
-    }
 
     @Before
     public void init() throws ExecutionException, InterruptedException, TException {
@@ -268,11 +241,4 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         Assert.assertEquals("kek@kek.ru", maps.get(0).get("email"));
     }
 
-    @AfterClass
-    @SneakyThrows
-    public static void destroy(){
-        kafka.stop();
-        kafka.close();
-        Thread.sleep(TIMEOUT * 20);
-    }
 }

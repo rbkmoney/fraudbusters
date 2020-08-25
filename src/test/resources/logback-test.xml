@@ -3,12 +3,9 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
-<!--    <root level="warn">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
-<!--    </root>-->
-<!--    <logger name="com.rbkmoney" level="ALL"/>-->
-    <logger name="org.testcontainers" level="ERROR"/>
-    <logger name="com.rbkmoney.fraudbusters.EndToEndIntegrationTest" level="ALL"/>
-    <logger name="com.rbkmoney.fraudbusters.KafkaAbstractTest" level="ALL"/>
+    <root level="warn">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+    <logger name="com.rbkmoney" level="ALL"/>
 
 </configuration>

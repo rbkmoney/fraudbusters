@@ -3,10 +3,7 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
-import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.fraudbusters.constant.EventSource;
-import com.rbkmoney.fraudbusters.util.ChInitializer;
-import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
@@ -14,23 +11,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.ClickHouseContainer;
-import org.testcontainers.containers.KafkaContainer;
 
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -50,7 +40,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
         properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true", "kafka.aggr.payment.min.bytes=1"})
 @ContextConfiguration(initializers = LoadDataIntegrationTest.Initializer.class)
-public class LoadDataIntegrationTest extends KafkaAbstractTest {
+public class LoadDataIntegrationTest extends IntegrationTest {
 
     private static final String TEMPLATE =
             "rule:TEMPLATE: " +
@@ -64,40 +54,17 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE_CONCRETE =
             "rule:TEMPLATE_CONCRETE: count(\"card_token\", 10) > 0  -> accept;";
 
-    private static final int COUNTRY_GEO_ID = 12345;
     public static final String PAYMENT_1 = "payment_1";
     public static final String PAYMENT_2 = "payment_2";
     public static final String PAYMENT_0 = "payment_0";
 
     private final String globalRef = UUID.randomUUID().toString();
 
-    @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
-            .withEmbeddedZookeeper()
-            .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
-
     @Autowired
     JdbcTemplate jdbcTemplate;
 
     @LocalServerPort
     int serverPort;
-
-    @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
-                    "kafka.bootstrap.servers=" + kafka.getBootstrapServers())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer);
-        }
-    }
 
     @Before
     public void init() throws ExecutionException, InterruptedException, TException {
@@ -188,16 +155,4 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
         insertWithTimeout(client, List.of(createPayment(processed), createPayment(processed2)));
     }
 
-    @Override
-    protected String getBootstrapServers() {
-        return kafka.getBootstrapServers();
-    }
-
-    @AfterClass
-    @SneakyThrows
-    public static void destroy(){
-        kafka.stop();
-        kafka.close();
-        Thread.sleep(TIMEOUT * 20);
-    }
 }
