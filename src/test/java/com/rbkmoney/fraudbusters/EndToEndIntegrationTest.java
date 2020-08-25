@@ -107,14 +107,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
-    static {
-        try {
-            Thread.sleep(TIMEOUT * 20);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 

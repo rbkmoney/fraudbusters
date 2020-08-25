@@ -46,6 +46,15 @@ public abstract class KafkaAbstractTest {
 
     protected static final long TIMEOUT = 1000L;
 
+    static {
+        try {
+            log.info("sleep!");
+            Thread.sleep(TIMEOUT * 20);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     @MockBean
     private FraudManagementService fraudManagementService;
 
