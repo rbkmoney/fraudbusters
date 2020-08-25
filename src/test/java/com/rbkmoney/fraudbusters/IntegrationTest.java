@@ -35,6 +35,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.ClickHouseContainer;
@@ -82,12 +83,12 @@ public abstract class IntegrationTest {
     @SneakyThrows
     @AfterClass
     public static void after() {
-        kafka.after();
-        Thread.sleep(TIMEOUT * 40);
+        kafka.destroy();
+        Thread.sleep(TIMEOUT * 30);
     }
 
     @ClassRule
-    public static EmbeddedKafkaRule kafka = new EmbeddedKafkaRule(1, true, 1,
+    public static EmbeddedKafkaBroker kafka = new EmbeddedKafkaBroker(1, true, 1,
             "wb-list-event-sink"
             , "result"
             , "p2p_result"
@@ -116,11 +117,11 @@ public abstract class IntegrationTest {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
+            log.info("kafka.bootstrap.servers={}", kafka.getBrokersAsString());
             TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
                     "clickhouse.db.user=" + clickHouseContainer.getUsername(),
                     "clickhouse.db.password=" + clickHouseContainer.getPassword(),
-                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
+                    "kafka.bootstrap.servers=" + kafka.getBrokersAsString())
                     .applyTo(configurableApplicationContext.getEnvironment());
             ChInitializer.initAllScripts(clickHouseContainer);
         }
@@ -128,7 +129,7 @@ public abstract class IntegrationTest {
 
     public Producer<String, Command> createProducer() {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getEmbeddedKafka().getBrokersAsString());
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBrokersAsString());
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class.getName());
@@ -139,7 +140,7 @@ public abstract class IntegrationTest {
 
     <T> Consumer<String, T> createConsumer(Class clazz) {
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getEmbeddedKafka().getBrokersAsString());
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBrokersAsString());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, clazz);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
