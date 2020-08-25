@@ -124,6 +124,8 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         @SneakyThrows
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            Thread.sleep(TIMEOUT * 20);
+
             log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
             log.info("kafka.bootstrap.servers={}", kafka.getBootstrapServers());
             TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
@@ -137,8 +139,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Before
     public void init() throws ExecutionException, InterruptedException, TException {
-        Thread.sleep(TIMEOUT * 10);
-
         String globalRef = UUID.randomUUID().toString();
         produceTemplate(globalRef, TEMPLATE, kafkaTopics.getFullTemplate());
         produceReference(true, null, null, globalRef);
