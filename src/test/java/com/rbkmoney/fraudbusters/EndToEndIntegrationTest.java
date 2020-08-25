@@ -176,7 +176,7 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     @Test
     public void test() throws URISyntaxException, TException, InterruptedException {
-        waitingTopic(kafkaTopics.getFullTemplate());
+        waitingTopic(kafkaTopics.getTemplate());
         waitingTopic(kafkaTopics.getGroupList());
         waitingTopic(kafkaTopics.getReference());
         waitingTopic(kafkaTopics.getGroupReference());
