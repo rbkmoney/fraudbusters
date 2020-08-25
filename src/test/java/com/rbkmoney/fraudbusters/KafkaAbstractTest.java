@@ -23,6 +23,8 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.rules.Timeout;
 import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +48,8 @@ public abstract class KafkaAbstractTest {
 
     protected static final long TIMEOUT = 1000L;
 
-    static {
-        try {
-            log.info("sleep!");
-            Thread.sleep(TIMEOUT * 20);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+    @ClassRule
+    public static Timeout classTimeout = new Timeout(20, TimeUnit.SECONDS);
 
     @MockBean
     private FraudManagementService fraudManagementService;
