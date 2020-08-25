@@ -83,7 +83,7 @@ public abstract class IntegrationTest {
     @AfterClass
     public static void after() {
         kafka.after();
-        Thread.sleep(TIMEOUT * 10);
+        Thread.sleep(TIMEOUT * 20);
     }
 
     @ClassRule
