@@ -269,8 +269,10 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     }
 
     @AfterClass
+    @SneakyThrows
     public static void destroy(){
         kafka.stop();
         kafka.close();
+        Thread.sleep(TIMEOUT * 20);
     }
 }

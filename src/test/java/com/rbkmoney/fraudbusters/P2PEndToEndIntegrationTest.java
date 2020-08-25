@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -142,8 +143,10 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
     }
 
     @AfterClass
+    @SneakyThrows
     public static void destroy(){
         kafka.stop();
         kafka.close();
+        Thread.sleep(TIMEOUT * 20);
     }
 }

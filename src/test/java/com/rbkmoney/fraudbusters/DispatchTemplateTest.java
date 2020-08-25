@@ -6,6 +6,7 @@ import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.pool.Pool;
 import com.rbkmoney.fraudbusters.util.FileUtil;
+import lombok.SneakyThrows;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -110,8 +111,10 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
     }
 
     @AfterClass
+    @SneakyThrows
     public static void destroy(){
         kafka.stop();
         kafka.close();
+        Thread.sleep(TIMEOUT * 20);
     }
 }

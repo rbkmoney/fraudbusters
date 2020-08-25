@@ -48,12 +48,6 @@ public abstract class KafkaAbstractTest {
 
     protected static final long TIMEOUT = 1000L;
 
-    @SneakyThrows
-    @BeforeClass
-    public static void start() {
-        Thread.sleep(TIMEOUT * 10);
-    }
-
     @MockBean
     private FraudManagementService fraudManagementService;
 

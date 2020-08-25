@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.junit.*;
@@ -102,8 +103,10 @@ public class PreLoadTest extends KafkaAbstractTest {
     }
 
     @AfterClass
+    @SneakyThrows
     public static void destroy(){
         kafka.stop();
         kafka.close();
+        Thread.sleep(TIMEOUT * 20);
     }
 }
