@@ -12,6 +12,7 @@ import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -192,4 +193,9 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
         return kafka.getBootstrapServers();
     }
 
+    @AfterClass
+    public static void destroy(){
+        kafka.stop();
+        kafka.close();
+    }
 }

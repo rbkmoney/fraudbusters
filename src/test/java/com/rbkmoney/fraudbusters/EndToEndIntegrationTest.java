@@ -22,10 +22,7 @@ import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,13 +104,13 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
-    @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
-    @ClassRule
+    @ClassRule(order = 1)
     public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION)
             .withEmbeddedZookeeper()
             .withCommand(FileUtil.getFile("kafka/kafka-test.sh"));
+
+    @ClassRule(order = 2)
+    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Override
     protected String getBootstrapServers() {
@@ -271,4 +268,9 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         Assert.assertEquals("kek@kek.ru", maps.get(0).get("email"));
     }
 
+    @AfterClass
+    public static void destroy(){
+        kafka.stop();
+        kafka.close();
+    }
 }

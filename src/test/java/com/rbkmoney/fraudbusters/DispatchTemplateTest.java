@@ -9,6 +9,7 @@ import com.rbkmoney.fraudbusters.util.FileUtil;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -108,4 +109,9 @@ public class DispatchTemplateTest extends KafkaAbstractTest {
         return kafka.getBootstrapServers();
     }
 
+    @AfterClass
+    public static void destroy(){
+        kafka.stop();
+        kafka.close();
+    }
 }

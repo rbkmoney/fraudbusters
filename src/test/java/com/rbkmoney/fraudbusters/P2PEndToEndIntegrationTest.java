@@ -11,10 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.thrift.TException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
@@ -144,4 +141,9 @@ public class P2PEndToEndIntegrationTest extends KafkaAbstractTest {
         return kafka.getBootstrapServers();
     }
 
+    @AfterClass
+    public static void destroy(){
+        kafka.stop();
+        kafka.close();
+    }
 }

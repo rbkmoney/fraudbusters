@@ -10,6 +10,7 @@ import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -23,6 +24,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.mockito.Mockito;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,15 +48,11 @@ public abstract class KafkaAbstractTest {
 
     protected static final long TIMEOUT = 1000L;
 
-    static {
-        try {
-            log.info("sleep!");
-            Thread.sleep(TIMEOUT * 20);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    @SneakyThrows
+    @BeforeClass
+    public static void start() {
+        Thread.sleep(TIMEOUT * 10);
     }
-
 
     @MockBean
     private FraudManagementService fraudManagementService;

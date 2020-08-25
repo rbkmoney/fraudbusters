@@ -9,10 +9,7 @@ import com.rbkmoney.fraudbusters.util.FileUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -104,4 +101,9 @@ public class PreLoadTest extends KafkaAbstractTest {
         return kafka.getBootstrapServers();
     }
 
+    @AfterClass
+    public static void destroy(){
+        kafka.stop();
+        kafka.close();
+    }
 }
