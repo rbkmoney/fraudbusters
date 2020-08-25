@@ -9,5 +9,6 @@
 <!--    <logger name="com.rbkmoney" level="ALL"/>-->
     <logger name="org.testcontainers" level="ERROR"/>
     <logger name="com.rbkmoney.fraudbusters.EndToEndIntegrationTest" level="ALL"/>
+    <logger name="com.rbkmoney.fraudbusters.KafkaAbstractTest" level="ALL"/>
 
 </configuration>
