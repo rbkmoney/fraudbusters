@@ -1,10 +1,6 @@
 package com.rbkmoney.fraudbusters.repository;
 
-import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.fraudbusters.FraudInfo;
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
-import com.rbkmoney.damsel.fraudbusters.MerchantInfo;
-import com.rbkmoney.damsel.fraudbusters.ReferenceInfo;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
@@ -110,34 +106,7 @@ public class FraudPaymentRepositoryTest {
         return new FraudPayment()
                 .setId(id)
                 .setEventTime("2016-03-22T06:12:27Z")
-                .setReferenceInfo(ReferenceInfo.merchant_info(
-                        new MerchantInfo()
-                                .setPartyId("party_id")
-                                .setShopId("shop_id")))
-                .setCost(new Cash()
-                        .setAmount(124L)
-                        .setCurrency(new CurrencyRef()
-                                .setSymbolicCode("RUB")))
-                .setPayer(Payer.payment_resource(
-                        new PaymentResourcePayer()
-                                .setResource(new DisposablePaymentResource()
-                                        .setPaymentTool(PaymentTool.bank_card(new BankCard()
-                                                .setPaymentSystem(BankCardPaymentSystem.amex)
-                                                .setLastDigits("4242")
-                                                .setIssuerCountry(Residence.ABH)
-                                                .setBin("520045")
-                                                .setToken("nsjfvbeirfi")))
-                                        .setClientInfo(new ClientInfo().setIpAddress("127.1.1.1")
-                                                .setFingerprint("12nj23njL23:4343nk:ff")))
-                                .setContactInfo(new ContactInfo()
-                                        .setEmail("kek@kek.ru"))))
-                .setRrn("rrrrrn")
-                .setRoute(new PaymentRoute()
-                        .setTerminal(new TerminalRef(123))
-                        .setProvider(new ProviderRef(567)))
-                .setFraudInfo(new FraudInfo()
-                        .setTempalteId("template_id")
-                        .setDescription("desc")
-                .setCheckStatus("ads"));
+                .setComment("desc")
+                .setType("testType");
     }
 }

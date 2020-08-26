@@ -23,8 +23,8 @@ public class FraudPaymentBatchPreparedStatementSetter implements BatchPreparedSt
         ps.setObject(l++, timeProperties.getTimestamp());
         ps.setString(l++, payment.getId());
         ps.setString(l++, payment.getEventTime());
-        ps.setString(l++, payment.getFraudInfo().getType());
-        ps.setString(l, payment.getFraudInfo().getDescription());
+        ps.setString(l++, payment.getType());
+        ps.setString(l, payment.getComment());
     }
 
     @Override
