@@ -3,29 +3,16 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
-import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.fraudbusters.constant.EventSource;
-import com.rbkmoney.fraudbusters.domain.CheckedPayment;
-import com.rbkmoney.fraudbusters.pool.HistoricalPool;
-import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsRefundRepository;
-import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.thrift.TException;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.rnorth.ducttape.unreliables.Unreliables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -33,6 +20,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -44,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
 import static org.junit.Assert.assertEquals;
@@ -54,9 +41,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @Slf4j
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = "kafka.listen.result.concurrency=1")
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
+        properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true", "kafka.aggr.payment.min.bytes=1"})
 @ContextConfiguration(initializers = LoadDataIntegrationTest.Initializer.class)
-public class LoadDataIntegrationTest extends KafkaAbstractTest {
+public class LoadDataIntegrationTest extends IntegrationTest {
 
     private static final String TEMPLATE =
             "rule:TEMPLATE: " +
@@ -70,7 +58,6 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE_CONCRETE =
             "rule:TEMPLATE_CONCRETE: count(\"card_token\", 10) > 0  -> accept;";
 
-    private static final int COUNTRY_GEO_ID = 12345;
     public static final String PAYMENT_1 = "payment_1";
     public static final String PAYMENT_2 = "payment_2";
     public static final String PAYMENT_0 = "payment_0";
@@ -82,21 +69,28 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
 
     @LocalServerPort
     int serverPort;
+    @ClassRule
+    public static EmbeddedKafkaRule kafka = createKafka();
 
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+
+    @Override
+    protected String getBrokersAsString() {
+        return kafka.getEmbeddedKafka().getBrokersAsString();
+    }
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @SneakyThrows
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
             TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
                     "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword())
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
                     .applyTo(configurableApplicationContext.getEnvironment());
-            LocationInfo info = new LocationInfo();
-            info.setCountryGeoId(COUNTRY_GEO_ID);
             ChInitializer.initAllScripts(clickHouseContainer);
         }
     }
@@ -105,16 +99,8 @@ public class LoadDataIntegrationTest extends KafkaAbstractTest {
     public void init() throws ExecutionException, InterruptedException, TException {
         produceTemplate(globalRef, TEMPLATE, kafkaTopics.getFullTemplate());
         produceReference(true, null, null, globalRef);
-        try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
-            consumer.subscribe(List.of(kafkaTopics.getFullTemplate()));
-            Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
-                ConsumerRecords<String, Object> records = consumer.poll(100);
-                return !records.isEmpty();
-            });
-        }
+        waitingTopic(kafkaTopics.getFullTemplate());
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
-
-        Thread.sleep(TIMEOUT * 3);
     }
 
     @Test

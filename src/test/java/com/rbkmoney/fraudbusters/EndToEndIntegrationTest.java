@@ -5,7 +5,6 @@ import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
-import com.rbkmoney.damsel.geo_ip.LocationInfo;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.constant.ChargebackStatus;
@@ -35,6 +34,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -43,7 +43,6 @@ import org.testcontainers.containers.ClickHouseContainer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -57,9 +56,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @ActiveProfiles("full-prod")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = "kafka.listen.result.concurrency=1")
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
+        properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true"})
 @ContextConfiguration(initializers = EndToEndIntegrationTest.Initializer.class)
-public class EndToEndIntegrationTest extends KafkaAbstractTest {
+public class EndToEndIntegrationTest extends IntegrationTest {
 
     private static final String TEMPLATE =
             "rule:TEMPLATE: count(\"email\", 10, 0, \"party_id\", \"shop_id\") > 1  AND count(\"email\", 10) < 3 " +
@@ -84,7 +84,6 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static final String TEMPLATE_CONCRETE_SHOP =
             "rule:TEMPLATE_CONCRETE_SHOP:  sum(\"email\", 10) >= 18000  -> accept;";
 
-    private static final int COUNTRY_GEO_ID = 12345;
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
     public static final String CAPTURED = "captured";
@@ -108,26 +107,33 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
     @ClassRule
+    public static EmbeddedKafkaRule kafka = createKafka();
+
+    @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+
+    @Override
+    protected String getBrokersAsString() {
+        return kafka.getEmbeddedKafka().getBrokersAsString();
+    }
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @SneakyThrows
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
             TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
                     "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword())
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
                     .applyTo(configurableApplicationContext.getEnvironment());
-            LocationInfo info = new LocationInfo();
-            info.setCountryGeoId(COUNTRY_GEO_ID);
-
             ChInitializer.initAllScripts(clickHouseContainer);
         }
     }
 
     @Before
-    public void init() throws ExecutionException, InterruptedException, SQLException, TException {
+    public void init() throws ExecutionException, InterruptedException, TException {
         String globalRef = UUID.randomUUID().toString();
         produceTemplate(globalRef, TEMPLATE, kafkaTopics.getFullTemplate());
         produceReference(true, null, null, globalRef);
@@ -154,32 +160,23 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
         produceGroupReference(GROUP_P_ID, null, groupId);
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
 
-        Thread.sleep(TIMEOUT * 3);
     }
 
     @Test
-    public void testValidation() throws URISyntaxException, TException {
-        THClientBuilder clientBuilder = new THClientBuilder()
-                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
-                .withNetworkTimeout(300000);
-        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
-
-        ValidateTemplateResponse validateTemplateResponse = client.validateCompilationTemplate(
-                List.of(new Template()
-                        .setId("dfsdf")
-                        .setTemplate(TEMPLATE.getBytes()))
-        );
-
-        Assert.assertTrue(validateTemplateResponse.getErrors().isEmpty());
-    }
-
-    @Test
-    public void test() throws URISyntaxException, TException, InterruptedException{
+    public void test() throws URISyntaxException, TException, InterruptedException {
         waitingTopic(kafkaTopics.getTemplate());
         waitingTopic(kafkaTopics.getGroupList());
         waitingTopic(kafkaTopics.getReference());
         waitingTopic(kafkaTopics.getGroupReference());
 
+        testFraudRules();
+
+        testValidation();
+
+        testFraudPayment();
+    }
+
+    private void testFraudRules() throws URISyntaxException, InterruptedException, TException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
@@ -238,10 +235,23 @@ public class EndToEndIntegrationTest extends KafkaAbstractTest {
 
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
-
     }
 
-    @Test
+    public void testValidation() throws URISyntaxException, TException {
+        THClientBuilder clientBuilder = new THClientBuilder()
+                .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
+                .withNetworkTimeout(300000);
+        PaymentServiceSrv.Iface client = clientBuilder.build(PaymentServiceSrv.Iface.class);
+
+        ValidateTemplateResponse validateTemplateResponse = client.validateCompilationTemplate(
+                List.of(new Template()
+                        .setId("dfsdf")
+                        .setTemplate(TEMPLATE.getBytes()))
+        );
+
+        Assert.assertTrue(validateTemplateResponse.getErrors().isEmpty());
+    }
+
     public void testFraudPayment() throws URISyntaxException, TException, InterruptedException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format("http://localhost:%s/fraud_payment/v1/", serverPort)))

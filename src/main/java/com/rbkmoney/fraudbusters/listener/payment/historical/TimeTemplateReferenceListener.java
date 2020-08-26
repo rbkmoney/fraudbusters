@@ -20,7 +20,8 @@ public class TimeTemplateReferenceListener extends AbstractTimePoolCommandListen
     private final HistoricalPool<String> timeReferencePoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.full-reference}", containerFactory = "timeReferenceListenerContainerFactory")
+    @KafkaListener(autoStartup = "${kafka.historical.listener.enable}", topics = "${kafka.topic.full-reference}",
+            containerFactory = "timeReferenceListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("TimeTemplateReferenceListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetReference()) {

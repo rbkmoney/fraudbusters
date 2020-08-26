@@ -31,7 +31,8 @@ public class TimeTemplateListener extends AbstractTimePoolCommandListenerExecuto
     private final HistoricalPool<ParserRuleContext> timeTemplateTimePoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.full-template}", containerFactory = "timeTemplateListenerContainerFactory")
+    @KafkaListener(autoStartup = "${kafka.historical.listener.enable}",topics = "${kafka.topic.full-template}",
+            containerFactory = "timeTemplateListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("TimeTemplateListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetTemplate()) {

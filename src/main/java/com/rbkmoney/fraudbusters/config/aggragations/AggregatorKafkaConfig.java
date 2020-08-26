@@ -12,6 +12,7 @@ import com.rbkmoney.fraudbusters.domain.ScoresResult;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.serde.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -21,6 +22,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 @Configuration
 @RequiredArgsConstructor
 public class AggregatorKafkaConfig {
+
+    @Value("${kafka.aggr.payment.min.bytes}")
+    private int fetchMinBytes;
 
     private final ListenersConfigurationService listenersConfigurationService;
     private final KafkaTemplateConfigurationService kafkaTemplateConfigurationService;
@@ -32,7 +36,7 @@ public class AggregatorKafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Payment> kafkaPaymentResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new PaymentDeserializer(), GroupPostfix.PAYMENT_AGGREGATOR);
+        return listenersConfigurationService.createFactory(new PaymentDeserializer(), GroupPostfix.PAYMENT_AGGREGATOR, fetchMinBytes);
     }
 
     @Bean
