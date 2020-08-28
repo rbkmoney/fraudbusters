@@ -26,6 +26,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -41,6 +42,9 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
     @Value("${preload.timeout:20}")
     private long preloadTimeout;
+
+    @Value("${kafka.historical.listener.enable}")
+    private boolean historicalListenerEnabled;
 
     private final StreamManager streamManager;
 
@@ -89,26 +93,29 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
             poolMonitoringService.addPoolsToMonitoring();
 
-            initRewriteStream();
+            CountDownLatch latch = new CountDownLatch(COUNT_PRELOAD_TASKS);
+            List<Runnable> tasks = new ArrayList<>();
+            if (historicalListenerEnabled) {
+                initRewriteStream();
+                tasks.addAll(List.of(
+                        () -> waitPreLoad(latch, timeTemplateListenerFactory, kafkaTopics.getFullTemplate(), timeTemplateListener),
+                        () -> waitPreLoad(latch, timeReferenceListenerFactory, kafkaTopics.getFullReference(), timeTemplateReferenceListener),
+                        () -> waitPreLoad(latch, timeGroupListenerFactory, kafkaTopics.getFullGroupList(), timeGroupListener),
+                        () -> waitPreLoad(latch, timeGroupReferenceListenerFactory, kafkaTopics.getFullGroupReference(), timeGroupReferenceListener)));
+            }
 
             ExecutorService executorService = Executors.newFixedThreadPool(COUNT_PRELOAD_TASKS);
-            CountDownLatch latch = new CountDownLatch(COUNT_PRELOAD_TASKS);
 
-            List<Runnable> tasks = List.of(
+            tasks.addAll(List.of(
                     () -> waitPreLoad(latch, templateListenerFactory, kafkaTopics.getTemplate(), templateListener),
                     () -> waitPreLoad(latch, referenceListenerFactory, kafkaTopics.getReference(), templateReferenceListener),
                     () -> waitPreLoad(latch, groupListenerFactory, kafkaTopics.getGroupList(), groupListener),
                     () -> waitPreLoad(latch, groupReferenceListenerFactory, kafkaTopics.getGroupReference(), groupReferenceListener),
 
-                    () -> waitPreLoad(latch, timeTemplateListenerFactory, kafkaTopics.getFullTemplate(), timeTemplateListener),
-                    () -> waitPreLoad(latch, timeReferenceListenerFactory, kafkaTopics.getFullReference(), timeTemplateReferenceListener),
-                    () -> waitPreLoad(latch, timeGroupListenerFactory, kafkaTopics.getFullGroupList(), timeGroupListener),
-                    () -> waitPreLoad(latch, timeGroupReferenceListenerFactory, kafkaTopics.getFullGroupReference(), timeGroupReferenceListener),
-
                     () -> waitPreLoad(latch, templateP2PListenerFactory, kafkaTopics.getP2pTemplate(), templateP2PListener),
                     () -> waitPreLoad(latch, referenceP2PListenerFactory, kafkaTopics.getP2pReference(), templateP2PReferenceListener),
                     () -> waitPreLoad(latch, groupP2PListenerFactory, kafkaTopics.getP2pGroupList(), groupP2PListener),
-                    () -> waitPreLoad(latch, groupReferenceP2PListenerFactory, kafkaTopics.getP2pGroupReference(), groupReferenceP2PListener)
+                    () -> waitPreLoad(latch, groupReferenceP2PListenerFactory, kafkaTopics.getP2pGroupReference(), groupReferenceP2PListener))
             );
 
             tasks.forEach(executorService::submit);
