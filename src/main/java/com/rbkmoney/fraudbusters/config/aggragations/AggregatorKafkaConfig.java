@@ -36,27 +36,27 @@ public class AggregatorKafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Payment> kafkaPaymentResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new PaymentDeserializer(), GroupPostfix.PAYMENT_AGGREGATOR, fetchMinBytes);
+        return listenersConfigurationService.createFactory(new PaymentDeserializer(), GroupPostfix.RESULT_AGGREGATOR, fetchMinBytes);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Refund> kafkaRefundResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new RefundDeserializer(), GroupPostfix.REFUND_AGGREGATOR);
+        return listenersConfigurationService.createFactory(new RefundDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Chargeback> kafkaChargebackResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new ChargebackDeserializer(), GroupPostfix.CHARGEBACK_AGGREGATOR);
+        return listenersConfigurationService.createFactory(new ChargebackDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ScoresResult<P2PModel>> kafkaP2PResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new P2PResultDeserializer(), GroupPostfix.P2P_RESULT_AGGREGATOR);
+        return listenersConfigurationService.createFactory(new P2PResultDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudPayment> kafkaFraudPaymentListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new FraudPaymentDeserializer(), GroupPostfix.FRAUD_PAYMENT_AGGREGATOR);
+        return listenersConfigurationService.createFactory(new FraudPaymentDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
     }
 
     @Bean
