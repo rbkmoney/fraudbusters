@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    private static final int COUNT_PRELOAD_TASKS = 12;
+    private static final int COUNT_PRELOAD_TASKS = 8;
 
     @Value("${preload.timeout:20}")
     private long preloadTimeout;
@@ -93,15 +93,18 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
             poolMonitoringService.addPoolsToMonitoring();
 
-            CountDownLatch latch = new CountDownLatch(COUNT_PRELOAD_TASKS);
             List<Runnable> tasks = new ArrayList<>();
+            CountDownLatch latch;
             if (historicalListenerEnabled) {
+                latch = new CountDownLatch(COUNT_PRELOAD_TASKS + 4);
                 initRewriteStream();
                 tasks.addAll(List.of(
                         () -> waitPreLoad(latch, timeTemplateListenerFactory, kafkaTopics.getFullTemplate(), timeTemplateListener),
                         () -> waitPreLoad(latch, timeReferenceListenerFactory, kafkaTopics.getFullReference(), timeTemplateReferenceListener),
                         () -> waitPreLoad(latch, timeGroupListenerFactory, kafkaTopics.getFullGroupList(), timeGroupListener),
                         () -> waitPreLoad(latch, timeGroupReferenceListenerFactory, kafkaTopics.getFullGroupReference(), timeGroupReferenceListener)));
+            } else {
+                latch = new CountDownLatch(COUNT_PRELOAD_TASKS);
             }
 
             ExecutorService executorService = Executors.newFixedThreadPool(COUNT_PRELOAD_TASKS);
