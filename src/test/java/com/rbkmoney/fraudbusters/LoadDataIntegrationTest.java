@@ -170,7 +170,7 @@ public class LoadDataIntegrationTest extends IntegrationTest {
 
     private void insertWithTimeout(PaymentServiceSrv.Iface client, List<Payment> payments) throws TException, InterruptedException {
         client.insertPayments(payments);
-        Thread.sleep(TIMEOUT);
+        Thread.sleep(TIMEOUT * 5);
     }
 
     private void checkPayment(String payment1, ResultStatus status, int expectedCount) {
