@@ -1,7 +1,10 @@
 package com.rbkmoney.fraudbusters.repository.impl;
 
 import com.rbkmoney.damsel.fraudbusters.Chargeback;
+import com.rbkmoney.fraudbusters.constant.ChargebackStatus;
 import com.rbkmoney.fraudbusters.constant.EventSource;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
+import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.setter.ChargebackBatchPreparedStatementSetter;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +17,9 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ChargebackRepository implements Repository<Chargeback> {
+public class ChargebackRepository implements Repository<Chargeback>, AggregationRepository {
 
+    private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
 
     private static final String INSERT = String.format(
@@ -37,4 +41,33 @@ public class ChargebackRepository implements Repository<Chargeback> {
         }
     }
 
+    @Override
+    public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
+        return aggregationStatusGeneralRepository.countOperationByField(EventSource.FRAUD_EVENTS_CHARGEBACK.getTable(),
+                fieldName, value, from, to, ChargebackStatus.accepted.name());
+    }
+
+    @Override
+    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
+        return aggregationStatusGeneralRepository.countOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_CHARGEBACK.getTable(),
+                fieldName, value, from, to, fieldModels, ChargebackStatus.accepted.name());
+    }
+
+    @Override
+    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
+        return aggregationStatusGeneralRepository.sumOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_CHARGEBACK.getTable(),
+                fieldName, value, from, to, fieldModels, ChargebackStatus.accepted.name());
+    }
+
+    @Override
+    public Integer uniqCountOperation(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to) {
+        return aggregationStatusGeneralRepository.uniqCountOperation(EventSource.FRAUD_EVENTS_CHARGEBACK.getTable(),
+                fieldNameBy, value, fieldNameCount, from, to, ChargebackStatus.accepted.name());
+    }
+
+    @Override
+    public Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to, List<FieldModel> fieldModels) {
+        return aggregationStatusGeneralRepository.uniqCountOperationWithGroupBy(EventSource.FRAUD_EVENTS_CHARGEBACK.getTable(),
+                fieldNameBy, value, fieldNameCount, from, to, fieldModels, ChargebackStatus.accepted.name());
+    }
 }

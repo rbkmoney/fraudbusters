@@ -45,7 +45,6 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
         }
     }
 
-
     @Override
     public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
         return aggregationGeneralRepository.countOperationByField(EventSource.FRAUD_EVENTS_PAYMENT.getTable(), fieldName,

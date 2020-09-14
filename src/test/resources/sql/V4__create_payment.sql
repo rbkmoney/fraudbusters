@@ -42,7 +42,7 @@ create table fraud.payment
 (
     timestamp             Date,
     eventTime             UInt64,
-    eventTimeHour         UInt64,
+        eventTimeHour         UInt64,
 
     id                    String,
 

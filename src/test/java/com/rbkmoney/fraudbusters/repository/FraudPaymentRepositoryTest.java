@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
+import com.rbkmoney.fraudbusters.repository.impl.AggregationStatusGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.FraudPaymentRepository;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import lombok.SneakyThrows;
@@ -36,7 +37,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = {ClickhouseConfig.class,
-        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, FraudPaymentRepository.class},
+        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, AggregationStatusGeneralRepositoryImpl.class, FraudPaymentRepository.class},
         initializers = FraudPaymentRepositoryTest.Initializer.class)
 public class FraudPaymentRepositoryTest {
 

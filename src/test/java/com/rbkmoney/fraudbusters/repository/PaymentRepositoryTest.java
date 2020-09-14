@@ -3,19 +3,16 @@ package com.rbkmoney.fraudbusters.repository;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.EventField;
-import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
-import com.rbkmoney.fraudbusters.domain.Payment;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
-import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsPaymentRepositoryImpl;
+import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,19 +30,18 @@ import org.testcontainers.containers.ClickHouseContainer;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
 import static com.rbkmoney.fraudbusters.util.ChInitializer.execAllInFile;
+import static com.rbkmoney.fraudbusters.util.ChInitializer.initAllScripts;
 import static org.junit.Assert.assertEquals;
 
 @Slf4j
 @ActiveProfiles("full-prod")
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = {AnalyticsPaymentRepositoryImpl.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
+@ContextConfiguration(classes = {PaymentRepositoryImpl.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
         DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class}, initializers = PaymentRepositoryTest.Initializer.class)
 public class PaymentRepositoryTest {
 
@@ -56,7 +52,7 @@ public class PaymentRepositoryTest {
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Autowired
-    private AnalyticsPaymentRepositoryImpl paymentRepository;
+    private PaymentRepository paymentRepository;
 
     @Autowired
     DBPaymentFieldResolver DBPaymentFieldResolver;
@@ -82,9 +78,8 @@ public class PaymentRepositoryTest {
     }
 
     private static void initDb() throws SQLException {
+        initAllScripts(clickHouseContainer);
         try (Connection connection = ChInitializer.getSystemConn(clickHouseContainer)) {
-            execAllInFile(connection, "sql/db_init.sql");
-            execAllInFile(connection, "sql/TEST_analytics_data.sql");
             execAllInFile(connection, "sql/data/inserts_event_sink.sql");
         }
     }
