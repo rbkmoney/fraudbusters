@@ -1,10 +1,7 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
-import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
-import com.rbkmoney.damsel.fraudbusters.PriorityId;
-import com.rbkmoney.damsel.fraudbusters.Template;
-import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
@@ -41,8 +38,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import static com.rbkmoney.fraudbusters.util.BeanUtil.ID_VALUE_SHOP;
-import static com.rbkmoney.fraudbusters.util.BeanUtil.createContext;
+import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -180,20 +176,20 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         Context context = createContext();
         RiskScore riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
-//
-//        paymentRepository.insert(convertContextToPayment(context, CAPTURED, new Payment()));
-//
-//        context = createContext();
-//        riskScore = client.inspectPayment(context);
-//        Assert.assertEquals(RiskScore.fatal, riskScore);
-//
-//        paymentRepository.insert(convertContextToPayment(context, FAILED, new Payment()));
-//
-//        context = createContext(P_ID);
-//        riskScore = client.inspectPayment(context);
-//        Assert.assertEquals(RiskScore.low, riskScore);
-//
-//        paymentRepository.insert(convertContextToPayment(context, CAPTURED, new Payment()));
+
+        paymentRepository.insertBatch(List.of(convertContextToPayment(context, CAPTURED)));
+
+        context = createContext();
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.fatal, riskScore);
+
+        paymentRepository.insertBatch(List.of(convertContextToPayment(context, FAILED)));
+
+        context = createContext(P_ID);
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.low, riskScore);
+
+        paymentRepository.insertBatch(List.of(convertContextToPayment(context, CAPTURED)));
 
         //test groups templates
         context = createContext(GROUP_P_ID);
@@ -207,27 +203,28 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         context.getPayment().getParty().setPartyId(chargeTest);
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
-//
-//        chargebackRepository.insert(convertContextToPayment(context, ChargebackStatus.accepted.name(), new Chargeback()));
-//
-//        riskScore = client.inspectPayment(context);
-//        Assert.assertEquals(RiskScore.fatal, riskScore);
-//
-//        //test refund functions
-//        String refundShopId = "refund-test";
-//        context.getPayment().getShop().setId(refundShopId);
-//        riskScore = client.inspectPayment(context);
-//        Assert.assertEquals(RiskScore.high, riskScore);
-//
-//        refundRepository.insert(convertContextToPayment(context, RefundStatus.failed.name(), new Refund()));
-//
-//        riskScore = client.inspectPayment(context);
-//        Assert.assertEquals(RiskScore.high, riskScore);
-//
-//        refundRepository.insert(convertContextToPayment(context, RefundStatus.succeeded.name(), new Refund()));
-//
-//        riskScore = client.inspectPayment(context);
-//        Assert.assertEquals(RiskScore.fatal, riskScore);
+
+        chargebackRepository.insertBatch(List.of(convertContextToChargeback(context, ChargebackStatus.accepted.name())));
+
+        riskScore = client.inspectPayment(context);
+
+        Assert.assertEquals(RiskScore.fatal, riskScore);
+
+        //test refund functions
+        String refundShopId = "refund-test";
+        context.getPayment().getShop().setId(refundShopId);
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.high, riskScore);
+
+        refundRepository.insertBatch(List.of(convertContextToRefund(context, RefundStatus.failed.name())));
+
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.high, riskScore);
+
+        refundRepository.insertBatch(List.of(convertContextToRefund(context, RefundStatus.succeeded.name())));
+
+        riskScore = client.inspectPayment(context);
+        Assert.assertEquals(RiskScore.fatal, riskScore);
     }
 
     public void testValidation() throws URISyntaxException, TException {

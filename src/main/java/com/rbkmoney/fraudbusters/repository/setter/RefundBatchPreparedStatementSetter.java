@@ -50,17 +50,16 @@ public class RefundBatchPreparedStatementSetter implements BatchPreparedStatemen
         ps.setString(l++, clientInfo.getFingerprint());
 
         PaymentTool paymentTool = event.getPaymentTool();
-        ps.setString(l++, TBaseUtil.unionFieldToEnum(paymentTool, PaymentToolType.class).name());
-
         ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getBin() : UNKNOWN);
         ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getLastDigits() : UNKNOWN);
         ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getToken() : UNKNOWN);
         ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getPaymentSystem().name() : UNKNOWN);
+        ps.setString(l++, TBaseUtil.unionFieldToEnum(paymentTool, PaymentToolType.class).name());
 
         ProviderInfo providerInfo = event.getProviderInfo();
-        ps.setString(l++, providerInfo.getTerminalId());
-        ps.setString(l++, providerInfo.getProviderId());
-        ps.setString(l++, providerInfo.getCountry());
+        ps.setString(l++, providerInfo != null && providerInfo.isSetTerminalId() ? providerInfo.getTerminalId() : UNKNOWN);
+        ps.setString(l++, providerInfo != null && providerInfo.isSetProviderId() ? providerInfo.getProviderId() : UNKNOWN);
+        ps.setString(l++, providerInfo != null && providerInfo.isSetCountry() ? providerInfo.getCountry() : UNKNOWN);
 
         ReferenceInfo referenceInfo = event.getReferenceInfo();
         MerchantInfo merchantInfo = event.getReferenceInfo().getMerchantInfo();

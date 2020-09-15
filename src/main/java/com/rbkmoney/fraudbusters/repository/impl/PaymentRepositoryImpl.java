@@ -34,7 +34,7 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
 
     @Override
     public void insert(CheckedPayment payment) {
-        throw new UnsupportedOperationException("Method insertBatch is not support!");
+        throw new UnsupportedOperationException("Method insert is not support!");
     }
 
     @Override

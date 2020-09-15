@@ -31,7 +31,7 @@ public class RefundRepository implements Repository<Refund>, AggregationReposito
 
     @Override
     public void insert(Refund refund) {
-        throw new UnsupportedOperationException("Method insertBatch is not support!");
+        throw new UnsupportedOperationException("Method insert is not support!");
     }
 
     @Override
