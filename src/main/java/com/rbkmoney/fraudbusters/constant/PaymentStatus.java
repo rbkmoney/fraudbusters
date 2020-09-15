@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.constant;
 
-public enum AnalyticStatus {
+public enum PaymentStatus {
 
     pending,
     processed,

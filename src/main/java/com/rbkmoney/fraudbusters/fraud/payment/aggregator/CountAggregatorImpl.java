@@ -28,8 +28,8 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
 
     private final DBPaymentFieldResolver dbPaymentFieldResolver;
     private final PaymentRepository paymentRepository;
-    private final AggregationRepository analyticsRefundRepository;
-    private final AggregationRepository analyticsChargebackRepository;
+    private final AggregationRepository refundRepository;
+    private final AggregationRepository chargebackRepository;
 
     @Override
     @BasicMetric("count")
@@ -70,13 +70,13 @@ public class CountAggregatorImpl implements CountPaymentAggregator<PaymentModel,
     @Override
     @BasicMetric("countChargeback")
     public Integer countChargeback(PaymentCheckedField paymentCheckedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getCount(paymentCheckedField, paymentModel, timeWindow, list, analyticsChargebackRepository::countOperationByFieldWithGroupBy, false);
+        return getCount(paymentCheckedField, paymentModel, timeWindow, list, chargebackRepository::countOperationByFieldWithGroupBy, false);
     }
 
     @Override
     @BasicMetric("countRefund")
     public Integer countRefund(PaymentCheckedField paymentCheckedField, PaymentModel paymentModel, TimeWindow timeWindow, List<PaymentCheckedField> list) {
-        return getCount(paymentCheckedField, paymentModel, timeWindow, list, analyticsRefundRepository::countOperationByFieldWithGroupBy, false);
+        return getCount(paymentCheckedField, paymentModel, timeWindow, list, refundRepository::countOperationByFieldWithGroupBy, false);
     }
 
     @NotNull
