@@ -1,20 +1,12 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.damsel.domain.RiskScore;
-import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
-import com.rbkmoney.damsel.fraudbusters.PriorityId;
-import com.rbkmoney.damsel.fraudbusters.Template;
-import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.constant.ChargebackStatus;
-import com.rbkmoney.fraudbusters.constant.RefundStatus;
-import com.rbkmoney.fraudbusters.domain.Chargeback;
-import com.rbkmoney.fraudbusters.domain.Payment;
-import com.rbkmoney.fraudbusters.domain.Refund;
-import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.analytics.AnalyticsRefundRepository;
+import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
+import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
+import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
@@ -49,6 +41,7 @@ import java.util.concurrent.ExecutionException;
 import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -88,13 +81,13 @@ public class EndToEndIntegrationTest extends IntegrationTest {
     public static final String FAILED = "failed";
 
     @Autowired
-    Repository<Payment> repository;
+    PaymentRepositoryImpl paymentRepository;
 
     @Autowired
-    AnalyticsChargebackRepository analyticsChargebackRepository;
+    ChargebackRepository chargebackRepository;
 
     @Autowired
-    AnalyticsRefundRepository analyticsRefundRepository;
+    RefundRepository refundRepository;
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -184,19 +177,19 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         RiskScore riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        repository.insert(convertContextToPayment(context, CAPTURED, new Payment()));
+        paymentRepository.insertBatch(List.of(convertContextToPayment(context, CAPTURED)));
 
         context = createContext();
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);
 
-        repository.insert(convertContextToPayment(context, FAILED, new Payment()));
+        paymentRepository.insertBatch(List.of(convertContextToPayment(context, FAILED)));
 
         context = createContext(P_ID);
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.low, riskScore);
 
-        repository.insert(convertContextToPayment(context, CAPTURED, new Payment()));
+        paymentRepository.insertBatch(List.of(convertContextToPayment(context, CAPTURED)));
 
         //test groups templates
         context = createContext(GROUP_P_ID);
@@ -211,9 +204,10 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        analyticsChargebackRepository.insert(convertContextToPayment(context, ChargebackStatus.accepted.name(), new Chargeback()));
+        chargebackRepository.insertBatch(List.of(convertContextToChargeback(context, ChargebackStatus.accepted.name())));
 
         riskScore = client.inspectPayment(context);
+
         Assert.assertEquals(RiskScore.fatal, riskScore);
 
         //test refund functions
@@ -222,12 +216,12 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        analyticsRefundRepository.insert(convertContextToPayment(context, RefundStatus.failed.name(), new Refund()));
+        refundRepository.insertBatch(List.of(convertContextToRefund(context, RefundStatus.failed.name())));
 
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        analyticsRefundRepository.insert(convertContextToPayment(context, RefundStatus.succeeded.name(), new Refund()));
+        refundRepository.insertBatch(List.of(convertContextToRefund(context, RefundStatus.succeeded.name())));
 
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.fatal, riskScore);

@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.base.Content;
 import com.rbkmoney.damsel.domain.*;
+import com.rbkmoney.damsel.fraudbusters.ClientInfo;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.p2p_insp.Identity;
 import com.rbkmoney.damsel.p2p_insp.Raw;
@@ -13,7 +14,7 @@ import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
 import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
-import com.rbkmoney.fraudbusters.domain.BaseRaw;
+import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
@@ -21,6 +22,7 @@ import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.msgpack.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -29,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class BeanUtil {
 
     public static final String FINGERPRINT = "fingerprint";
@@ -408,15 +411,87 @@ public class BeanUtil {
     }
 
     @NotNull
-    public static <T extends BaseRaw> T convertContextToPayment(Context context, String status, T payment) {
+    public static Chargeback convertContextToChargeback(Context context, String status) {
+        Chargeback chargeback = new Chargeback();
+        chargeback.setEventTime(Instant.now().toString());
+        Cash cost = context.getPayment().getPayment().getCost();
+        chargeback.setCost(cost);
+        chargeback.setStatus(ChargebackStatus.valueOf(status));
+        Payer payer = context.getPayment().getPayment().getPayer();
+        ReferenceInfo referenceInfo = new ReferenceInfo();
+        referenceInfo.setMerchantInfo(new MerchantInfo()
+                .setPartyId(context.getPayment().getParty().getPartyId())
+                .setShopId(context.getPayment().getShop().getId()));
+        chargeback.setReferenceInfo(referenceInfo);
+        chargeback.setPayerType(PayerType.payment_resource);
+        ClientInfo clientInfo = new ClientInfo();
+        PayerFieldExtractor.getClientInfo(payer)
+                .ifPresent(cf ->
+                        clientInfo
+                                .setFingerprint(cf.getFingerprint())
+                                .setIp(cf.getIpAddress()
+                                )
+                );
+        PayerFieldExtractor.getContactInfo(payer)
+                .ifPresent(contactInfo -> clientInfo.setEmail(contactInfo.getEmail()));
+        chargeback.setClientInfo(clientInfo);
+        PayerFieldExtractor.getBankCard(payer)
+                .ifPresent(bankCard -> {
+                    PaymentTool paymentTool = new PaymentTool();
+                    paymentTool.setBankCard(bankCard);
+                    chargeback.setPaymentTool(paymentTool);
+                });
+        chargeback.setCategory(ChargebackCategory.fraud);
+        log.info("Converted chargeback: {}", chargeback);
+        return chargeback;
+    }
+
+    @NotNull
+    public static Refund convertContextToRefund(Context context, String status) {
+        Refund refund = new Refund();
+        refund.setEventTime(Instant.now().toString());
+        Cash cost = context.getPayment().getPayment().getCost();
+        refund.setCost(cost);
+        refund.setStatus(RefundStatus.valueOf(status));
+        Payer payer = context.getPayment().getPayment().getPayer();
+        ReferenceInfo referenceInfo = new ReferenceInfo();
+        referenceInfo.setMerchantInfo(new MerchantInfo()
+                .setPartyId(context.getPayment().getParty().getPartyId())
+                .setShopId(context.getPayment().getShop().getId()));
+        refund.setReferenceInfo(referenceInfo);
+        refund.setPayerType(PayerType.payment_resource);
+        ClientInfo clientInfo = new ClientInfo();
+        PayerFieldExtractor.getClientInfo(payer)
+                .ifPresent(cf ->
+                        clientInfo
+                                .setFingerprint(cf.getFingerprint())
+                                .setIp(cf.getIpAddress()
+                                )
+                );
+        PayerFieldExtractor.getContactInfo(payer)
+                .ifPresent(contactInfo -> clientInfo.setEmail(contactInfo.getEmail()));
+        refund.setClientInfo(clientInfo);
+        PayerFieldExtractor.getBankCard(payer)
+                .ifPresent(bankCard -> {
+                    PaymentTool paymentTool = new PaymentTool();
+                    paymentTool.setBankCard(bankCard);
+                    refund.setPaymentTool(paymentTool);
+                });
+        log.info("Converted refund: {}", refund);
+        return refund;
+    }
+
+    @NotNull
+    public static CheckedPayment convertContextToPayment(Context context, String status) {
         TimeProperties timeProperties = TimestampUtil.generateTimeProperties();
+        CheckedPayment payment = new CheckedPayment();
         payment.setTimestamp(timeProperties.getTimestamp());
         payment.setEventTime(timeProperties.getEventTime());
         payment.setEventTimeHour(timeProperties.getEventTimeHour());
         Cash cost = context.getPayment().getPayment().getCost();
         payment.setAmount(cost.getAmount());
         payment.setCurrency(cost.getCurrency().getSymbolicCode());
-        payment.setStatus(status);
+        payment.setPaymentStatus(status);
         Payer payer = context.getPayment().getPayment().getPayer();
         PayerFieldExtractor.getBankCard(payer)
                 .ifPresent(bankCard -> {
@@ -501,10 +576,10 @@ public class BeanUtil {
     @NotNull
     private static PaymentTool createBankCardResult() {
         return PaymentTool.bank_card(new BankCard()
-                        .setBin("1234")
-                        .setToken(TOKEN)
-                        .setLastDigits("433242")
-                        .setPaymentSystem(BankCardPaymentSystem.visa)
+                .setBin("1234")
+                .setToken(TOKEN)
+                .setLastDigits("433242")
+                .setPaymentSystem(BankCardPaymentSystem.visa)
         );
     }
 

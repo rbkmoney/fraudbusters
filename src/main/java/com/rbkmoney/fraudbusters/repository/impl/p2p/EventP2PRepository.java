@@ -8,7 +8,7 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationGeneralRepository;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.repository.impl.analytics.EventP2PParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.impl.generator.EventP2PParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.setter.EventP2PBatchPreparedStatementSetter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
