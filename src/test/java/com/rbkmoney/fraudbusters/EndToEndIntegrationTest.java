@@ -78,6 +78,7 @@ public class EndToEndIntegrationTest extends IntegrationTest {
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
     public static final String CAPTURED = "captured";
+    public static final String PROCESSED = "processed";
     public static final String FAILED = "failed";
 
     @Autowired
@@ -177,6 +178,7 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         RiskScore riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
+        paymentRepository.insertBatch(List.of(convertContextToPayment(context, PROCESSED)));
         paymentRepository.insertBatch(List.of(convertContextToPayment(context, CAPTURED)));
 
         context = createContext();
@@ -189,6 +191,7 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.low, riskScore);
 
+        paymentRepository.insertBatch(List.of(convertContextToPayment(context, PROCESSED)));
         paymentRepository.insertBatch(List.of(convertContextToPayment(context, CAPTURED)));
 
         //test groups templates
