@@ -21,7 +21,6 @@
         <server.port>8022</server.port>
         <exposed.ports>${server.port}</exposed.ports>
         <dockerfile.base.service.tag>57e26d8ee999d7b0b50248c22afc63e6f926d276</dockerfile.base.service.tag>
-        <dockerfile.build.tag>bdc05544014b3475c8e0726d3b3d6fc81b09db96</dockerfile.build.tag>
 
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
