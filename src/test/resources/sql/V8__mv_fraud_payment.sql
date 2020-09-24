@@ -4,7 +4,8 @@ create table fraud.fraud_payment_full (
 
   timestamp Date,
   id String,
-  eventTime String,
+  eventTime UInt64,
+  eventTimeHour UInt64,
 
   fraudType String,
   comment String,
@@ -35,7 +36,7 @@ create table fraud.fraud_payment_full (
     paymentCountry        String
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMM (timestamp)
-ORDER BY (partyId, shopId, paymentTool, status, currency, providerId, fingerprint, cardToken, eventTime, id);
+ORDER BY (eventTimeHour, partyId, shopId, paymentTool, status, currency, providerId, fingerprint, cardToken, eventTime, id);
 
 CREATE MATERIALIZED VIEW fraud.fraud_payment_mv
 TO fraud.fraud_payment_full AS
@@ -67,8 +68,10 @@ SELECT
   paymentCountry
 FROM (
   SELECT DISTINCT
-      timestamp,
-      eventTime,
+      fraud.payment.timestamp as timestamp,
+      fraud.payment.eventTime as eventTime,
+      fraud.payment.eventTimeHour as eventTimeHour,
+
       id,
       fraudType ,
       comment,
