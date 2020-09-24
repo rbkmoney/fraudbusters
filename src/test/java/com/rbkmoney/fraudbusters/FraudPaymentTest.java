@@ -102,6 +102,8 @@ public class FraudPaymentTest extends IntegrationTest {
         List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.fraud_payment_full");
         Assert.assertEquals(1, maps.size());
         Assert.assertEquals(EMAIL, maps.get(0).get("email"));
+
+        System.out.println(maps.get(0).get("eventTime"));
     }
 
     private void insertWithTimeout(PaymentServiceSrv.Iface client, List<com.rbkmoney.damsel.fraudbusters.Payment> payments) throws TException, InterruptedException {
