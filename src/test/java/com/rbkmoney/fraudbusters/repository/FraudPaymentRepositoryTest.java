@@ -8,6 +8,7 @@ import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImp
 import com.rbkmoney.fraudbusters.repository.impl.AggregationStatusGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.FraudPaymentRepository;
 import com.rbkmoney.fraudbusters.util.ChInitializer;
+import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,8 @@ import org.testcontainers.containers.ClickHouseContainer;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.rbkmoney.fraudbusters.util.ChInitializer.execAllInFile;
@@ -106,8 +109,8 @@ public class FraudPaymentRepositoryTest {
     public static FraudPayment createFraudPayment(String id) {
         return new FraudPayment()
                 .setId(id)
-                .setEventTime("2016-03-22T06:12:27Z")
-                .setComment("desc")
-                .setType("testType");
+                .setEventTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern(TimestampUtil.YYYY_MM_DD_HH_MM_SS)))
+                .setComment("")
+                .setType("Card not present");
     }
 }

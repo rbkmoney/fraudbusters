@@ -23,7 +23,8 @@ public class FraudPaymentListener {
     public void listen(List<FraudPayment> payments, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
                        @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {
-            log.info("FraudPaymentListener listen result size: {} partition: {} offset: {}", payments.size(), partition, offset);
+            log.info("FraudPaymentListener listen result size: {} partition: {} offset: {} payments: {}",
+                    payments.size(), partition, offset, payments);
             repository.insertBatch(payments);
         } catch (Exception e) {
             log.warn("Error when FraudPaymentListener listen e: ", e);

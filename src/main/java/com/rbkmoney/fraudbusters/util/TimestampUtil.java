@@ -2,7 +2,10 @@ package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.lang.NonNull;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -12,7 +15,10 @@ import java.time.format.DateTimeFormatter;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.HOURS;
 
+@Slf4j
 public class TimestampUtil {
+
+    public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd[ HH:mm:ss]";
 
     public static Long generateTimestampWithParse(String time) {
         Instant instant = parseInstantFromString(time);
@@ -56,5 +62,16 @@ public class TimestampUtil {
     public static TimeProperties generateTimePropertiesByString(String time) {
         Instant instant = parseInstantFromString(time);
         return generateTimePropertiesByInstant(instant);
+    }
+
+    @NotNull
+    public static LocalDateTime parseDate(String eventTime) {
+        LocalDateTime date = LocalDateTime.now();
+        if (!StringUtils.isEmpty(eventTime)) {
+            date = LocalDateTime.parse(eventTime, DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS));
+        } else {
+            log.warn("parseDate() eventTime can't parse: {}", eventTime);
+        }
+        return date;
     }
 }
