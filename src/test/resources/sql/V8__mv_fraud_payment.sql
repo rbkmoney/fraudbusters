@@ -68,7 +68,7 @@ SELECT
   paymentCountry
 FROM (
   SELECT DISTINCT
-      fraud.payment.timestamp as timestamp,
+      timestamp,
       fraud.payment.eventTime as eventTime,
       fraud.payment.eventTimeHour as eventTimeHour,
 
