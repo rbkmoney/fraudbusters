@@ -95,6 +95,6 @@ FROM (
       errorReason,
       errorCode,
       paymentCountry
-  FROM fraud.fraud_payment LEFT JOIN fraud.payment ON fraud.fraud_payment.id = fraud.payment.id
+  FROM fraud.fraud_payment LEFT JOIN fraud.payment USING(timestamp , id)
   where status = 'captured'
 )

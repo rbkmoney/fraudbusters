@@ -106,8 +106,8 @@ public class FraudPaymentRepositoryTest {
     public static FraudPayment createFraudPayment(String id) {
         return new FraudPayment()
                 .setId(id)
-                .setEventTime("2016-03-22T06:12:27Z")
-                .setComment("desc")
-                .setType("testType");
+                .setEventTime("2020-09-28 10:11:13")
+                .setComment("")
+                .setType("Card not present");
     }
 }
