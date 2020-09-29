@@ -2,9 +2,11 @@ package com.rbkmoney.fraudbusters.repository;
 
 import com.rbkmoney.clickhouse.initializer.ChInitializer;
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
+import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
+import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationStatusGeneralRepositoryImpl;
@@ -29,7 +31,6 @@ import org.testcontainers.containers.ClickHouseContainer;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -97,9 +98,13 @@ public class FraudPaymentRepositoryTest {
     public static FraudPaymentRow createFraudPaymentRow(String id) {
         FraudPaymentRow fraudPaymentRow = new FraudPaymentRow();
         fraudPaymentRow.setId(id);
-        fraudPaymentRow.setEventTime(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+        TimeProperties timeProperties = TimestampUtil.generateTimeProperties();
+        fraudPaymentRow.setTimestamp(timeProperties.getTimestamp());
+        fraudPaymentRow.setEventTimeHour(timeProperties.getEventTimeHour());
+        fraudPaymentRow.setEventTime(timeProperties.getEventTime());
         fraudPaymentRow.setComment("");
         fraudPaymentRow.setType("Card not present");
+        fraudPaymentRow.setPaymentStatus(PaymentStatus.captured.name());
         return fraudPaymentRow;
     }
 

@@ -18,6 +18,7 @@ import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,14 +78,18 @@ public class FraudResultRepositoryTest {
                             "clickhouse.db.user=" + clickHouseContainer.getUsername(),
                             "clickhouse.db.password=" + clickHouseContainer.getPassword())
                     .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
-                    "sql/V2__create_events_p2p.sql",
-                    "sql/V3__create_fraud_payments.sql",
-                    "sql/V4__create_payment.sql",
-                    "sql/V5__add_fields.sql",
-                    "sql/V6__add_result_fields_payment.sql",
-                    "sql/V7__add_fields.sql"));
         }
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
+                "sql/V2__create_events_p2p.sql",
+                "sql/V3__create_fraud_payments.sql",
+                "sql/V4__create_payment.sql",
+                "sql/V5__add_fields.sql",
+                "sql/V6__add_result_fields_payment.sql",
+                "sql/V7__add_fields.sql"));
     }
 
     @Test

@@ -22,6 +22,7 @@ import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,11 +84,18 @@ public class EventP2PRepositoryTest {
                             "clickhouse.db.user=" + clickHouseContainer.getUsername(),
                             "clickhouse.db.password=" + clickHouseContainer.getPassword())
                     .applyTo(configurableApplicationContext.getEnvironment());
-
-            ChInitializer.initAllScripts(clickHouseContainer,
-                    List.of("sql/db_init.sql",
-                            "sql/V2__create_events_p2p.sql"));
         }
+    }
+
+    private static void initDb() throws SQLException {
+        ChInitializer.initAllScripts(clickHouseContainer,
+                List.of("sql/db_init.sql",
+                        "sql/V2__create_events_p2p.sql"));
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        initDb();
     }
 
     @Test
