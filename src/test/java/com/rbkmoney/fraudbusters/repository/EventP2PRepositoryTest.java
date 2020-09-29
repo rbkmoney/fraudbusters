@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.repository;
 
+import com.rbkmoney.clickhouse.initializer.ChInitializer;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.EventP2PField;
@@ -16,13 +17,11 @@ import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
-import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +36,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.HashMap;
@@ -45,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.rbkmoney.fraudbusters.util.ChInitializer.execAllInFile;
 import static org.junit.Assert.assertEquals;
 
 @Slf4j
@@ -87,20 +84,10 @@ public class EventP2PRepositoryTest {
                             "clickhouse.db.password=" + clickHouseContainer.getPassword())
                     .applyTo(configurableApplicationContext.getEnvironment());
 
-            initDb();
+            ChInitializer.initAllScripts(clickHouseContainer,
+                    List.of("sql/db_init.sql",
+                            "sql/V2__create_events_p2p.sql"));
         }
-    }
-
-    private static void initDb() throws SQLException {
-        try (Connection connection = ChInitializer.getSystemConn(clickHouseContainer)) {
-            execAllInFile(connection, "sql/db_init.sql");
-            execAllInFile(connection, "sql/V2__create_events_p2p.sql");
-        }
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        initDb();
     }
 
     @Test
