@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.repository;
 
+import com.rbkmoney.clickhouse.initializer.ChInitializer;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.EventField;
@@ -10,7 +11,6 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
-import com.rbkmoney.fraudbusters.util.ChInitializer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.ClassRule;
@@ -28,13 +28,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
-import static com.rbkmoney.fraudbusters.util.ChInitializer.execAllInFile;
-import static com.rbkmoney.fraudbusters.util.ChInitializer.initAllScripts;
 import static org.junit.Assert.assertEquals;
 
 @Slf4j
@@ -73,14 +70,14 @@ public class PaymentRepositoryTest {
                             "clickhouse.db.user=" + clickHouseContainer.getUsername(),
                             "clickhouse.db.password=" + clickHouseContainer.getPassword())
                     .applyTo(configurableApplicationContext.getEnvironment());
-            initDb();
-        }
-    }
-
-    private static void initDb() throws SQLException {
-        initAllScripts(clickHouseContainer);
-        try (Connection connection = ChInitializer.getSystemConn(clickHouseContainer)) {
-            execAllInFile(connection, "sql/data/inserts_event_sink.sql");
+            ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
+                    "sql/V2__create_events_p2p.sql",
+                    "sql/V3__create_fraud_payments.sql",
+                    "sql/V4__create_payment.sql",
+                    "sql/V5__add_fields.sql",
+                    "sql/V6__add_result_fields_payment.sql",
+                    "sql/V7__add_fields.sql",
+                    "sql/data/inserts_event_sink.sql"));
         }
     }
 

@@ -1,9 +1,9 @@
 package com.rbkmoney.fraudbusters;
 
+import com.rbkmoney.clickhouse.initializer.ChInitializer;
 import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.fraudbusters.repository.FraudPaymentRepositoryTest;
-import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.rbkmoney.fraudbusters.util.BeanUtil.createPayment;
-import static com.rbkmoney.fraudbusters.util.ChInitializer.execAllInFile;
-import static com.rbkmoney.fraudbusters.util.ChInitializer.getSystemConn;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @Slf4j
@@ -74,15 +72,19 @@ public class FraudPaymentTest extends IntegrationTest {
                     "clickhouse.db.password=" + clickHouseContainer.getPassword(),
                     "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
                     .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer);
+            ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
+                    "sql/V2__create_events_p2p.sql",
+                    "sql/V3__create_fraud_payments.sql",
+                    "sql/V4__create_payment.sql",
+                    "sql/V5__add_fields.sql",
+                    "sql/V6__add_result_fields_payment.sql",
+                    "sql/V7__add_fields.sql"));
         }
     }
 
     @SneakyThrows
     @Test
     public void testFraudPayment() {
-        execAllInFile(getSystemConn(clickHouseContainer), "sql/V8__mv_fraud_payment.sql");
-
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format("http://localhost:%s/fraud_payment/v1/", serverPort)))
                 .withNetworkTimeout(300000);
@@ -99,7 +101,7 @@ public class FraudPaymentTest extends IntegrationTest {
         Thread.sleep(TIMEOUT);
 
         //Check join and view working
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.fraud_payment_full");
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.fraud_payment");
         Assert.assertEquals(1, maps.size());
         Assert.assertEquals(EMAIL, maps.get(0).get("email"));
     }

@@ -1,16 +1,18 @@
 package com.rbkmoney.fraudbusters;
 
+import com.rbkmoney.clickhouse.initializer.ChInitializer;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.fraudbusters.constant.EventSource;
-import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +95,13 @@ public class LoadDataIntegrationTest extends IntegrationTest {
                     "clickhouse.db.password=" + clickHouseContainer.getPassword(),
                     "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
                     .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer);
+            ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
+                    "sql/V2__create_events_p2p.sql",
+                    "sql/V3__create_fraud_payments.sql",
+                    "sql/V4__create_payment.sql",
+                    "sql/V5__add_fields.sql",
+                    "sql/V6__add_result_fields_payment.sql",
+                    "sql/V7__add_fields.sql"));
         }
     }
 

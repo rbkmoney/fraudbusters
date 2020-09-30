@@ -1,18 +1,20 @@
 package com.rbkmoney.fraudbusters.repository;
 
+import com.rbkmoney.clickhouse.initializer.ChInitializer;
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
+import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
+import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
+import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationStatusGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.FraudPaymentRepository;
-import com.rbkmoney.fraudbusters.util.ChInitializer;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,13 +29,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static com.rbkmoney.fraudbusters.util.ChInitializer.execAllInFile;
 import static org.junit.Assert.assertEquals;
 
 @Slf4j
@@ -72,21 +72,10 @@ public class FraudPaymentRepositoryTest {
                             "clickhouse.db.password=" + clickHouseContainer.getPassword())
                     .applyTo(configurableApplicationContext.getEnvironment());
 
-            initDb();
+            ChInitializer.initAllScripts(clickHouseContainer,
+                    List.of("sql/V3__create_fraud_payments.sql"));
         }
     }
-
-    private static void initDb() throws SQLException {
-        try (Connection connection = ChInitializer.getSystemConn(clickHouseContainer)) {
-            execAllInFile(connection, "sql/V3__create_fraud_payments.sql");
-        }
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        initDb();
-    }
-
 
     @Test
     public void insertBatch() throws SQLException {
@@ -99,13 +88,26 @@ public class FraudPaymentRepositoryTest {
     }
 
     @NotNull
-    private List<FraudPayment> createBatch() {
-        FraudPayment value = createFraudPayment("inv1.1");
-        FraudPayment value2 = createFraudPayment("inv2.1");
+    private List<FraudPaymentRow> createBatch() {
+        FraudPaymentRow value = createFraudPaymentRow("inv1.1");
+        FraudPaymentRow value2 = createFraudPaymentRow("inv2.1");
         return List.of(value, value2);
     }
 
     @NotNull
+    public static FraudPaymentRow createFraudPaymentRow(String id) {
+        FraudPaymentRow fraudPaymentRow = new FraudPaymentRow();
+        fraudPaymentRow.setId(id);
+        TimeProperties timeProperties = TimestampUtil.generateTimeProperties();
+        fraudPaymentRow.setTimestamp(timeProperties.getTimestamp());
+        fraudPaymentRow.setEventTimeHour(timeProperties.getEventTimeHour());
+        fraudPaymentRow.setEventTime(timeProperties.getEventTime());
+        fraudPaymentRow.setComment("");
+        fraudPaymentRow.setType("Card not present");
+        fraudPaymentRow.setPaymentStatus(PaymentStatus.captured.name());
+        return fraudPaymentRow;
+    }
+
     public static FraudPayment createFraudPayment(String id) {
         return new FraudPayment()
                 .setId(id)

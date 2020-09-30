@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.repository.setter;
 
-import com.rbkmoney.damsel.fraudbusters.FraudPayment;
-import com.rbkmoney.fraudbusters.util.TimestampUtil;
+import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
+import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -14,17 +14,45 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FraudPaymentBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
-    private final List<FraudPayment> payments;
+    private final List<FraudPaymentRow> payments;
 
     @Override
     public void setValues(PreparedStatement ps, int i) throws SQLException {
-        FraudPayment payment = payments.get(i);
-        int l = 1;
-        ps.setObject(l++, TimestampUtil.parseDate(payment.getEventTime()).toLocalDate());
-        ps.setString(l++, payment.getId());
-        ps.setString(l++, payment.getEventTime());
-        ps.setString(l++, payment.getType());
-        ps.setString(l, payment.getComment());
+            FraudPaymentRow checkedPayment = payments.get(i);
+            int l = 1;
+            ps.setObject(l++, checkedPayment.getTimestamp());
+            ps.setLong(l++, checkedPayment.getEventTimeHour());
+            ps.setLong(l++, checkedPayment.getEventTime());
+            ps.setString(l++, checkedPayment.getId());
+
+            ps.setString(l++, checkedPayment.getType());
+            ps.setString(l++, checkedPayment.getComment());
+
+            ps.setString(l++, checkedPayment.getEmail());
+            ps.setString(l++, checkedPayment.getIp());
+            ps.setString(l++, checkedPayment.getFingerprint());
+
+            ps.setString(l++, checkedPayment.getBin());
+            ps.setString(l++, checkedPayment.getMaskedPan());
+            ps.setString(l++, checkedPayment.getCardToken());
+            ps.setString(l++, checkedPayment.getPaymentSystem());
+            ps.setString(l++, checkedPayment.getPaymentTool());
+
+            ps.setString(l++, checkedPayment.getTerminal());
+            ps.setString(l++, checkedPayment.getProviderId());
+            ps.setString(l++, checkedPayment.getBankCountry());
+
+            ps.setString(l++, checkedPayment.getPartyId());
+            ps.setString(l++, checkedPayment.getShopId());
+
+            ps.setLong(l++, checkedPayment.getAmount() != null ? checkedPayment.getAmount() : 0L);
+            ps.setString(l++, checkedPayment.getCurrency() != null ? checkedPayment.getCurrency() : ClickhouseUtilsValue.UNKNOWN);
+
+            ps.setObject(l++, checkedPayment.getPaymentStatus());
+            ps.setObject(l++, checkedPayment.getErrorCode() != null ? checkedPayment.getErrorCode() : ClickhouseUtilsValue.UNKNOWN);
+            ps.setObject(l++, checkedPayment.getErrorReason() != null ? checkedPayment.getErrorReason() : ClickhouseUtilsValue.UNKNOWN);
+
+            ps.setObject(l, checkedPayment.getPaymentCountry());
     }
 
     @Override
