@@ -12,6 +12,7 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,8 @@ public class FraudPaymentListener {
                     .map(fraudPaymentToRowConverter::convert)
                     .collect(Collectors.toList())
             );
+        } catch (DateTimeParseException e) {
+            log.warn("Error when FraudPaymentListener listen e: ", e);
         } catch (Exception e) {
             log.warn("Error when FraudPaymentListener listen e: ", e);
             Thread.sleep(ListenersConfigurationService.THROTTLING_TIMEOUT);
