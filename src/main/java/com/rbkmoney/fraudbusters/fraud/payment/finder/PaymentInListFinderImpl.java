@@ -63,7 +63,7 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
                 Result result = wbListServiceSrv.getRowInfo(row);
                 if (result.getRowInfo() != null && result.getRowInfo().isSetCountInfo()) {
                     String resolveField = dbPaymentFieldResolver.resolve(field);
-                    return сountLessThanWbList(value, result, resolveField);
+                    return countLessThanWbList(value, result, resolveField);
                 }
             }
             return false;
@@ -74,7 +74,8 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
     }
 
     @NotNull
-    private Boolean сountLessThanWbList(String value, Result result, String resolveField) {
+    private Boolean countLessThanWbList(String value, Result result, String resolveField) {
+        log.debug("countLessThanWbList value: {} result: {} resolveField: {}", value, result, resolveField);
         RowInfo rowInfo = result.getRowInfo();
         String startCountTime = rowInfo.getCountInfo().getStartCountTime();
         String ttl = rowInfo.getCountInfo().getTimeToLive();
@@ -84,6 +85,7 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
             return false;
         }
         int currentCount = paymentRepository.countOperationByField(resolveField, value, from, to);
+        log.debug("countLessThanWbList currentCount: {} rowInfo: {}", currentCount, rowInfo);
         return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
     }
 
