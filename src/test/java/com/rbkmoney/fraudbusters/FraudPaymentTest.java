@@ -98,7 +98,7 @@ public class FraudPaymentTest extends IntegrationTest {
 
         //Insert fraud row
         client.insertFraudPayments(List.of(FraudPaymentRepositoryTest.createFraudPayment(ID_PAYMENT)));
-        Thread.sleep(TIMEOUT);
+        Thread.sleep(TIMEOUT * 10);
 
         //Check join and view working
         List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from fraud.fraud_payment");

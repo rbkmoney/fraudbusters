@@ -63,12 +63,12 @@ public class InGreyListFinderImplTest {
                         .setStartCountTime(now.toString())));
 
         when(wbListServiceSrv.getRowInfo(any())).thenReturn(result);
-        when(analyticRepository.countOperationByField(any(), any(), any(), any())).thenReturn(6);
+        when(analyticRepository.countOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(6);
 
         inList = inGreyListFinder.findInGreyList(List.of(new Pair<>(PaymentCheckedField.CARD_TOKEN, VALUE)), paymentModel);
         assertFalse(inList);
 
-        when(analyticRepository.countOperationByField(any(), any(), any(), any())).thenReturn(4);
+        when(analyticRepository.countOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(4);
         inList = inGreyListFinder.findInGreyList(List.of(new Pair<>(PaymentCheckedField.CARD_TOKEN, VALUE)), paymentModel);
         assertTrue(inList);
     }

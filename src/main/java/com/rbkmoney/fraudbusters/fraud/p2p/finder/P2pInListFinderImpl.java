@@ -2,8 +2,10 @@ package com.rbkmoney.fraudbusters.fraud.p2p.finder;
 
 import com.rbkmoney.damsel.wb_list.*;
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
+import com.rbkmoney.fraudbusters.constant.EventP2PField;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
@@ -61,17 +63,7 @@ public class P2pInListFinderImpl implements InListFinder<P2PModel, P2PCheckedFie
                 Row row = createRow(ListType.grey, identityId, field, value);
                 Result result = wbListServiceSrv.getRowInfo(row);
                 if (result.getRowInfo() != null && result.getRowInfo().isSetCountInfo()) {
-                    RowInfo rowInfo = result.getRowInfo();
-                    String startCountTime = rowInfo.getCountInfo().getStartCountTime();
-                    String ttl = rowInfo.getCountInfo().getTimeToLive();
-                    String resolveField = dbP2pFieldResolver.resolve(field);
-                    Long to = TimestampUtil.generateTimestampWithParse(ttl);
-                    Long from = TimestampUtil.generateTimestampWithParse(startCountTime);
-                    if (Instant.now().getEpochSecond() > to || from >= to) {
-                        return false;
-                    }
-                    int currentCount = eventP2PRepository.countOperationByField(resolveField, value, from, to);
-                    return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
+                    return countLessInWbList(identityId, field, value, result);
                 }
             }
             return false;
@@ -79,6 +71,22 @@ public class P2pInListFinderImpl implements InListFinder<P2PModel, P2PCheckedFie
             log.warn("InListFinderImpl error when findInList e: ", e);
             throw new RuleFunctionException(e);
         }
+    }
+
+    @NotNull
+    private Boolean countLessInWbList(String identityId, P2PCheckedField field, String value, Result result) {
+        RowInfo rowInfo = result.getRowInfo();
+        String startCountTime = rowInfo.getCountInfo().getStartCountTime();
+        String ttl = rowInfo.getCountInfo().getTimeToLive();
+        String resolveField = dbP2pFieldResolver.resolve(field);
+        Long to = TimestampUtil.generateTimestampWithParse(ttl);
+        Long from = TimestampUtil.generateTimestampWithParse(startCountTime);
+        if (Instant.now().getEpochSecond() > to || from >= to) {
+            return false;
+        }
+        int currentCount = eventP2PRepository.countOperationByFieldWithGroupBy(resolveField, value, from, to,
+                List.of(new FieldModel(EventP2PField.identityId.name(), identityId)));
+        return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
     }
 
     @Override
