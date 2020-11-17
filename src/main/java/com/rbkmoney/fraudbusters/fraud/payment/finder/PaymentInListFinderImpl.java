@@ -2,8 +2,10 @@ package com.rbkmoney.fraudbusters.fraud.payment.finder;
 
 import com.rbkmoney.damsel.wb_list.*;
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
+import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
+import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
@@ -63,7 +65,7 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
                 Result result = wbListServiceSrv.getRowInfo(row);
                 if (result.getRowInfo() != null && result.getRowInfo().isSetCountInfo()) {
                     String resolveField = dbPaymentFieldResolver.resolve(field);
-                    return countLessThanWbList(value, result, resolveField);
+                    return countLessThanWbList(partyId, shopId, value, result, resolveField);
                 }
             }
             return false;
@@ -74,8 +76,9 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
     }
 
     @NotNull
-    private Boolean countLessThanWbList(String value, Result result, String resolveField) {
-        log.debug("countLessThanWbList value: {} result: {} resolveField: {}", value, result, resolveField);
+    private Boolean countLessThanWbList(String partyId, String shopId, String value, Result result, String resolveField) {
+        log.debug("countLessThanWbList partyId: {} shopId: {} value: {} result: {} resolveField: {}", partyId, shopId,
+                value, result, resolveField);
         RowInfo rowInfo = result.getRowInfo();
         String startCountTime = rowInfo.getCountInfo().getStartCountTime();
         String ttl = rowInfo.getCountInfo().getTimeToLive();
@@ -84,9 +87,18 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
         if (Instant.now().getEpochSecond() > to || from >= to) {
             return false;
         }
-        int currentCount = paymentRepository.countOperationByField(resolveField, value, from, to);
+        int currentCount = paymentRepository.countOperationByFieldWithGroupBy(resolveField, value, from, to,
+                createFieldModels(partyId, shopId));
         log.debug("countLessThanWbList currentCount: {} rowInfo: {}", currentCount, rowInfo);
         return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
+    }
+
+    @NotNull
+    private List<FieldModel> createFieldModels(String partyId, String shopId) {
+        return List.of(
+                new FieldModel(EventField.partyId.name(), partyId),
+                new FieldModel(EventField.shopId.name(), shopId)
+        );
     }
 
     @Override
