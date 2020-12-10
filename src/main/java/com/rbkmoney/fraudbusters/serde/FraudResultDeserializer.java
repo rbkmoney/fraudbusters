@@ -1,7 +1,9 @@
 package com.rbkmoney.fraudbusters.serde;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rbkmoney.fraudbusters.config.service.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Deserializer;
 
@@ -17,6 +19,7 @@ public class FraudResultDeserializer implements Deserializer<FraudResult> {
 
     }
 
+    @SneakyThrows
     @Override
     public FraudResult deserialize(String topic, byte[] data) {
         FraudResult fraudResult = null;
