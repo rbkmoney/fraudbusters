@@ -60,6 +60,7 @@ kafka:
     p2p-reference: template_p2p_reference
     p2p-group-list: group_p2p_list
     p2p-group-reference: group_p2p_reference
+    unknown-initiating-entity: unknown_initiating_entity
     event.sink:
       initial: event_sink
       aggregated: aggregated_event_sink
@@ -89,10 +90,6 @@ clickhouse.db:
 geo.ip.service.url: "localhost:29092/v1/columbus"
 
 wb.list.service.url: "localhost:29092/v1/wb_list"
-
-fraud:
-  management:
-    url: "localhost:8899"
 
 default.template:
   enable: true

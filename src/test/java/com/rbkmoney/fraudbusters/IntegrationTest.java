@@ -5,7 +5,7 @@ import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.config.properties.KafkaTopics;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
-import com.rbkmoney.fraudbusters.service.FraudManagementService;
+import com.rbkmoney.fraudbusters.service.ShopManagementService;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
@@ -48,7 +48,7 @@ public abstract class IntegrationTest {
     protected static final long TIMEOUT = 1000L;
 
     @MockBean
-    private FraudManagementService fraudManagementService;
+    private ShopManagementService shopManagementService;
 
     @MockBean
     GeoIpServiceSrv.Iface geoIpServiceSrv;
@@ -68,7 +68,7 @@ public abstract class IntegrationTest {
 
     @Before
     public void setUp() {
-        Mockito.when(fraudManagementService.isNewShop(any())).thenReturn(false);
+        Mockito.when(shopManagementService.isNewShop(any())).thenReturn(false);
     }
 
     public Producer<String, Command> createProducer() {

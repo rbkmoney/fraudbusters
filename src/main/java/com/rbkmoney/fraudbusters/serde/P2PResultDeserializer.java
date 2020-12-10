@@ -23,7 +23,7 @@ public class P2PResultDeserializer implements Deserializer<ScoresResult<P2PModel
     public ScoresResult<P2PModel> deserialize(String topic, byte[] data) {
         ScoresResult<P2PModel> result = null;
         try {
-            result = om.readValue(data, new TypeReference<ScoresResult<P2PModel>>() {
+            result = om.readValue(data, new TypeReference<>() {
             });
         } catch (Exception e) {
             log.error("Error when deserialize ScoresResult data: {} ", data, e);
