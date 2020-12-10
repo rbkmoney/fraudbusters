@@ -15,7 +15,7 @@ public class FraudPaymentDeserializer extends AbstractThriftDeserializer<FraudPa
         try {
             return deserialize(data, new FraudPayment());
         } catch (Exception e) {
-            log.warn("Error when PaymentDeserializer deserialize e: ", e);
+            log.warn("Error when FraudPaymentDeserializer deserialize e: ", e);
             Thread.sleep(ListenersConfigurationService.THROTTLING_TIMEOUT);
             throw e;
         }

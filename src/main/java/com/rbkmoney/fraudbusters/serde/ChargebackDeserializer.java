@@ -16,7 +16,7 @@ public class ChargebackDeserializer extends AbstractThriftDeserializer<Chargebac
         try {
             return deserialize(data, new Chargeback());
         } catch (Exception e) {
-            log.warn("Error when PaymentDeserializer deserialize e: ", e);
+            log.warn("Error when ChargebackDeserializer deserialize e: ", e);
             Thread.sleep(ListenersConfigurationService.THROTTLING_TIMEOUT);
             throw e;
         }

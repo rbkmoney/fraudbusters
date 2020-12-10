@@ -15,7 +15,7 @@ public class SinkEventDeserializer extends AbstractThriftDeserializer<SinkEvent>
         try {
             return this.deserialize(data, new SinkEvent());
         } catch (Exception e) {
-            log.warn("Error when PaymentDeserializer deserialize e: ", e);
+            log.warn("Error when SinkEventDeserializer deserialize e: ", e);
             Thread.sleep(ListenersConfigurationService.THROTTLING_TIMEOUT);
             throw e;
         }

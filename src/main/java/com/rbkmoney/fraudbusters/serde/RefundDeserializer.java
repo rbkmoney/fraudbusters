@@ -16,7 +16,7 @@ public class RefundDeserializer extends AbstractThriftDeserializer<Refund> {
         try {
             return deserialize(data, new Refund());
         } catch (Exception e) {
-            log.warn("Error when PaymentDeserializer deserialize e: ", e);
+            log.warn("Error when RefundDeserializer deserialize e: ", e);
             Thread.sleep(ListenersConfigurationService.THROTTLING_TIMEOUT);
             throw e;
         }
