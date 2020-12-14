@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.config.service;
 
+import com.rbkmoney.damsel.fraudbusters.ReferenceInfo;
 import com.rbkmoney.fraudbusters.config.properties.KafkaSslProperties;
 import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
@@ -7,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.stereotype.Service;
 
@@ -40,5 +44,8 @@ public class KafkaTemplateConfigurationService {
         return props;
     }
 
-
+    @Bean
+    public KafkaTemplate<String, ReferenceInfo> kafkaUnknownInitiatingEntityTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerThriftConfigs()));
+    }
 }
