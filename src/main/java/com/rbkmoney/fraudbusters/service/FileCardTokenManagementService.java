@@ -23,7 +23,7 @@ public class FileCardTokenManagementService {
     private String filepath;
 
     public void writeToFile(String fileName, List<String> cardTokens) {
-        File directory = new File(FilenameUtils.getFullPath(initFilePath(fileName)));
+        File directory = new File(filepath);
         if (!directory.exists()) {
             final boolean mkdir = directory.mkdir();
             if (!mkdir) {
@@ -42,7 +42,7 @@ public class FileCardTokenManagementService {
 
     @NotNull
     private String initFilePath(String fileName) {
-        return filepath + "/" + FilenameUtils.getName(fileName);
+        return filepath + "/" + fileName;
     }
 
     public void deleteOldFiles() {
