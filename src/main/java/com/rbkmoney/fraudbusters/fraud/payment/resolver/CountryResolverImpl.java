@@ -13,7 +13,6 @@ import org.apache.thrift.TException;
 @RequiredArgsConstructor
 public class CountryResolverImpl implements CountryResolver<PaymentCheckedField> {
 
-
     private final CountryByIpResolver countryByIpResolver;
 
     @Override

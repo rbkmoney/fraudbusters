@@ -12,6 +12,7 @@ import com.rbkmoney.fraudbusters.listener.payment.GroupReferenceListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateReferenceListener;
 import com.rbkmoney.fraudbusters.pool.Pool;
+import com.rbkmoney.fraudbusters.service.CardPoolManagementService;
 import com.rbkmoney.fraudbusters.service.PoolMonitoringService;
 import com.rbkmoney.fraudbusters.stream.StreamManager;
 import com.rbkmoney.kafka.common.loader.PreloadListener;
@@ -85,6 +86,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private final KafkaTopics kafkaTopics;
 
     private final PoolMonitoringService poolMonitoringService;
+    private final CardPoolManagementService cardPoolManagementService;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -108,6 +110,8 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
             }
 
             ExecutorService executorService = Executors.newFixedThreadPool(COUNT_PRELOAD_TASKS);
+
+            tasks.add(cardPoolManagementService::updateTrustedTokens);
 
             tasks.addAll(List.of(
                     () -> waitPreLoad(latch, templateListenerFactory, kafkaTopics.getTemplate(), templateListener),
