@@ -4,6 +4,7 @@ import com.rbkmoney.fraudbusters.exception.ReadDataException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.logstash.logback.encoder.org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class FileCardTokenManagementService {
     private String filepath;
 
     public void writeToFile(String fileName, List<String> cardTokens) {
-        File directory = new File(filepath);
+        File directory = new File(FilenameUtils.getName(filepath));
         if (!directory.exists()) {
             final boolean mkdir = directory.mkdir();
             if (!mkdir) {
@@ -41,7 +42,7 @@ public class FileCardTokenManagementService {
 
     @NotNull
     private String initFilePath(String fileName) {
-        return filepath + "/" + fileName;
+        return FilenameUtils.getName(filepath + "/" + fileName);
     }
 
     public void deleteOldFiles() {
@@ -58,7 +59,7 @@ public class FileCardTokenManagementService {
     }
 
     private File[] readAllFiles() {
-        File folder = new File(filepath);
+        File folder = new File(FilenameUtils.getName(filepath));
         return folder.listFiles();
     }
 
