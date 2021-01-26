@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +25,7 @@ public class FileCardTokenManagementService {
     private String filepath;
 
     public void writeToFile(String fileName, List<String> cardTokens) {
-        File directory = new File(FilenameUtils.getName(filepath));
+        File directory = new File(FilenameUtils.getPath(filepath));
         if (!directory.exists()) {
             final boolean mkdir = directory.mkdir();
             if (!mkdir) {
@@ -42,24 +44,19 @@ public class FileCardTokenManagementService {
 
     @NotNull
     private String initFilePath(String fileName) {
-        return FilenameUtils.getName(filepath + "/" + fileName);
+        return FilenameUtils.getPath(filepath + "/" + fileName);
     }
 
     public void deleteOldFiles() {
-        final File[] files = readAllFiles();
-        if (!ArrayUtils.isEmpty(files)) {
-            for (File file : files) {
-                if (file.delete()) {
-                    log.info("deleteFile success: {}", file.getPath());
-                } else {
-                    log.warn("deleteFile error: {}", file.getPath());
-                }
-            }
+        try {
+            Files.delete(Path.of(filepath));
+        } catch (IOException e) {
+            log.error("error when deleteOldFiles by path: {} e: ", filepath, e);
         }
     }
 
     private File[] readAllFiles() {
-        File folder = new File(FilenameUtils.getName(filepath));
+        File folder = new File(FilenameUtils.getPath(filepath));
         return folder.listFiles();
     }
 
