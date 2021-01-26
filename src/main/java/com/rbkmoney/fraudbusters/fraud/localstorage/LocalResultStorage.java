@@ -19,4 +19,8 @@ public class LocalResultStorage {
         localStorage.get().clear();
     }
 
+    public void remove() {
+        localStorage.remove();
+    }
+
 }
