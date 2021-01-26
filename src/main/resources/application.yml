@@ -103,5 +103,5 @@ time.pool.cleanup.gap: 60
 card-token-pool:
   maxAttempts: 5
   retryDelayMs: 500
-  filePath: classpath:token
+  filePath: tokens
   scheduleRateMs: 600000

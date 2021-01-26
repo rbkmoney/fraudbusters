@@ -19,9 +19,16 @@ import java.util.stream.Collectors;
 public class FileCardTokenManagementService {
 
     @Value("${card-token-pool.filePath}")
-    private File filepath;
+    private String filepath;
 
     public void writeToFile(String fileName, List<String> cardTokens) {
+        File directory = new File(filepath);
+        if (!directory.exists()) {
+            final boolean mkdir = directory.mkdir();
+            if (!mkdir) {
+                log.warn("can't create directory when writeToFile filepath: {}", filepath);
+            }
+        }
         try (BufferedWriter out = new BufferedWriter(new FileWriter(initFilePath(fileName)))) {
             for (String cardToken : cardTokens) {
                 out.write(cardToken);
@@ -38,7 +45,7 @@ public class FileCardTokenManagementService {
     }
 
     public void deleteOldFiles() {
-        final File[] files = filepath.listFiles();
+        final File[] files = readAllFiles();
         if (!ArrayUtils.isEmpty(files)) {
             for (File file : files) {
                 if (file.delete()) {
@@ -50,8 +57,13 @@ public class FileCardTokenManagementService {
         }
     }
 
+    private File[] readAllFiles() {
+        File folder = new File(filepath);
+        return folder.listFiles();
+    }
+
     public List<String> readCardTokensFromFile(String currentScheduleTime) {
-        final File[] files = filepath.listFiles();
+        final File[] files = readAllFiles();
         if (!ArrayUtils.isEmpty(files)) {
             for (File file : files) {
                 if (currentScheduleTime.equals(file.getName())) {
@@ -68,7 +80,7 @@ public class FileCardTokenManagementService {
     }
 
     public boolean isFileExist(String currentScheduleTime) {
-        final File[] files = filepath.listFiles();
+        final File[] files = readAllFiles();
         return !ArrayUtils.isEmpty(files) && Arrays.stream(files)
                 .anyMatch(file -> currentScheduleTime.equals(file.getName()));
     }
