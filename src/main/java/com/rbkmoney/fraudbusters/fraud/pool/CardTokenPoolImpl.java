@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.fraud.pool;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
@@ -28,7 +29,10 @@ public class CardTokenPoolImpl implements CardTokenPool {
 
     @Override
     public boolean isExist(String cardToken) {
-        return cardTokens.contains(cardToken);
+        if (CollectionUtils.isEmpty(this.cardTokens)) {
+            return false;
+        }
+        return this.cardTokens.contains(cardToken);
     }
 
     @Override

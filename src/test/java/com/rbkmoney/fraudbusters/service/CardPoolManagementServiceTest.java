@@ -64,5 +64,7 @@ class CardPoolManagementServiceTest {
         //check not select
         cardPoolManagementService.updateTrustedTokens();
         assertTrue(cardTokenPool.isExist(testToken));
+
+        fileCardTokenManagementService.deleteOldFiles();
     }
 }

@@ -73,7 +73,7 @@ public class EndToEndIntegrationTest extends IntegrationTest {
             "rule:GROUP_NORMAL:  1 < 0  -> decline;";
 
     private static final String TEMPLATE_CONCRETE_SHOP =
-            "rule:TEMPLATE_CONCRETE_SHOP:  sum(\"email\", 10) >= 18000  -> accept;";
+            "rule:TEMPLATE_CONCRETE_SHOP:  sum(\"email\", 10) >= 18000 and not isTrusted()  -> accept;";
 
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
