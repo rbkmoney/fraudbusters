@@ -61,13 +61,8 @@ public class P2PEndToEndIntegrationTest extends IntegrationTest {
     @LocalServerPort
     int serverPort;
 
-    private static String SERVICE_P2P_URL = "http://localhost:%s/fraud_p2p_inspector/v1";
+    private static final String SERVICE_P2P_URL = "http://localhost:%s/fraud_p2p_inspector/v1";
 
-    private Connection getSystemConn() throws SQLException {
-        ClickHouseProperties properties = new ClickHouseProperties();
-        ClickHouseDataSource dataSource = new ClickHouseDataSource(clickHouseContainer.getJdbcUrl(), properties);
-        return dataSource.getConnection();
-    }
     @ClassRule
     public static EmbeddedKafkaRule kafka = createKafka();
 

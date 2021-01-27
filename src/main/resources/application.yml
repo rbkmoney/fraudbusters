@@ -99,3 +99,9 @@ result.full.check:
   enabled: true
 
 time.pool.cleanup.gap: 60
+
+card-token-pool:
+  maxAttempts: 5
+  retryDelayMs: 500
+  filePath: tokens
+  scheduleRateMs: 600000
