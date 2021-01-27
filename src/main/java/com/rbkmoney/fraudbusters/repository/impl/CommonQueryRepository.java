@@ -14,13 +14,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommonQueryRepository {
 
+    private final JdbcTemplate jdbcTemplate;
+
     private static final String QUERY = "SELECT cardToken" +
             " FROM fraud.payment " +
             " WHERE toDateTime(?) - INTERVAL 1 YEAR < toDateTime(eventTime) and toDateTime(?) > toDateTime(eventTime) and status='captured' " +
             " GROUP BY cardToken, currency " +
             " HAVING uniq(id) > 2 and ((sum(amount) > 200000 and currency = 'RUB') or(sum(amount) > 3000 and currency != 'RUB'))";
 
-    private final JdbcTemplate jdbcTemplate;
 
     public List<String> selectFreshTrustedCardTokens(Instant timeHour) {
         try {

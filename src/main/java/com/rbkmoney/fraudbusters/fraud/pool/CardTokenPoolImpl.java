@@ -17,9 +17,9 @@ public class CardTokenPoolImpl implements CardTokenPool {
 
     @Override
     public void reinit(List<String> cardTokens) {
-        log.info("reinit cardTokens pool: {}", cardTokens.size());
+        log.info("Reinit cardTokens pool: {}", cardTokens.size());
         this.cardTokens = new TreeSet<>(cardTokens);
-        log.info("reinit cardTokens success");
+        log.info("Reinit cardTokens success");
     }
 
     @Override
@@ -37,7 +37,7 @@ public class CardTokenPoolImpl implements CardTokenPool {
 
     @Override
     public boolean isEmpty() {
-        return cardTokens == null || cardTokens.isEmpty();
+        return CollectionUtils.isEmpty(this.cardTokens);
     }
 
 }
