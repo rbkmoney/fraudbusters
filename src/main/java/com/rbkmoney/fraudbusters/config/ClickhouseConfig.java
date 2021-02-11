@@ -29,6 +29,12 @@ public class ClickhouseConfig {
     @Value("${clickhouse.db.compress}")
     private String compress;
 
+    @Value("${clickhouse.db.distributed-connections-pool-size}")
+    private String distributedConnectionsPoolSize;
+
+    @Value("${clickhouse.db.max-distributed-connections}")
+    private String maxDistributedConnections;
+
     @Bean
     public ClickHouseDataSource clickHouseDataSource() {
         Properties info = new Properties();
@@ -36,6 +42,8 @@ public class ClickhouseConfig {
         info.setProperty(ClickHouseQueryParam.PASSWORD.getKey(), password);
         info.setProperty(ClickHouseQueryParam.COMPRESS.getKey(), compress);
         info.setProperty(ClickHouseQueryParam.CONNECT_TIMEOUT.getKey(), connectionTimeout);
+        info.setProperty(ClickHouseQueryParam.DISTRIBUTED_CONNECTIONS_POOL_SIZE.getKey(), distributedConnectionsPoolSize);
+        info.setProperty(ClickHouseQueryParam.MAX_DISTRIBUTED_CONNECTIONS.getKey(), maxDistributedConnections);
         return new ClickHouseDataSource(dbUrl, info);
     }
 
