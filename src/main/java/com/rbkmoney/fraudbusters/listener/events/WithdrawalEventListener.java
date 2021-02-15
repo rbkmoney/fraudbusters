@@ -26,12 +26,12 @@ public class WithdrawalEventListener {
     public void listen(List<Withdrawal> withdrawals, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
                        @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {
-            log.info("PaymentEventListener listen result size: {} partition: {} offset: {}", withdrawals.size(), partition, offset);
-            log.debug("PaymentEventListener listen result withdrawals: {}", withdrawals);
+            log.info("Listen withdrawals size: {} partition: {} offset: {}", withdrawals.size(), partition, offset);
+            log.debug("Listen withdrawals: {}", withdrawals);
             repository.insertBatch(withdrawals);
             localResultStorage.clear();
         } catch (Exception e) {
-            log.warn("Error when PaymentEventListener listen e: ", e);
+            log.warn("Error when withdrawals listen e: ", e);
             Thread.sleep(ListenersConfigurationService.THROTTLING_TIMEOUT);
             throw e;
         }

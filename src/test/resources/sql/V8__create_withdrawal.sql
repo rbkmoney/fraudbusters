@@ -25,9 +25,9 @@ create table fraud.withdrawal
     providerId            String,
     bankCountry           String,
 
-    identityId               String,
-    accountId                String,
-    walletId                String,
+    identityId            String,
+    accountId             String,
+    walletId              String,
 
     status                Enum8('pending' = 1, 'succeeded' = 2, 'failed' = 3),
     errorReason           String,
