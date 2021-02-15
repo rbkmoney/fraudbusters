@@ -108,3 +108,5 @@ card-token-pool:
   retryDelayMs: 500
   filePath: tokens
   scheduleRateMs: 600000
+
+load.isTrusted.enabled: false
