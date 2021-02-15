@@ -24,7 +24,7 @@
 
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <damsel.version>1.471-59207b8</damsel.version>
+        <damsel.version>1.475-bde841f</damsel.version>
         <woody.thrift.version>1.1.22</woody.thrift.version>
         <geck.version>0.6.11</geck.version>
         <fraudo.version>0.0.22</fraudo.version>
