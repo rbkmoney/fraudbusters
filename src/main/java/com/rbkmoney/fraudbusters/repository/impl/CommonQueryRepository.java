@@ -14,11 +14,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommonQueryRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate longQueryJdbcTemplate;
 
     private static final String QUERY = "SELECT cardToken" +
             " FROM fraud.payment " +
             " WHERE toDateTime(?) - INTERVAL 1 YEAR < toDateTime(eventTime) and toDateTime(?) > toDateTime(eventTime) and status='captured' " +
+            " and providerId in ('108', '114', '118', '119', '121', '125', '126', '128', '130', '136', '132', '137', '143', '139', '144', '149')" +
             " GROUP BY cardToken, currency " +
             " HAVING uniq(id) > 2 and ((sum(amount) > 200000 and currency = 'RUB') or(sum(amount) > 3000 and currency != 'RUB'))";
 
@@ -26,7 +27,10 @@ public class CommonQueryRepository {
     public List<String> selectFreshTrustedCardTokens(Instant timeHour) {
         try {
             log.info("selectFreshTrustedCardTokens query: {} params: {}", QUERY, timeHour);
-            List<String> data = jdbcTemplate.query(QUERY, List.of(timeHour.getEpochSecond(), timeHour.getEpochSecond()).toArray(), (rs, rowNum) -> rs.getString(1));
+            List<String> data = longQueryJdbcTemplate.query(
+                    QUERY,
+                    List.of(timeHour.getEpochSecond(), timeHour.getEpochSecond()).toArray(),
+                    (rs, rowNum) -> rs.getString(1));
             log.info("selectFreshTrustedCardTokens result size: {}", data.size());
             return data;
         } catch (Exception e) {
