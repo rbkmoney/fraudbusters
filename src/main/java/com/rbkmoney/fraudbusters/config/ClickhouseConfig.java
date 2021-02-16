@@ -39,7 +39,6 @@ public class ClickhouseConfig {
         info.put(ClickHouseQueryParam.USER.getKey(), user);
         info.put(ClickHouseQueryParam.PASSWORD.getKey(), password);
         info.put(ClickHouseQueryParam.COMPRESS.getKey(), compress);
-        info.put(ClickHouseQueryParam.CONNECT_TIMEOUT.getKey(), connectionTimeout);
         return new ClickHouseDataSource(dbUrl, info);
     }
 
