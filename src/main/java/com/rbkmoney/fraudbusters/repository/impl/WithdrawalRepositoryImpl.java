@@ -24,7 +24,7 @@ public class WithdrawalRepositoryImpl implements Repository<Withdrawal> {
 
     private static final String INSERT = String.format(
             "INSERT INTO %1s (%2s) VALUES (%3s)",
-            EventSource.FRAUD_EVENTS_PAYMENT.getTable(),
+            EventSource.FRAUD_EVENTS_WITHDRAWAL.getTable(),
             WithdrawalBatchPreparedStatementSetter.FIELDS,
             WithdrawalBatchPreparedStatementSetter.FIELDS_MARK);
 

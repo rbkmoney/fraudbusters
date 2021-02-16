@@ -21,7 +21,7 @@ public class WithdrawalBatchPreparedStatementSetter implements BatchPreparedStat
             "amount, currency, " +
             "bin, maskedPan, cardToken, paymentSystem, " +
             "terminal, providerId, bankCountry, " +
-            "identityId, accountId, accountCurrency " +
+            "identityId, accountId, accountCurrency, " +
             "status, errorCode, errorReason";
 
     public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
@@ -53,8 +53,8 @@ public class WithdrawalBatchPreparedStatementSetter implements BatchPreparedStat
         ps.setString(l++, withdrawal.isSetProviderInfo() && withdrawal.getProviderInfo().isSetCountry() ?
                 withdrawal.getProviderInfo().getCountry() : UNKNOWN);
 
-        ps.setString(l++, withdrawal.getAccount().getId());
         ps.setString(l++, withdrawal.getAccount().getIdentity());
+        ps.setString(l++, withdrawal.getAccount().getId());
         ps.setString(l++, withdrawal.getAccount().getCurrency().getSymbolicCode());
 
         ps.setObject(l++, withdrawal.getStatus());

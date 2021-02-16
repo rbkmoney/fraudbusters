@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS fraud.withdrawal;
+
 create table fraud.withdrawal
 (
     timestamp             Date,
@@ -27,7 +29,7 @@ create table fraud.withdrawal
 
     identityId            String,
     accountId             String,
-    walletId              String,
+    accountCurrency       String,
 
     status                Enum8('pending' = 1, 'succeeded' = 2, 'failed' = 3),
     errorReason           String,
@@ -36,5 +38,3 @@ create table fraud.withdrawal
 ) ENGINE = ReplacingMergeTree()
 PARTITION BY toYYYYMM (timestamp)
 ORDER BY (eventTimeHour, identityId, status, currency, paymentSystem, providerId, cardToken, id);
-
-DROP TABLE IF EXISTS fraud.withdrawal;

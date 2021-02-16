@@ -65,7 +65,7 @@ public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
     public void insertWithdrawals(List<Withdrawal> list) throws TException {
         log.debug("InsertWithdrawals list: {}", list);
         for (Withdrawal withdrawal : list) {
-            send(kafkaFraudWithdrawalTemplate, paymentEventTopic, withdrawal.getId(), withdrawal);
+            send(kafkaFraudWithdrawalTemplate, withdrawalEventTopic, withdrawal.getId(), withdrawal);
         }
     }
 

@@ -56,6 +56,7 @@ public class BeanUtil {
     public static final String IDENTITY_ID = "identityId";
     public static final String RUB = "RUB";
     public static final String TOKEN = "wewerwer";
+    public static final String ACCOUNT_ID = "ACCOUNT_ID";
 
     public static Context createContext() {
         String pId = P_ID;
@@ -73,12 +74,12 @@ public class BeanUtil {
                         ))
                         .setSender(com.rbkmoney.damsel.p2p_insp.Payer.raw(
                                 new Raw(com.rbkmoney.damsel.domain.Payer.customer(
-                                        new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(),
+                                        new CustomerPayer("custId", "1", "rec_paym_tool", createPaymentTool(),
                                                 contact_info)))))
                         .setCreatedAt(TypeUtil.temporalToString(Instant.now()))
                         .setReceiver(com.rbkmoney.damsel.p2p_insp.Payer.raw(
                                 new Raw(com.rbkmoney.damsel.domain.Payer.customer(
-                                        new CustomerPayer("custId_2", "2", "rec_paym_tool", createBankCard(),
+                                        new CustomerPayer("custId_2", "2", "rec_paym_tool", createPaymentTool(),
                                                 contact_info)))))
                         .setIdentity(new Identity(identityId))
                         .setId(idTransfer)
@@ -103,7 +104,7 @@ public class BeanUtil {
                 new InvoicePayment(pId,
                         TypeUtil.temporalToString(Instant.now()),
                         Payer.customer(
-                                new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(),
+                                new CustomerPayer("custId", "1", "rec_paym_tool", createPaymentTool(),
                                         contact_info)),
                         new Cash(
                                 9000L,
@@ -123,20 +124,25 @@ public class BeanUtil {
     }
 
     private static Payer createCustomerPayer() {
-        return Payer.customer(new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(), new ContactInfo()));
+        return Payer.customer(new CustomerPayer("custId", "1", "rec_paym_tool", createPaymentTool(), new ContactInfo()));
     }
 
-    private static com.rbkmoney.damsel.domain.PaymentTool createBankCard() {
+    private static com.rbkmoney.damsel.domain.PaymentTool createPaymentTool() {
         return new com.rbkmoney.damsel.domain.PaymentTool() {{
-            com.rbkmoney.damsel.domain.BankCard value = new com.rbkmoney.damsel.domain.BankCard(
-                    "477bba133c182267fe5f086924abdc5db71f77bfc27f01f2843f2cdc69d89f05",
-                    BankCardPaymentSystem.mastercard,
-                    BIN,
-                    "4242"
-            );
-            value.setIssuerCountry(Residence.RUS);
-            setBankCard(value);
+            setBankCard(createBankCard());
         }};
+    }
+
+    @NotNull
+    private static BankCard createBankCard() {
+        BankCard value = new BankCard(
+                "477bba133c182267fe5f086924abdc5db71f77bfc27f01f2843f2cdc69d89f05",
+                BankCardPaymentSystem.mastercard,
+                BIN,
+                "4242"
+        );
+        value.setIssuerCountry(Residence.RUS);
+        return value;
     }
 
     public static PaymentModel createPaymentModel() {
@@ -369,7 +375,7 @@ public class BeanUtil {
         com.rbkmoney.damsel.domain.InvoicePayment payment = new com.rbkmoney.damsel.domain.InvoicePayment();
         Cash cost = new Cash();
         cost.setAmount(123L);
-        cost.setCurrency(new CurrencyRef().setSymbolicCode("RUB"));
+        cost.setCurrency(createRubCurrency());
         payment.setCost(cost);
         payment.setCreatedAt("2016-08-10T16:07:18Z");
         payment.setId(PAYMENT_ID);
@@ -381,7 +387,7 @@ public class BeanUtil {
         DisposablePaymentResource resource = new DisposablePaymentResource();
         com.rbkmoney.damsel.domain.ClientInfo clientInfo = createClientInfo();
         resource.setClientInfo(clientInfo);
-        resource.setPaymentTool(createBankCard());
+        resource.setPaymentTool(createPaymentTool());
         payerResource.setResource(resource);
         payerResource.setContactInfo(contactInfo);
         payer.setPaymentResource(payerResource);
@@ -547,7 +553,11 @@ public class BeanUtil {
     private static Cash createCash() {
         return new Cash()
                 .setAmount(9000L)
-                .setCurrency(new CurrencyRef().setSymbolicCode("RUB"));
+                .setCurrency(createRubCurrency());
+    }
+
+    private static CurrencyRef createRubCurrency() {
+        return new CurrencyRef().setSymbolicCode("RUB");
     }
 
     public static Chargeback createChargeback(ChargebackStatus status) {
@@ -563,6 +573,27 @@ public class BeanUtil {
                 .setPaymentTool(createBankCardResult())
                 .setProviderInfo(createProviderInfo())
                 .setReferenceInfo(createReferenceInfo());
+    }
+
+
+    public static Withdrawal createChargeback(WithdrawalStatus status) {
+        final Resource resource = new Resource();
+        resource.setBankCard(createBankCard());
+        return new Withdrawal()
+                .setStatus(status)
+                .setId("id")
+                .setCost(createCash())
+                .setAccount(createAccount())
+                .setEventTime(String.valueOf(LocalDateTime.now()))
+                .setDestinationResource(resource)
+                .setProviderInfo(createProviderInfo());
+    }
+
+    private static Account createAccount() {
+        return new Account()
+                .setCurrency(createRubCurrency())
+                .setId(ACCOUNT_ID)
+                .setIdentity(IDENTITY_ID);
     }
 
     @NotNull
