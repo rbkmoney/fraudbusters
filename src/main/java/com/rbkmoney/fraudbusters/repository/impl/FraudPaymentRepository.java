@@ -25,8 +25,8 @@ public class FraudPaymentRepository implements Repository<FraudPaymentRow>, Aggr
 
     private static final String INSERT = "INSERT INTO " + EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable() +
             " (timestamp," +
-            "  eventTime," +
             "  eventTimeHour," +
+            "  eventTime," +
             "  id," +
             "  fraudType ," +
             "  comment," +
