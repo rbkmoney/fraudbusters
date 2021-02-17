@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters.converter;
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
+import com.rbkmoney.fraudbusters.exception.UnknownFraudPaymentException;
 import com.rbkmoney.fraudbusters.service.PaymentInfoService;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,10 @@ public class FraudPaymentToRowConverter implements Converter<FraudPayment, Fraud
     public FraudPaymentRow convert(FraudPayment fraudPayment) {
         LocalDateTime localDateTime = TimestampUtil.parseDate(fraudPayment.getEventTime());
         CheckedPayment checkedPayment = paymentInfoService.findPaymentByIdAndTimestamp(localDateTime.toLocalDate(), fraudPayment.getId());
+        if (checkedPayment == null) {
+            log.warn("Can't find payment for fraudPayment: {}", fraudPayment);
+            throw new UnknownFraudPaymentException();
+        }
         FraudPaymentRow payment = new FraudPaymentRow();
         payment.setTimestamp(checkedPayment.getTimestamp());
         payment.setEventTimeHour(checkedPayment.getEventTimeHour());

@@ -4,6 +4,7 @@ import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import com.rbkmoney.fraudbusters.config.service.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.converter.FraudPaymentToRowConverter;
 import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
+import com.rbkmoney.fraudbusters.exception.UnknownFraudPaymentException;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class FraudPaymentListener {
                     .map(fraudPaymentToRowConverter::convert)
                     .collect(Collectors.toList())
             );
-        } catch (DateTimeParseException e) {
+        } catch (DateTimeParseException | UnknownFraudPaymentException e) {
             log.warn("Error when FraudPaymentListener listen e: ", e);
         } catch (Exception e) {
             log.warn("Error when FraudPaymentListener listen e: ", e);
