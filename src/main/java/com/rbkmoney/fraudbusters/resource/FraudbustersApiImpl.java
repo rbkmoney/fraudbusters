@@ -36,7 +36,10 @@ public class FraudbustersApiImpl implements FraudbustersApi {
 
     @Override
     public ResponseEntity<RiskScoreResult> inspectP2p(@Valid P2pInspectRequest p2pInspectRequest) {
-        return null;
+        RiskScoreResult riskScoreResult = new RiskScoreResult();
+        //TODO add handle
+        riskScoreResult.setResult(RiskScore.FATAL);
+        return ResponseEntity.ok(riskScoreResult);
     }
 
     @Override
