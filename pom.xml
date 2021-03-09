@@ -33,6 +33,7 @@
         <clickhouse-jdbc.version>0.2.4</clickhouse-jdbc.version>
         <fraudbusters-proto.version>1.57-0ba54ac</fraudbusters-proto.version>
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
+        <swag-fraudbusters.version>1.20-23720c8-server</swag-fraudbusters.version>
 
         <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
         <sonar.issue.ignore.multicriteria.e1.ruleKey>squid:S2095</sonar.issue.ignore.multicriteria.e1.ruleKey>
@@ -150,6 +151,11 @@
             <groupId>com.rbkmoney</groupId>
             <artifactId>wb-list-proto</artifactId>
             <version>${wb.list.proto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>swag-fraudbusters</artifactId>
+            <version>${swag-fraudbusters.version}</version>
         </dependency>
 
         <!--Thrirdparty libs-->
