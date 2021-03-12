@@ -31,7 +31,7 @@
         <wb.list.proto.version>1.33-554d59c</wb.list.proto.version>
         <kafka.common.lib.version>0.1.4</kafka.common.lib.version>
         <clickhouse-jdbc.version>0.2.4</clickhouse-jdbc.version>
-        <fraudbusters-proto.version>1.57-0ba54ac</fraudbusters-proto.version>
+        <fraudbusters-proto.version>1.67-fa4d6ec</fraudbusters-proto.version>
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
 
         <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
