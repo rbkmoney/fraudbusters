@@ -28,18 +28,22 @@ public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
     @Value("${kafka.topic.event.sink.chargeback}")
     public String chargebackEventTopic;
 
+    @Value("${kafka.topic.event.sink.withdrawal}")
+    public String withdrawalEventTopic;
+
     private final ListTemplateValidator paymentTemplatesValidator;
     private final KafkaTemplate<String, Payment> paymentKafkaTemplate;
     private final KafkaTemplate<String, Refund> refundKafkaTemplate;
     private final KafkaTemplate<String, Chargeback> chargebackKafkaTemplate;
     private final KafkaTemplate<String, FraudPayment> kafkaFraudPaymentTemplate;
+    private final KafkaTemplate<String, Withdrawal> kafkaFraudWithdrawalTemplate;
 
     @Override
     public ValidateTemplateResponse validateCompilationTemplate(List<Template> list) throws TException {
         try {
             return paymentTemplatesValidator.validateCompilationTemplate(list);
         } catch (Exception e) {
-            log.error("PaymentTemplateValidatorHandler error when validateCompilationTemplate() e: ", e);
+            log.error("Error when validateCompilationTemplate() e: ", e);
             throw new TException("PaymentTemplateValidatorHandler error when validateCompilationTemplate() e: ", e);
         }
     }
@@ -51,15 +55,23 @@ public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
 
     @Override
     public void insertPayments(List<Payment> list) throws InsertionException {
-        log.debug("PaymentServiceHandler insertPayments list: {}", list);
+        log.debug("InsertPayments list: {}", list);
         for (Payment payment : list) {
             send(paymentKafkaTemplate, paymentEventTopic, payment.getId(), payment);
         }
     }
 
     @Override
+    public void insertWithdrawals(List<Withdrawal> list) throws TException {
+        log.debug("InsertWithdrawals list: {}", list);
+        for (Withdrawal withdrawal : list) {
+            send(kafkaFraudWithdrawalTemplate, withdrawalEventTopic, withdrawal.getId(), withdrawal);
+        }
+    }
+
+    @Override
     public void insertRefunds(List<Refund> list) throws InsertionException {
-        log.debug("PaymentServiceHandler insertRefunds list: {}", list);
+        log.debug("InsertRefunds list: {}", list);
         for (Refund refund : list) {
             send(refundKafkaTemplate, refundEventTopic, refund.getId(), refund);
         }
@@ -67,7 +79,7 @@ public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
 
     @Override
     public void insertChargebacks(List<Chargeback> list) throws InsertionException {
-        log.debug("PaymentServiceHandler insertChargebacks list: {}", list);
+        log.debug("InsertChargebacks list: {}", list);
         for (Chargeback chargeback : list) {
             send(chargebackKafkaTemplate, chargebackEventTopic, chargeback.getId(), chargeback);
         }

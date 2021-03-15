@@ -4,6 +4,7 @@ import com.rbkmoney.clickhouse.initializer.ChInitializer;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
+import com.rbkmoney.damsel.fraudbusters.WithdrawalStatus;
 import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
@@ -101,7 +102,8 @@ public class LoadDataIntegrationTest extends IntegrationTest {
                     "sql/V4__create_payment.sql",
                     "sql/V5__add_fields.sql",
                     "sql/V6__add_result_fields_payment.sql",
-                    "sql/V7__add_fields.sql"));
+                    "sql/V7__add_fields.sql",
+                    "sql/V8__create_withdrawal.sql"));
         }
     }
 
@@ -164,6 +166,16 @@ public class LoadDataIntegrationTest extends IntegrationTest {
 
         maps = jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_REFUND.getTable());
         assertEquals(2, maps.size());
+
+        //Withdrawal
+        client.insertWithdrawals(List.of(createChargeback(WithdrawalStatus.pending),
+                createChargeback(WithdrawalStatus.failed),
+                createChargeback(WithdrawalStatus.succeeded)));
+
+        Thread.sleep(TIMEOUT);
+
+        maps = jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_WITHDRAWAL.getTable());
+        assertEquals(3, maps.size());
     }
 
     private void checkInsertingBatch(PaymentServiceSrv.Iface client) throws TException, InterruptedException {

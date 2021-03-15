@@ -1,9 +1,6 @@
 package com.rbkmoney.fraudbusters.config.aggragations;
 
-import com.rbkmoney.damsel.fraudbusters.Chargeback;
-import com.rbkmoney.damsel.fraudbusters.FraudPayment;
-import com.rbkmoney.damsel.fraudbusters.Payment;
-import com.rbkmoney.damsel.fraudbusters.Refund;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.config.service.KafkaTemplateConfigurationService;
 import com.rbkmoney.fraudbusters.config.service.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.constant.GroupPostfix;
@@ -37,6 +34,11 @@ public class AggregatorKafkaConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Payment> kafkaPaymentResultListenerContainerFactory() {
         return listenersConfigurationService.createFactory(new PaymentDeserializer(), GroupPostfix.RESULT_AGGREGATOR, fetchMinBytes);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Withdrawal> kafkaWithdrawalResultListenerContainerFactory() {
+        return listenersConfigurationService.createFactory(new WithdrawalDeserializer(), GroupPostfix.RESULT_AGGREGATOR, fetchMinBytes);
     }
 
     @Bean
@@ -76,6 +78,11 @@ public class AggregatorKafkaConfig {
 
     @Bean
     public KafkaTemplate<String, FraudPayment> fraudPaymentKafkaTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs()));
+    }
+
+    @Bean
+    public KafkaTemplate<String, Withdrawal> fraudWithdrawalKafkaTemplate() {
         return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs()));
     }
 
