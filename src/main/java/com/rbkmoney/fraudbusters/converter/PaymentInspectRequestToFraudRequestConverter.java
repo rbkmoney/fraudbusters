@@ -4,7 +4,6 @@ import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.domain.FraudRequest;
 import com.rbkmoney.fraudbusters.domain.Metadata;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.swag.fraudbusters.model.*;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -56,8 +55,9 @@ public class PaymentInspectRequestToFraudRequestConverter implements Converter<P
     private Metadata initMetadata(PaymentContext context) {
         Metadata metadata = new Metadata();
 
-//        LocalDateTime localDateTime = TypeUtil.stringToLocalDateTime(context.getCreatedAt());
-//        metadata.setTimestamp(localDateTime.toEpochSecond(ZoneOffset.UTC));
+        LocalDateTime localDateTime = context.getCreatedAt() != null ?
+                context.getCreatedAt().toLocalDateTime() : LocalDateTime.now();
+        metadata.setTimestamp(localDateTime.toEpochSecond(ZoneOffset.UTC));
         CashInfo cashInfo = context.getCashInfo();
 
         metadata.setCurrency(cashInfo.getCurrency());
