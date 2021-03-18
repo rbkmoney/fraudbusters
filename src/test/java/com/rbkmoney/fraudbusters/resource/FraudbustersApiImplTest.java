@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {FraudbustersApiImpl.class, CheckedResultToSwagRiskScoreConverter.class, ObjectMapper.class})
+@SpringBootTest(classes = {FraudbustersApiImpl.class, CheckedResultToSwagRiskScoreConverter.class})
 class FraudbustersApiImplTest {
 
     @MockBean
@@ -41,10 +41,9 @@ class FraudbustersApiImplTest {
 
     @Autowired
     FraudbustersApiImpl fraudbustersApi;
-@Autowired
-ObjectMapper objectMapper;
+
     @Test
-    void inspectPayment() throws JsonProcessingException {
+    void inspectPayment() {
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         ConcreteResultModel concreteResultModel = new ConcreteResultModel();
         concreteResultModel.setResultStatus(ResultStatus.HIGH_RISK);
