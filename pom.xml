@@ -19,7 +19,7 @@
         <project.maintainer>Struzhkin Konstantin &lt;k.struzhkin@rbkmoney.com&gt;</project.maintainer>
         <shared.resources.version>0.3.7</shared.resources.version>
         <server.port>8022</server.port>
-        <server.rest.port>8080</server.rest.port>
+        <server.rest.port>8089</server.rest.port>
         <exposed.ports>${server.port} ${server.rest.port}</exposed.ports>
         <dockerfile.base.service.tag>57e26d8ee999d7b0b50248c22afc63e6f926d276</dockerfile.base.service.tag>
 

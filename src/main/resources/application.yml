@@ -1,4 +1,8 @@
-server.port: @server.port@
+server:
+  port: @server.port@
+  rest:
+    port: '@server.rest.port@'
+    endpoint: 'fraudbusters'
 management:
   security:
     flag: false
