@@ -21,13 +21,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {FraudbustersApiImpl.class, CheckedResultToSwagRiskScoreConverter.class})
+@SpringBootTest(classes = {FraudbustersApiImpl.class, CheckedResultToSwagRiskScoreConverter.class, ObjectMapper.class})
 class FraudbustersApiImplTest {
 
     @MockBean
@@ -39,9 +41,10 @@ class FraudbustersApiImplTest {
 
     @Autowired
     FraudbustersApiImpl fraudbustersApi;
-
+@Autowired
+ObjectMapper objectMapper;
     @Test
-    void inspectPayment() {
+    void inspectPayment() throws JsonProcessingException {
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         ConcreteResultModel concreteResultModel = new ConcreteResultModel();
         concreteResultModel.setResultStatus(ResultStatus.HIGH_RISK);
