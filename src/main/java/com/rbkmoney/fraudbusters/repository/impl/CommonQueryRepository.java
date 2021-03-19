@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -23,16 +24,32 @@ public class CommonQueryRepository {
             " GROUP BY cardToken, currency " +
             " HAVING uniq(id) > 2 and ((sum(amount) > 200000 and currency = 'RUB') or(sum(amount) > 3000 and currency != 'RUB'))";
 
+    private static final String QUERY_WITHDRAWAL = "SELECT cardToken" +
+            " FROM fraud.withdrawal " +
+            " WHERE toDateTime(?) - INTERVAL 1 YEAR < toDateTime(eventTime) " +
+            " and toDateTime(?) > toDateTime(eventTime)  " +
+            " and status='succeeded'";
+
 
     public List<String> selectFreshTrustedCardTokens(Instant timeHour) {
         try {
             log.info("selectFreshTrustedCardTokens query: {} params: {}", QUERY, timeHour);
             List<String> data = longQueryJdbcTemplate.query(
                     QUERY,
-                    List.of(timeHour.getEpochSecond(), timeHour.getEpochSecond()).toArray(),
+                    List.of(timeHour.getEpochSecond(), timeHour.getEpochSecond()).toArray() ,
                     (rs, rowNum) -> rs.getString(1));
             log.info("selectFreshTrustedCardTokens result size: {}", data.size());
-            return data;
+
+            log.info("select withdrawal card tokens query: {} params: {}", QUERY_WITHDRAWAL, timeHour);
+            List<String> cardTokensWithdrawal = longQueryJdbcTemplate.query(
+                    QUERY_WITHDRAWAL,
+                    List.of(timeHour.getEpochSecond(), timeHour.getEpochSecond()).toArray(),
+                    (rs, rowNum) -> rs.getString(1));
+            log.info("select withdrawal card tokens result size: {}", cardTokensWithdrawal.size());
+            data.addAll(cardTokensWithdrawal);
+            return data.stream()
+                    .distinct()
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("error when selectFreshTrustedCardTokens e: ", e);
             throw new ReadDataException("error when selectFreshTrustedCardTokens");
