@@ -8,10 +8,7 @@ import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.stream.TemplateVisitor;
 import com.rbkmoney.swag.fraudbusters.api.FraudbustersApi;
-import com.rbkmoney.swag.fraudbusters.model.P2pInspectRequest;
-import com.rbkmoney.swag.fraudbusters.model.PaymentInspectRequest;
-import com.rbkmoney.swag.fraudbusters.model.RiskScore;
-import com.rbkmoney.swag.fraudbusters.model.RiskScoreResult;
+import com.rbkmoney.swag.fraudbusters.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,11 +32,11 @@ public class FraudbustersApiImpl implements FraudbustersApi {
     private final KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate;
 
     @Override
-    public ResponseEntity<RiskScoreResult> inspectP2p(@Valid P2pInspectRequest p2pInspectRequest) {
-        RiskScoreResult riskScoreResult = new RiskScoreResult();
+    public ResponseEntity<RiskScoreListResult> inspectP2p(@Valid P2pInspectRequest p2pInspectRequest) {
         //TODO add handle
-        riskScoreResult.setResult(RiskScore.FATAL);
-        return ResponseEntity.ok(riskScoreResult);
+        RiskScoreListResult riskScoreListResult = new RiskScoreListResult();
+        riskScoreListResult.addResultItem(RiskScore.FATAL);
+        return ResponseEntity.ok(riskScoreListResult);
     }
 
     @Override
