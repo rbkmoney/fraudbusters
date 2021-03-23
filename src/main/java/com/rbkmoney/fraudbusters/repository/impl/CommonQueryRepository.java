@@ -22,9 +22,11 @@ public class CommonQueryRepository {
             " WHERE toDateTime(?) - INTERVAL 1 YEAR < toDateTime(eventTime) and toDateTime(?) > toDateTime(eventTime) and status='captured' " +
             " and providerId in ('108', '114', '118', '119', '121', '125', '126', '128', '130', '136', '132', '137', '143', '139', '144', '149')" +
             " GROUP BY cardToken, currency " +
-            " HAVING uniq(id) > 2 and ((sum(amount) > 200000 and currency = 'RUB') or(sum(amount) > 3000 and currency != 'RUB'))";
+            " HAVING (uniq(id) > 2 and ((sum(amount) > 200000 and currency = 'RUB') " +
+            " or (sum(amount) > 3000 and (currency = 'EUR' or currency = 'USD')))) " +
+            " or (uniq(id) > 0 and (sum(amount) > 500000 and currency = 'KZT')) ";
 
-    private static final String QUERY_WITHDRAWAL = "SELECT cardToken" +
+    private static final String QUERY_WITHDRAWAL = "SELECT distinct cardToken" +
             " FROM fraud.withdrawal " +
             " WHERE toDateTime(?) - INTERVAL 1 YEAR < toDateTime(eventTime) " +
             " and toDateTime(?) > toDateTime(eventTime)  " +
