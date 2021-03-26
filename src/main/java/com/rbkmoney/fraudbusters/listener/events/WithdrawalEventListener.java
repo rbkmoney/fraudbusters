@@ -22,7 +22,8 @@ public class WithdrawalEventListener {
 
     private final LocalResultStorage localResultStorage;
 
-    @KafkaListener(topics = "${kafka.topic.event.sink.withdrawal}", containerFactory = "kafkaWithdrawalResultListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.event.sink.withdrawal}", containerFactory =
+            "kafkaWithdrawalResultListenerContainerFactory")
     public void listen(List<Withdrawal> withdrawals, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
                        @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {

@@ -49,16 +49,20 @@ public class FullTemplateVisitorImpl implements TemplateVisitor<PaymentModel, Li
         return checkedResultModels;
     }
 
-    private void applyReferenceIfContain(PaymentModel paymentModel, String partyId, Long timestamp, List<CheckedResultModel> checkedResultModels) {
+    private void applyReferenceIfContain(PaymentModel paymentModel, String partyId, Long timestamp,
+                                         List<CheckedResultModel> checkedResultModels) {
         if (timeReferencePoolImpl.contains(partyId, timestamp)) {
             fullRuleApplier.apply(paymentModel, timeReferencePoolImpl.get(partyId, timestamp))
                     .ifPresent(checkedResultModels::add);
         }
     }
 
-    private void applyGroupIfContain(PaymentModel paymentModel, Long timestamp, List<CheckedResultModel> checkedResultModels, String partyShopKey) {
-        if (timeGroupReferencePoolImpl.contains(partyShopKey, timestamp) && timeGroupPoolImpl.contains(timeGroupReferencePoolImpl.get(partyShopKey, timestamp), timestamp)) {
-            fullRuleApplier.applyForAny(paymentModel, timeGroupPoolImpl.get(timeGroupReferencePoolImpl.get(partyShopKey, timestamp), timestamp))
+    private void applyGroupIfContain(PaymentModel paymentModel, Long timestamp,
+                                     List<CheckedResultModel> checkedResultModels, String partyShopKey) {
+        if (timeGroupReferencePoolImpl.contains(partyShopKey, timestamp)
+                && timeGroupPoolImpl.contains(timeGroupReferencePoolImpl.get(partyShopKey, timestamp), timestamp)) {
+            fullRuleApplier.applyForAny(paymentModel,
+                    timeGroupPoolImpl.get(timeGroupReferencePoolImpl.get(partyShopKey, timestamp), timestamp))
                     .ifPresent(checkedResultModels::add);
         }
     }

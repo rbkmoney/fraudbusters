@@ -25,7 +25,8 @@ public class FraudPaymentListener {
     private final Repository<FraudPaymentRow> repository;
     private final FraudPaymentToRowConverter fraudPaymentToRowConverter;
 
-    @KafkaListener(topics = "${kafka.topic.fraud.payment}", containerFactory = "kafkaFraudPaymentListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.fraud.payment}", containerFactory =
+            "kafkaFraudPaymentListenerContainerFactory")
     public void listen(List<FraudPayment> payments, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
                        @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {

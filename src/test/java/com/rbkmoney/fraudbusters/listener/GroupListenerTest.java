@@ -13,9 +13,9 @@ import java.util.List;
 
 public class GroupListenerTest {
 
-    private static final String GROUP_1 = "group_1";
     public static final String FIRST_TEMPL = "first_templ";
     public static final String SECOND_TEMPL = "second_templ";
+    private static final String GROUP_1 = "group_1";
     private Pool<List<String>> groupPoolImpl;
     private GroupListener groupListener;
 

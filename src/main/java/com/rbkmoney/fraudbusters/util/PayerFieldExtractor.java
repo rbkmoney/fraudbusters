@@ -28,7 +28,8 @@ public class PayerFieldExtractor {
     public static Optional<BankCard> getBankCard(Payer payer) {
         if (payer.isSetCustomer() && payer.getCustomer().getPaymentTool().isSetBankCard()) {
             return Optional.ofNullable(payer.getCustomer().getPaymentTool().getBankCard());
-        } else if (payer.isSetPaymentResource() && payer.getPaymentResource().getResource().getPaymentTool().isSetBankCard()) {
+        } else if (payer.isSetPaymentResource()
+                && payer.getPaymentResource().getResource().getPaymentTool().isSetBankCard()) {
             return Optional.ofNullable(payer.getPaymentResource().getResource().getPaymentTool().getBankCard());
         } else if (payer.isSetRecurrent() && payer.getRecurrent().getPaymentTool().isSetBankCard()) {
             return Optional.ofNullable(payer.getRecurrent().getPaymentTool().getBankCard());

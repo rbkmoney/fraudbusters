@@ -13,7 +13,7 @@ import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.P2PModelFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
@@ -39,7 +39,8 @@ public class P2PFraudoConfig {
     }
 
     @Bean
-    public UniqueValueAggregator<P2PModel, P2PCheckedField> uniqueValueP2PAggregator(EventP2PRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
+    public UniqueValueAggregator<P2PModel, P2PCheckedField> uniqueValueP2PAggregator(
+            EventP2PRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
         return new P2PUniqueValueAggregatorImpl(eventP2PRepository, dbP2pFieldResolver);
     }
 
@@ -54,10 +55,11 @@ public class P2PFraudoConfig {
     }
 
     @Bean
-    public InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder(WbListServiceSrv.Iface wbListServiceSrv,
-                                                                               PaymentRepository fraudResultRepository,
-                                                                               DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, fraudResultRepository);
+    public InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder(
+            WbListServiceSrv.Iface wbListServiceSrv,
+            PaymentRepository fraudResultRepository,
+            DatabasePaymentFieldResolver databasePaymentFieldResolver) {
+        return new PaymentInListFinderImpl(wbListServiceSrv, databasePaymentFieldResolver, fraudResultRepository);
     }
 
     @Bean

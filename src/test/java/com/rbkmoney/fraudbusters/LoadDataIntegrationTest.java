@@ -37,7 +37,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
+import static com.rbkmoney.fraudbusters.util.BeanUtil.createChargeback;
+import static com.rbkmoney.fraudbusters.util.BeanUtil.createPayment;
+import static com.rbkmoney.fraudbusters.util.BeanUtil.createRefund;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -47,7 +49,12 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
-        properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true", "kafka.aggr.payment.min.bytes=1"})
+        properties = {
+                "kafka.listen.result.concurrency=1",
+                "kafka.historical.listener.enable=true",
+                "kafka.aggr.payment.min.bytes=1"
+        }
+)
 @ContextConfiguration(initializers = LoadDataIntegrationTest.Initializer.class)
 public class LoadDataIntegrationTest extends IntegrationTest {
 
@@ -78,7 +85,8 @@ public class LoadDataIntegrationTest extends IntegrationTest {
     public static EmbeddedKafkaRule kafka = createKafka();
 
     @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+    public static ClickHouseContainer clickHouseContainer =
+            new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Override
     protected String getBrokersAsString() {
@@ -118,7 +126,7 @@ public class LoadDataIntegrationTest extends IntegrationTest {
     @Test
     @SneakyThrows
     public void testLoadData() {
-        String oldTime = String.valueOf(LocalDateTime.now());
+        final String oldTime = String.valueOf(LocalDateTime.now());
         produceTemplate(globalRef, TEMPLATE_2, kafkaTopics.getFullTemplate());
         Thread.sleep(TIMEOUT);
 
@@ -156,7 +164,8 @@ public class LoadDataIntegrationTest extends IntegrationTest {
                 createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.cancelled)));
         Thread.sleep(TIMEOUT);
 
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_CHARGEBACK.getTable());
+        List<Map<String, Object>> maps =
+                jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_CHARGEBACK.getTable());
         assertEquals(2, maps.size());
 
         //Refund
@@ -179,30 +188,37 @@ public class LoadDataIntegrationTest extends IntegrationTest {
     }
 
     private void checkInsertingBatch(PaymentServiceSrv.Iface client) throws TException, InterruptedException {
-        insertWithTimeout(client, List.of(createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed)));
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_PAYMENT.getTable());
+        insertWithTimeout(client, List.of(createPayment(PaymentStatus.processed),
+                createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed),
+                createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed)));
+        List<Map<String, Object>> maps =
+                jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_PAYMENT.getTable());
         assertEquals(5, maps.size());
         assertEquals("email", maps.get(0).get("email"));
         Thread.sleep(TIMEOUT);
     }
 
-    private void insertWithTimeout(PaymentServiceSrv.Iface client, Payment payment) throws TException, InterruptedException {
+    private void insertWithTimeout(PaymentServiceSrv.Iface client, Payment payment) throws TException,
+            InterruptedException {
         insertWithTimeout(client, List.of(payment));
     }
 
-    private void insertWithTimeout(PaymentServiceSrv.Iface client, List<Payment> payments) throws TException, InterruptedException {
+    private void insertWithTimeout(PaymentServiceSrv.Iface client, List<Payment> payments) throws TException,
+            InterruptedException {
         client.insertPayments(payments);
         Thread.sleep(TIMEOUT * 5);
     }
 
     private void checkPayment(String payment1, ResultStatus status, int expectedCount) {
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList(String.format("SELECT * from fraud.payment where id='%s'", payment1));
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(String.format("SELECT * from fraud.payment where " +
+                "id='%s'", payment1));
         log.info("SELECT : {}", maps);
         assertEquals(expectedCount, maps.size());
         assertEquals(status.name(), maps.get(0).get("resultStatus"));
     }
 
-    private void insertListDefaultPayments(PaymentServiceSrv.Iface client, PaymentStatus processed, PaymentStatus processed2) throws TException, InterruptedException {
+    private void insertListDefaultPayments(PaymentServiceSrv.Iface client, PaymentStatus processed,
+                                           PaymentStatus processed2) throws TException, InterruptedException {
         insertWithTimeout(client, List.of(createPayment(processed), createPayment(processed2)));
     }
 

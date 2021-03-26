@@ -1,7 +1,11 @@
 package com.rbkmoney.fraudbusters.repository.setter;
 
 import com.rbkmoney.damsel.domain.PaymentTool;
-import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
+import com.rbkmoney.damsel.fraudbusters.ClientInfo;
+import com.rbkmoney.damsel.fraudbusters.MerchantInfo;
+import com.rbkmoney.damsel.fraudbusters.ProviderInfo;
+import com.rbkmoney.damsel.fraudbusters.ReferenceInfo;
 import com.rbkmoney.fraudbusters.constant.PaymentToolType;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
@@ -57,8 +61,10 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
         ps.setString(l++, TBaseUtil.unionFieldToEnum(paymentTool, PaymentToolType.class).name());
 
         ProviderInfo providerInfo = event.getProviderInfo();
-        ps.setString(l++, providerInfo != null && providerInfo.isSetTerminalId() ? providerInfo.getTerminalId() : UNKNOWN);
-        ps.setString(l++, providerInfo != null && providerInfo.isSetProviderId() ? providerInfo.getProviderId() : UNKNOWN);
+        ps.setString(l++, providerInfo != null && providerInfo.isSetTerminalId() ? providerInfo.getTerminalId() :
+                UNKNOWN);
+        ps.setString(l++, providerInfo != null && providerInfo.isSetProviderId() ? providerInfo.getProviderId() :
+                UNKNOWN);
         ps.setString(l++, providerInfo != null && providerInfo.isSetCountry() ? providerInfo.getCountry() : UNKNOWN);
 
         ReferenceInfo referenceInfo = event.getReferenceInfo();
@@ -77,8 +83,9 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
         ps.setString(l++, event.getPaymentId());
 
         ps.setString(l++, event.isSetPayerType() ? event.getPayerType().name() : UNKNOWN);
-        ps.setString(l, paymentTool.isSetBankCard() && paymentTool.getBankCard().isSetTokenProvider() ?
-                paymentTool.getBankCard().getTokenProvider().name() : UNKNOWN);
+        ps.setString(l, paymentTool.isSetBankCard() && paymentTool.getBankCard().isSetTokenProvider()
+                ? paymentTool.getBankCard().getTokenProvider().name()
+                : UNKNOWN);
     }
 
     @Override

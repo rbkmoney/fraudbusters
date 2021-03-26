@@ -1,18 +1,69 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.base.Content;
-import com.rbkmoney.damsel.domain.*;
+import com.rbkmoney.damsel.domain.BankCard;
+import com.rbkmoney.damsel.domain.BankCardPaymentSystem;
+import com.rbkmoney.damsel.domain.Cash;
+import com.rbkmoney.damsel.domain.Category;
+import com.rbkmoney.damsel.domain.ContactInfo;
+import com.rbkmoney.damsel.domain.CurrencyRef;
+import com.rbkmoney.damsel.domain.CustomerPayer;
+import com.rbkmoney.damsel.domain.DisposablePaymentResource;
+import com.rbkmoney.damsel.domain.InvoiceDetails;
+import com.rbkmoney.damsel.domain.InvoicePaymentCaptured;
+import com.rbkmoney.damsel.domain.InvoicePaymentFlow;
+import com.rbkmoney.damsel.domain.InvoicePaymentFlowHold;
+import com.rbkmoney.damsel.domain.InvoicePaymentProcessed;
+import com.rbkmoney.damsel.domain.InvoicePaymentStatus;
+import com.rbkmoney.damsel.domain.InvoiceStatus;
+import com.rbkmoney.damsel.domain.InvoiceUnpaid;
+import com.rbkmoney.damsel.domain.OnHoldExpiration;
+import com.rbkmoney.damsel.domain.Payer;
+import com.rbkmoney.damsel.domain.PaymentResourcePayer;
+import com.rbkmoney.damsel.domain.PaymentTool;
+import com.rbkmoney.damsel.domain.Residence;
+import com.rbkmoney.damsel.domain.ShopDetails;
+import com.rbkmoney.damsel.domain.ShopLocation;
+import com.rbkmoney.damsel.fraudbusters.Account;
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
+import com.rbkmoney.damsel.fraudbusters.ChargebackCategory;
+import com.rbkmoney.damsel.fraudbusters.ChargebackStatus;
 import com.rbkmoney.damsel.fraudbusters.ClientInfo;
-import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.fraudbusters.Command;
+import com.rbkmoney.damsel.fraudbusters.CommandBody;
+import com.rbkmoney.damsel.fraudbusters.CommandType;
+import com.rbkmoney.damsel.fraudbusters.Group;
+import com.rbkmoney.damsel.fraudbusters.GroupReference;
+import com.rbkmoney.damsel.fraudbusters.MerchantInfo;
+import com.rbkmoney.damsel.fraudbusters.P2PGroupReference;
+import com.rbkmoney.damsel.fraudbusters.P2PReference;
+import com.rbkmoney.damsel.fraudbusters.PayerType;
+import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
+import com.rbkmoney.damsel.fraudbusters.PriorityId;
+import com.rbkmoney.damsel.fraudbusters.ProviderInfo;
+import com.rbkmoney.damsel.fraudbusters.ReferenceInfo;
+import com.rbkmoney.damsel.fraudbusters.Refund;
+import com.rbkmoney.damsel.fraudbusters.RefundStatus;
+import com.rbkmoney.damsel.fraudbusters.Resource;
+import com.rbkmoney.damsel.fraudbusters.Withdrawal;
+import com.rbkmoney.damsel.fraudbusters.WithdrawalStatus;
 import com.rbkmoney.damsel.p2p_insp.Identity;
 import com.rbkmoney.damsel.p2p_insp.Raw;
 import com.rbkmoney.damsel.p2p_insp.Transfer;
 import com.rbkmoney.damsel.p2p_insp.TransferInfo;
-import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.damsel.payment_processing.EventPayload;
+import com.rbkmoney.damsel.payment_processing.InvoiceChange;
+import com.rbkmoney.damsel.payment_processing.InvoiceCreated;
+import com.rbkmoney.damsel.payment_processing.InvoicePaymentChange;
+import com.rbkmoney.damsel.payment_processing.InvoicePaymentChangePayload;
+import com.rbkmoney.damsel.payment_processing.InvoicePaymentStarted;
+import com.rbkmoney.damsel.payment_processing.InvoicePaymentStatusChanged;
+import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
+import com.rbkmoney.damsel.proxy_inspector.PaymentInfo;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
-import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
@@ -59,52 +110,25 @@ public class BeanUtil {
     public static final String ACCOUNT_ID = "ACCOUNT_ID";
 
     public static Context createContext() {
-        String pId = P_ID;
-        return createContext(pId);
+        return createContext(P_ID);
     }
 
-    public static com.rbkmoney.damsel.p2p_insp.Context createP2PContext(String identityId, String idTransfer) {
-        ContactInfo contact_info = new ContactInfo();
+    public static Context createContext(String paymentId) {
+        final ContactInfo contact_info = new ContactInfo();
         contact_info.setEmail(EMAIL);
-        TransferInfo transferInfo = new TransferInfo(
-                new Transfer()
-                        .setCost(new Cash(
-                                9000L,
-                                new CurrencyRef("RUB")
-                        ))
-                        .setSender(com.rbkmoney.damsel.p2p_insp.Payer.raw(
-                                new Raw(com.rbkmoney.damsel.domain.Payer.customer(
-                                        new CustomerPayer("custId", "1", "rec_paym_tool", createPaymentTool(),
-                                                contact_info)))))
-                        .setCreatedAt(TypeUtil.temporalToString(Instant.now()))
-                        .setReceiver(com.rbkmoney.damsel.p2p_insp.Payer.raw(
-                                new Raw(com.rbkmoney.damsel.domain.Payer.customer(
-                                        new CustomerPayer("custId_2", "2", "rec_paym_tool", createPaymentTool(),
-                                                contact_info)))))
-                        .setIdentity(new Identity(identityId))
-                        .setId(idTransfer)
-        );
-        return new com.rbkmoney.damsel.p2p_insp.Context(
-                transferInfo
-        );
-
-    }
-
-    public static Context createContext(String pId) {
-        ContactInfo contact_info = new ContactInfo();
-        contact_info.setEmail(EMAIL);
-        PaymentInfo payment = new PaymentInfo(
+        ShopLocation shopLocation = new ShopLocation();
+        shopLocation.setUrl("http://www.pizza-sushi.com/");
+        final PaymentInfo payment = new PaymentInfo(
                 new Shop(ID_VALUE_SHOP,
                         new Category("pizza", "no category"),
                         new ShopDetails("pizza-sushi"),
-                        new ShopLocation() {{
-                            setUrl("http://www.pizza-sushi.com/");
-                        }}
+                        shopLocation
                 ),
-                new InvoicePayment(pId,
+                new InvoicePayment(paymentId,
                         TypeUtil.temporalToString(Instant.now()),
                         Payer.customer(
-                                new CustomerPayer("custId", "1", "rec_paym_tool", createPaymentTool(),
+                                new CustomerPayer("custId", "1",
+                                        "rec_paym_tool", createPaymentTool(),
                                         contact_info)),
                         new Cash(
                                 9000L,
@@ -115,7 +139,7 @@ public class BeanUtil {
                         TypeUtil.temporalToString(Instant.now()),
                         "",
                         new InvoiceDetails("drugs guns murder")),
-                new Party(pId)
+                new Party(paymentId)
         );
         return new Context(
                 payment
@@ -123,19 +147,50 @@ public class BeanUtil {
 
     }
 
+    public static com.rbkmoney.damsel.p2p_insp.Context createP2PContext(String identityId, String idTransfer) {
+        final ContactInfo contact_info = new ContactInfo();
+        contact_info.setEmail(EMAIL);
+        final TransferInfo transferInfo = new TransferInfo(
+                new Transfer()
+                        .setCost(new Cash(
+                                9000L,
+                                new CurrencyRef("RUB")
+                        ))
+                        .setSender(com.rbkmoney.damsel.p2p_insp.Payer.raw(
+                                new Raw(com.rbkmoney.damsel.domain.Payer.customer(
+                                        new CustomerPayer("custId", "1",
+                                                "rec_paym_tool", createPaymentTool(),
+                                                contact_info)))))
+                        .setCreatedAt(TypeUtil.temporalToString(Instant.now()))
+                        .setReceiver(com.rbkmoney.damsel.p2p_insp.Payer.raw(
+                                new Raw(com.rbkmoney.damsel.domain.Payer.customer(
+                                        new CustomerPayer("custId_2", "2",
+                                                "rec_paym_tool", createPaymentTool(),
+                                                contact_info)))))
+                        .setIdentity(new Identity(identityId))
+                        .setId(idTransfer)
+        );
+        return new com.rbkmoney.damsel.p2p_insp.Context(
+                transferInfo
+        );
+
+    }
+
     private static Payer createCustomerPayer() {
-        return Payer.customer(new CustomerPayer("custId", "1", "rec_paym_tool", createPaymentTool(), new ContactInfo()));
+        return Payer.customer(new CustomerPayer("custId", "1",
+                "rec_paym_tool", createPaymentTool(),
+                new ContactInfo()));
     }
 
     private static com.rbkmoney.damsel.domain.PaymentTool createPaymentTool() {
-        return new com.rbkmoney.damsel.domain.PaymentTool() {{
-            setBankCard(createBankCard());
-        }};
+        PaymentTool paymentTool = new PaymentTool();
+        paymentTool.setBankCard(createBankCard());
+        return paymentTool;
     }
 
     @NotNull
     private static BankCard createBankCard() {
-        BankCard value = new BankCard(
+        final BankCard value = new BankCard(
                 "477bba133c182267fe5f086924abdc5db71f77bfc27f01f2843f2cdc69d89f05",
                 BankCardPaymentSystem.mastercard,
                 BIN,
@@ -146,7 +201,7 @@ public class BeanUtil {
     }
 
     public static PaymentModel createPaymentModel() {
-        PaymentModel paymentModel = new PaymentModel();
+        final PaymentModel paymentModel = new PaymentModel();
         paymentModel.setFingerprint(FINGERPRINT);
         paymentModel.setShopId(SHOP_ID);
         paymentModel.setPartyId(PARTY_ID);
@@ -159,7 +214,7 @@ public class BeanUtil {
     }
 
     public static P2PModel createP2PModel() {
-        P2PModel p2PModel = new P2PModel();
+        final P2PModel p2PModel = new P2PModel();
         p2PModel.setFingerprint(FINGERPRINT);
         p2PModel.setCurrency(RUB);
         p2PModel.setTransferId(TRANSFER_ID);
@@ -168,7 +223,7 @@ public class BeanUtil {
         p2PModel.setEmail(EMAIL);
         p2PModel.setTimestamp(Instant.now().toEpochMilli());
 
-        com.rbkmoney.fraudbusters.fraud.model.Payer sender = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+        final com.rbkmoney.fraudbusters.fraud.model.Payer sender = new com.rbkmoney.fraudbusters.fraud.model.Payer();
 
         sender.setBin(BIN);
         sender.setBinCountryCode(BIN_COUNTRY_CODE);
@@ -176,7 +231,7 @@ public class BeanUtil {
         p2PModel.setSender(sender);
         p2PModel.setAmount(AMOUNT_FIRST);
 
-        com.rbkmoney.fraudbusters.fraud.model.Payer receiver = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+        final com.rbkmoney.fraudbusters.fraud.model.Payer receiver = new com.rbkmoney.fraudbusters.fraud.model.Payer();
         receiver.setBin(BIN);
         receiver.setBinCountryCode(BIN_COUNTRY_CODE);
 
@@ -185,7 +240,7 @@ public class BeanUtil {
     }
 
     public static P2PModel createP2PModelSecond() {
-        P2PModel p2PModel = new P2PModel();
+        final P2PModel p2PModel = new P2PModel();
         p2PModel.setFingerprint(FINGERPRINT + SUFIX);
         p2PModel.setTransferId(TRANSFER_ID + SUFIX);
         p2PModel.setIdentityId(IDENTITY_ID + SUFIX);
@@ -193,7 +248,7 @@ public class BeanUtil {
         p2PModel.setEmail(EMAIL + SUFIX);
         p2PModel.setTimestamp(Instant.now().toEpochMilli());
 
-        com.rbkmoney.fraudbusters.fraud.model.Payer sender = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+        final com.rbkmoney.fraudbusters.fraud.model.Payer sender = new com.rbkmoney.fraudbusters.fraud.model.Payer();
 
         sender.setBin(BIN + SUFIX);
         sender.setBinCountryCode(BIN_COUNTRY_CODE + SUFIX);
@@ -202,7 +257,7 @@ public class BeanUtil {
         p2PModel.setCurrency(RUB);
         p2PModel.setAmount(AMOUNT_SECOND);
 
-        com.rbkmoney.fraudbusters.fraud.model.Payer receiver = new com.rbkmoney.fraudbusters.fraud.model.Payer();
+        final com.rbkmoney.fraudbusters.fraud.model.Payer receiver = new com.rbkmoney.fraudbusters.fraud.model.Payer();
         receiver.setBin(BIN + SUFIX);
         receiver.setBinCountryCode(BIN_COUNTRY_CODE + SUFIX);
 
@@ -211,7 +266,7 @@ public class BeanUtil {
     }
 
     public static PaymentModel createFraudModelSecond() {
-        PaymentModel paymentModel = new PaymentModel();
+        final PaymentModel paymentModel = new PaymentModel();
         paymentModel.setFingerprint(FINGERPRINT + SUFIX);
         paymentModel.setShopId(SHOP_ID + SUFIX);
         paymentModel.setPartyId(PARTY_ID + SUFIX);
@@ -225,7 +280,7 @@ public class BeanUtil {
 
     @NotNull
     public static Command createGroupCommand(String localId, List<PriorityId> priorityIds) {
-        Command command = new Command();
+        final Command command = new Command();
         Group group = new Group();
         group.setGroupId(localId);
         group.setTemplateIds(priorityIds);
@@ -237,7 +292,7 @@ public class BeanUtil {
 
     @NotNull
     public static Command deleteGroupCommand(String localId, List<PriorityId> priorityIds) {
-        Command command = new Command();
+        final Command command = new Command();
         Group group = new Group();
         group.setGroupId(localId);
         group.setTemplateIds(priorityIds);
@@ -248,7 +303,7 @@ public class BeanUtil {
 
     @NotNull
     public static Command createGroupReferenceCommand(String party, String shopId, String idGroup) {
-        Command command = new Command();
+        final Command command = new Command();
         command.setCommandType(CommandType.CREATE);
         command.setCommandBody(CommandBody.group_reference(new GroupReference()
                 .setGroupId(idGroup)
@@ -260,7 +315,7 @@ public class BeanUtil {
 
     @NotNull
     public static Command createP2PGroupReferenceCommand(String identityId, String idGroup) {
-        Command command = new Command();
+        final Command command = new Command();
         command.setCommandType(CommandType.CREATE);
         command.setCommandBody(CommandBody.p2p_group_reference(new P2PGroupReference()
                 .setGroupId(idGroup)
@@ -271,7 +326,7 @@ public class BeanUtil {
 
     @NotNull
     public static Command createP2PTemplateReferenceCommand(String identityId, String templateId) {
-        Command command = new Command();
+        final Command command = new Command();
         command.setCommandType(CommandType.CREATE);
         command.setCommandBody(CommandBody.p2p_reference(new P2PReference()
                 .setTemplateId(templateId)
@@ -282,7 +337,7 @@ public class BeanUtil {
 
     @NotNull
     public static Command createDeleteGroupReferenceCommand(String party, String shopId, String idGroup) {
-        Command command = new Command();
+        final Command command = new Command();
         command.setCommandType(CommandType.DELETE);
         command.setCommandBody(CommandBody.group_reference(new GroupReference()
                 .setGroupId(idGroup)
@@ -292,7 +347,7 @@ public class BeanUtil {
     }
 
     public static MachineEvent createMessageCreateInvoice(String sourceId) {
-        InvoiceCreated invoiceCreated = createInvoiceCreate(sourceId);
+        final InvoiceCreated invoiceCreated = createInvoiceCreate(sourceId);
         InvoiceChange invoiceChange = new InvoiceChange();
         invoiceChange.setInvoiceCreated(invoiceCreated);
         return createMachineEvent(invoiceChange, sourceId);
@@ -310,8 +365,8 @@ public class BeanUtil {
 
     @NotNull
     public static MachineEvent createMachineEvent(InvoiceChange invoiceChange, String sourceId) {
-        MachineEvent message = new MachineEvent();
-        EventPayload payload = new EventPayload();
+        final MachineEvent message = new MachineEvent();
+        final EventPayload payload = new EventPayload();
         ArrayList<InvoiceChange> invoiceChanges = new ArrayList<>();
         invoiceChanges.add(invoiceChange);
         payload.setInvoiceChanges(invoiceChanges);
@@ -330,7 +385,7 @@ public class BeanUtil {
 
     @NotNull
     public static InvoiceCreated createInvoiceCreate(String sourceId) {
-        com.rbkmoney.damsel.domain.Invoice invoice = new com.rbkmoney.damsel.domain.Invoice();
+        final com.rbkmoney.damsel.domain.Invoice invoice = new com.rbkmoney.damsel.domain.Invoice();
 
         invoice.setId(sourceId);
         invoice.setOwnerId("owner_id");
@@ -353,7 +408,7 @@ public class BeanUtil {
 
     @NotNull
     public static InvoiceChange createInvoiceCaptured() {
-        InvoiceChange invoiceChange = new InvoiceChange();
+        final InvoiceChange invoiceChange = new InvoiceChange();
         InvoicePaymentChange invoicePaymentChange = new InvoicePaymentChange();
         invoicePaymentChange.setId("1");
         InvoicePaymentChangePayload payload = new InvoicePaymentChangePayload();
@@ -367,11 +422,11 @@ public class BeanUtil {
 
     @NotNull
     public static InvoiceChange createPaymentStarted() {
-        InvoiceChange invoiceChange = new InvoiceChange();
+        final InvoiceChange invoiceChange = new InvoiceChange();
         InvoicePaymentChange invoicePaymentChange = new InvoicePaymentChange();
-        InvoicePaymentChangePayload invoicePaymentChangePayload = new InvoicePaymentChangePayload();
+        final InvoicePaymentChangePayload invoicePaymentChangePayload = new InvoicePaymentChangePayload();
         invoicePaymentChange.setId(PAYMENT_ID);
-        InvoicePaymentStarted payload = new InvoicePaymentStarted();
+        final InvoicePaymentStarted payload = new InvoicePaymentStarted();
         com.rbkmoney.damsel.domain.InvoicePayment payment = new com.rbkmoney.damsel.domain.InvoicePayment();
         Cash cost = new Cash();
         cost.setAmount(123L);
@@ -380,8 +435,8 @@ public class BeanUtil {
         payment.setCreatedAt("2016-08-10T16:07:18Z");
         payment.setId(PAYMENT_ID);
         payment.setStatus(InvoicePaymentStatus.processed(new InvoicePaymentProcessed()));
-        Payer payer = createCustomerPayer();
-        PaymentResourcePayer payerResource = new PaymentResourcePayer();
+        final Payer payer = createCustomerPayer();
+        final PaymentResourcePayer payerResource = new PaymentResourcePayer();
         ContactInfo contactInfo = new ContactInfo();
         contactInfo.setEmail(TEST_MAIL_RU);
         DisposablePaymentResource resource = new DisposablePaymentResource();
@@ -418,19 +473,19 @@ public class BeanUtil {
 
     @NotNull
     public static Chargeback convertContextToChargeback(Context context, String status) {
-        Chargeback chargeback = new Chargeback();
+        final Chargeback chargeback = new Chargeback();
         chargeback.setEventTime(Instant.now().toString());
         Cash cost = context.getPayment().getPayment().getCost();
         chargeback.setCost(cost);
         chargeback.setStatus(ChargebackStatus.valueOf(status));
-        Payer payer = context.getPayment().getPayment().getPayer();
+        final Payer payer = context.getPayment().getPayment().getPayer();
         ReferenceInfo referenceInfo = new ReferenceInfo();
         referenceInfo.setMerchantInfo(new MerchantInfo()
                 .setPartyId(context.getPayment().getParty().getPartyId())
                 .setShopId(context.getPayment().getShop().getId()));
         chargeback.setReferenceInfo(referenceInfo);
         chargeback.setPayerType(PayerType.payment_resource);
-        ClientInfo clientInfo = new ClientInfo();
+        final ClientInfo clientInfo = new ClientInfo();
         PayerFieldExtractor.getClientInfo(payer)
                 .ifPresent(cf ->
                         clientInfo
@@ -454,12 +509,12 @@ public class BeanUtil {
 
     @NotNull
     public static Refund convertContextToRefund(Context context, String status) {
-        Refund refund = new Refund();
+        final Refund refund = new Refund();
         refund.setEventTime(Instant.now().toString());
-        Cash cost = context.getPayment().getPayment().getCost();
+        final Cash cost = context.getPayment().getPayment().getCost();
         refund.setCost(cost);
         refund.setStatus(RefundStatus.valueOf(status));
-        Payer payer = context.getPayment().getPayment().getPayer();
+        final Payer payer = context.getPayment().getPayment().getPayer();
         ReferenceInfo referenceInfo = new ReferenceInfo();
         referenceInfo.setMerchantInfo(new MerchantInfo()
                 .setPartyId(context.getPayment().getParty().getPartyId())
@@ -489,19 +544,20 @@ public class BeanUtil {
 
     @NotNull
     public static CheckedPayment convertContextToPayment(Context context, String status) {
-        TimeProperties timeProperties = TimestampUtil.generateTimeProperties();
+        final TimeProperties timeProperties = TimestampUtil.generateTimeProperties();
         CheckedPayment payment = new CheckedPayment();
         payment.setTimestamp(timeProperties.getTimestamp());
         payment.setEventTime(timeProperties.getEventTime());
         payment.setEventTimeHour(timeProperties.getEventTimeHour());
-        Cash cost = context.getPayment().getPayment().getCost();
+        final Cash cost = context.getPayment().getPayment().getCost();
         payment.setAmount(cost.getAmount());
         payment.setCurrency(cost.getCurrency().getSymbolicCode());
         payment.setPaymentStatus(status);
-        Payer payer = context.getPayment().getPayment().getPayer();
+        final Payer payer = context.getPayment().getPayment().getPayer();
         PayerFieldExtractor.getBankCard(payer)
                 .ifPresent(bankCard -> {
-                    payment.setBankCountry(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
+                    payment.setBankCountry(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() :
+                            ClickhouseUtilsValue.UNKNOWN);
                     payment.setCardToken(bankCard.getToken());
                 });
         PayerFieldExtractor.getClientInfo(payer)

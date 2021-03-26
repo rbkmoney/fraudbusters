@@ -2,7 +2,11 @@ package com.rbkmoney.fraudbusters.converter;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
-import com.rbkmoney.fraudbusters.domain.*;
+import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
+import com.rbkmoney.fraudbusters.domain.Event;
+import com.rbkmoney.fraudbusters.domain.FraudResult;
+import com.rbkmoney.fraudbusters.domain.Metadata;
+import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.RequiredArgsConstructor;

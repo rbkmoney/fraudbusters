@@ -19,8 +19,12 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
@@ -34,21 +38,16 @@ public class ShopManagementServiceTest {
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8089);
-
-    @MockBean
-    private FraudResultRepository fraudResultRepository;
-
-    @MockBean
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private ShopManagementService shopManagementService;
-
-    @Autowired
-    private InitiatingEntitySourceService initiatingEntitySourceService;
-
     @MockBean
     KafkaTemplate<String, ReferenceInfo> kafkaTemplate;
+    @MockBean
+    private FraudResultRepository fraudResultRepository;
+    @MockBean
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private ShopManagementService shopManagementService;
+    @Autowired
+    private InitiatingEntitySourceService initiatingEntitySourceService;
 
     @Test
     public void testCreateDefaultReference() {

@@ -4,7 +4,7 @@ import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.model.Pair;
@@ -30,14 +30,14 @@ public class PaymentInListFinderImplTest {
     @Mock
     private WbListServiceSrv.Iface wbListServiceSrv;
     @Mock
-    private DBPaymentFieldResolver dbPaymentFieldResolver;
+    private DatabasePaymentFieldResolver databasePaymentFieldResolver;
     @Mock
     private PaymentRepository paymentRepository;
 
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        listFinder = new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, paymentRepository);
+        listFinder = new PaymentInListFinderImpl(wbListServiceSrv, databasePaymentFieldResolver, paymentRepository);
     }
 
     @Test

@@ -41,7 +41,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ActiveProfiles("full-prod")
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = "kafka.listen.result.concurrency=1")
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
+        properties = "kafka.listen.result.concurrency=1")
 @ContextConfiguration(initializers = DispatchTemplateTest.Initializer.class)
 public class DispatchTemplateTest extends IntegrationTest {
 
@@ -57,7 +58,8 @@ public class DispatchTemplateTest extends IntegrationTest {
     public static EmbeddedKafkaRule kafka = createKafka();
 
     @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+    public static ClickHouseContainer clickHouseContainer =
+            new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Override
     protected String getBrokersAsString() {

@@ -48,37 +48,49 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
     public void insertBatch(List<Event> events) {
         log.debug("EventRepository insertBatch events: {}", events);
         if (events != null && !events.isEmpty()) {
-            jdbcTemplate.batchUpdate(EventBatchPreparedStatementSetter.INSERT, new EventBatchPreparedStatementSetter(events));
+            jdbcTemplate.batchUpdate(EventBatchPreparedStatementSetter.INSERT,
+                    new EventBatchPreparedStatementSetter(events));
         }
     }
 
     @Override
     public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
-        return aggregationGeneralRepository.countOperationByField(EventSource.FRAUD_EVENTS_UNIQUE.getTable(), fieldName, value, from, to);
+        return aggregationGeneralRepository.countOperationByField(EventSource.FRAUD_EVENTS_UNIQUE.getTable(),
+                fieldName, value, from, to);
     }
 
     @Override
-    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
-        return aggregationGeneralRepository.countOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_UNIQUE.getTable(), fieldName, value,
-                from, to, fieldModels);
+    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                                    List<FieldModel> fieldModels) {
+        return aggregationGeneralRepository.countOperationByFieldWithGroupBy(
+                EventSource.FRAUD_EVENTS_UNIQUE.getTable(),
+                fieldName,
+                value,
+                from,
+                to,
+                fieldModels);
     }
 
     @Override
-    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
-        return aggregationGeneralRepository.sumOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_UNIQUE.getTable(), fieldName, value,
+    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                               List<FieldModel> fieldModels) {
+        return aggregationGeneralRepository.sumOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_UNIQUE.getTable(),
+                fieldName, value,
                 from, to, fieldModels);
     }
 
     @Override
     public Integer uniqCountOperation(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to) {
-        return aggregationGeneralRepository.uniqCountOperation(EventSource.FRAUD_EVENTS_UNIQUE.getTable(), fieldNameBy, value, fieldNameCount,
+        return aggregationGeneralRepository.uniqCountOperation(EventSource.FRAUD_EVENTS_UNIQUE.getTable(),
+                fieldNameBy, value, fieldNameCount,
                 from, to);
     }
 
     @Override
     public Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from,
                                                  Long to, List<FieldModel> fieldModels) {
-        return aggregationGeneralRepository.uniqCountOperationWithGroupBy(EventSource.FRAUD_EVENTS_UNIQUE.getTable(), fieldNameBy, value,
+        return aggregationGeneralRepository.uniqCountOperationWithGroupBy(EventSource.FRAUD_EVENTS_UNIQUE.getTable(),
+                fieldNameBy, value,
                 fieldNameCount, from, to, fieldModels);
     }
 
@@ -102,7 +114,8 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
     @Override
     public Integer countOperationErrorWithGroupBy(String fieldName, Object value, Long from, Long to,
                                                   List<FieldModel> fieldModels, String errorCode) {
-        log.warn("Error code ignore on this source: {} errorCode: {}", EventSource.FRAUD_EVENTS_UNIQUE.getTable(), errorCode);
+        log.warn("Error code ignore on this source: {} errorCode: {}", EventSource.FRAUD_EVENTS_UNIQUE.getTable(),
+                errorCode);
         StringBuilder sql = new StringBuilder(String.format("select %1$s, count() as cnt " +
                 "from %2$s " +
                 "where timestamp >= ? " +
@@ -137,7 +150,8 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
     @Override
     public Long sumOperationErrorWithGroupBy(String fieldName, Object value, Long from, Long to,
                                              List<FieldModel> fieldModels, String errorCode) {
-        log.warn("Error code ignore on this source: {} errorCode: {}", EventSource.FRAUD_EVENTS_UNIQUE.getTable(), errorCode);
+        log.warn("Error code ignore on this source: {} errorCode: {}", EventSource.FRAUD_EVENTS_UNIQUE.getTable(),
+                errorCode);
         StringBuilder sql = new StringBuilder(String.format("select %1$s, sum(amount) as sum " +
                 "from %2$s " +
                 "where timestamp >= ? " +

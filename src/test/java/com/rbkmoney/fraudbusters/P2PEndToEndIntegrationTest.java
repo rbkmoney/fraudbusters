@@ -43,7 +43,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ActiveProfiles("full-prod")
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = "kafka.listen.result.concurrency=1")
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
+        properties = "kafka.listen.result.concurrency=1")
 @ContextConfiguration(initializers = P2PEndToEndIntegrationTest.Initializer.class)
 public class P2PEndToEndIntegrationTest extends IntegrationTest {
 
@@ -67,7 +68,8 @@ public class P2PEndToEndIntegrationTest extends IntegrationTest {
     public static EmbeddedKafkaRule kafka = createKafka();
 
     @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+    public static ClickHouseContainer clickHouseContainer =
+            new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Override
     protected String getBrokersAsString() {
@@ -94,6 +96,7 @@ public class P2PEndToEndIntegrationTest extends IntegrationTest {
                     "sql/V7__add_fields.sql"));
         }
     }
+
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
 
@@ -108,12 +111,13 @@ public class P2PEndToEndIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    public void testP2P() throws URISyntaxException, TException, InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
+    public void testP2P() throws URISyntaxException, TException, InterruptedException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_P2P_URL, serverPort)))
                 .withNetworkTimeout(300000);
 
-        com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface client = clientBuilder.build(com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface.class);
+        com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface client =
+                clientBuilder.build(com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface.class);
         com.rbkmoney.damsel.p2p_insp.Context p2PContext = BeanUtil.createP2PContext(IDENT_ID, "transfer_1");
 
         InspectResult inspectResult = client.inspectTransfer(p2PContext, List.of(FRAUD));

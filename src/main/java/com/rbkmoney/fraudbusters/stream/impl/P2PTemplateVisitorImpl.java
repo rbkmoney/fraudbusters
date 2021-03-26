@@ -31,7 +31,8 @@ public class P2PTemplateVisitorImpl implements TemplateVisitor<P2PModel, Checked
     public CheckedResultModel visit(P2PModel p2PModel) {
         String identityId = p2PModel.getIdentityId();
         return ruleP2PApplier.apply(p2PModel, referenceP2PPoolImpl.get(TemplateLevel.GLOBAL.name()))
-                .orElse(ruleP2PApplier.applyForAny(p2PModel, groupP2PPoolImpl.get(groupReferenceP2PPoolImpl.get(identityId)))
+                .orElse(ruleP2PApplier.applyForAny(p2PModel,
+                        groupP2PPoolImpl.get(groupReferenceP2PPoolImpl.get(identityId)))
                         .orElse(ruleP2PApplier.apply(p2PModel, referenceP2PPoolImpl.get(identityId))
                                 .orElse(createDefaultResult())));
     }

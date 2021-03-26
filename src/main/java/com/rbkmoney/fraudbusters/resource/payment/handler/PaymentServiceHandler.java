@@ -1,6 +1,14 @@
 package com.rbkmoney.fraudbusters.resource.payment.handler;
 
-import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
+import com.rbkmoney.damsel.fraudbusters.FraudPayment;
+import com.rbkmoney.damsel.fraudbusters.InsertionException;
+import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
+import com.rbkmoney.damsel.fraudbusters.Refund;
+import com.rbkmoney.damsel.fraudbusters.Template;
+import com.rbkmoney.damsel.fraudbusters.ValidateTemplateResponse;
+import com.rbkmoney.damsel.fraudbusters.Withdrawal;
 import com.rbkmoney.fraudbusters.fraud.ListTemplateValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,27 +24,22 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
 
-    @Value("${kafka.topic.fraud.payment}")
-    private String fraudPaymentTopic;
-
-    @Value("${kafka.topic.event.sink.payment}")
-    public String paymentEventTopic;
-
-    @Value("${kafka.topic.event.sink.refund}")
-    public String refundEventTopic;
-
-    @Value("${kafka.topic.event.sink.chargeback}")
-    public String chargebackEventTopic;
-
-    @Value("${kafka.topic.event.sink.withdrawal}")
-    public String withdrawalEventTopic;
-
     private final ListTemplateValidator paymentTemplatesValidator;
     private final KafkaTemplate<String, Payment> paymentKafkaTemplate;
     private final KafkaTemplate<String, Refund> refundKafkaTemplate;
     private final KafkaTemplate<String, Chargeback> chargebackKafkaTemplate;
     private final KafkaTemplate<String, FraudPayment> kafkaFraudPaymentTemplate;
     private final KafkaTemplate<String, Withdrawal> kafkaFraudWithdrawalTemplate;
+    @Value("${kafka.topic.event.sink.payment}")
+    public String paymentEventTopic;
+    @Value("${kafka.topic.event.sink.refund}")
+    public String refundEventTopic;
+    @Value("${kafka.topic.event.sink.chargeback}")
+    public String chargebackEventTopic;
+    @Value("${kafka.topic.event.sink.withdrawal}")
+    public String withdrawalEventTopic;
+    @Value("${kafka.topic.fraud.payment}")
+    private String fraudPaymentTopic;
 
     @Override
     public ValidateTemplateResponse validateCompilationTemplate(List<Template> list) throws TException {

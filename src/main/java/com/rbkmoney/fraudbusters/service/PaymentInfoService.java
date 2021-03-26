@@ -17,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentInfoService {
 
-    private final JdbcTemplate jdbcTemplate;
     private static final String FIELDS = "timestamp, eventTimeHour, eventTime, " +
             "id, " +
             "email, ip, fingerprint, " +
@@ -28,6 +27,7 @@ public class PaymentInfoService {
             "status, errorCode, errorReason, " +
             "payerType, tokenProvider, " +
             "checkedTemplate, checkedRule, resultStatus, checkedResultsJson, mobile, recurrent";
+    private final JdbcTemplate jdbcTemplate;
 
     public CheckedPayment findPaymentByIdAndTimestamp(LocalDate timestamp, String id) {
         log.debug("findPaymentByIdAndTimestamp timestamp: {} id: {}", timestamp, id);

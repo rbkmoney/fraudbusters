@@ -1,13 +1,19 @@
 package com.rbkmoney.fraudbusters.fraud.payment.finder;
 
-import com.rbkmoney.damsel.wb_list.*;
+import com.rbkmoney.damsel.wb_list.IdInfo;
+import com.rbkmoney.damsel.wb_list.ListType;
+import com.rbkmoney.damsel.wb_list.PaymentId;
+import com.rbkmoney.damsel.wb_list.Result;
+import com.rbkmoney.damsel.wb_list.Row;
+import com.rbkmoney.damsel.wb_list.RowInfo;
+import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.constant.EventField;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.finder.InListFinder;
@@ -26,11 +32,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PaymentInListFinderImpl implements InListFinder<PaymentModel, PaymentCheckedField> {
 
-    private final WbListServiceSrv.Iface wbListServiceSrv;
-    private final DBPaymentFieldResolver dbPaymentFieldResolver;
-    private final PaymentRepository paymentRepository;
-
     private static final int CURRENT_ONE = 1;
+    private final WbListServiceSrv.Iface wbListServiceSrv;
+    private final DatabasePaymentFieldResolver databasePaymentFieldResolver;
+    private final PaymentRepository paymentRepository;
 
     @Override
     @BasicMetric("findInBlackList")
@@ -51,7 +56,8 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
             return fields.stream()
                     .anyMatch(entry ->
                             !StringUtils.isEmpty(entry.getSecond())
-                                    && findInList(model.getPartyId(), model.getShopId(), entry.getFirst(), entry.getSecond()));
+                                    && findInList(model.getPartyId(), model.getShopId(), entry.getFirst(),
+                                    entry.getSecond()));
         } catch (Exception e) {
             log.warn("InListFinderImpl error when findInList e: ", e);
             throw new RuleFunctionException(e);
@@ -64,7 +70,7 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
                 Row row = createRow(ListType.grey, partyId, shopId, field, value);
                 Result result = wbListServiceSrv.getRowInfo(row);
                 if (result.getRowInfo() != null && result.getRowInfo().isSetCountInfo()) {
-                    String resolveField = dbPaymentFieldResolver.resolve(field);
+                    String resolveField = databasePaymentFieldResolver.resolve(field);
                     return countLessThanWbList(partyId, shopId, value, result, resolveField);
                 }
             }
@@ -75,8 +81,15 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
         }
     }
 
+    @Override
+    @BasicMetric("findInNamingList")
+    public Boolean findInList(String name, List<Pair<PaymentCheckedField, String>> fields, PaymentModel model) {
+        return checkInList(fields, model, ListType.naming);
+    }
+
     @NotNull
-    private Boolean countLessThanWbList(String partyId, String shopId, String value, Result result, String resolveField) {
+    private Boolean countLessThanWbList(String partyId, String shopId, String value, Result result,
+                                        String resolveField) {
         log.debug("countLessThanWbList partyId: {} shopId: {} value: {} result: {} resolveField: {}", partyId, shopId,
                 value, result, resolveField);
         RowInfo rowInfo = result.getRowInfo();
@@ -99,12 +112,6 @@ public class PaymentInListFinderImpl implements InListFinder<PaymentModel, Payme
                 new FieldModel(EventField.partyId.name(), partyId),
                 new FieldModel(EventField.shopId.name(), shopId)
         );
-    }
-
-    @Override
-    @BasicMetric("findInNamingList")
-    public Boolean findInList(String name, List<Pair<PaymentCheckedField, String>> fields, PaymentModel model) {
-        return checkInList(fields, model, ListType.naming);
     }
 
     @NotNull

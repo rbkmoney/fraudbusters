@@ -29,27 +29,20 @@ import java.util.Map;
 public class ListenersConfigurationService {
 
     public static final long THROTTLING_TIMEOUT = 500L;
-
-    private static final String EARLIEST = "earliest";
     public static final int MAX_WAIT_FETCH_MS = 7000;
-
-    @Value("${kafka.max.poll.records}")
-    private String maxPollRecords;
-
-    @Value("${kafka.max.retry.attempts}")
-    private int maxRetryAttempts;
-
-    @Value("${kafka.backoff.interval}")
-    private int backoffInterval;
-
-    @Value("${kafka.bootstrap.servers}")
-    private String bootstrapServers;
-
-    @Value("${kafka.listen.result.concurrency}")
-    private int listenResultConcurrency;
-
+    private static final String EARLIEST = "earliest";
     private final ConsumerGroupIdService consumerGroupIdService;
     private final KafkaSslProperties kafkaSslProperties;
+    @Value("${kafka.max.poll.records}")
+    private String maxPollRecords;
+    @Value("${kafka.max.retry.attempts}")
+    private int maxRetryAttempts;
+    @Value("${kafka.backoff.interval}")
+    private int backoffInterval;
+    @Value("${kafka.bootstrap.servers}")
+    private String bootstrapServers;
+    @Value("${kafka.listen.result.concurrency}")
+    private int listenResultConcurrency;
 
     public Map<String, Object> createDefaultProperties(String value) {
         final Map<String, Object> props = new HashMap<>();
@@ -61,8 +54,10 @@ public class ListenersConfigurationService {
         return props;
     }
 
-    public ConcurrentKafkaListenerContainerFactory<String, Command> createDefaultFactory(ConsumerFactory<String, Command> stringCommandConsumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, Command> createDefaultFactory(ConsumerFactory<String,
+            Command> stringCommandConsumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, Command> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(stringCommandConsumerFactory);
         factory.setConcurrency(1);
         factory.setRetryTemplate(retryTemplate());
@@ -92,13 +87,15 @@ public class ListenersConfigurationService {
         return template;
     }
 
-    public <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Deserializer<T> deserializer, String groupId) {
+    public <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Deserializer<T> deserializer,
+                                                                                String groupId) {
         String consumerGroup = consumerGroupIdService.generateGroupId(groupId);
         final Map<String, Object> props = createDefaultProperties(consumerGroup);
         return createFactoryWithProps(deserializer, props);
     }
 
-    public <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Deserializer<T> deserializer, String groupId, Integer fetchMinBytes) {
+    public <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactory(Deserializer<T> deserializer,
+                                                                                String groupId, Integer fetchMinBytes) {
         String consumerGroup = consumerGroupIdService.generateGroupId(groupId);
         final Map<String, Object> props = createDefaultProperties(consumerGroup);
         props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, fetchMinBytes);
@@ -106,7 +103,8 @@ public class ListenersConfigurationService {
         return createFactoryWithProps(deserializer, props);
     }
 
-    public <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactoryWithProps(Deserializer<T> deserializer, Map<String, Object> props) {
+    public <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactoryWithProps(Deserializer<T> deserializer,
+                                                                                         Map<String, Object> props) {
         ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         DefaultKafkaConsumerFactory<String, T> consumerFactory = new DefaultKafkaConsumerFactory<>(props,

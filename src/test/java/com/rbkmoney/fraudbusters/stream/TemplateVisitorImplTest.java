@@ -24,15 +24,12 @@ public class TemplateVisitorImplTest {
     public static final String TEMPLATE_1 = "template_1";
     public static final String GROUP_1 = "group_1";
     public static final String TRUE_TEMPL = "true_templ";
-
+    TemplateVisitorImpl templateVisitor;
     @Mock
     private RuleApplierImpl ruleApplier;
-
     private Pool<List<String>> groupPoolImpl;
     private Pool<String> referencePoolImpl;
     private Pool<String> groupReferencePoolImpl;
-
-    TemplateVisitorImpl templateVisitor;
 
     @Before
     public void init() {
@@ -42,7 +39,8 @@ public class TemplateVisitorImplTest {
         referencePoolImpl = new PoolImpl<>("reference");
         groupReferencePoolImpl = new PoolImpl<>("group-reference");
 
-        templateVisitor = new TemplateVisitorImpl(ruleApplier, groupPoolImpl, referencePoolImpl, groupReferencePoolImpl);
+        templateVisitor = new TemplateVisitorImpl(ruleApplier, groupPoolImpl, referencePoolImpl,
+                groupReferencePoolImpl);
     }
 
     @Test

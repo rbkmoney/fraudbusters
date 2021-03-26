@@ -31,7 +31,8 @@ public class FraudP2PInspectorHandler implements InspectorProxySrv.Iface {
     private final KafkaTemplate<String, ScoresResult<P2PModel>> kafkaFraudResultTemplate;
 
     @Override
-    public InspectResult inspectTransfer(com.rbkmoney.damsel.p2p_insp.Context context, List<String> list) throws TException {
+    public InspectResult inspectTransfer(com.rbkmoney.damsel.p2p_insp.Context context, List<String> list)
+            throws TException {
         try {
             Map<String, RiskScore> scores = new HashMap<>();
 

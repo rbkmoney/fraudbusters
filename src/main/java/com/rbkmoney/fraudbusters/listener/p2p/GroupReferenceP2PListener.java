@@ -20,7 +20,8 @@ public class GroupReferenceP2PListener extends AbstractPoolCommandListenerExecut
     private final Pool<String> groupReferenceP2PPoolImpl;
 
     @Override
-    @KafkaListener(topics = "${kafka.topic.p2p-group-reference}", containerFactory = "groupReferenceP2PListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.p2p-group-reference}", containerFactory =
+            "groupReferenceP2PListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("GroupP2PReferenceListener command: {}", command);
         if (command != null && command.isSetCommandBody() && command.getCommandBody().isSetP2pGroupReference()) {

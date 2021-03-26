@@ -34,7 +34,8 @@ public class LocalResultStorageRepository implements PaymentRepository {
     }
 
     @Override
-    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                                    List<FieldModel> fieldModels) {
         List<CheckedPayment> checkedPayments = localStorage.get();
         int count = (int) checkedPayments.stream()
                 .filter(checkedPayment -> filterPaymentByValue(from, to, fieldModels, checkedPayment))
@@ -44,7 +45,8 @@ public class LocalResultStorageRepository implements PaymentRepository {
     }
 
     @Override
-    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                               List<FieldModel> fieldModels) {
         List<CheckedPayment> checkedPayments = localStorage.get();
         long sum = checkedPayments.stream()
                 .filter(checkedPayment -> filterPaymentByValue(from, to, fieldModels, checkedPayment))
@@ -69,7 +71,8 @@ public class LocalResultStorageRepository implements PaymentRepository {
     }
 
     @Override
-    public Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to, List<FieldModel> fieldModels) {
+    public Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from,
+                                                 Long to, List<FieldModel> fieldModels) {
         List<CheckedPayment> checkedPayments = localStorage.get();
         long count = checkedPayments.stream()
                 .filter(checkedPayment -> filterPaymentByValue(from, to, fieldModels, checkedPayment))
@@ -80,54 +83,66 @@ public class LocalResultStorageRepository implements PaymentRepository {
         return (int) count;
     }
 
-    private boolean filterPaymentByValue(Long from, Long to, List<FieldModel> fieldModels, CheckedPayment checkedPayment) {
+    private boolean filterPaymentByValue(Long from, Long to, List<FieldModel> fieldModels,
+                                         CheckedPayment checkedPayment) {
         return checkedPayment.getEventTime() >= from
                 && checkedPayment.getEventTime() <= to
                 && fieldModels.stream()
-                .allMatch(fieldModel -> paymentFieldValueFilter.filter(fieldModel.getName(), fieldModel.getValue(), checkedPayment));
+                .allMatch(fieldModel -> paymentFieldValueFilter.filter(fieldModel.getName(), fieldModel.getValue(),
+                        checkedPayment));
     }
 
     @Override
-    public Integer countOperationSuccessWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Integer countOperationSuccessWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                                    List<FieldModel> fieldModels) {
         List<CheckedPayment> checkedPayments = localStorage.get();
         return (int) checkedPayments.stream()
-                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment, PaymentStatus.captured))
+                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment,
+                        PaymentStatus.captured))
                 .count();
     }
 
     @Override
-    public Integer countOperationErrorWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels, String errorCode) {
+    public Integer countOperationErrorWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                                  List<FieldModel> fieldModels, String errorCode) {
         List<CheckedPayment> checkedPayments = localStorage.get();
         return (int) checkedPayments.stream()
-                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment, PaymentStatus.failed)
+                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment,
+                        PaymentStatus.failed)
                         && errorCode.equals(checkedPayment.getErrorCode()))
                 .count();
     }
 
     @Override
-    public Long sumOperationSuccessWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Long sumOperationSuccessWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                               List<FieldModel> fieldModels) {
         List<CheckedPayment> checkedPayments = localStorage.get();
         return checkedPayments.stream()
-                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment, PaymentStatus.captured))
+                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment,
+                        PaymentStatus.captured))
                 .mapToLong(CheckedPayment::getAmount)
                 .sum();
     }
 
     @Override
-    public Long sumOperationErrorWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels, String errorCode) {
+    public Long sumOperationErrorWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                             List<FieldModel> fieldModels, String errorCode) {
         List<CheckedPayment> checkedPayments = localStorage.get();
         return checkedPayments.stream()
-                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment, PaymentStatus.failed)
+                .filter(checkedPayment -> filterByStatusAndFields(from, to, fieldModels, checkedPayment,
+                        PaymentStatus.failed)
                         && errorCode.equals(checkedPayment.getErrorCode()))
                 .mapToLong(CheckedPayment::getAmount)
                 .sum();
     }
 
-    private boolean filterByStatusAndFields(Long from, Long to, List<FieldModel> fieldModels, CheckedPayment checkedPayment, PaymentStatus paymentStatus) {
+    private boolean filterByStatusAndFields(Long from, Long to, List<FieldModel> fieldModels,
+                                            CheckedPayment checkedPayment, PaymentStatus paymentStatus) {
         return checkedPayment.getEventTime() >= from
                 && checkedPayment.getEventTime() <= to
                 && fieldModels.stream()
-                .allMatch(fieldModel -> paymentFieldValueFilter.filter(fieldModel.getName(), fieldModel.getValue(), checkedPayment))
+                .allMatch(fieldModel -> paymentFieldValueFilter.filter(fieldModel.getName(), fieldModel.getValue(),
+                        checkedPayment))
                 && paymentStatus.name().equals(checkedPayment.getPaymentStatus());
     }
 

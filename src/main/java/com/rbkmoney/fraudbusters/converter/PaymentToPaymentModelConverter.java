@@ -19,8 +19,9 @@ public class PaymentToPaymentModelConverter implements Converter<Payment, Paymen
         paymentModel.setPartyId(payment.getReferenceInfo().getMerchantInfo().getPartyId());
         paymentModel.setShopId(payment.getReferenceInfo().getMerchantInfo().getShopId());
         paymentModel.setBin(payment.getPaymentTool().getBankCard().getBin());
-        paymentModel.setBinCountryCode(payment.getPaymentTool().getBankCard().isSetIssuerCountry() ?
-                payment.getPaymentTool().getBankCard().getIssuerCountry().name() : UNKNOWN);
+        paymentModel.setBinCountryCode(payment.getPaymentTool().getBankCard().isSetIssuerCountry()
+                ? payment.getPaymentTool().getBankCard().getIssuerCountry().name()
+                : UNKNOWN);
         paymentModel.setCardToken(payment.getPaymentTool().getBankCard().getToken());
         paymentModel.setPan(payment.getPaymentTool().getBankCard().getLastDigits());
         paymentModel.setTimestamp(TimestampUtil.parseInstantFromString(payment.getEventTime()).toEpochMilli());

@@ -18,7 +18,8 @@ public class RuleFunctionException extends RuntimeException {
         super(cause);
     }
 
-    public RuleFunctionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public RuleFunctionException(String message, Throwable cause, boolean enableSuppression,
+                                 boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

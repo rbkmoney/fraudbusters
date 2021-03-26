@@ -20,7 +20,7 @@ public class CheckedResultFactory {
         Optional<RuleResult> firstNotNotifyStatus = ResultUtils.findFirstNotNotifyStatus(resultModel);
         if (firstNotNotifyStatus.isPresent()) {
             log.info("createCheckedResult resultModel: {}", resultModel);
-            CheckedResultModel checkedResultModel = new CheckedResultModel();
+            final CheckedResultModel checkedResultModel = new CheckedResultModel();
             ConcreteResultModel concreteResultModel = new ConcreteResultModel();
             RuleResult ruleResult = firstNotNotifyStatus.get();
             concreteResultModel.setResultStatus(ruleResult.getResultStatus());

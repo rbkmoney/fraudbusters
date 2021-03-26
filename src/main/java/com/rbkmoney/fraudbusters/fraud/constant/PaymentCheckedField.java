@@ -19,7 +19,6 @@ public enum PaymentCheckedField {
     RECURRENT("recurrent"),
     CARD_TOKEN("card_token");
 
-    private final String value;
     private static final Map<String, PaymentCheckedField> valueMap = new HashMap<>();
 
     static {
@@ -27,6 +26,8 @@ public enum PaymentCheckedField {
             valueMap.put(value.value, value);
         }
     }
+
+    private final String value;
 
     PaymentCheckedField(String value) {
         this.value = value;

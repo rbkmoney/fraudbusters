@@ -18,11 +18,13 @@ public class P2PResourceConfig {
     private String requestP2PResultTopic;
 
     @Bean
-    public com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface fraudP2PInspectorHandler(KafkaTemplate<String, ScoresResult<P2PModel>> p2PModelKafkaTemplate,
-                                                                                         CheckedResultToRiskScoreConverter resultConverter,
-                                                                                         P2PContextToP2PModelConverter requestConverter,
-                                                                                         P2PTemplateVisitorImpl templateListVisitor) {
-        return new FraudP2PInspectorHandler(requestP2PResultTopic, resultConverter, requestConverter, templateListVisitor, p2PModelKafkaTemplate);
+    public com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface fraudP2PInspectorHandler(
+            KafkaTemplate<String, ScoresResult<P2PModel>> p2PModelKafkaTemplate,
+            CheckedResultToRiskScoreConverter resultConverter,
+            P2PContextToP2PModelConverter requestConverter,
+            P2PTemplateVisitorImpl templateListVisitor) {
+        return new FraudP2PInspectorHandler(requestP2PResultTopic, resultConverter, requestConverter,
+                templateListVisitor, p2PModelKafkaTemplate);
     }
 
 }

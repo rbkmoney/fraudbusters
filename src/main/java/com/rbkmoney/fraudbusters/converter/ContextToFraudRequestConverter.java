@@ -38,9 +38,12 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
         PayerFieldExtractor.getBankCard(payer)
                 .ifPresent(bankCard -> {
                     paymentModel.setBin(bankCard.getBin());
-                    paymentModel.setBinCountryCode(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
+                    paymentModel.setBinCountryCode(bankCard.isSetIssuerCountry()
+                            ? bankCard.getIssuerCountry().name()
+                            : ClickhouseUtilsValue.UNKNOWN);
                     paymentModel.setCardToken(bankCard.getToken());
-                    paymentModel.setRecurrent(paymentTypeByContextResolver.isRecurrent(context.getPayment().getPayment().getPayer()));
+                    paymentModel.setRecurrent(
+                            paymentTypeByContextResolver.isRecurrent(context.getPayment().getPayment().getPayer()));
                     paymentModel.setMobile(paymentTypeByContextResolver.isMobile(bankCard));
                 });
 
@@ -78,7 +81,9 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
             metadata.setMaskedPan(bankCard.getLastDigits());
             metadata.setBankName(bankCard.getBankName());
             metadata.setPayerType(PayerFieldExtractor.getPayerType(context.getPayment().getPayment().getPayer()));
-            metadata.setTokenProvider(paymentTypeByContextResolver.isMobile(bankCard) ? bankCard.getTokenProvider().name() : ClickhouseUtilsValue.UNKNOWN);
+            metadata.setTokenProvider(paymentTypeByContextResolver.isMobile(bankCard)
+                    ? bankCard.getTokenProvider().name()
+                    : ClickhouseUtilsValue.UNKNOWN);
         });
         return metadata;
     }

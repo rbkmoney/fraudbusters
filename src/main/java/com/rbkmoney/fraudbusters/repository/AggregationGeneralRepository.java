@@ -14,7 +14,8 @@ public interface AggregationGeneralRepository {
     Long sumOperationByFieldWithGroupBy(String table, String fieldName, Object value, Long from, Long to,
                                         List<FieldModel> fieldModels);
 
-    Integer uniqCountOperation(String table, String fieldNameBy, Object value, String fieldNameCount, Long from, Long to);
+    Integer uniqCountOperation(String table, String fieldNameBy, Object value, String fieldNameCount, Long from,
+                               Long to);
 
     Integer uniqCountOperationWithGroupBy(String table, String fieldNameBy, Object value, String fieldNameCount,
                                           Long from, Long to, List<FieldModel> fieldModels);

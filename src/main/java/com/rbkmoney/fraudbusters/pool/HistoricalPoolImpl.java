@@ -31,8 +31,12 @@ public class HistoricalPoolImpl<T> implements HistoricalPool<T> {
 
     @Override
     public T get(String key, Long timestamp) {
-        T value = key != null && timestamp != null && references.containsKey(key) && !CollectionUtils.isEmpty(references.get(key)) ?
-                references.get(key).lowerEntry(timestamp).getValue() : null;
+        T value = key != null
+                && timestamp != null
+                && references.containsKey(key)
+                && !CollectionUtils.isEmpty(references.get(key))
+                ? references.get(key).lowerEntry(timestamp).getValue()
+                : null;
         log.debug("HistoricalPoolImpl get key: {} timestamp: {} value: {}", key, timestamp, value);
         return value;
     }

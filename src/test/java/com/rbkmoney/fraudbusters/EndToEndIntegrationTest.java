@@ -102,7 +102,8 @@ public class EndToEndIntegrationTest extends IntegrationTest {
     public static EmbeddedKafkaRule kafka = createKafka();
 
     @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+    public static ClickHouseContainer clickHouseContainer =
+            new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Override
     protected String getBrokersAsString() {
@@ -213,7 +214,9 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        chargebackRepository.insertBatch(List.of(convertContextToChargeback(context, ChargebackStatus.accepted.name())));
+        chargebackRepository.insertBatch(
+                List.of(convertContextToChargeback(context, ChargebackStatus.accepted.name()))
+        );
 
         riskScore = client.inspectPayment(context);
 

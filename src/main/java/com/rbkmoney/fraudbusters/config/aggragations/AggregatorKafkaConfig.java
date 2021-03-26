@@ -1,13 +1,23 @@
 package com.rbkmoney.fraudbusters.config.aggragations;
 
-import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
+import com.rbkmoney.damsel.fraudbusters.FraudPayment;
+import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.fraudbusters.Refund;
+import com.rbkmoney.damsel.fraudbusters.Withdrawal;
 import com.rbkmoney.fraudbusters.config.service.KafkaTemplateConfigurationService;
 import com.rbkmoney.fraudbusters.config.service.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.constant.GroupPostfix;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
-import com.rbkmoney.fraudbusters.serde.*;
+import com.rbkmoney.fraudbusters.serde.ChargebackDeserializer;
+import com.rbkmoney.fraudbusters.serde.FraudPaymentDeserializer;
+import com.rbkmoney.fraudbusters.serde.FraudResultDeserializer;
+import com.rbkmoney.fraudbusters.serde.P2PResultDeserializer;
+import com.rbkmoney.fraudbusters.serde.PaymentDeserializer;
+import com.rbkmoney.fraudbusters.serde.RefundDeserializer;
+import com.rbkmoney.fraudbusters.serde.WithdrawalDeserializer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,25 +30,27 @@ import org.springframework.kafka.core.KafkaTemplate;
 @RequiredArgsConstructor
 public class AggregatorKafkaConfig {
 
+    private final ListenersConfigurationService listenersConfigurationService;
+    private final KafkaTemplateConfigurationService kafkaTemplateConfigurationService;
     @Value("${kafka.aggr.payment.min.bytes}")
     private int fetchMinBytes;
 
-    private final ListenersConfigurationService listenersConfigurationService;
-    private final KafkaTemplateConfigurationService kafkaTemplateConfigurationService;
-
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudResult> kafkaListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new FraudResultDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
+        return listenersConfigurationService.createFactory(new FraudResultDeserializer(),
+                GroupPostfix.RESULT_AGGREGATOR);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Payment> kafkaPaymentResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new PaymentDeserializer(), GroupPostfix.RESULT_AGGREGATOR, fetchMinBytes);
+        return listenersConfigurationService.createFactory(new PaymentDeserializer(), GroupPostfix.RESULT_AGGREGATOR,
+                fetchMinBytes);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Withdrawal> kafkaWithdrawalResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new WithdrawalDeserializer(), GroupPostfix.RESULT_AGGREGATOR, fetchMinBytes);
+        return listenersConfigurationService.createFactory(new WithdrawalDeserializer(),
+                GroupPostfix.RESULT_AGGREGATOR, fetchMinBytes);
     }
 
     @Bean
@@ -48,9 +60,11 @@ public class AggregatorKafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Chargeback> kafkaChargebackResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new ChargebackDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
+        return listenersConfigurationService.createFactory(new ChargebackDeserializer(),
+                GroupPostfix.RESULT_AGGREGATOR);
     }
 
+    @SuppressWarnings("checkstyle:linelength")
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ScoresResult<P2PModel>> kafkaP2PResultListenerContainerFactory() {
         return listenersConfigurationService.createFactory(new P2PResultDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
@@ -58,32 +72,43 @@ public class AggregatorKafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudPayment> kafkaFraudPaymentListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new FraudPaymentDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
+        return listenersConfigurationService.createFactory(new FraudPaymentDeserializer(),
+                GroupPostfix.RESULT_AGGREGATOR);
     }
 
     @Bean
     public KafkaTemplate<String, Payment> paymentKafkaTemplate() {
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs()));
+        return new KafkaTemplate<>(
+                new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs())
+        );
     }
 
     @Bean
     public KafkaTemplate<String, Refund> refundKafkaTemplate() {
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs()));
+        return new KafkaTemplate<>(
+                new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs())
+        );
     }
 
     @Bean
     public KafkaTemplate<String, Chargeback> chargebackKafkaTemplate() {
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs()));
+        return new KafkaTemplate<>(
+                new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs())
+        );
     }
 
     @Bean
     public KafkaTemplate<String, FraudPayment> fraudPaymentKafkaTemplate() {
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs()));
+        return new KafkaTemplate<>(
+                new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs())
+        );
     }
 
     @Bean
     public KafkaTemplate<String, Withdrawal> fraudWithdrawalKafkaTemplate() {
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs()));
+        return new KafkaTemplate<>(
+                new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs())
+        );
     }
 
 }

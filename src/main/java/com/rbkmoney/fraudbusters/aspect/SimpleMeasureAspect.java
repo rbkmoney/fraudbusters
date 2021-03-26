@@ -41,7 +41,8 @@ public class SimpleMeasureAspect {
         );
     }
 
-    public SimpleMeasureAspect(MeterRegistry registry, Function<ProceedingJoinPoint, Iterable<Tag>> tagsBasedOnJoinPoint) {
+    public SimpleMeasureAspect(MeterRegistry registry,
+                               Function<ProceedingJoinPoint, Iterable<Tag>> tagsBasedOnJoinPoint) {
         this.registry = registry;
         this.tagsBasedOnJoinPoint = tagsBasedOnJoinPoint;
     }

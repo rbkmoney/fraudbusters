@@ -1,6 +1,12 @@
 package com.rbkmoney.fraudbusters.fraud.p2p.finder;
 
-import com.rbkmoney.damsel.wb_list.*;
+import com.rbkmoney.damsel.wb_list.IdInfo;
+import com.rbkmoney.damsel.wb_list.ListType;
+import com.rbkmoney.damsel.wb_list.P2pId;
+import com.rbkmoney.damsel.wb_list.Result;
+import com.rbkmoney.damsel.wb_list.Row;
+import com.rbkmoney.damsel.wb_list.RowInfo;
+import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
 import com.rbkmoney.fraudbusters.constant.EventP2PField;
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
@@ -25,11 +31,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class P2pInListFinderImpl implements InListFinder<P2PModel, P2PCheckedField> {
 
+    private static final int CURRENT_ONE = 1;
     private final WbListServiceSrv.Iface wbListServiceSrv;
     private final DbP2pFieldResolver dbP2pFieldResolver;
     private final EventP2PRepository eventP2PRepository;
-
-    private static final int CURRENT_ONE = 1;
 
     @Override
     @BasicMetric(value = "findInBlackList", extraTags = "p2p")
@@ -73,6 +78,12 @@ public class P2pInListFinderImpl implements InListFinder<P2PModel, P2PCheckedFie
         }
     }
 
+    @Override
+    @BasicMetric("findInNamingList")
+    public Boolean findInList(String name, List<Pair<P2PCheckedField, String>> fields, P2PModel model) {
+        return checkInList(fields, model, ListType.naming);
+    }
+
     @NotNull
     private Boolean countLessInWbList(String identityId, P2PCheckedField field, String value, Result result) {
         RowInfo rowInfo = result.getRowInfo();
@@ -87,12 +98,6 @@ public class P2pInListFinderImpl implements InListFinder<P2PModel, P2PCheckedFie
         int currentCount = eventP2PRepository.countOperationByFieldWithGroupBy(resolveField, value, from, to,
                 List.of(new FieldModel(EventP2PField.identityId.name(), identityId)));
         return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
-    }
-
-    @Override
-    @BasicMetric("findInNamingList")
-    public Boolean findInList(String name, List<Pair<P2PCheckedField, String>> fields, P2PModel model) {
-        return checkInList(fields, model, ListType.naming);
     }
 
     @NotNull

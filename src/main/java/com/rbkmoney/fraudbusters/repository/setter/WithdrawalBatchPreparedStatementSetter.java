@@ -44,14 +44,18 @@ public class WithdrawalBatchPreparedStatementSetter implements BatchPreparedStat
 
         final Resource destinationResource = withdrawal.getDestinationResource();
         ps.setString(l++, destinationResource.isSetBankCard() ? destinationResource.getBankCard().getBin() : UNKNOWN);
-        ps.setString(l++, destinationResource.isSetBankCard() ? destinationResource.getBankCard().getLastDigits() : UNKNOWN);
+        ps.setString(l++, destinationResource.isSetBankCard() ? destinationResource.getBankCard().getLastDigits() :
+                UNKNOWN);
         ps.setString(l++, destinationResource.isSetBankCard() ? destinationResource.getBankCard().getToken() : UNKNOWN);
-        ps.setString(l++, destinationResource.isSetBankCard() ? destinationResource.getBankCard().getPaymentSystem().name() : UNKNOWN);
+        ps.setString(l++, destinationResource.isSetBankCard()
+                ? destinationResource.getBankCard().getPaymentSystem().name()
+                : UNKNOWN);
 
         ps.setString(l++, withdrawal.isSetProviderInfo() ? withdrawal.getProviderInfo().getTerminalId() : UNKNOWN);
         ps.setString(l++, withdrawal.isSetProviderInfo() ? withdrawal.getProviderInfo().getProviderId() : UNKNOWN);
-        ps.setString(l++, withdrawal.isSetProviderInfo() && withdrawal.getProviderInfo().isSetCountry() ?
-                withdrawal.getProviderInfo().getCountry() : UNKNOWN);
+        ps.setString(l++, withdrawal.isSetProviderInfo() && withdrawal.getProviderInfo().isSetCountry()
+                ? withdrawal.getProviderInfo().getCountry()
+                : UNKNOWN);
 
         ps.setString(l++, withdrawal.getAccount().getIdentity());
         ps.setString(l++, withdrawal.getAccount().getId());

@@ -20,14 +20,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RefundRepository implements Repository<Refund>, AggregationRepository {
 
-    private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
-    private final JdbcTemplate jdbcTemplate;
-
     private static final String INSERT = String.format(
             "INSERT INTO %1s (%2s) VALUES (%3s)",
             EventSource.FRAUD_EVENTS_REFUND.getTable(),
             RefundBatchPreparedStatementSetter.FIELDS,
             RefundBatchPreparedStatementSetter.FIELDS_MARK);
+    private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void insert(Refund refund) {
@@ -49,27 +48,33 @@ public class RefundRepository implements Repository<Refund>, AggregationReposito
     }
 
     @Override
-    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
-        return aggregationStatusGeneralRepository.countOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_REFUND.getTable(),
+    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                                    List<FieldModel> fieldModels) {
+        return aggregationStatusGeneralRepository.countOperationByFieldWithGroupBy(
+                EventSource.FRAUD_EVENTS_REFUND.getTable(),
                 fieldName, value, from, to, fieldModels, RefundStatus.succeeded.name());
     }
 
     @Override
-    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
-        return aggregationStatusGeneralRepository.sumOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_REFUND.getTable(),
+    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                               List<FieldModel> fieldModels) {
+        return aggregationStatusGeneralRepository.sumOperationByFieldWithGroupBy(
+                EventSource.FRAUD_EVENTS_REFUND.getTable(),
                 fieldName, value, from, to, fieldModels, RefundStatus.succeeded.name());
     }
 
     @Override
     public Integer uniqCountOperation(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to) {
-        return aggregationStatusGeneralRepository.uniqCountOperation(EventSource.FRAUD_EVENTS_REFUND.getTable(),
+        return aggregationStatusGeneralRepository.uniqCountOperation(
+                EventSource.FRAUD_EVENTS_REFUND.getTable(),
                 fieldNameBy, value, fieldNameCount, from, to, RefundStatus.succeeded.name());
     }
 
     @Override
     public Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from,
                                                  Long to, List<FieldModel> fieldModels) {
-        return aggregationStatusGeneralRepository.uniqCountOperationWithGroupBy(EventSource.FRAUD_EVENTS_REFUND.getTable(),
+        return aggregationStatusGeneralRepository.uniqCountOperationWithGroupBy(
+                EventSource.FRAUD_EVENTS_REFUND.getTable(),
                 fieldNameBy, value, fieldNameCount, from, to, fieldModels, RefundStatus.succeeded.name());
     }
 

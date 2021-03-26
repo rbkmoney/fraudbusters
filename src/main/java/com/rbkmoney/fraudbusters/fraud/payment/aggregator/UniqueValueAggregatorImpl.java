@@ -5,7 +5,7 @@ import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
@@ -23,7 +23,7 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentM
 
     private static final int CURRENT_ONE = 1;
 
-    private final DBPaymentFieldResolver dbPaymentFieldResolver;
+    private final DatabasePaymentFieldResolver databasePaymentFieldResolver;
     private final PaymentRepository paymentRepository;
 
     @Override
@@ -34,16 +34,20 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentM
                                     TimeWindow timeWindow,
                                     List<PaymentCheckedField> list) {
         try {
-            Instant timestamp = paymentModel.getTimestamp() != null ? Instant.ofEpochMilli(paymentModel.getTimestamp()) : Instant.now();
-            FieldModel resolve = dbPaymentFieldResolver.resolve(countField, paymentModel);
+            Instant timestamp = paymentModel.getTimestamp() != null
+                    ? Instant.ofEpochMilli(paymentModel.getTimestamp())
+                    : Instant.now();
+            FieldModel resolve = databasePaymentFieldResolver.resolve(countField, paymentModel);
             if (StringUtils.isEmpty(resolve.getValue())) {
                 return CURRENT_ONE;
             }
-            List<FieldModel> fieldModels = dbPaymentFieldResolver.resolveListFields(paymentModel, list);
-            Integer uniqCountOperation = paymentRepository.uniqCountOperationWithGroupBy(resolve.getName(), resolve.getValue(),
-                    dbPaymentFieldResolver.resolve(onField),
+            List<FieldModel> fieldModels = databasePaymentFieldResolver.resolveListFields(paymentModel, list);
+            Integer uniqCountOperation = paymentRepository.uniqCountOperationWithGroupBy(resolve.getName(),
+                    resolve.getValue(),
+                    databasePaymentFieldResolver.resolve(onField),
                     TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getStartWindowTime()),
-                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getEndWindowTime()), fieldModels);
+                    TimestampUtil.generateTimestampMinusMinutesMillis(timestamp, timeWindow.getEndWindowTime()),
+                    fieldModels);
             return uniqCountOperation + CURRENT_ONE;
         } catch (Exception e) {
             log.warn("UniqueValueAggregatorImpl error when getCount e: ", e);

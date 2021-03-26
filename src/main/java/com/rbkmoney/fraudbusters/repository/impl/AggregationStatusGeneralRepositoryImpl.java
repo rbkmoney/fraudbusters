@@ -20,7 +20,8 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Integer countOperationByField(String table, String fieldName, Object value, Long from, Long to, String status) {
+    public Integer countOperationByField(String table, String fieldName, Object value, Long from, Long to,
+                                         String status) {
         String sql = String.format(
                 "select %1$s, count() as cnt " +
                         "from %2$s " +
@@ -51,7 +52,8 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
         StringBuilder sqlGroupBy = new StringBuilder(String.format(" group by %1$s ", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
         String sqlResult = resultSql.toString();
-        log.debug("AggregationGeneralRepositoryImpl countOperationByFieldWithGroupBy sql: {} params: {}", sqlResult, params);
+        log.debug("AggregationGeneralRepositoryImpl countOperationByFieldWithGroupBy sql: {} params: {}", sqlResult,
+                params);
         return jdbcTemplate.query(sqlResult, params.toArray(), new CountExtractor());
     }
 
@@ -72,7 +74,8 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
 
         String sqlResult = resultSql.toString();
-        log.debug("AggregationGeneralRepositoryImpl sumOperationByFieldWithGroupBy sql: {} params: {}", sqlResult, params);
+        log.debug("AggregationGeneralRepositoryImpl sumOperationByFieldWithGroupBy sql: {} params: {}", sqlResult,
+                params);
         return jdbcTemplate.query(sqlResult, params.toArray(), new SumExtractor());
     }
 
@@ -108,7 +111,8 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
         List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, status);
         String sqlResult = resultSql.toString();
-        log.debug("AggregationGeneralRepositoryImpl uniqCountOperationWithGroupBy sql: {} params: {}", sqlResult, params);
+        log.debug("AggregationGeneralRepositoryImpl uniqCountOperationWithGroupBy sql: {} params: {}", sqlResult,
+                params);
         return jdbcTemplate.query(sqlResult, params.toArray(), new CountExtractor());
     }
 

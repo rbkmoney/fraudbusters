@@ -15,7 +15,7 @@ import com.rbkmoney.fraudbusters.fraud.payment.aggregator.CountAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.UniqueValueAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.PaymentModelFieldResolver;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
@@ -42,11 +42,13 @@ import org.springframework.context.annotation.Configuration;
 public class PaymentFraudoConfig {
 
     @Bean
-    public CountPaymentAggregator<PaymentModel, PaymentCheckedField> countAggregator(PaymentRepository fraudResultRepository,
-                                                                                     RefundRepository refundRepository,
-                                                                                     ChargebackRepository chargebackRepository,
-                                                                                     DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new CountAggregatorImpl(dbPaymentFieldResolver, fraudResultRepository, refundRepository, chargebackRepository);
+    public CountPaymentAggregator<PaymentModel, PaymentCheckedField> countAggregator(
+            PaymentRepository fraudResultRepository,
+            RefundRepository refundRepository,
+            ChargebackRepository chargebackRepository,
+            DatabasePaymentFieldResolver databasePaymentFieldResolver) {
+        return new CountAggregatorImpl(databasePaymentFieldResolver, fraudResultRepository, refundRepository,
+                chargebackRepository);
     }
 
     @Bean
@@ -56,18 +58,21 @@ public class PaymentFraudoConfig {
     }
 
     @Bean
-    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumAggregator(PaymentRepository fraudResultRepository,
-                                                                                 RefundRepository refundRepository,
-                                                                                 ChargebackRepository chargebackRepository,
-                                                                                 DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new SumAggregatorImpl(dbPaymentFieldResolver, fraudResultRepository, refundRepository, chargebackRepository);
+    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumAggregator(
+            PaymentRepository fraudResultRepository,
+            RefundRepository refundRepository,
+            ChargebackRepository chargebackRepository,
+            DatabasePaymentFieldResolver databasePaymentFieldResolver) {
+        return new SumAggregatorImpl(databasePaymentFieldResolver, fraudResultRepository, refundRepository,
+                chargebackRepository);
     }
 
 
     @Bean
-    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueAggregator(PaymentRepository fraudResultRepository,
-                                                                                          DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new UniqueValueAggregatorImpl(dbPaymentFieldResolver, fraudResultRepository);
+    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueAggregator(
+            PaymentRepository fraudResultRepository,
+            DatabasePaymentFieldResolver databasePaymentFieldResolver) {
+        return new UniqueValueAggregatorImpl(databasePaymentFieldResolver, fraudResultRepository);
     }
 
     @Bean
@@ -110,28 +115,39 @@ public class PaymentFraudoConfig {
             PaymentRepository paymentRepositoryImpl,
             RefundRepository refundRepository,
             ChargebackRepository chargebackRepository,
-            DBPaymentFieldResolver dbPaymentFieldResolver) {
-        CountAggregatorImpl countAggregatorDecorator = new CountAggregatorImpl(dbPaymentFieldResolver, paymentRepositoryImpl,
+            DatabasePaymentFieldResolver databasePaymentFieldResolver) {
+        CountAggregatorImpl countAggregatorDecorator = new CountAggregatorImpl(databasePaymentFieldResolver,
+                paymentRepositoryImpl,
                 refundRepository, chargebackRepository);
-        return new LocalCountAggregatorDecorator(countAggregatorDecorator, dbPaymentFieldResolver, localResultStorageRepository);
+        return new LocalCountAggregatorDecorator(countAggregatorDecorator, databasePaymentFieldResolver,
+                localResultStorageRepository);
     }
 
     @Bean
-    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumResultAggregator(LocalResultStorageRepository localResultStorageRepository,
-                                                                                       PaymentRepository paymentRepositoryImpl,
-                                                                                       RefundRepository refundRepository,
-                                                                                       ChargebackRepository chargebackRepository,
-                                                                                       DBPaymentFieldResolver dbPaymentFieldResolver) {
-        SumAggregatorImpl sumAggregator = new SumAggregatorImpl(dbPaymentFieldResolver, paymentRepositoryImpl, refundRepository, chargebackRepository);
-        return new LocalSumAggregatorDecorator(sumAggregator, dbPaymentFieldResolver, localResultStorageRepository);
+    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumResultAggregator(
+            LocalResultStorageRepository localResultStorageRepository,
+            PaymentRepository paymentRepositoryImpl,
+            RefundRepository refundRepository,
+            ChargebackRepository chargebackRepository,
+            DatabasePaymentFieldResolver databasePaymentFieldResolver) {
+        SumAggregatorImpl sumAggregator = new SumAggregatorImpl(databasePaymentFieldResolver, paymentRepositoryImpl,
+                refundRepository, chargebackRepository);
+        return new LocalSumAggregatorDecorator(
+                sumAggregator,
+                databasePaymentFieldResolver,
+                localResultStorageRepository
+        );
     }
 
     @Bean
-    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueResultAggregator(LocalResultStorageRepository localResultStorageRepository,
-                                                                                                PaymentRepository fraudResultRepository,
-                                                                                                DBPaymentFieldResolver dbPaymentFieldResolver) {
-        UniqueValueAggregatorImpl uniqueValueAggregator = new UniqueValueAggregatorImpl(dbPaymentFieldResolver, fraudResultRepository);
-        return new LocalUniqueValueAggregatorDecorator(uniqueValueAggregator, dbPaymentFieldResolver, localResultStorageRepository);
+    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> uniqueValueResultAggregator(
+            LocalResultStorageRepository localResultStorageRepository,
+            PaymentRepository fraudResultRepository,
+            DatabasePaymentFieldResolver databasePaymentFieldResolver) {
+        UniqueValueAggregatorImpl uniqueValueAggregator = new UniqueValueAggregatorImpl(databasePaymentFieldResolver,
+                fraudResultRepository);
+        return new LocalUniqueValueAggregatorDecorator(uniqueValueAggregator, databasePaymentFieldResolver,
+                localResultStorageRepository);
     }
 
 

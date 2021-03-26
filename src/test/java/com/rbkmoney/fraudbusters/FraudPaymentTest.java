@@ -37,7 +37,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @ActiveProfiles("full-prod")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = {"kafka.listen.result.concurrency=1"})
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
+        properties = {"kafka.listen.result.concurrency=1"})
 @ContextConfiguration(initializers = FraudPaymentTest.Initializer.class)
 public class FraudPaymentTest extends IntegrationTest {
 
@@ -54,7 +55,8 @@ public class FraudPaymentTest extends IntegrationTest {
     public static EmbeddedKafkaRule kafka = createKafka();
 
     @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+    public static ClickHouseContainer clickHouseContainer =
+            new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Override
     protected String getBrokersAsString() {
@@ -106,7 +108,9 @@ public class FraudPaymentTest extends IntegrationTest {
         Assert.assertEquals(EMAIL, maps.get(0).get("email"));
     }
 
-    private void insertWithTimeout(PaymentServiceSrv.Iface client, List<com.rbkmoney.damsel.fraudbusters.Payment> payments) throws TException, InterruptedException {
+    @SneakyThrows
+    private void insertWithTimeout(
+            PaymentServiceSrv.Iface client, List<com.rbkmoney.damsel.fraudbusters.Payment> payments) {
         client.insertPayments(payments);
         Thread.sleep(TIMEOUT * 10);
     }

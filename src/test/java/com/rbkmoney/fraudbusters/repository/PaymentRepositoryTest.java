@@ -8,7 +8,7 @@ import com.rbkmoney.fraudbusters.converter.FraudResultToEventConverter;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
 import lombok.SneakyThrows;
@@ -31,7 +31,10 @@ import org.testcontainers.containers.ClickHouseContainer;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
+import static com.rbkmoney.fraudbusters.util.BeanUtil.AMOUNT_FIRST;
+import static com.rbkmoney.fraudbusters.util.BeanUtil.EMAIL;
+import static com.rbkmoney.fraudbusters.util.BeanUtil.SUFIX;
+import static com.rbkmoney.fraudbusters.util.BeanUtil.createFraudModelSecond;
 import static org.junit.Assert.assertEquals;
 
 @Slf4j
@@ -39,26 +42,88 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = {PaymentRepositoryImpl.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
-        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class}, initializers = PaymentRepositoryTest.Initializer.class)
+        DatabasePaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class}, initializers =
+        PaymentRepositoryTest.Initializer.class)
 public class PaymentRepositoryTest {
 
     public static final long FROM = 1588761200000L;
     public static final long TO = 1588761209000L;
 
     @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
+    public static ClickHouseContainer clickHouseContainer =
+            new ClickHouseContainer("yandex/clickhouse-server:19.17");
+    @Autowired
+    DatabasePaymentFieldResolver databasePaymentFieldResolver;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+    @MockBean
+    GeoIpServiceSrv.Iface iface;
     @Autowired
     private PaymentRepository paymentRepository;
 
-    @Autowired
-    DBPaymentFieldResolver DBPaymentFieldResolver;
+    @Test
+    public void countOperationByEmailTest() throws SQLException {
+        int count = paymentRepository.countOperationByField(EventField.email.name(), EMAIL, FROM, TO);
+        assertEquals(1, count);
+    }
 
-    @Autowired
-    JdbcTemplate jdbcTemplate;
+    @Test
+    public void countOperationByEmailTestWithGroupBy() throws SQLException {
+        PaymentModel paymentModel = createFraudModelSecond();
 
-    @MockBean
-    GeoIpServiceSrv.Iface iface;
+        FieldModel email = databasePaymentFieldResolver.resolve(PaymentCheckedField.EMAIL, paymentModel);
+        int count = paymentRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(),
+                1588761200000L, 1588761209000L, List.of());
+        assertEquals(2, count);
+
+        FieldModel resolve = databasePaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
+        count = paymentRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(),
+                1588761200000L, 1588761209000L, List.of(resolve));
+        assertEquals(1, count);
+
+        count = paymentRepository.countOperationSuccessWithGroupBy(EventField.email.name(), email.getValue(),
+                1588761200000L, 1588761209000L, List.of(resolve));
+        assertEquals(1, count);
+
+        count = paymentRepository.countOperationErrorWithGroupBy(EventField.email.name(), email.getValue(),
+                1588761200000L, 1588761209000L, List.of(resolve), "");
+        assertEquals(0, count);
+    }
+
+    @Test
+    public void sumOperationByEmailTest() throws SQLException {
+        Long sum = paymentRepository.sumOperationByFieldWithGroupBy(EventField.email.name(), EMAIL, FROM, TO,
+                List.of());
+        assertEquals(AMOUNT_FIRST, sum);
+
+        sum = paymentRepository.sumOperationSuccessWithGroupBy(EventField.email.name(), EMAIL, FROM, TO, List.of());
+        assertEquals(AMOUNT_FIRST, sum);
+
+        sum = paymentRepository.sumOperationErrorWithGroupBy(
+                EventField.email.name(), EMAIL, FROM, TO, List.of(), ""
+        );
+        assertEquals(0L, sum.longValue());
+    }
+
+    @Test
+    public void countUniqOperationTest() {
+        Integer sum = paymentRepository.uniqCountOperation(EventField.email.name(), EMAIL + SUFIX,
+                EventField.fingerprint.name(), FROM, TO);
+        assertEquals(Integer.valueOf(2), sum);
+    }
+
+    @Test
+    public void countUniqOperationWithGroupByTest() {
+        PaymentModel paymentModel = createFraudModelSecond();
+        Integer sum = paymentRepository.uniqCountOperationWithGroupBy(EventField.email.name(), EMAIL + SUFIX,
+                EventField.fingerprint.name(), FROM, TO, List.of());
+        assertEquals(Integer.valueOf(2), sum);
+
+        FieldModel resolve = databasePaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
+        sum = paymentRepository.uniqCountOperationWithGroupBy(EventField.email.name(), EMAIL + SUFIX,
+                EventField.fingerprint.name(), FROM, TO, List.of(resolve));
+        assertEquals(Integer.valueOf(1), sum);
+    }
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @SneakyThrows
@@ -79,67 +144,6 @@ public class PaymentRepositoryTest {
                     "sql/V7__add_fields.sql",
                     "sql/data/inserts_event_sink.sql"));
         }
-    }
-
-    @Test
-    public void countOperationByEmailTest() throws SQLException {
-        int count = paymentRepository.countOperationByField(EventField.email.name(), EMAIL, FROM, TO);
-        assertEquals(1, count);
-    }
-
-    @Test
-    public void countOperationByEmailTestWithGroupBy() throws SQLException {
-        PaymentModel paymentModel = createFraudModelSecond();
-
-        FieldModel email = DBPaymentFieldResolver.resolve(PaymentCheckedField.EMAIL, paymentModel);
-        int count = paymentRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(),
-                1588761200000L, 1588761209000L, List.of());
-        assertEquals(2, count);
-
-        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
-        count = paymentRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(),
-                1588761200000L, 1588761209000L, List.of(resolve));
-        assertEquals(1, count);
-
-        count = paymentRepository.countOperationSuccessWithGroupBy(EventField.email.name(), email.getValue(),
-                1588761200000L, 1588761209000L, List.of(resolve));
-        assertEquals(1, count);
-
-        count = paymentRepository.countOperationErrorWithGroupBy(EventField.email.name(), email.getValue(),
-                1588761200000L, 1588761209000L, List.of(resolve), "");
-        assertEquals(0, count);
-    }
-
-    @Test
-    public void sumOperationByEmailTest() throws SQLException {
-        Long sum = paymentRepository.sumOperationByFieldWithGroupBy(EventField.email.name(), EMAIL, FROM, TO, List.of());
-        assertEquals(AMOUNT_FIRST, sum);
-
-        sum = paymentRepository.sumOperationSuccessWithGroupBy(EventField.email.name(), EMAIL, FROM, TO, List.of());
-        assertEquals(AMOUNT_FIRST, sum);
-
-        sum = paymentRepository.sumOperationErrorWithGroupBy(EventField.email.name(), EMAIL, FROM, TO, List.of(), "");
-        assertEquals(0L, sum.longValue());
-    }
-
-    @Test
-    public void countUniqOperationTest() {
-        Integer sum = paymentRepository.uniqCountOperation(EventField.email.name(), EMAIL + SUFIX,
-                EventField.fingerprint.name(), FROM, TO);
-        assertEquals(Integer.valueOf(2), sum);
-    }
-
-    @Test
-    public void countUniqOperationWithGroupByTest() {
-        PaymentModel paymentModel = createFraudModelSecond();
-        Integer sum = paymentRepository.uniqCountOperationWithGroupBy(EventField.email.name(), EMAIL + SUFIX,
-                EventField.fingerprint.name(), FROM, TO, List.of());
-        assertEquals(Integer.valueOf(2), sum);
-
-        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
-        sum = paymentRepository.uniqCountOperationWithGroupBy(EventField.email.name(), EMAIL + SUFIX,
-                EventField.fingerprint.name(), FROM, TO, List.of(resolve));
-        assertEquals(Integer.valueOf(1), sum);
     }
 
 }

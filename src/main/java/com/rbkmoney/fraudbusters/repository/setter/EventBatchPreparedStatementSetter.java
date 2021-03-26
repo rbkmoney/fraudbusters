@@ -12,8 +12,10 @@ import java.util.List;
 public class EventBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
     public static final String INSERT = "INSERT INTO fraud.events_unique " +
-            " (timestamp, eventTimeHour, eventTime, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount, " +
-            "country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName, cardToken, paymentId, checkedTemplate," +
+            " (timestamp, eventTimeHour, eventTime, ip, email, bin, fingerprint, shopId, partyId, resultStatus, " +
+            "amount, " +
+            "country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName, cardToken, paymentId, " +
+            "checkedTemplate," +
             "payerType, tokenProvider, mobile, recurrent)" +
             " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 

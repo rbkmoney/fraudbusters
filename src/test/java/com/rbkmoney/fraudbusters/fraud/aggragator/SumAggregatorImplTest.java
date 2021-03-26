@@ -4,7 +4,7 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.SumAggregatorImpl;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 
 public class SumAggregatorImplTest {
 
+    SumAggregatorImpl sumAggregator;
     @Mock
     private PaymentRepository paymentRepository;
     @Mock
@@ -26,22 +27,28 @@ public class SumAggregatorImplTest {
     @Mock
     private AggregationRepository analyticsChargebackRepository;
     @Mock
-    private DBPaymentFieldResolver DBPaymentFieldResolver;
-
+    private DatabasePaymentFieldResolver databasePaymentFieldResolver;
     private FieldModel modelMock = new FieldModel("name", "value");
-
-    SumAggregatorImpl sumAggregator;
 
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
 
-        when(DBPaymentFieldResolver.resolve(any(), any())).thenReturn(modelMock);
-        when(paymentRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
-        when(paymentRepository.sumOperationSuccessWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
-        when(paymentRepository.sumOperationErrorWithGroupBy(any(), any(), any(), any(), any(), any())).thenReturn(1050100L);
+        when(databasePaymentFieldResolver.resolve(any(), any()))
+                .thenReturn(modelMock);
+        when(paymentRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any()))
+                .thenReturn(1050100L);
+        when(paymentRepository.sumOperationSuccessWithGroupBy(any(), any(), any(), any(), any()))
+                .thenReturn(1050100L);
+        when(paymentRepository.sumOperationErrorWithGroupBy(any(), any(), any(), any(), any(), any()))
+                .thenReturn(1050100L);
 
-        sumAggregator = new SumAggregatorImpl(DBPaymentFieldResolver, paymentRepository, analyticsRefundRepository, analyticsChargebackRepository);
+        sumAggregator = new SumAggregatorImpl(
+                databasePaymentFieldResolver,
+                paymentRepository,
+                analyticsRefundRepository,
+                analyticsChargebackRepository
+        );
     }
 
     @Test

@@ -24,13 +24,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EventP2PRepository implements Repository<EventP2P>, AggregationRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final AggregationGeneralRepository aggregationGeneralRepository;
-
     private static final String INSERT = "INSERT INTO fraud.events_p_to_p " +
             "(timestamp, eventTime, eventTimeHour, identityId, transferId, ip, email, bin, fingerprint, amount, " +
-            "currency, country, bankCountry, maskedPan, bankName, cardTokenFrom, cardTokenTo, resultStatus, checkedRule, " +
+            "currency, country, bankCountry, maskedPan, bankName, cardTokenFrom, cardTokenTo, resultStatus, " +
+            "checkedRule, " +
             "checkedTemplate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private final JdbcTemplate jdbcTemplate;
+    private final AggregationGeneralRepository aggregationGeneralRepository;
 
     @Override
     public void insert(EventP2P value) {
@@ -55,21 +55,25 @@ public class EventP2PRepository implements Repository<EventP2P>, AggregationRepo
     }
 
     public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
-        return aggregationGeneralRepository.countOperationByField(EventSource.FRAUD_EVENTS_P_TO_P.getTable(), fieldName, value, from, to);
+        return aggregationGeneralRepository.countOperationByField(EventSource.FRAUD_EVENTS_P_TO_P.getTable(),
+                fieldName, value, from, to);
     }
 
-    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                                    List<FieldModel> fieldModels) {
         return aggregationGeneralRepository.countOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_P_TO_P.getTable(),
                 fieldName, value, from, to, fieldModels);
     }
 
-    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to,
+                                               List<FieldModel> fieldModels) {
         return aggregationGeneralRepository.sumOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_P_TO_P.getTable(),
                 fieldName, value, from, to, fieldModels);
     }
 
     public Integer uniqCountOperation(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to) {
-        return aggregationGeneralRepository.uniqCountOperation(EventSource.FRAUD_EVENTS_P_TO_P.getTable(), fieldNameBy, value, fieldNameCount, from, to);
+        return aggregationGeneralRepository.uniqCountOperation(EventSource.FRAUD_EVENTS_P_TO_P.getTable(),
+                fieldNameBy, value, fieldNameCount, from, to);
     }
 
     public Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from,

@@ -51,51 +51,25 @@ public class PreLoadTest extends IntegrationTest {
     private static final String TEMPLATE = "rule: 12 >= 1\n" +
             " -> accept;";
     private static final String TEST = "test";
-
-    private InspectorProxySrv.Iface client;
-
-    @MockBean
-    ClickHouseDataSource clickHouseDataSource;
-
-    @Autowired
-    JdbcTemplate jdbcTemplate;
-
-    @MockBean
-    FraudResultRepository paymentRepository;
-
-    @LocalServerPort
-    int serverPort;
     @ClassRule
     public static EmbeddedKafkaRule kafka = createKafka();
-
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+    @MockBean
+    ClickHouseDataSource clickHouseDataSource;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+    @MockBean
+    FraudResultRepository paymentRepository;
+    @LocalServerPort
+    int serverPort;
+    private InspectorProxySrv.Iface client;
 
     @Override
     protected String getBrokersAsString() {
         return kafka.getEmbeddedKafka().getBrokersAsString();
     }
 
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
-            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
-                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
-                    "sql/V2__create_events_p2p.sql",
-                    "sql/V3__create_fraud_payments.sql",
-                    "sql/V4__create_payment.sql",
-                    "sql/V5__add_fields.sql",
-                    "sql/V6__add_result_fields_payment.sql",
-                    "sql/V7__add_fields.sql"));
-        }
-    }
     @Before
     public void init() throws ExecutionException, InterruptedException {
         produceTemplate(TEST, TEMPLATE, kafkaTopics.getFullTemplate());
@@ -118,6 +92,27 @@ public class PreLoadTest extends IntegrationTest {
         RiskScore riskScore = client.inspectPayment(context);
 
         Assert.assertEquals(RiskScore.low, riskScore);
+    }
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
+            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
+                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
+                    .applyTo(configurableApplicationContext.getEnvironment());
+            ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
+                    "sql/V2__create_events_p2p.sql",
+                    "sql/V3__create_fraud_payments.sql",
+                    "sql/V4__create_payment.sql",
+                    "sql/V5__add_fields.sql",
+                    "sql/V6__add_result_fields_payment.sql",
+                    "sql/V7__add_fields.sql"));
+        }
     }
 
 }
