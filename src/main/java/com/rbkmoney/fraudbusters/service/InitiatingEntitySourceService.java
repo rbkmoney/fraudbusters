@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class InitiatingEntitySourceService {
 
+    private final KafkaTemplate<String, ReferenceInfo> kafkaUnknownInitiatingEntityTemplate;
+
     @Value("${kafka.topic.unknown-initiating-entity}")
     private String topic;
-
-    private final KafkaTemplate<String, ReferenceInfo> kafkaUnknownInitiatingEntityTemplate;
 
     public void sendToSource(ReferenceInfo referenceInfo) {
         try {

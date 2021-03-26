@@ -10,6 +10,7 @@ import ru.yandex.clickhouse.settings.ClickHouseConnectionSettings;
 import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
 
 import javax.sql.DataSource;
+
 import java.util.Properties;
 
 @Configuration

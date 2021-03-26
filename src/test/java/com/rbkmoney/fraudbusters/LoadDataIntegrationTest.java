@@ -47,25 +47,29 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
-        properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true", "kafka.aggr.payment.min.bytes=1"})
+        properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true",
+                "kafka.aggr.payment.min.bytes=1"})
 @ContextConfiguration(initializers = LoadDataIntegrationTest.Initializer.class)
 public class LoadDataIntegrationTest extends IntegrationTest {
-
-    private static final String TEMPLATE =
-            "rule:TEMPLATE: " +
-                    "sum(\"card_token\", 1000, \"party_id\", \"shop_id\", \"mobile\") > 0 " +
-                    " and unique(\"email\", \"ip\", 1444, \"recurrent\") < 2 and isRecurrent() == false" +
-                    " and count(\"card_token\", 1000, \"party_id\", \"shop_id\") > 5  -> decline";
-
-    private static final String TEMPLATE_2 =
-            "rule:TEMPLATE: count(\"card_token\", 1000, \"party_id\", \"shop_id\") > 2  -> decline;";
-
-    private static final String TEMPLATE_CONCRETE =
-            "rule:TEMPLATE_CONCRETE: count(\"card_token\", 10) > 0  -> accept;";
 
     public static final String PAYMENT_1 = "payment_1";
     public static final String PAYMENT_2 = "payment_2";
     public static final String PAYMENT_0 = "payment_0";
+
+    private static final String TEMPLATE =
+            "rule:TEMPLATE: " +
+            "sum(\"card_token\", 1000, \"party_id\", \"shop_id\", \"mobile\") > 0 " +
+            " and unique(\"email\", \"ip\", 1444, \"recurrent\") < 2 and isRecurrent() == false" +
+            " and count(\"card_token\", 1000, \"party_id\", \"shop_id\") > 5  -> decline";
+    private static final String TEMPLATE_2 =
+            "rule:TEMPLATE: count(\"card_token\", 1000, \"party_id\", \"shop_id\") > 2  -> decline;";
+    private static final String TEMPLATE_CONCRETE =
+            "rule:TEMPLATE_CONCRETE: count(\"card_token\", 10) > 0  -> accept;";
+
+    @ClassRule
+    public static EmbeddedKafkaRule kafka = createKafka();
+    @ClassRule
+    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     private final String globalRef = UUID.randomUUID().toString();
 
@@ -74,37 +78,10 @@ public class LoadDataIntegrationTest extends IntegrationTest {
 
     @LocalServerPort
     int serverPort;
-    @ClassRule
-    public static EmbeddedKafkaRule kafka = createKafka();
-
-    @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Override
     protected String getBrokersAsString() {
         return kafka.getEmbeddedKafka().getBrokersAsString();
-    }
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
-            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
-                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
-                    "sql/V2__create_events_p2p.sql",
-                    "sql/V3__create_fraud_payments.sql",
-                    "sql/V4__create_payment.sql",
-                    "sql/V5__add_fields.sql",
-                    "sql/V6__add_result_fields_payment.sql",
-                    "sql/V7__add_fields.sql",
-                    "sql/V8__create_withdrawal.sql"));
-        }
     }
 
     @Before
@@ -118,7 +95,7 @@ public class LoadDataIntegrationTest extends IntegrationTest {
     @Test
     @SneakyThrows
     public void testLoadData() {
-        String oldTime = String.valueOf(LocalDateTime.now());
+        final String oldTime = String.valueOf(LocalDateTime.now());
         produceTemplate(globalRef, TEMPLATE_2, kafkaTopics.getFullTemplate());
         Thread.sleep(TIMEOUT);
 
@@ -152,25 +129,32 @@ public class LoadDataIntegrationTest extends IntegrationTest {
         checkPayment(PAYMENT_2, ResultStatus.ACCEPT, 1);
 
         //Chargeback
-        client.insertChargebacks(List.of(createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.accepted),
-                createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.cancelled)));
+        client.insertChargebacks(List.of(
+                createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.accepted),
+                createChargeback(com.rbkmoney.damsel.fraudbusters.ChargebackStatus.cancelled)
+        ));
         Thread.sleep(TIMEOUT);
 
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_CHARGEBACK.getTable());
+        List<Map<String, Object>> maps =
+                jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_CHARGEBACK.getTable());
         assertEquals(2, maps.size());
 
         //Refund
-        client.insertRefunds(List.of(createRefund(com.rbkmoney.damsel.fraudbusters.RefundStatus.succeeded),
-                createRefund(com.rbkmoney.damsel.fraudbusters.RefundStatus.failed)));
+        client.insertRefunds(List.of(
+                createRefund(com.rbkmoney.damsel.fraudbusters.RefundStatus.succeeded),
+                createRefund(com.rbkmoney.damsel.fraudbusters.RefundStatus.failed)
+        ));
         Thread.sleep(TIMEOUT);
 
         maps = jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_REFUND.getTable());
         assertEquals(2, maps.size());
 
         //Withdrawal
-        client.insertWithdrawals(List.of(createChargeback(WithdrawalStatus.pending),
+        client.insertWithdrawals(List.of(
+                createChargeback(WithdrawalStatus.pending),
                 createChargeback(WithdrawalStatus.failed),
-                createChargeback(WithdrawalStatus.succeeded)));
+                createChargeback(WithdrawalStatus.succeeded)
+        ));
 
         Thread.sleep(TIMEOUT);
 
@@ -179,31 +163,72 @@ public class LoadDataIntegrationTest extends IntegrationTest {
     }
 
     private void checkInsertingBatch(PaymentServiceSrv.Iface client) throws TException, InterruptedException {
-        insertWithTimeout(client, List.of(createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed), createPayment(PaymentStatus.processed)));
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_PAYMENT.getTable());
+        insertWithTimeout(
+                client,
+                List.of(createPayment(PaymentStatus.processed),
+                        createPayment(PaymentStatus.processed),
+                        createPayment(PaymentStatus.processed),
+                        createPayment(PaymentStatus.processed),
+                        createPayment(PaymentStatus.processed)
+                )
+        );
+        List<Map<String, Object>> maps =
+                jdbcTemplate.queryForList("SELECT * from " + EventSource.FRAUD_EVENTS_PAYMENT.getTable());
         assertEquals(5, maps.size());
         assertEquals("email", maps.get(0).get("email"));
         Thread.sleep(TIMEOUT);
     }
 
-    private void insertWithTimeout(PaymentServiceSrv.Iface client, Payment payment) throws TException, InterruptedException {
+    private void insertWithTimeout(PaymentServiceSrv.Iface client, Payment payment)
+            throws TException, InterruptedException {
         insertWithTimeout(client, List.of(payment));
     }
 
-    private void insertWithTimeout(PaymentServiceSrv.Iface client, List<Payment> payments) throws TException, InterruptedException {
+    private void insertWithTimeout(PaymentServiceSrv.Iface client, List<Payment> payments)
+            throws TException, InterruptedException {
         client.insertPayments(payments);
         Thread.sleep(TIMEOUT * 5);
     }
 
     private void checkPayment(String payment1, ResultStatus status, int expectedCount) {
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList(String.format("SELECT * from fraud.payment where id='%s'", payment1));
+        List<Map<String, Object>> maps =
+                jdbcTemplate.queryForList(String.format("SELECT * from fraud.payment where id='%s'", payment1));
         log.info("SELECT : {}", maps);
         assertEquals(expectedCount, maps.size());
         assertEquals(status.name(), maps.get(0).get("resultStatus"));
     }
 
-    private void insertListDefaultPayments(PaymentServiceSrv.Iface client, PaymentStatus processed, PaymentStatus processed2) throws TException, InterruptedException {
+    private void insertListDefaultPayments(
+            PaymentServiceSrv.Iface client,
+            PaymentStatus processed,
+            PaymentStatus processed2) throws TException, InterruptedException {
         insertWithTimeout(client, List.of(createPayment(processed), createPayment(processed2)));
+    }
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
+            TestPropertyValues.of(
+                    "clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
+                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString()
+            )
+                    .applyTo(configurableApplicationContext.getEnvironment());
+            ChInitializer.initAllScripts(clickHouseContainer, List.of(
+                    "sql/db_init.sql",
+                    "sql/V2__create_events_p2p.sql",
+                    "sql/V3__create_fraud_payments.sql",
+                    "sql/V4__create_payment.sql",
+                    "sql/V5__add_fields.sql",
+                    "sql/V6__add_result_fields_payment.sql",
+                    "sql/V7__add_fields.sql",
+                    "sql/V8__create_withdrawal.sql"
+            ));
+        }
     }
 
 }

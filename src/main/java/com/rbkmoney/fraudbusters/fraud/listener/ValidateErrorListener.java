@@ -14,8 +14,13 @@ public class ValidateErrorListener extends BaseErrorListener {
     private final List<String> errors = new ArrayList<>();
 
     @Override
-    public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
-                            int charPositionInLine, String msg, RecognitionException e) {
+    public void syntaxError(
+            Recognizer<?, ?> recognizer,
+            Object offendingSymbol,
+            int line,
+            int charPositionInLine,
+            String msg,
+            RecognitionException e) {
         errors.add(String.format("line: %s  due to %s", line, msg));
     }
 

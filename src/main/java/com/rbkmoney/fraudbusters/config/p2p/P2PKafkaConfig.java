@@ -38,7 +38,9 @@ public class P2PKafkaConfig {
 
     @Bean
     public ConsumerFactory<String, Command> groupReferenceP2PListenerFactory() {
-        return listenersConfigurationService.createDefaultConsumerFactory(GroupPostfix.GROUP_P2P_LIST_REFERENCE_GROUP_ID);
+        return listenersConfigurationService.createDefaultConsumerFactory(
+                GroupPostfix.GROUP_P2P_LIST_REFERENCE_GROUP_ID
+        );
     }
 
     @Bean
@@ -67,6 +69,8 @@ public class P2PKafkaConfig {
 
     @Bean
     public KafkaTemplate<String, ScoresResult<P2PModel>> p2PModelKafkaTemplate() {
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerJsonConfigs()));
+        return new KafkaTemplate<>(
+                new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerJsonConfigs())
+        );
     }
 }

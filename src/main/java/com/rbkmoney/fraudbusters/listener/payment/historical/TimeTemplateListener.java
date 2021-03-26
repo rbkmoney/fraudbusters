@@ -31,7 +31,7 @@ public class TimeTemplateListener extends AbstractTimePoolCommandListenerExecuto
     private final HistoricalPool<ParserRuleContext> timeTemplateTimePoolImpl;
 
     @Override
-    @KafkaListener(autoStartup = "${kafka.historical.listener.enable}",topics = "${kafka.topic.full-template}",
+    @KafkaListener(autoStartup = "${kafka.historical.listener.enable}", topics = "${kafka.topic.full-template}",
             containerFactory = "timeTemplateListenerContainerFactory")
     public void listen(@Payload Command command) {
         log.info("TimeTemplateListener command: {}", command);
@@ -43,7 +43,14 @@ public class TimeTemplateListener extends AbstractTimePoolCommandListenerExecuto
                 validateTemplate(template.getId(), templateString);
             }
             Long timestamp = TimestampUtil.parseInstantFromString(command.getCommandTime()).toEpochMilli();
-            execCommand(command, template.getId(), timestamp, timeTemplateTimePoolImpl, paymentContextParser::parse, templateString);
+            execCommand(
+                    command,
+                    template.getId(),
+                    timestamp,
+                    timeTemplateTimePoolImpl,
+                    paymentContextParser::parse,
+                    templateString
+            );
         }
     }
 

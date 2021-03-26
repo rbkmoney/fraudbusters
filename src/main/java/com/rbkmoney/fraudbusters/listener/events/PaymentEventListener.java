@@ -40,11 +40,18 @@ public class PaymentEventListener {
     @Value("${result.full.check.enabled:true}")
     private boolean isEnabledFullCheck;
 
-    @KafkaListener(topics = "${kafka.topic.event.sink.payment}", containerFactory = "kafkaPaymentResultListenerContainerFactory")
-    public void listen(List<Payment> payments, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
-                       @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
+    @KafkaListener(topics = "${kafka.topic.event.sink.payment}",
+            containerFactory = "kafkaPaymentResultListenerContainerFactory")
+    public void listen(
+            List<Payment> payments, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
+            @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {
-            log.info("PaymentEventListener listen result size: {} partition: {} offset: {}", payments.size(), partition, offset);
+            log.info(
+                    "PaymentEventListener listen result size: {} partition: {} offset: {}",
+                    payments.size(),
+                    partition,
+                    offset
+            );
             log.debug("PaymentEventListener listen result payments: {}", payments);
             repository.insertBatch(
                     payments.stream()
@@ -62,7 +69,8 @@ public class PaymentEventListener {
     private CheckedPayment mapAndCheckResults(Payment payment) {
         CheckedPayment checkedPayment = paymentToCheckedPaymentConverter.convert(payment);
         if (isEnabledFullCheck && PaymentStatus.processed.name().equals(checkedPayment.getPaymentStatus())) {
-            List<CheckedResultModel> listResults = fullTemplateVisitor.visit(paymentToPaymentModelConverter.convert(payment));
+            List<CheckedResultModel> listResults =
+                    fullTemplateVisitor.visit(paymentToPaymentModelConverter.convert(payment));
             Optional<CheckedResultModel> first = listResults.stream()
                     .filter(checkedResultModel -> checkedResultModel.getCheckedTemplate() != null)
                     .findFirst();

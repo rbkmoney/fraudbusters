@@ -13,9 +13,9 @@ import java.util.List;
 
 public class GroupListenerTest {
 
-    private static final String GROUP_1 = "group_1";
     public static final String FIRST_TEMPL = "first_templ";
     public static final String SECOND_TEMPL = "second_templ";
+    private static final String GROUP_1 = "group_1";
     private Pool<List<String>> groupPoolImpl;
     private GroupListener groupListener;
 
@@ -41,7 +41,8 @@ public class GroupListenerTest {
                         .setId(SECOND_TEMPL),
                 new PriorityId()
                         .setId(FIRST_TEMPL)
-                        .setPriority(1L))));
+                        .setPriority(1L)
+        )));
 
         List<String> templateIds = groupPoolImpl.get(GROUP_1);
         Assert.assertFalse(templateIds.isEmpty());

@@ -20,7 +20,8 @@ public class StreamManager {
     private final Properties rewriteStreamProperties;
 
     public void createStream(String fromTopic, String toTopic, String clientId) {
-        KafkaStreams kafkaStreams = fullToCompactStreamFactory.create(fromTopic, toTopic, clientId, rewriteStreamProperties);
+        KafkaStreams kafkaStreams =
+                fullToCompactStreamFactory.create(fromTopic, toTopic, clientId, rewriteStreamProperties);
         kafkaStreams.start();
         log.info("Start stream kafkaStreams: {}", kafkaStreams.allMetadata());
         kafkaStreamsStorage.add(kafkaStreams);

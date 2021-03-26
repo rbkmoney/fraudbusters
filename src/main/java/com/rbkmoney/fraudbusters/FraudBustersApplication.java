@@ -7,7 +7,6 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.stream.StreamManager;
 import com.rbkmoney.fraudo.p2p.visitor.impl.FirstFindP2PVisitorImpl;
 import com.rbkmoney.fraudo.payment.visitor.impl.FirstFindVisitorImpl;
-import com.rbkmoney.fraudo.payment.visitor.impl.FullVisitorImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;

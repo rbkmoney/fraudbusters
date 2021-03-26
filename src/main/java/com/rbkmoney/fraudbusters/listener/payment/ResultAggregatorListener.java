@@ -31,11 +31,13 @@ public class ResultAggregatorListener {
     private final InitiatingEntitySourceService initiatingEntitySourceService;
 
     @KafkaListener(topics = "${kafka.topic.result}", containerFactory = "kafkaListenerContainerFactory")
-    public void listen(List<FraudResult> batch, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
-                       @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
+    public void listen(
+            List<FraudResult> batch, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
+            @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {
             log.info("ResultAggregatorListener listen result size: {} partition: {} offset: {}",
-                    batch.size(), partition, offset);
+                    batch.size(), partition, offset
+            );
             List<Event> events = fraudResultToEventConverter.convertBatch(batch);
             if (defaultTemplateProperties.isEnable()) {
                 events.stream()

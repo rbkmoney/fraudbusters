@@ -26,24 +26,37 @@ public class SumP2PAggregatorImpl implements SumAggregator<P2PModel, P2PCheckedF
     private final DbP2pFieldResolver dbPaymentFieldResolver;
 
     @Override
-    public Double sum(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
+    public Double sum(
+            P2PCheckedField checkedField,
+            P2PModel p2pModel,
+            TimeWindow timeWindow,
+            List<P2PCheckedField> list) {
         return getSum(checkedField, p2pModel, timeWindow, list, eventP2PRepository::sumOperationByFieldWithGroupBy);
     }
 
     @NotNull
     @BasicMetric(value = "getSumWindowed", extraTags = "p2p")
-    private Double getSum(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list,
-                          AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Long> aggregateFunction) {
+    private Double getSum(
+            P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list,
+            AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Long> aggregateFunction) {
         try {
             Instant now = Instant.now();
             FieldModel resolve = dbPaymentFieldResolver.resolve(checkedField, p2pModel);
             List<FieldModel> eventFields = dbPaymentFieldResolver.resolveListFields(p2pModel, list);
-            Long sum = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
+            Long sum = aggregateFunction.accept(
+                    resolve.getName(),
+                    resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()),
-                    eventFields);
+                    eventFields
+            );
             double resultSum = (double) checkedLong(sum) + checkedLong(p2pModel.getAmount());
-            log.debug("SumAggregatorImpl field: {} value: {}  sum: {}", resolve.getName(), resolve.getValue(), resultSum);
+            log.debug(
+                    "SumAggregatorImpl field: {} value: {}  sum: {}",
+                    resolve.getName(),
+                    resolve.getValue(),
+                    resultSum
+            );
             return resultSum;
         } catch (Exception e) {
             log.warn("SumAggregatorImpl error when getCount e: ", e);

@@ -23,7 +23,8 @@ public class FraudPaymentToRowConverter implements Converter<FraudPayment, Fraud
     @Override
     public FraudPaymentRow convert(FraudPayment fraudPayment) {
         LocalDateTime localDateTime = TimestampUtil.parseDate(fraudPayment.getEventTime());
-        CheckedPayment checkedPayment = paymentInfoService.findPaymentByIdAndTimestamp(localDateTime.toLocalDate(), fraudPayment.getId());
+        CheckedPayment checkedPayment =
+                paymentInfoService.findPaymentByIdAndTimestamp(localDateTime.toLocalDate(), fraudPayment.getId());
         if (checkedPayment == null) {
             log.warn("Can't find payment for fraudPayment: {}", fraudPayment);
             throw new UnknownFraudPaymentException();

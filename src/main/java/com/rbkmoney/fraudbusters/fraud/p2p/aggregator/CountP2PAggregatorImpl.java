@@ -28,24 +28,37 @@ public class CountP2PAggregatorImpl implements CountAggregator<P2PModel, P2PChec
 
     @Override
     @BasicMetric(value = "count", extraTags = "p2p")
-    public Integer count(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list) {
+    public Integer count(
+            P2PCheckedField checkedField,
+            P2PModel p2pModel,
+            TimeWindow timeWindow,
+            List<P2PCheckedField> list) {
         return getCount(checkedField, p2pModel, timeWindow, list, eventP2PRepository::countOperationByFieldWithGroupBy);
     }
 
     @NotNull
-    private Integer getCount(P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list,
-                             AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Integer> aggregateFunction) {
+    private Integer getCount(
+            P2PCheckedField checkedField, P2PModel p2pModel, TimeWindow timeWindow, List<P2PCheckedField> list,
+            AggregateGroupingFunction<String, Object, Long, Long, List<FieldModel>, Integer> aggregateFunction) {
         try {
             Instant now = Instant.now();
             FieldModel resolve = dbP2pFieldResolver.resolve(checkedField, p2pModel);
             List<FieldModel> eventFields = dbP2pFieldResolver.resolveListFields(p2pModel, list);
 
-            Integer count = aggregateFunction.accept(resolve.getName(), resolve.getValue(),
+            Integer count = aggregateFunction.accept(
+                    resolve.getName(),
+                    resolve.getValue(),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getStartWindowTime()),
                     TimestampUtil.generateTimestampMinusMinutesMillis(now, timeWindow.getEndWindowTime()),
-                    eventFields);
+                    eventFields
+            );
 
-            log.debug("CountAggregatorImpl field: {} value: {}  count: {}", resolve.getName(), resolve.getValue(), count);
+            log.debug(
+                    "CountAggregatorImpl field: {} value: {}  count: {}",
+                    resolve.getName(),
+                    resolve.getValue(),
+                    count
+            );
             return count + CURRENT_ONE;
         } catch (Exception e) {
             log.warn("CountAggregatorImpl error when getCount e: ", e);

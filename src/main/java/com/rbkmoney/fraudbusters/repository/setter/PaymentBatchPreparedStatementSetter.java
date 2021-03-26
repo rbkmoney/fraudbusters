@@ -12,15 +12,16 @@ import java.util.List;
 public class PaymentBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
     public static final String FIELDS = " timestamp, eventTimeHour, eventTime, " +
-            "id, " +
-            "email, ip, fingerprint, " +
-            "bin, maskedPan, cardToken, paymentSystem, paymentTool, " +
-            "terminal, providerId, bankCountry, " +
-            "partyId, shopId, " +
-            "amount, currency, " +
-            "status, errorCode, errorReason, " +
-            "payerType, tokenProvider, " +
-            "checkedTemplate, checkedRule, resultStatus, checkedResultsJson, mobile, recurrent";
+                                        "id, " +
+                                        "email, ip, fingerprint, " +
+                                        "bin, maskedPan, cardToken, paymentSystem, paymentTool, " +
+                                        "terminal, providerId, bankCountry, " +
+                                        "partyId, shopId, " +
+                                        "amount, currency, " +
+                                        "status, errorCode, errorReason, " +
+                                        "payerType, tokenProvider, " +
+                                        "checkedTemplate, checkedRule, resultStatus, checkedResultsJson, mobile, " +
+                                        "recurrent";
 
     public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 

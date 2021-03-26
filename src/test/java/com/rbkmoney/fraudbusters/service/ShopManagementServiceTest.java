@@ -36,19 +36,15 @@ public class ShopManagementServiceTest {
     public WireMockRule wireMockRule = new WireMockRule(8089);
 
     @MockBean
+    KafkaTemplate<String, ReferenceInfo> kafkaTemplate;
+    @MockBean
     private FraudResultRepository fraudResultRepository;
-
     @MockBean
     private JdbcTemplate jdbcTemplate;
-
     @Autowired
     private ShopManagementService shopManagementService;
-
     @Autowired
     private InitiatingEntitySourceService initiatingEntitySourceService;
-
-    @MockBean
-    KafkaTemplate<String, ReferenceInfo> kafkaTemplate;
 
     @Test
     public void testCreateDefaultReference() {

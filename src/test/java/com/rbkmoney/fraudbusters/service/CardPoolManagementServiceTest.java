@@ -57,7 +57,8 @@ class CardPoolManagementServiceTest {
 
         //check read from old file
         cardTokenPool.clear();
-        when(commonQueryRepository.selectFreshTrustedCardTokens(any())).thenReturn(new ArrayList<>(List.of("fake_token")));
+        when(commonQueryRepository.selectFreshTrustedCardTokens(any()))
+                .thenReturn(new ArrayList<>(List.of("fake_token")));
         cardPoolManagementService.updateTrustedTokens();
         assertTrue(cardTokenPool.isExist(testToken));
 

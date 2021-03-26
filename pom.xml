@@ -6,8 +6,8 @@
 
     <parent>
         <groupId>com.rbkmoney</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.7.RELEASE</version>
+        <artifactId>service-parent-pom</artifactId>
+        <version>1.0.9</version>
     </parent>
 
     <name>fraudbusters</name>
@@ -17,19 +17,13 @@
 
     <properties>
         <project.maintainer>Struzhkin Konstantin &lt;k.struzhkin@rbkmoney.com&gt;</project.maintainer>
-        <shared.resources.version>0.3.7</shared.resources.version>
         <server.port>8022</server.port>
         <exposed.ports>${server.port}</exposed.ports>
         <dockerfile.base.service.tag>57e26d8ee999d7b0b50248c22afc63e6f926d276</dockerfile.base.service.tag>
-
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <damsel.version>1.475-bde841f</damsel.version>
-        <woody.thrift.version>1.1.22</woody.thrift.version>
-        <geck.version>0.6.11</geck.version>
         <fraudo.version>0.0.22</fraudo.version>
         <wb.list.proto.version>1.33-554d59c</wb.list.proto.version>
-        <kafka.common.lib.version>0.1.4</kafka.common.lib.version>
         <clickhouse-jdbc.version>0.2.4</clickhouse-jdbc.version>
         <fraudbusters-proto.version>1.67-fa4d6ec</fraudbusters-proto.version>
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
@@ -94,12 +88,11 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>spring-boot-starter-metrics-statsd</artifactId>
-            <version>1.1.2</version>
+            <version>1.1.3</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney.logback</groupId>
             <artifactId>nop-rolling</artifactId>
-            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
@@ -109,27 +102,22 @@
         <dependency>
             <groupId>com.rbkmoney.geck</groupId>
             <artifactId>common</artifactId>
-            <version>${geck.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney.geck</groupId>
             <artifactId>serializer</artifactId>
-            <version>${geck.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>damsel</artifactId>
-            <version>${damsel.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney.woody</groupId>
             <artifactId>woody-thrift</artifactId>
-            <version>${woody.thrift.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>kafka-common-lib</artifactId>
-            <version>${kafka.common.lib.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
@@ -144,7 +132,6 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>custom-actuator-endpoints</artifactId>
-            <version>0.0.3</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
@@ -203,13 +190,13 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
-            <version>1.12.5</version>
+            <version>1.15.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>clickhouse</artifactId>
-            <version>1.12.5</version>
+            <version>1.15.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -278,7 +265,7 @@
                 </dependencies>
                 <configuration>
                     <resourceBundles>
-                        <resourceBundle>com.rbkmoney:shared-resources:${shared.resources.version}</resourceBundle>
+                        <resourceBundle>com.rbkmoney:shared-resources:${shared-resources.version}</resourceBundle>
                     </resourceBundles>
                     <attachToMain>false</attachToMain>
                     <attachToTest>false</attachToTest>

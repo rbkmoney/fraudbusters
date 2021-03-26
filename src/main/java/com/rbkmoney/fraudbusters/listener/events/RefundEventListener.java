@@ -19,11 +19,19 @@ public class RefundEventListener {
 
     private final Repository<Refund> repository;
 
-    @KafkaListener(topics = "${kafka.topic.event.sink.refund}", containerFactory = "kafkaRefundResultListenerContainerFactory")
-    public void listen(List<Refund> refunds, @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
-                       @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
+    @KafkaListener(topics = "${kafka.topic.event.sink.refund}",
+            containerFactory = "kafkaRefundResultListenerContainerFactory")
+    public void listen(
+            List<Refund> refunds,
+            @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
+            @Header(KafkaHeaders.OFFSET) Long offset) throws InterruptedException {
         try {
-            log.info("RefundEventListener listen result size: {} partition: {} offset: {}", refunds.size(), partition, offset);
+            log.info(
+                    "RefundEventListener listen result size: {} partition: {} offset: {}",
+                    refunds.size(),
+                    partition,
+                    offset
+            );
             repository.insertBatch(refunds);
         } catch (Exception e) {
             log.warn("Error when RefundEventListener listen e: ", e);

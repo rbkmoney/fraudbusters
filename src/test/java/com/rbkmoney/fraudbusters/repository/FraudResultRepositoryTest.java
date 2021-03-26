@@ -9,7 +9,7 @@ import com.rbkmoney.fraudbusters.domain.*;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
@@ -44,52 +44,37 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = {FraudResultToEventConverter.class, ClickhouseConfig.class,
-        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, FraudResultRepository.class},
+        DatabasePaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, FraudResultRepository.class},
         initializers = FraudResultRepositoryTest.Initializer.class)
 public class FraudResultRepositoryTest {
 
-    private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_unique";
+    private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE =
+            "SELECT count() as cnt from fraud.events_unique";
 
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
+    @Autowired
+    FraudResultToEventConverter fraudResultToEventConverter;
+    @Autowired
+    DatabasePaymentFieldResolver databasePaymentFieldResolver;
+    @MockBean
+    GeoIpServiceSrv.Iface iface;
     @Autowired
     private FraudResultRepository fraudResultRepository;
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    FraudResultToEventConverter fraudResultToEventConverter;
-
-    @Autowired
-    DBPaymentFieldResolver DBPaymentFieldResolver;
-
-    @MockBean
-    GeoIpServiceSrv.Iface iface;
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            TestPropertyValues
-                    .of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                            "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                            "clickhouse.db.password=" + clickHouseContainer.getPassword())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-        }
-    }
-
     @Before
     public void setUp() throws Exception {
-        ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
+        ChInitializer.initAllScripts(clickHouseContainer, List.of(
+                "sql/db_init.sql",
                 "sql/V2__create_events_p2p.sql",
                 "sql/V3__create_fraud_payments.sql",
                 "sql/V4__create_payment.sql",
                 "sql/V5__add_fields.sql",
                 "sql/V6__add_result_fields_payment.sql",
-                "sql/V7__add_fields.sql"));
+                "sql/V7__add_fields.sql"
+        ));
     }
 
     @Test
@@ -100,8 +85,10 @@ public class FraudResultRepositoryTest {
                         .collect(Collectors.toList())
         );
 
-        Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
-                (resultSet, i) -> resultSet.getInt("cnt"));
+        Integer count = jdbcTemplate.queryForObject(
+                SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
+                (resultSet, i) -> resultSet.getInt("cnt")
+        );
 
         assertEquals(2, count.intValue());
     }
@@ -117,7 +104,7 @@ public class FraudResultRepositoryTest {
     private FraudResult createFraudResult(ResultStatus decline, PaymentModel paymentModel) {
         FraudResult value2 = new FraudResult();
         CheckedResultModel resultModel = new CheckedResultModel();
-        resultModel.setResultModel(new ConcreteResultModel(decline, "test",null));
+        resultModel.setResultModel(new ConcreteResultModel(decline, "test", null));
         resultModel.setCheckedTemplate("RULE");
 
         value2.setResultModel(resultModel);
@@ -150,7 +137,8 @@ public class FraudResultRepositoryTest {
                         createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel()),
                         createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond()),
                         createFraudResult(ResultStatus.ACCEPT, paymentModel),
-                        createFraudResult(ResultStatus.DECLINE, paymentModel))
+                        createFraudResult(ResultStatus.DECLINE, paymentModel)
+                        )
                 )
         );
 
@@ -158,18 +146,38 @@ public class FraudResultRepositoryTest {
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
 
-        FieldModel email = DBPaymentFieldResolver.resolve(PaymentCheckedField.EMAIL, paymentModel);
-        int count = fraudResultRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of());
+        FieldModel email = databasePaymentFieldResolver.resolve(PaymentCheckedField.EMAIL, paymentModel);
+        int count = fraudResultRepository.countOperationByFieldWithGroupBy(EventField.email.name(),
+                email.getValue(),
+                from,
+                to,
+                List.of()
+        );
         assertEquals(3, count);
 
-        count = fraudResultRepository.countOperationSuccessWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of());
+        count = fraudResultRepository.countOperationSuccessWithGroupBy(EventField.email.name(),
+                email.getValue(),
+                from,
+                to,
+                List.of()
+        );
         assertEquals(1, count);
 
-        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
-        count = fraudResultRepository.countOperationByFieldWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of(resolve));
+        FieldModel resolve = databasePaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
+        count = fraudResultRepository.countOperationByFieldWithGroupBy(EventField.email.name(),
+                email.getValue(),
+                from,
+                to,
+                List.of(resolve)
+        );
         assertEquals(2, count);
 
-        count = fraudResultRepository.countOperationSuccessWithGroupBy(EventField.email.name(), email.getValue(), from, to, List.of(resolve));
+        count = fraudResultRepository.countOperationSuccessWithGroupBy(EventField.email.name(),
+                email.getValue(),
+                from,
+                to,
+                List.of(resolve)
+        );
         assertEquals(1, count);
     }
 
@@ -180,10 +188,20 @@ public class FraudResultRepositoryTest {
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
-        Long sum = fraudResultRepository.sumOperationByFieldWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, from, to, List.of());
+        Long sum = fraudResultRepository.sumOperationByFieldWithGroupBy(EventField.email.name(),
+                BeanUtil.EMAIL,
+                from,
+                to,
+                List.of()
+        );
         assertEquals(BeanUtil.AMOUNT_FIRST, sum);
 
-        sum = fraudResultRepository.sumOperationSuccessWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, from, to, List.of());
+        sum = fraudResultRepository.sumOperationSuccessWithGroupBy(EventField.email.name(),
+                BeanUtil.EMAIL,
+                from,
+                to,
+                List.of()
+        );
         assertEquals(BeanUtil.AMOUNT_FIRST, sum);
     }
 
@@ -196,14 +214,20 @@ public class FraudResultRepositoryTest {
                         createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel()),
                         createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond()),
                         createFraudResult(ResultStatus.DECLINE, BeanUtil.createPaymentModel()),
-                        createFraudResult(ResultStatus.DECLINE, paymentModel))
+                        createFraudResult(ResultStatus.DECLINE, paymentModel)
+                        )
                 )
         );
 
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
-        Integer sum = fraudResultRepository.uniqCountOperation(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to);
+        Integer sum = fraudResultRepository.uniqCountOperation(EventField.email.name(),
+                BeanUtil.EMAIL,
+                EventField.fingerprint.name(),
+                from,
+                to
+        );
         assertEquals(Integer.valueOf(2), sum);
     }
 
@@ -218,19 +242,47 @@ public class FraudResultRepositoryTest {
                         createFraudResult(ResultStatus.ACCEPT, BeanUtil.createPaymentModel()),
                         createFraudResult(ResultStatus.DECLINE, BeanUtil.createFraudModelSecond()),
                         createFraudResult(ResultStatus.DECLINE, BeanUtil.createPaymentModel()),
-                        createFraudResult(ResultStatus.DECLINE, paymentModel))
+                        createFraudResult(ResultStatus.DECLINE, paymentModel)
+                        )
                 )
         );
 
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
-        Integer sum = fraudResultRepository.uniqCountOperationWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to, List.of());
+        Integer sum = fraudResultRepository.uniqCountOperationWithGroupBy(EventField.email.name(),
+                BeanUtil.EMAIL,
+                EventField.fingerprint.name(),
+                from,
+                to,
+                List.of()
+        );
         assertEquals(Integer.valueOf(2), sum);
 
-        FieldModel resolve = DBPaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
-        sum = fraudResultRepository.uniqCountOperationWithGroupBy(EventField.email.name(), BeanUtil.EMAIL, EventField.fingerprint.name(), from, to, List.of(resolve));
+        FieldModel resolve = databasePaymentFieldResolver.resolve(PaymentCheckedField.PARTY_ID, paymentModel);
+        sum = fraudResultRepository.uniqCountOperationWithGroupBy(EventField.email.name(),
+                BeanUtil.EMAIL,
+                EventField.fingerprint.name(),
+                from,
+                to,
+                List.of(resolve)
+        );
         assertEquals(Integer.valueOf(1), sum);
+    }
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            TestPropertyValues
+                    .of(
+                            "clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
+                            "clickhouse.db.user=" + clickHouseContainer.getUsername(),
+                            "clickhouse.db.password=" + clickHouseContainer.getPassword()
+                    )
+                    .applyTo(configurableApplicationContext.getEnvironment());
+        }
     }
 
 }

@@ -6,15 +6,15 @@ import lombok.RequiredArgsConstructor;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
+
 import java.io.IOException;
 
 @WebServlet("/fraud_p2p_inspector/v1")
 @RequiredArgsConstructor
 public class FraudP2PInspectorServlet extends GenericServlet {
 
-    private Servlet thriftServlet;
-
     private final InspectorProxySrv.Iface fraudP2pInspectorHandler;
+    private Servlet thriftServlet;
 
     @Override
     public void init(ServletConfig config) throws ServletException {

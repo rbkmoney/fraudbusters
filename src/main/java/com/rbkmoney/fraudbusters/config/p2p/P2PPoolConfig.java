@@ -37,9 +37,10 @@ public class P2PPoolConfig {
     }
 
     @Bean
-    public RuleApplierImpl<P2PModel> ruleP2PApplier(FirstFindP2PVisitorImpl<P2PModel, P2PCheckedField> p2pRuleVisitor,
-                                                    Pool<ParserRuleContext> templateP2PPoolImpl,
-                                                    CheckedResultFactory checkedResultFactory) {
+    public RuleApplierImpl<P2PModel> ruleP2PApplier(
+            FirstFindP2PVisitorImpl<P2PModel, P2PCheckedField> p2pRuleVisitor,
+            Pool<ParserRuleContext> templateP2PPoolImpl,
+            CheckedResultFactory checkedResultFactory) {
         return new RuleApplierImpl<>(p2pRuleVisitor, templateP2PPoolImpl, checkedResultFactory);
     }
 }
