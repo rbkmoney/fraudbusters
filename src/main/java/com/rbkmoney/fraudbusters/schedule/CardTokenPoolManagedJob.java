@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(value="load.isTrusted.enabled")
+@ConditionalOnProperty(value = "load.isTrusted.enabled")
 public class CardTokenPoolManagedJob {
 
     private final CardPoolManagementService cardPoolManagementService;

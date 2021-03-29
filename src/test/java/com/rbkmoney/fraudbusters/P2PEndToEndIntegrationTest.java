@@ -25,12 +25,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.ClickHouseContainer;
-import ru.yandex.clickhouse.ClickHouseDataSource;
-import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
@@ -43,57 +40,37 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ActiveProfiles("full-prod")
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = "kafka.listen.result.concurrency=1")
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+        classes = FraudBustersApplication.class,
+        properties = "kafka.listen.result.concurrency=1")
 @ContextConfiguration(initializers = P2PEndToEndIntegrationTest.Initializer.class)
 public class P2PEndToEndIntegrationTest extends IntegrationTest {
-
-    private static final String TEMPLATE =
-            "rule: count(\"email\", 10, 0, \"identity_id\") > 1  AND count(\"email\", 10) < 3 " +
-                    "AND sum(\"email\", 10) >= 18000 " +
-                    "AND count(\"card_token_from\", 10) > 1 " +
-                    "AND in(countryBy(\"country_bank\"), \"RUS\") \n" +
-                    " -> decline;";
 
     public static final long TIMEOUT = 2000L;
     public static final String FRAUD = "fraud";
     public static final String IDENT_ID = "identId";
 
-    @LocalServerPort
-    int serverPort;
-
+    private static final String TEMPLATE =
+            "rule: count(\"email\", 10, 0, \"identity_id\") > 1  AND count(\"email\", 10) < 3 " +
+            "AND sum(\"email\", 10) >= 18000 " +
+            "AND count(\"card_token_from\", 10) > 1 " +
+            "AND in(countryBy(\"country_bank\"), \"RUS\") \n" +
+            " -> decline;";
     private static final String SERVICE_P2P_URL = "http://localhost:%s/fraud_p2p_inspector/v1";
 
     @ClassRule
     public static EmbeddedKafkaRule kafka = createKafka();
-
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+
+    @LocalServerPort
+    int serverPort;
 
     @Override
     protected String getBrokersAsString() {
         return kafka.getEmbeddedKafka().getBrokersAsString();
     }
 
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
-            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
-                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
-                    "sql/V2__create_events_p2p.sql",
-                    "sql/V3__create_fraud_payments.sql",
-                    "sql/V4__create_payment.sql",
-                    "sql/V5__add_fields.sql",
-                    "sql/V6__add_result_fields_payment.sql",
-                    "sql/V7__add_fields.sql"));
-        }
-    }
     @Before
     public void init() throws ExecutionException, InterruptedException, SQLException, TException {
 
@@ -108,12 +85,15 @@ public class P2PEndToEndIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    public void testP2P() throws URISyntaxException, TException, InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
+    public void testP2P()
+            throws URISyntaxException, TException, InterruptedException, ExecutionException, NoSuchFieldException,
+            IllegalAccessException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format(SERVICE_P2P_URL, serverPort)))
                 .withNetworkTimeout(300000);
 
-        com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface client = clientBuilder.build(com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface.class);
+        com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface client =
+                clientBuilder.build(com.rbkmoney.damsel.p2p_insp.InspectorProxySrv.Iface.class);
         com.rbkmoney.damsel.p2p_insp.Context p2PContext = BeanUtil.createP2PContext(IDENT_ID, "transfer_1");
 
         InspectResult inspectResult = client.inspectTransfer(p2PContext, List.of(FRAUD));
@@ -124,6 +104,31 @@ public class P2PEndToEndIntegrationTest extends IntegrationTest {
         p2PContext = BeanUtil.createP2PContext(IDENT_ID, "transfer_1");
         inspectResult = client.inspectTransfer(p2PContext, List.of(FRAUD));
         Assert.assertEquals(RiskScore.fatal, inspectResult.scores.get(FRAUD));
+    }
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
+            TestPropertyValues.of(
+                    "clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
+                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString()
+            )
+                    .applyTo(configurableApplicationContext.getEnvironment());
+            ChInitializer.initAllScripts(clickHouseContainer, List.of(
+                    "sql/db_init.sql",
+                    "sql/V2__create_events_p2p.sql",
+                    "sql/V3__create_fraud_payments.sql",
+                    "sql/V4__create_payment.sql",
+                    "sql/V5__add_fields.sql",
+                    "sql/V6__add_result_fields_payment.sql",
+                    "sql/V7__add_fields.sql"
+            ));
+        }
     }
 
 }

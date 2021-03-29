@@ -27,6 +27,7 @@ class P2PServiceHandlerTest {
         assertTrue(validateTemplateResponse.getErrors().isEmpty());
     }
 
+    @SuppressWarnings("LineLength")
     @Test
     void validateCompilationTemplateSuccessList() throws TException {
         ArrayList<Template> list = new ArrayList<>();

@@ -20,7 +20,11 @@ public class FullToCompactStreamFactory {
 
     private final CommandSerde commandSerde = new CommandSerde();
 
-    public KafkaStreams create(String fromTopic, String toTopic, String clientId, final Properties streamsConfiguration) {
+    public KafkaStreams create(
+            String fromTopic,
+            String toTopic,
+            String clientId,
+            final Properties streamsConfiguration) {
         try {
             streamsConfiguration.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, clientId);
             streamsConfiguration.setProperty(StreamsConfig.CLIENT_ID_CONFIG, clientId);

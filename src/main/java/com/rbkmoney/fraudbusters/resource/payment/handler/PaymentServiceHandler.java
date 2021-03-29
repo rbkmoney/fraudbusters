@@ -16,27 +16,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentServiceHandler implements PaymentServiceSrv.Iface {
 
-    @Value("${kafka.topic.fraud.payment}")
-    private String fraudPaymentTopic;
-
-    @Value("${kafka.topic.event.sink.payment}")
-    public String paymentEventTopic;
-
-    @Value("${kafka.topic.event.sink.refund}")
-    public String refundEventTopic;
-
-    @Value("${kafka.topic.event.sink.chargeback}")
-    public String chargebackEventTopic;
-
-    @Value("${kafka.topic.event.sink.withdrawal}")
-    public String withdrawalEventTopic;
-
     private final ListTemplateValidator paymentTemplatesValidator;
     private final KafkaTemplate<String, Payment> paymentKafkaTemplate;
     private final KafkaTemplate<String, Refund> refundKafkaTemplate;
     private final KafkaTemplate<String, Chargeback> chargebackKafkaTemplate;
     private final KafkaTemplate<String, FraudPayment> kafkaFraudPaymentTemplate;
     private final KafkaTemplate<String, Withdrawal> kafkaFraudWithdrawalTemplate;
+
+    @Value("${kafka.topic.event.sink.payment}")
+    public String paymentEventTopic;
+    @Value("${kafka.topic.event.sink.refund}")
+    public String refundEventTopic;
+    @Value("${kafka.topic.event.sink.chargeback}")
+    public String chargebackEventTopic;
+    @Value("${kafka.topic.event.sink.withdrawal}")
+    public String withdrawalEventTopic;
+    @Value("${kafka.topic.fraud.payment}")
+    private String fraudPaymentTopic;
 
     @Override
     public ValidateTemplateResponse validateCompilationTemplate(List<Template> list) throws TException {

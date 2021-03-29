@@ -25,7 +25,7 @@ public class P2PContextToP2PModelConverter implements Converter<Context, P2PMode
 
         TransferInfo transferInfo = context.getInfo();
         Transfer transfer = transferInfo.getTransfer();
-        Cash cost = transfer.getCost();
+
         model.setIdentityId(transfer.getIdentity().getId());
 
         Payer sender = transfer.getSender().getRaw().getPayer();
@@ -42,6 +42,8 @@ public class P2PContextToP2PModelConverter implements Converter<Context, P2PMode
 
         model.setReceiver(initPayer(transfer.getReceiver().getRaw().getPayer()));
         model.setSender(initPayer(sender));
+
+        Cash cost = transfer.getCost();
         model.setAmount(cost.getAmount());
         model.setCurrency(cost.getCurrency().getSymbolicCode());
 
@@ -59,7 +61,9 @@ public class P2PContextToP2PModelConverter implements Converter<Context, P2PMode
         PayerFieldExtractor.getBankCard(payer)
                 .ifPresent(bankCard -> {
                             payerModel.setBin(bankCard.getBin());
-                            payerModel.setBinCountryCode(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
+                            payerModel.setBinCountryCode(bankCard.isSetIssuerCountry()
+                                    ? bankCard.getIssuerCountry().name()
+                                    : ClickhouseUtilsValue.UNKNOWN);
                             payerModel.setCardToken(bankCard.getToken());
                             payerModel.setPan(bankCard.getLastDigits());
                             payerModel.setBankName(bankCard.getBankName());

@@ -16,29 +16,40 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 
+@SuppressWarnings("LineLength")
 @Configuration
 @RequiredArgsConstructor
 public class AggregatorKafkaConfig {
 
+    private final ListenersConfigurationService listenersConfigurationService;
+    private final KafkaTemplateConfigurationService kafkaTemplateConfigurationService;
     @Value("${kafka.aggr.payment.min.bytes}")
     private int fetchMinBytes;
 
-    private final ListenersConfigurationService listenersConfigurationService;
-    private final KafkaTemplateConfigurationService kafkaTemplateConfigurationService;
-
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudResult> kafkaListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new FraudResultDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
+        return listenersConfigurationService.createFactory(
+                new FraudResultDeserializer(),
+                GroupPostfix.RESULT_AGGREGATOR
+        );
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Payment> kafkaPaymentResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new PaymentDeserializer(), GroupPostfix.RESULT_AGGREGATOR, fetchMinBytes);
+        return listenersConfigurationService.createFactory(
+                new PaymentDeserializer(),
+                GroupPostfix.RESULT_AGGREGATOR,
+                fetchMinBytes
+        );
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Withdrawal> kafkaWithdrawalResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new WithdrawalDeserializer(), GroupPostfix.RESULT_AGGREGATOR, fetchMinBytes);
+        return listenersConfigurationService.createFactory(
+                new WithdrawalDeserializer(),
+                GroupPostfix.RESULT_AGGREGATOR,
+                fetchMinBytes
+        );
     }
 
     @Bean
@@ -48,7 +59,10 @@ public class AggregatorKafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Chargeback> kafkaChargebackResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new ChargebackDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
+        return listenersConfigurationService.createFactory(
+                new ChargebackDeserializer(),
+                GroupPostfix.RESULT_AGGREGATOR
+        );
     }
 
     @Bean
@@ -58,7 +72,10 @@ public class AggregatorKafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudPayment> kafkaFraudPaymentListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new FraudPaymentDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
+        return listenersConfigurationService.createFactory(
+                new FraudPaymentDeserializer(),
+                GroupPostfix.RESULT_AGGREGATOR
+        );
     }
 
     @Bean

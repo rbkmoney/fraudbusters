@@ -18,11 +18,18 @@ public class PaymentResourceConfig {
     private String resultTopic;
 
     @Bean
-    public InspectorProxySrv.Iface fraudInspectorHandler(KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate,
-                                                         CheckedResultToRiskScoreConverter checkedResultToRiskScoreConverter,
-                                                         ContextToFraudRequestConverter requestConverter,
-                                                         TemplateVisitorImpl templateVisitor) {
-        return new FraudInspectorHandler(resultTopic, checkedResultToRiskScoreConverter, requestConverter, templateVisitor, kafkaFraudResultTemplate);
+    public InspectorProxySrv.Iface fraudInspectorHandler(
+            KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate,
+            CheckedResultToRiskScoreConverter checkedResultToRiskScoreConverter,
+            ContextToFraudRequestConverter requestConverter,
+            TemplateVisitorImpl templateVisitor) {
+        return new FraudInspectorHandler(
+                resultTopic,
+                checkedResultToRiskScoreConverter,
+                requestConverter,
+                templateVisitor,
+                kafkaFraudResultTemplate
+        );
     }
 
 }

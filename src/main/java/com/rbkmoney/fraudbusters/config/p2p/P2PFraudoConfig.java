@@ -13,7 +13,7 @@ import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.p2p.resolver.P2PModelFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
@@ -33,13 +33,16 @@ import org.springframework.context.annotation.Configuration;
 public class P2PFraudoConfig {
 
     @Bean
-    public SumAggregator<P2PModel, P2PCheckedField> sumP2PAggregator(EventP2PRepository eventP2PRepository,
-                                                                     DbP2pFieldResolver dbP2pFieldResolver) {
+    public SumAggregator<P2PModel, P2PCheckedField> sumP2PAggregator(
+            EventP2PRepository eventP2PRepository,
+            DbP2pFieldResolver dbP2pFieldResolver) {
         return new SumP2PAggregatorImpl(eventP2PRepository, dbP2pFieldResolver);
     }
 
     @Bean
-    public UniqueValueAggregator<P2PModel, P2PCheckedField> uniqueValueP2PAggregator(EventP2PRepository eventP2PRepository, DbP2pFieldResolver dbP2pFieldResolver) {
+    public UniqueValueAggregator<P2PModel, P2PCheckedField> uniqueValueP2PAggregator(
+            EventP2PRepository eventP2PRepository,
+            DbP2pFieldResolver dbP2pFieldResolver) {
         return new P2PUniqueValueAggregatorImpl(eventP2PRepository, dbP2pFieldResolver);
     }
 
@@ -54,16 +57,18 @@ public class P2PFraudoConfig {
     }
 
     @Bean
-    public InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder(WbListServiceSrv.Iface wbListServiceSrv,
-                                                                               PaymentRepository fraudResultRepository,
-                                                                               DBPaymentFieldResolver dbPaymentFieldResolver) {
-        return new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, fraudResultRepository);
+    public InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder(
+            WbListServiceSrv.Iface wbListServiceSrv,
+            PaymentRepository fraudResultRepository,
+            DatabasePaymentFieldResolver databasePaymentFieldResolver) {
+        return new PaymentInListFinderImpl(wbListServiceSrv, databasePaymentFieldResolver, fraudResultRepository);
     }
 
     @Bean
-    public InListFinder<P2PModel, P2PCheckedField> p2pInListFinder(WbListServiceSrv.Iface wbListServiceSrv,
-                                                                   EventP2PRepository eventP2PRepository,
-                                                                   DbP2pFieldResolver dbP2pFieldResolver) {
+    public InListFinder<P2PModel, P2PCheckedField> p2pInListFinder(
+            WbListServiceSrv.Iface wbListServiceSrv,
+            EventP2PRepository eventP2PRepository,
+            DbP2pFieldResolver dbP2pFieldResolver) {
         return new P2pInListFinderImpl(wbListServiceSrv, dbP2pFieldResolver, eventP2PRepository);
     }
 
@@ -75,14 +80,16 @@ public class P2PFraudoConfig {
             CountryResolver<P2PCheckedField> countryP2PResolver,
             InListFinder<P2PModel, P2PCheckedField> p2pInListFinder,
             FieldResolver<P2PModel, P2PCheckedField> p2PModelFieldResolver) {
-        return new P2PFraudVisitorFactory().createVisitor(
-                countP2PAggregator,
-                sumP2PAggregator,
-                uniqueValueP2PAggregator,
-                countryP2PResolver,
-                p2pInListFinder,
-                p2PModelFieldResolver,
-                new P2PGroupResolver<>(p2PModelFieldResolver),
-                new P2PTimeWindowResolver());
+        return new P2PFraudVisitorFactory()
+                .createVisitor(
+                        countP2PAggregator,
+                        sumP2PAggregator,
+                        uniqueValueP2PAggregator,
+                        countryP2PResolver,
+                        p2pInListFinder,
+                        p2PModelFieldResolver,
+                        new P2PGroupResolver<>(p2PModelFieldResolver),
+                        new P2PTimeWindowResolver()
+                );
     }
 }

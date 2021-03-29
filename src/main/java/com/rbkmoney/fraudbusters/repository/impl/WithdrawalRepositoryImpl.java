@@ -20,13 +20,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WithdrawalRepositoryImpl implements Repository<Withdrawal> {
 
-    private final JdbcTemplate jdbcTemplate;
-
     private static final String INSERT = String.format(
             "INSERT INTO %1s (%2s) VALUES (%3s)",
             EventSource.FRAUD_EVENTS_WITHDRAWAL.getTable(),
             WithdrawalBatchPreparedStatementSetter.FIELDS,
-            WithdrawalBatchPreparedStatementSetter.FIELDS_MARK);
+            WithdrawalBatchPreparedStatementSetter.FIELDS_MARK
+    );
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void insert(Withdrawal payment) {

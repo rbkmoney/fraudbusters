@@ -26,15 +26,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentRepositoryImpl implements Repository<CheckedPayment>, PaymentRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-
     private static final String TABLE = EventSource.FRAUD_EVENTS_PAYMENT.getTable();
-
     private static final String INSERT = String.format(
             "INSERT INTO %1s (%2s) VALUES (%3s)",
             EventSource.FRAUD_EVENTS_PAYMENT.getTable(),
             PaymentBatchPreparedStatementSetter.FIELDS,
-            PaymentBatchPreparedStatementSetter.FIELDS_MARK);
+            PaymentBatchPreparedStatementSetter.FIELDS_MARK
+    );
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void insert(CheckedPayment payment) {
@@ -53,48 +52,60 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
     public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
         String sql = String.format(
                 "select %1$s, count() as cnt " +
-                        "from %2$s " +
-                        "where timestamp >= ? " +
-                        "and timestamp <= ? " +
-                        "and eventTime >= ? " +
-                        "and eventTime <= ? " +
-                        "and %1$s = ?  and status != ?" +
-                        "group by %1$s", fieldName, TABLE);
+                "from %2$s " +
+                "where timestamp >= ? " +
+                "and timestamp <= ? " +
+                "and eventTime >= ? " +
+                "and eventTime <= ? " +
+                "and %1$s = ?  and status != ?" +
+                "group by %1$s", fieldName, TABLE);
         List<Object> params = AggregationUtil.generateStatusParams(from, to, value, PaymentStatus.captured.name());
         log.debug("AggregationGeneralRepositoryImpl countOperationByField sql: {} params: {}", sql, params);
         return jdbcTemplate.query(sql, params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Integer countOperationByFieldWithGroupBy(
+            String fieldName,
+            Object value,
+            Long from,
+            Long to,
+            List<FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, count() as cnt " +
-                        "from %2$s " +
-                        "where timestamp >= ? " +
-                        "and timestamp <= ? " +
-                        "and eventTime >= ? " +
-                        "and eventTime <= ? " +
-                        "and %1$s = ? and status != ? ", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
+                "from %2$s " +
+                "where timestamp >= ? " +
+                "and timestamp <= ? " +
+                "and eventTime >= ? " +
+                "and eventTime <= ? " +
+                "and %1$s = ? and status != ? ", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.captured.name());
+        List<Object> params =
+                AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.captured.name());
         log.debug("PaymentRepositoryImpl countOperationByFieldWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
+    public Long sumOperationByFieldWithGroupBy(
+            String fieldName,
+            Object value,
+            Long from,
+            Long to,
+            List<FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, sum(amount) as sum " +
-                        "from %2$s " +
-                        "where timestamp >= ? " +
-                        "and timestamp <= ? " +
-                        "and eventTime >= ? " +
-                        "and eventTime <= ? " +
-                        "and %1$s = ? and status != ? ", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
+                "from %2$s " +
+                "where timestamp >= ? " +
+                "and timestamp <= ? " +
+                "and eventTime >= ? " +
+                "and eventTime <= ? " +
+                "and %1$s = ? and status != ? ", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.captured.name());
+        List<Object> params =
+                AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.captured.name());
         log.debug("PaymentRepositoryImpl sumOperationSuccessWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
@@ -103,105 +114,125 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
     public Integer uniqCountOperation(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to) {
         String sql = String.format(
                 "select %1$s, uniq(%2$s) as cnt " +
-                        "from %3$s " +
-                        "where timestamp >= ? " +
-                        "and timestamp <= ? " +
-                        "and eventTime >= ? " +
-                        "and eventTime <= ? " +
-                        "and %1$s = ? and status != ?" +
-                        "group by %1$s", fieldNameBy, fieldNameCount, TABLE);
+                "from %3$s " +
+                "where timestamp >= ? " +
+                "and timestamp <= ? " +
+                "and eventTime >= ? " +
+                "and eventTime <= ? " +
+                "and %1$s = ? and status != ?" +
+                "group by %1$s", fieldNameBy, fieldNameCount, TABLE);
         List<Object> params = AggregationUtil.generateStatusParams(from, to, value, PaymentStatus.captured.name());
         log.debug("AggregationGeneralRepositoryImpl uniqCountOperation sql: {} params: {}", sql, params);
         return jdbcTemplate.query(sql, params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to,
-                                                 List<FieldModel> fieldModels) {
+    public Integer uniqCountOperationWithGroupBy(
+            String fieldNameBy, Object value, String fieldNameCount, Long from, Long to,
+            List<FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, uniq(%2$s) as cnt " +
-                        "from %3$s " +
-                        "where timestamp >= ? " +
-                        "and timestamp <= ? " +
-                        "and eventTime >= ? " +
-                        "and eventTime <= ? " +
-                        "and %1$s = ?  and status != ?", fieldNameBy, fieldNameCount, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
+                "from %3$s " +
+                "where timestamp >= ? " +
+                "and timestamp <= ? " +
+                "and eventTime >= ? " +
+                "and eventTime <= ? " +
+                "and %1$s = ?  and status != ?",
+                fieldNameBy,
+                fieldNameCount,
+                EventSource.FRAUD_EVENTS_PAYMENT.getTable()
+        ));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldNameBy));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.captured.name());
+        List<Object> params =
+                AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.captured.name());
         String sqlResult = resultSql.toString();
         log.debug("uniqCountOperationWithGroupBy sql: {} params: {}", sqlResult, params);
         return jdbcTemplate.query(sqlResult, params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Integer countOperationSuccessWithGroupBy(String fieldName, Object value, Long from, Long to,
-                                                    List<FieldModel> fieldModels) {
+    public Integer countOperationSuccessWithGroupBy(
+            String fieldName, Object value, Long from, Long to,
+            List<FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, count() as cnt " +
-                        "from %2$s " +
-                        "where timestamp >= ? " +
-                        "and timestamp <= ? " +
-                        "and eventTime >= ? " +
-                        "and eventTime <= ? " +
-                        "and %1$s = ? and status = ? ", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
+                "from %2$s " +
+                "where timestamp >= ? " +
+                "and timestamp <= ? " +
+                "and eventTime >= ? " +
+                "and eventTime <= ? " +
+                "and %1$s = ? and status = ? ", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.captured.name());
+        List<Object> params =
+                AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.captured.name());
         log.debug("PaymentRepositoryImpl countOperationSuccessWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Integer countOperationErrorWithGroupBy(String fieldName, Object value, Long from, Long to,
-                                                  List<FieldModel> fieldModels, String errorCode) {
+    public Integer countOperationErrorWithGroupBy(
+            String fieldName, Object value, Long from, Long to,
+            List<FieldModel> fieldModels, String errorCode) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, count() as cnt " +
-                        "from %2$s " +
-                        "where timestamp >= ? " +
-                        "and timestamp <= ? " +
-                        "and eventTime >= ? " +
-                        "and eventTime <= ? " +
-                        "and %1$s = ? and status = ? and errorCode = ? ", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
+                "from %2$s " +
+                "where timestamp >= ? " +
+                "and timestamp <= ? " +
+                "and eventTime >= ? " +
+                "and eventTime <= ? " +
+                "and %1$s = ? and status = ? and errorCode = ? ",
+                fieldName,
+                EventSource.FRAUD_EVENTS_PAYMENT.getTable()
+        ));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.failed.name(), errorCode);
+        List<Object> params =
+                AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.failed.name(), errorCode);
         log.debug("PaymentRepositoryImpl countOperationErrorWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new CountExtractor());
     }
 
     @Override
-    public Long sumOperationSuccessWithGroupBy(String fieldName, Object value, Long from, Long to,
-                                               List<FieldModel> fieldModels) {
+    public Long sumOperationSuccessWithGroupBy(
+            String fieldName, Object value, Long from, Long to,
+            List<FieldModel> fieldModels) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, sum(amount) as sum " +
-                        "from %2$s " +
-                        "where timestamp >= ? " +
-                        "and timestamp <= ? " +
-                        "and eventTime >= ? " +
-                        "and eventTime <= ? " +
-                        "and %1$s = ? and status = ? ", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
+                "from %2$s " +
+                "where timestamp >= ? " +
+                "and timestamp <= ? " +
+                "and eventTime >= ? " +
+                "and eventTime <= ? " +
+                "and %1$s = ? and status = ? ", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.captured.name());
+        List<Object> params =
+                AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.captured.name());
         log.debug("PaymentRepositoryImpl sumOperationSuccessWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }
 
     @Override
-    public Long sumOperationErrorWithGroupBy(String fieldName, Object value, Long from, Long to,
-                                             List<FieldModel> fieldModels, String errorCode) {
+    public Long sumOperationErrorWithGroupBy(
+            String fieldName, Object value, Long from, Long to,
+            List<FieldModel> fieldModels, String errorCode) {
         StringBuilder sql = new StringBuilder(String.format(
                 "select %1$s, sum(amount) as sum " +
-                        "from %2$s " +
-                        "where timestamp >= ? " +
-                        "and timestamp <= ? " +
-                        "and eventTime >= ? " +
-                        "and eventTime <= ? " +
-                        "and %1$s = ? and status = ? and errorCode = ? ", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
+                "from %2$s " +
+                "where timestamp >= ? " +
+                "and timestamp <= ? " +
+                "and eventTime >= ? " +
+                "and eventTime <= ? " +
+                "and %1$s = ? and status = ? and errorCode = ? ",
+                fieldName,
+                EventSource.FRAUD_EVENTS_PAYMENT.getTable()
+        ));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
-        List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.failed.name(), errorCode);
+        List<Object> params =
+                AggregationUtil.generateParams(from, to, fieldModels, value, PaymentStatus.failed.name(), errorCode);
         log.debug("PaymentRepositoryImpl sumOperationErrorWithGroupBy sql: {} params: {}", sql, params);
         return jdbcTemplate.query(resultSql.toString(), params.toArray(), new SumExtractor());
     }

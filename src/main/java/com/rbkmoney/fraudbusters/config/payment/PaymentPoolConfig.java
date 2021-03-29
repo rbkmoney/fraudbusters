@@ -37,9 +37,10 @@ public class PaymentPoolConfig {
     }
 
     @Bean
-    public RuleApplierImpl<PaymentModel> ruleApplier(FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> paymentRuleVisitor,
-                                                     Pool<ParserRuleContext> templatePoolImpl,
-                                                     CheckedResultFactory checkedResultFactory) {
+    public RuleApplierImpl<PaymentModel> ruleApplier(
+            FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> paymentRuleVisitor,
+            Pool<ParserRuleContext> templatePoolImpl,
+            CheckedResultFactory checkedResultFactory) {
         return new RuleApplierImpl<>(paymentRuleVisitor, templatePoolImpl, checkedResultFactory);
     }
 

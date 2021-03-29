@@ -6,15 +6,15 @@ import lombok.RequiredArgsConstructor;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
+
 import java.io.IOException;
 
 @WebServlet("/fraud_p2p/v1/")
 @RequiredArgsConstructor
 public class P2PServiceServlet extends GenericServlet {
 
-    private Servlet thriftServlet;
-
     private final P2PServiceSrv.Iface p2pTemplateValidatorHandler;
+    private Servlet thriftServlet;
 
     @Override
     public void init(ServletConfig config) throws ServletException {

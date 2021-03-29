@@ -37,12 +37,20 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @ActiveProfiles("full-prod")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class, properties = {"kafka.listen.result.concurrency=1"})
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+        classes = FraudBustersApplication.class,
+        properties = {"kafka.listen.result.concurrency=1"})
 @ContextConfiguration(initializers = FraudPaymentTest.Initializer.class)
 public class FraudPaymentTest extends IntegrationTest {
 
     public static final String ID_PAYMENT = "inv";
     public static final String EMAIL = "kek@kek.ru";
+
+    @ClassRule
+    public static EmbeddedKafkaRule kafka = createKafka();
+    @ClassRule
+    public static ClickHouseContainer clickHouseContainer =
+            new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -50,36 +58,9 @@ public class FraudPaymentTest extends IntegrationTest {
     @LocalServerPort
     int serverPort;
 
-    @ClassRule
-    public static EmbeddedKafkaRule kafka = createKafka();
-
-    @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
     @Override
     protected String getBrokersAsString() {
         return kafka.getEmbeddedKafka().getBrokersAsString();
-    }
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
-            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
-                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
-                    "sql/V2__create_events_p2p.sql",
-                    "sql/V3__create_fraud_payments.sql",
-                    "sql/V4__create_payment.sql",
-                    "sql/V5__add_fields.sql",
-                    "sql/V6__add_result_fields_payment.sql",
-                    "sql/V7__add_fields.sql"));
-        }
     }
 
     @SneakyThrows
@@ -106,8 +87,35 @@ public class FraudPaymentTest extends IntegrationTest {
         Assert.assertEquals(EMAIL, maps.get(0).get("email"));
     }
 
-    private void insertWithTimeout(PaymentServiceSrv.Iface client, List<com.rbkmoney.damsel.fraudbusters.Payment> payments) throws TException, InterruptedException {
+    private void insertWithTimeout(
+            PaymentServiceSrv.Iface client,
+            List<com.rbkmoney.damsel.fraudbusters.Payment> payments) throws TException, InterruptedException {
         client.insertPayments(payments);
         Thread.sleep(TIMEOUT * 10);
+    }
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
+            TestPropertyValues.of(
+                    "clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
+                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString()
+            )
+                    .applyTo(configurableApplicationContext.getEnvironment());
+            ChInitializer.initAllScripts(clickHouseContainer, List.of(
+                    "sql/db_init.sql",
+                    "sql/V2__create_events_p2p.sql",
+                    "sql/V3__create_fraud_payments.sql",
+                    "sql/V4__create_payment.sql",
+                    "sql/V5__add_fields.sql",
+                    "sql/V6__add_result_fields_payment.sql",
+                    "sql/V7__add_fields.sql"
+            ));
+        }
     }
 }

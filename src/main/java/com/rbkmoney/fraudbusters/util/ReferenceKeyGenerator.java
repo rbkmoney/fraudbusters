@@ -17,13 +17,6 @@ public class ReferenceKeyGenerator {
         return generateTemplateKey(reference.party_id, reference.shop_id);
     }
 
-    public static String generateP2PTemplateKey(P2PReference reference) {
-        if (reference.is_global) {
-            return TemplateLevel.GLOBAL.name();
-        }
-        return generateTemplateKeyByList(reference.identity_id);
-    }
-
     @Deprecated
     public static String generateTemplateKey(String partyId, String shopId) {
         if (StringUtils.isEmpty(shopId) && !StringUtils.isEmpty(partyId)) {
@@ -32,6 +25,13 @@ public class ReferenceKeyGenerator {
             return partyId + SEPARATOR + shopId;
         }
         return TemplateLevel.DEFAULT.name();
+    }
+
+    public static String generateP2PTemplateKey(P2PReference reference) {
+        if (reference.is_global) {
+            return TemplateLevel.GLOBAL.name();
+        }
+        return generateTemplateKeyByList(reference.identity_id);
     }
 
     public static String generateTemplateKeyByList(String... ids) {

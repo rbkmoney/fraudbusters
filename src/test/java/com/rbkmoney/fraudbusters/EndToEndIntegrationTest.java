@@ -52,6 +52,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ContextConfiguration(initializers = EndToEndIntegrationTest.Initializer.class)
 public class EndToEndIntegrationTest extends IntegrationTest {
 
+    public static final String CAPTURED = "captured";
+    public static final String PROCESSED = "processed";
+    public static final String FAILED = "failed";
+
     private static final String TEMPLATE =
             "rule:TEMPLATE: count(\"email\", 10, 0, \"party_id\", \"shop_id\") > 1  AND count(\"email\", 10) < 3 " +
                     "AND sum(\"email\", 10, \"party_id\", \"shop_id\") >= 18000 " +
@@ -65,69 +69,36 @@ public class EndToEndIntegrationTest extends IntegrationTest {
 
     private static final String TEMPLATE_CONCRETE =
             "rule:TEMPLATE_CONCRETE:  sumSuccess(\"email\", 10) >= 29000  -> decline;";
-
     private static final String GROUP_DECLINE =
             "rule:GROUP_DECLINE:  1 >= 0  -> decline;";
-
     private static final String GROUP_NORMAL =
             "rule:GROUP_NORMAL:  1 < 0  -> decline;";
-
     private static final String TEMPLATE_CONCRETE_SHOP =
             "rule:TEMPLATE_CONCRETE_SHOP:  sum(\"email\", 10) >= 18000 and not isTrusted()  -> accept;";
-
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
-    public static final String CAPTURED = "captured";
-    public static final String PROCESSED = "processed";
-    public static final String FAILED = "failed";
-
-    @Autowired
-    PaymentRepositoryImpl paymentRepository;
-
-    @Autowired
-    ChargebackRepository chargebackRepository;
-
-    @Autowired
-    RefundRepository refundRepository;
-
-    @Autowired
-    JdbcTemplate jdbcTemplate;
-
-    @LocalServerPort
-    int serverPort;
-
-    private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
     @ClassRule
     public static EmbeddedKafkaRule kafka = createKafka();
-
     @ClassRule
     public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
+
+    private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
+
+    @Autowired
+    PaymentRepositoryImpl paymentRepository;
+    @Autowired
+    ChargebackRepository chargebackRepository;
+    @Autowired
+    RefundRepository refundRepository;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+    @LocalServerPort
+    int serverPort;
 
     @Override
     protected String getBrokersAsString() {
         return kafka.getEmbeddedKafka().getBrokersAsString();
-    }
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
-            TestPropertyValues.of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
-                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer, List.of("sql/db_init.sql",
-                    "sql/V2__create_events_p2p.sql",
-                    "sql/V3__create_fraud_payments.sql",
-                    "sql/V4__create_payment.sql",
-                    "sql/V5__add_fields.sql",
-                    "sql/V6__add_result_fields_payment.sql",
-                    "sql/V7__add_fields.sql"));
-        }
     }
 
     @Before
@@ -213,7 +184,10 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         riskScore = client.inspectPayment(context);
         Assert.assertEquals(RiskScore.high, riskScore);
 
-        chargebackRepository.insertBatch(List.of(convertContextToChargeback(context, ChargebackStatus.accepted.name())));
+        chargebackRepository.insertBatch(List.of(convertContextToChargeback(
+                context,
+                ChargebackStatus.accepted.name()
+        )));
 
         riskScore = client.inspectPayment(context);
 
@@ -249,6 +223,31 @@ public class EndToEndIntegrationTest extends IntegrationTest {
         );
 
         Assert.assertTrue(validateTemplateResponse.getErrors().isEmpty());
+    }
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
+            TestPropertyValues.of(
+                    "clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
+                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
+                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
+                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString()
+            )
+                    .applyTo(configurableApplicationContext.getEnvironment());
+            ChInitializer.initAllScripts(clickHouseContainer, List.of(
+                    "sql/db_init.sql",
+                    "sql/V2__create_events_p2p.sql",
+                    "sql/V3__create_fraud_payments.sql",
+                    "sql/V4__create_payment.sql",
+                    "sql/V5__add_fields.sql",
+                    "sql/V6__add_result_fields_payment.sql",
+                    "sql/V7__add_fields.sql"
+            ));
+        }
     }
 
 }

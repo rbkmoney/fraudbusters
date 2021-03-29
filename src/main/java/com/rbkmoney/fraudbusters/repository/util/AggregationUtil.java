@@ -15,7 +15,10 @@ import static java.time.ZoneOffset.UTC;
 
 public class AggregationUtil {
 
-    public static StringBuilder appendGroupingFields(List<FieldModel> fieldModels, StringBuilder sql, StringBuilder sqlGroupBy) {
+    public static StringBuilder appendGroupingFields(
+            List<FieldModel> fieldModels,
+            StringBuilder sql,
+            StringBuilder sqlGroupBy) {
         if (fieldModels != null) {
             for (FieldModel fieldModel : fieldModels) {
                 sql.append(" and ").append(fieldModel.getName()).append("=? ");
@@ -29,16 +32,36 @@ public class AggregationUtil {
         return generateParams(from, to, fieldModels, value, null);
     }
 
-    public static List<Object> generateParams(Long from, Long to, List<FieldModel> fieldModels, Object value, String status) {
+    public static List<Object> generateParams(
+            Long from,
+            Long to,
+            List<FieldModel> fieldModels,
+            Object value,
+            String status) {
         return generateParams(from, to, fieldModels, value, status, null);
     }
 
-    public static List<Object> generateParams(Long from, Long to, List<FieldModel> fieldModels, Object value, String status, String errorCode) {
+    public static List<Object> generateParams(
+            Long from,
+            Long to,
+            List<FieldModel> fieldModels,
+            Object value,
+            String status,
+            String errorCode) {
         Instant instantFrom = Instant.ofEpochMilli(from);
         LocalDate dateFrom = instantFrom.atZone(UTC).toLocalDate();
         Instant instantTo = Instant.ofEpochMilli(to);
         LocalDate dateTo = instantTo.atZone(UTC).toLocalDate();
-        return initParams(fieldModels, dateFrom, dateTo, instantFrom.getEpochSecond(), instantTo.getEpochSecond(), value, status, errorCode);
+        return initParams(
+                fieldModels,
+                dateFrom,
+                dateTo,
+                instantFrom.getEpochSecond(),
+                instantTo.getEpochSecond(),
+                value,
+                status,
+                errorCode
+        );
     }
 
     public static List<Object> generateParams(Long from, Long to, Object value) {

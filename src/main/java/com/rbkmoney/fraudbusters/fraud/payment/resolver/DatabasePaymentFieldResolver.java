@@ -8,12 +8,13 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class DBPaymentFieldResolver {
+public class DatabasePaymentFieldResolver {
 
     @NotNull
     public List<FieldModel> resolveListFields(PaymentModel model, List<PaymentCheckedField> list) {

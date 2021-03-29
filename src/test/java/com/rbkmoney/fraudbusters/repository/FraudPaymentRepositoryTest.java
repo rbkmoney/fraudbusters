@@ -7,7 +7,7 @@ import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DBPaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationStatusGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.FraudPaymentRepository;
@@ -40,59 +40,28 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = {ClickhouseConfig.class,
-        DBPaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, AggregationStatusGeneralRepositoryImpl.class, FraudPaymentRepository.class},
+        DatabasePaymentFieldResolver.class,
+        AggregationGeneralRepositoryImpl.class,
+        AggregationStatusGeneralRepositoryImpl.class,
+        FraudPaymentRepository.class
+},
         initializers = FraudPaymentRepositoryTest.Initializer.class)
 public class FraudPaymentRepositoryTest {
 
-    private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.fraud_payment";
+    private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE =
+            "SELECT count() as cnt from fraud.fraud_payment";
 
     @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
+    public static ClickHouseContainer clickHouseContainer =
+            new ClickHouseContainer("yandex/clickhouse-server:19.17");
     @Autowired
-    private FraudPaymentRepository FraudPaymentRepository;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    DBPaymentFieldResolver DBPaymentFieldResolver;
-
+    DatabasePaymentFieldResolver databasePaymentFieldResolver;
     @MockBean
     GeoIpServiceSrv.Iface iface;
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            TestPropertyValues
-                    .of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                            "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                            "clickhouse.db.password=" + clickHouseContainer.getPassword())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-
-            ChInitializer.initAllScripts(clickHouseContainer,
-                    List.of("sql/V3__create_fraud_payments.sql"));
-        }
-    }
-
-    @Test
-    public void insertBatch() throws SQLException {
-        FraudPaymentRepository.insertBatch(createBatch());
-
-        Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
-                (resultSet, i) -> resultSet.getInt("cnt"));
-
-        assertEquals(2, count.intValue());
-    }
-
-    @NotNull
-    private List<FraudPaymentRow> createBatch() {
-        FraudPaymentRow value = createFraudPaymentRow("inv1.1");
-        FraudPaymentRow value2 = createFraudPaymentRow("inv2.1");
-        return List.of(value, value2);
-    }
+    @Autowired
+    private FraudPaymentRepository fraudPaymentRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @NotNull
     public static FraudPaymentRow createFraudPaymentRow(String id) {
@@ -111,8 +80,48 @@ public class FraudPaymentRepositoryTest {
     public static FraudPayment createFraudPayment(String id) {
         return new FraudPayment()
                 .setId(id)
-                .setEventTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern(TimestampUtil.YYYY_MM_DD_HH_MM_SS)))
+                .setEventTime(LocalDateTime.now()
+                        .format(DateTimeFormatter.ofPattern(TimestampUtil.YYYY_MM_DD_HH_MM_SS)))
                 .setComment("")
                 .setType("Card not present");
+    }
+
+    @Test
+    public void insertBatch() throws SQLException {
+        fraudPaymentRepository.insertBatch(createBatch());
+
+        Integer count = jdbcTemplate.queryForObject(
+                SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
+                (resultSet, i) -> resultSet.getInt("cnt")
+        );
+
+        assertEquals(2, count.intValue());
+    }
+
+    @NotNull
+    private List<FraudPaymentRow> createBatch() {
+        FraudPaymentRow value = createFraudPaymentRow("inv1.1");
+        FraudPaymentRow value2 = createFraudPaymentRow("inv2.1");
+        return List.of(value, value2);
+    }
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            TestPropertyValues
+                    .of(
+                            "clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
+                            "clickhouse.db.user=" + clickHouseContainer.getUsername(),
+                            "clickhouse.db.password=" + clickHouseContainer.getPassword()
+                    )
+                    .applyTo(configurableApplicationContext.getEnvironment());
+
+            ChInitializer.initAllScripts(
+                    clickHouseContainer,
+                    List.of("sql/V3__create_fraud_payments.sql")
+            );
+        }
     }
 }

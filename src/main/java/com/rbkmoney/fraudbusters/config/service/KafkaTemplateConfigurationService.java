@@ -21,10 +21,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KafkaTemplateConfigurationService {
 
+    private final KafkaSslProperties kafkaSslProperties;
+
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
-
-    private final KafkaSslProperties kafkaSslProperties;
 
     public Map<String, Object> producerJsonConfigs() {
         Map<String, Object> props = new HashMap<>();

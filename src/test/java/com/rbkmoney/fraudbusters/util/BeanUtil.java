@@ -2,17 +2,17 @@ package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.base.Content;
 import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.fraudbusters.ClientInfo;
 import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.fraudbusters.ClientInfo;
 import com.rbkmoney.damsel.p2p_insp.Identity;
 import com.rbkmoney.damsel.p2p_insp.Raw;
 import com.rbkmoney.damsel.p2p_insp.Transfer;
 import com.rbkmoney.damsel.p2p_insp.TransferInfo;
 import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
-import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
@@ -31,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("VariableDeclarationUsageDistance")
 @Slf4j
 public class BeanUtil {
 
@@ -58,14 +59,9 @@ public class BeanUtil {
     public static final String TOKEN = "wewerwer";
     public static final String ACCOUNT_ID = "ACCOUNT_ID";
 
-    public static Context createContext() {
-        String pId = P_ID;
-        return createContext(pId);
-    }
-
     public static com.rbkmoney.damsel.p2p_insp.Context createP2PContext(String identityId, String idTransfer) {
-        ContactInfo contact_info = new ContactInfo();
-        contact_info.setEmail(EMAIL);
+        ContactInfo contactInfo = new ContactInfo();
+        contactInfo.setEmail(EMAIL);
         TransferInfo transferInfo = new TransferInfo(
                 new Transfer()
                         .setCost(new Cash(
@@ -75,12 +71,14 @@ public class BeanUtil {
                         .setSender(com.rbkmoney.damsel.p2p_insp.Payer.raw(
                                 new Raw(com.rbkmoney.damsel.domain.Payer.customer(
                                         new CustomerPayer("custId", "1", "rec_paym_tool", createPaymentTool(),
-                                                contact_info)))))
+                                                contactInfo
+                                        )))))
                         .setCreatedAt(TypeUtil.temporalToString(Instant.now()))
                         .setReceiver(com.rbkmoney.damsel.p2p_insp.Payer.raw(
                                 new Raw(com.rbkmoney.damsel.domain.Payer.customer(
                                         new CustomerPayer("custId_2", "2", "rec_paym_tool", createPaymentTool(),
-                                                contact_info)))))
+                                                contactInfo
+                                        )))))
                         .setIdentity(new Identity(identityId))
                         .setId(idTransfer)
         );
@@ -90,47 +88,60 @@ public class BeanUtil {
 
     }
 
-    public static Context createContext(String pId) {
-        ContactInfo contact_info = new ContactInfo();
-        contact_info.setEmail(EMAIL);
+    public static Context createContext() {
+        return createContext(P_ID);
+    }
+
+    public static Context createContext(String paymentId) {
+        ContactInfo contactInfo = new ContactInfo();
+        contactInfo.setEmail(EMAIL);
+        ShopLocation location = new ShopLocation();
+        location.setUrl("http://www.pizza-sushi.com/");
         PaymentInfo payment = new PaymentInfo(
-                new Shop(ID_VALUE_SHOP,
+                new Shop(
+                        ID_VALUE_SHOP,
                         new Category("pizza", "no category"),
                         new ShopDetails("pizza-sushi"),
-                        new ShopLocation() {{
-                            setUrl("http://www.pizza-sushi.com/");
-                        }}
+                        location
                 ),
-                new InvoicePayment(pId,
+                new InvoicePayment(
+                        paymentId,
                         TypeUtil.temporalToString(Instant.now()),
                         Payer.customer(
                                 new CustomerPayer("custId", "1", "rec_paym_tool", createPaymentTool(),
-                                        contact_info)),
+                                        contactInfo
+                                )),
                         new Cash(
                                 9000L,
                                 new CurrencyRef("RUB")
-                        )),
+                        )
+                ),
                 new com.rbkmoney.damsel.proxy_inspector.Invoice(
                         "iId",
                         TypeUtil.temporalToString(Instant.now()),
                         "",
-                        new InvoiceDetails("drugs guns murder")),
-                new Party(pId)
-        );
-        return new Context(
-                payment
+                        new InvoiceDetails("drugs guns murder")
+                ),
+                new Party(paymentId)
         );
 
+        return new Context(payment);
     }
 
     private static Payer createCustomerPayer() {
-        return Payer.customer(new CustomerPayer("custId", "1", "rec_paym_tool", createPaymentTool(), new ContactInfo()));
+        return Payer.customer(new CustomerPayer(
+                "custId",
+                "1",
+                "rec_paym_tool",
+                createPaymentTool(),
+                new ContactInfo()
+        ));
     }
 
     private static com.rbkmoney.damsel.domain.PaymentTool createPaymentTool() {
-        return new com.rbkmoney.damsel.domain.PaymentTool() {{
-            setBankCard(createBankCard());
-        }};
+        PaymentTool paymentTool = new PaymentTool();
+        paymentTool.setBankCard(createBankCard());
+        return paymentTool;
     }
 
     @NotNull
@@ -501,7 +512,9 @@ public class BeanUtil {
         Payer payer = context.getPayment().getPayment().getPayer();
         PayerFieldExtractor.getBankCard(payer)
                 .ifPresent(bankCard -> {
-                    payment.setBankCountry(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : ClickhouseUtilsValue.UNKNOWN);
+                    payment.setBankCountry(bankCard.isSetIssuerCountry()
+                            ? bankCard.getIssuerCountry().name()
+                            : ClickhouseUtilsValue.UNKNOWN);
                     payment.setCardToken(bankCard.getToken());
                 });
         PayerFieldExtractor.getClientInfo(payer)

@@ -47,24 +47,48 @@ public abstract class IntegrationTest {
 
     protected static final long TIMEOUT = 1000L;
 
-    @MockBean
-    private ShopManagementService shopManagementService;
-
-    @MockBean
-    GeoIpServiceSrv.Iface geoIpServiceSrv;
-
-    @MockBean
-    WbListServiceSrv.Iface wbListServiceSrv;
-
-    @Autowired
-    protected KafkaTopics kafkaTopics;
-
     @Value("${kafka.topic.event.sink.initial}")
     public String eventSinkTopic;
     @Value("${kafka.topic.event.sink.aggregated}")
     public String aggregatedEventSink;
     @Value("${kafka.topic.fraud.payment}")
     public String fraudPaymentTopic;
+
+    @Autowired
+    protected KafkaTopics kafkaTopics;
+    @MockBean
+    GeoIpServiceSrv.Iface geoIpServiceSrv;
+    @MockBean
+    WbListServiceSrv.Iface wbListServiceSrv;
+    @MockBean
+    private ShopManagementService shopManagementService;
+
+    protected static EmbeddedKafkaRule createKafka() {
+        return new EmbeddedKafkaRule(
+                1,
+                true,
+                1,
+                "wb-list-event-sink",
+                "result",
+                "p2p_result",
+                "fraud_payment",
+                "payment_event",
+                "refund_event",
+                "chargeback_event",
+                "template",
+                "full_template",
+                "template_p2p",
+                "template_reference",
+                "full_template_reference",
+                "template_p2p_reference",
+                "group_list",
+                "full_group_list",
+                "group_p2p_list",
+                "group_reference",
+                "full_group_reference",
+                "group_p2p_reference"
+        );
+    }
 
     @Before
     public void setUp() {
@@ -92,7 +116,8 @@ public abstract class IntegrationTest {
         return new KafkaConsumer<>(props);
     }
 
-    void produceTemplate(String localId, String templateString, String topicName) throws InterruptedException, ExecutionException {
+    void produceTemplate(String localId, String templateString, String topicName)
+            throws InterruptedException, ExecutionException {
         try (Producer<String, Command> producer = createProducer()) {
             Command command = crateCommandTemplate(localId, templateString);
             ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(topicName, localId, command);
@@ -100,7 +125,8 @@ public abstract class IntegrationTest {
         }
     }
 
-    void produceGroup(String localId, List<PriorityId> priorityIds, String topic) throws InterruptedException, ExecutionException {
+    void produceGroup(String localId, List<PriorityId> priorityIds, String topic)
+            throws InterruptedException, ExecutionException {
         try (Producer<String, Command> producer = createProducer()) {
             Command command = BeanUtil.createGroupCommand(localId, priorityIds);
             ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(topic, localId, command);
@@ -108,7 +134,8 @@ public abstract class IntegrationTest {
         }
     }
 
-    void produceReference(boolean isGlobal, String party, String shopId, String idTemplate) throws InterruptedException, ExecutionException {
+    void produceReference(boolean isGlobal, String party, String shopId, String idTemplate)
+            throws InterruptedException, ExecutionException {
         try (Producer<String, Command> producer = createProducer()) {
             Command command = new Command();
             command.setCommandType(CommandType.CREATE);
@@ -120,12 +147,14 @@ public abstract class IntegrationTest {
             command.setCommandBody(CommandBody.reference(value));
             command.setCommandTime(LocalDateTime.now().toString());
             String key = ReferenceKeyGenerator.generateTemplateKey(value);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getFullReference(), key, command);
+            ProducerRecord<String, Command> producerRecord =
+                    new ProducerRecord<>(kafkaTopics.getFullReference(), key, command);
             producer.send(producerRecord).get();
         }
     }
 
-    void produceP2PReference(boolean isGlobal, String identityId, String idTemplate) throws InterruptedException, ExecutionException {
+    void produceP2PReference(boolean isGlobal, String identityId, String idTemplate)
+            throws InterruptedException, ExecutionException {
         try (Producer<String, Command> producer = createProducer()) {
             Command command = new Command();
             command.setCommandType(CommandType.CREATE);
@@ -139,12 +168,14 @@ public abstract class IntegrationTest {
 
             String key = ReferenceKeyGenerator.generateP2PTemplateKey(value);
 
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getP2pReference(), key, command);
+            ProducerRecord<String, Command> producerRecord =
+                    new ProducerRecord<>(kafkaTopics.getP2pReference(), key, command);
             producer.send(producerRecord).get();
         }
     }
 
-    void produceReferenceWithWait(boolean isGlobal, String party, String shopId, String idTemplate, int timeout) throws InterruptedException, ExecutionException {
+    void produceReferenceWithWait(boolean isGlobal, String party, String shopId, String idTemplate, int timeout)
+            throws InterruptedException, ExecutionException {
         produceReference(isGlobal, party, shopId, idTemplate);
         try (Consumer<String, Object> consumer = createConsumer(CommandDeserializer.class)) {
             consumer.subscribe(List.of(kafkaTopics.getFullReference()));
@@ -155,11 +186,13 @@ public abstract class IntegrationTest {
         }
     }
 
-    void produceGroupReference(String party, String shopId, String idGroup) throws InterruptedException, ExecutionException {
+    void produceGroupReference(String party, String shopId, String idGroup)
+            throws InterruptedException, ExecutionException {
         try (Producer<String, Command> producer = createProducer()) {
             Command command = BeanUtil.createGroupReferenceCommand(party, shopId, idGroup);
             String key = ReferenceKeyGenerator.generateTemplateKeyByList(party, shopId);
-            ProducerRecord<String, Command> producerRecord = new ProducerRecord<>(kafkaTopics.getFullGroupReference(), key, command);
+            ProducerRecord<String, Command> producerRecord =
+                    new ProducerRecord<>(kafkaTopics.getFullGroupReference(), key, command);
             producer.send(producerRecord).get();
         }
     }
@@ -184,29 +217,6 @@ public abstract class IntegrationTest {
                 return !records.isEmpty();
             });
         }
-    }
-
-    protected static EmbeddedKafkaRule createKafka() {
-        return new EmbeddedKafkaRule(1, true, 1,
-                "wb-list-event-sink"
-                , "result"
-                , "p2p_result"
-                , "fraud_payment"
-                , "payment_event"
-                , "refund_event"
-                , "chargeback_event"
-                , "template"
-                , "full_template"
-                , "template_p2p"
-                , "template_reference"
-                , "full_template_reference"
-                , "template_p2p_reference"
-                , "group_list"
-                , "full_group_list"
-                , "group_p2p_list"
-                , "group_reference"
-                , "full_group_reference"
-                , "group_p2p_reference");
     }
 
     protected abstract String getBrokersAsString();

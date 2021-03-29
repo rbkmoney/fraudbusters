@@ -17,23 +17,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentInfoService {
 
-    private final JdbcTemplate jdbcTemplate;
     private static final String FIELDS = "timestamp, eventTimeHour, eventTime, " +
-            "id, " +
-            "email, ip, fingerprint, " +
-            "bin, maskedPan, cardToken, paymentSystem, paymentTool, " +
-            "terminal, providerId, bankCountry, " +
-            "partyId, shopId, " +
-            "amount, currency, " +
-            "status, errorCode, errorReason, " +
-            "payerType, tokenProvider, " +
-            "checkedTemplate, checkedRule, resultStatus, checkedResultsJson, mobile, recurrent";
+                                         "id, " +
+                                         "email, ip, fingerprint, " +
+                                         "bin, maskedPan, cardToken, paymentSystem, paymentTool, " +
+                                         "terminal, providerId, bankCountry, " +
+                                         "partyId, shopId, " +
+                                         "amount, currency, " +
+                                         "status, errorCode, errorReason, " +
+                                         "payerType, tokenProvider, " +
+                                         "checkedTemplate, checkedRule, resultStatus, checkedResultsJson, mobile, " +
+                                         "recurrent";
+
+    private final JdbcTemplate jdbcTemplate;
 
     public CheckedPayment findPaymentByIdAndTimestamp(LocalDate timestamp, String id) {
         log.debug("findPaymentByIdAndTimestamp timestamp: {} id: {}", timestamp, id);
         return jdbcTemplate.query("select " + FIELDS + " from " + EventSource.FRAUD_EVENTS_PAYMENT.getTable() +
-                        " where timestamp = ? and id = ? and status = ? ",
-                List.of(timestamp, id, PaymentStatus.captured.name()).toArray(), new CheckedPaymentExtractor());
+                                  " where timestamp = ? and id = ? and status = ? ",
+                List.of(timestamp, id, PaymentStatus.captured.name()).toArray(), new CheckedPaymentExtractor()
+        );
     }
 
 }

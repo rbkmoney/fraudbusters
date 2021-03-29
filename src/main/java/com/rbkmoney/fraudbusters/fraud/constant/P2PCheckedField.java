@@ -16,14 +16,15 @@ public enum P2PCheckedField {
     CARD_TOKEN_FROM("card_token_from"),
     CARD_TOKEN_TO("card_token_to");
 
-    private String value;
-    private static Map<String, P2PCheckedField> valueMap = new HashMap<>();
+    private static final Map<String, P2PCheckedField> valueMap = new HashMap<>();
 
     static {
         for (P2PCheckedField value : P2PCheckedField.values()) {
             valueMap.put(value.value, value);
         }
     }
+
+    private final String value;
 
     P2PCheckedField(String value) {
         this.value = value;

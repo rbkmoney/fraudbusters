@@ -37,9 +37,10 @@ public class HistoricalPaymentPoolConfig {
     }
 
     @Bean
-    public FullRuleApplierImpl fullRuleApplier(FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> fullPaymentRuleVisitor,
-                                               HistoricalPool<ParserRuleContext> templatePoolImpl,
-                                               CheckedResultFactory checkedResultFactory) {
+    public FullRuleApplierImpl fullRuleApplier(
+            FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> fullPaymentRuleVisitor,
+            HistoricalPool<ParserRuleContext> templatePoolImpl,
+            CheckedResultFactory checkedResultFactory) {
         return new FullRuleApplierImpl(fullPaymentRuleVisitor, templatePoolImpl, checkedResultFactory);
     }
 

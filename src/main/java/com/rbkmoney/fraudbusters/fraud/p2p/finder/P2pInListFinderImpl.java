@@ -25,11 +25,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class P2pInListFinderImpl implements InListFinder<P2PModel, P2PCheckedField> {
 
+    private static final int CURRENT_ONE = 1;
+
     private final WbListServiceSrv.Iface wbListServiceSrv;
     private final DbP2pFieldResolver dbP2pFieldResolver;
     private final EventP2PRepository eventP2PRepository;
-
-    private static final int CURRENT_ONE = 1;
 
     @Override
     @BasicMetric(value = "findInBlackList", extraTags = "p2p")
@@ -50,11 +50,17 @@ public class P2pInListFinderImpl implements InListFinder<P2PModel, P2PCheckedFie
             return fields.stream()
                     .anyMatch(entry ->
                             !StringUtils.isEmpty(entry.getSecond())
-                                    && findInList(model.getIdentityId(), entry.getFirst(), entry.getSecond()));
+                            && findInList(model.getIdentityId(), entry.getFirst(), entry.getSecond()));
         } catch (Exception e) {
             log.warn("InListFinderImpl error when findInList e: ", e);
             throw new RuleFunctionException(e);
         }
+    }
+
+    @Override
+    @BasicMetric("findInNamingList")
+    public Boolean findInList(String name, List<Pair<P2PCheckedField, String>> fields, P2PModel model) {
+        return checkInList(fields, model, ListType.naming);
     }
 
     public Boolean findInList(String identityId, P2PCheckedField field, String value) {
@@ -85,14 +91,9 @@ public class P2pInListFinderImpl implements InListFinder<P2PModel, P2PCheckedFie
             return false;
         }
         int currentCount = eventP2PRepository.countOperationByFieldWithGroupBy(resolveField, value, from, to,
-                List.of(new FieldModel(EventP2PField.identityId.name(), identityId)));
+                List.of(new FieldModel(EventP2PField.identityId.name(), identityId))
+        );
         return currentCount + CURRENT_ONE <= rowInfo.getCountInfo().getCount();
-    }
-
-    @Override
-    @BasicMetric("findInNamingList")
-    public Boolean findInList(String name, List<Pair<P2PCheckedField, String>> fields, P2PModel model) {
-        return checkInList(fields, model, ListType.naming);
     }
 
     @NotNull

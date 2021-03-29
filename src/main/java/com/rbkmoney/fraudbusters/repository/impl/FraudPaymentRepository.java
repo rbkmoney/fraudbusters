@@ -20,36 +20,37 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FraudPaymentRepository implements Repository<FraudPaymentRow>, AggregationRepository {
 
+    private static final String INSERT = "INSERT INTO " +
+                                         EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable() +
+                                         " (timestamp," +
+                                         "  eventTimeHour," +
+                                         "  eventTime," +
+                                         "  id," +
+                                         "  fraudType ," +
+                                         "  comment," +
+                                         "  email," +
+                                         "  ip," +
+                                         "  fingerprint," +
+                                         "  bin," +
+                                         "  maskedPan," +
+                                         "  cardToken," +
+                                         "  paymentSystem," +
+                                         "  paymentTool," +
+                                         "  terminal," +
+                                         "  providerId," +
+                                         "  bankCountry," +
+                                         "  partyId," +
+                                         "  shopId," +
+                                         "  amount," +
+                                         "  currency," +
+                                         "  status," +
+                                         "  errorReason," +
+                                         "  errorCode," +
+                                         "  paymentCountry)" +
+                                         " VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, " +
+                                         "?, ?)";
     private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
-
-    private static final String INSERT = "INSERT INTO " + EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable() +
-            " (timestamp," +
-            "  eventTimeHour," +
-            "  eventTime," +
-            "  id," +
-            "  fraudType ," +
-            "  comment," +
-            "  email," +
-            "  ip," +
-            "  fingerprint," +
-            "  bin," +
-            "  maskedPan," +
-            "  cardToken," +
-            "  paymentSystem," +
-            "  paymentTool," +
-            "  terminal," +
-            "  providerId," +
-            "  bankCountry," +
-            "  partyId," +
-            "  shopId," +
-            "  amount," +
-            "  currency," +
-            "  status," +
-            "  errorReason," +
-            "  errorCode," +
-            "  paymentCountry)" +
-            " VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)";
 
     @Override
     public void insert(FraudPaymentRow value) {
@@ -66,33 +67,79 @@ public class FraudPaymentRepository implements Repository<FraudPaymentRow>, Aggr
 
     @Override
     public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
-        return aggregationStatusGeneralRepository.countOperationByField(EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable(),
-                fieldName, value, from, to, RefundStatus.succeeded.name());
+        return aggregationStatusGeneralRepository.countOperationByField(
+                EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable(),
+                fieldName,
+                value,
+                from,
+                to,
+                RefundStatus.succeeded.name()
+        );
     }
 
     @Override
-    public Integer countOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
-        return aggregationStatusGeneralRepository.countOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable(),
-                fieldName, value, from, to, fieldModels, RefundStatus.succeeded.name());
+    public Integer countOperationByFieldWithGroupBy(
+            String fieldName,
+            Object value,
+            Long from,
+            Long to,
+            List<FieldModel> fieldModels) {
+        return aggregationStatusGeneralRepository.countOperationByFieldWithGroupBy(
+                EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable(),
+                fieldName,
+                value,
+                from,
+                to,
+                fieldModels,
+                RefundStatus.succeeded.name()
+        );
     }
 
     @Override
-    public Long sumOperationByFieldWithGroupBy(String fieldName, Object value, Long from, Long to, List<FieldModel> fieldModels) {
-        return aggregationStatusGeneralRepository.sumOperationByFieldWithGroupBy(EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable(),
-                fieldName, value, from, to, fieldModels, RefundStatus.succeeded.name());
+    public Long sumOperationByFieldWithGroupBy(
+            String fieldName,
+            Object value,
+            Long from,
+            Long to,
+            List<FieldModel> fieldModels) {
+        return aggregationStatusGeneralRepository.sumOperationByFieldWithGroupBy(
+                EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable(),
+                fieldName,
+                value,
+                from,
+                to,
+                fieldModels,
+                RefundStatus.succeeded.name()
+        );
     }
 
     @Override
     public Integer uniqCountOperation(String fieldNameBy, Object value, String fieldNameCount, Long from, Long to) {
-        return aggregationStatusGeneralRepository.uniqCountOperation(EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable(),
-                fieldNameBy, value, fieldNameCount, from, to, RefundStatus.succeeded.name());
+        return aggregationStatusGeneralRepository.uniqCountOperation(
+                EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable(),
+                fieldNameBy,
+                value,
+                fieldNameCount,
+                from,
+                to,
+                RefundStatus.succeeded.name()
+        );
     }
 
     @Override
-    public Integer uniqCountOperationWithGroupBy(String fieldNameBy, Object value, String fieldNameCount, Long from,
-                                                 Long to, List<FieldModel> fieldModels) {
-        return aggregationStatusGeneralRepository.uniqCountOperationWithGroupBy(EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable(),
-                fieldNameBy, value, fieldNameCount, from, to, fieldModels, RefundStatus.succeeded.name());
+    public Integer uniqCountOperationWithGroupBy(
+            String fieldNameBy, Object value, String fieldNameCount, Long from,
+            Long to, List<FieldModel> fieldModels) {
+        return aggregationStatusGeneralRepository.uniqCountOperationWithGroupBy(
+                EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable(),
+                fieldNameBy,
+                value,
+                fieldNameCount,
+                from,
+                to,
+                fieldModels,
+                RefundStatus.succeeded.name()
+        );
     }
 
 }

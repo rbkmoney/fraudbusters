@@ -15,9 +15,11 @@ import static org.junit.Assert.*;
 @Slf4j
 class PaymentServiceHandlerTest {
 
-    PaymentServiceHandler paymentServiceHandler = new PaymentServiceHandler(
-            new ListTemplateValidatorImpl(new PaymentTemplateValidator()),
-            null, null, null, null, null);
+    PaymentServiceHandler paymentServiceHandler =
+            new PaymentServiceHandler(
+                    new ListTemplateValidatorImpl(new PaymentTemplateValidator()),
+                    null, null, null, null, null
+            );
 
     @Test
     void validateCompilationTemplateEmptyList() throws TException {
@@ -27,6 +29,7 @@ class PaymentServiceHandlerTest {
         assertTrue(validateTemplateResponse.getErrors().isEmpty());
     }
 
+    @SuppressWarnings("LineLength")
     @Test
     void validateCompilationTemplateSuccessList() throws TException {
         ArrayList<Template> list = new ArrayList<>();
@@ -38,6 +41,7 @@ class PaymentServiceHandlerTest {
         assertTrue(validateTemplateResponse.getErrors().isEmpty());
     }
 
+    @SuppressWarnings("LineLength")
     @Test
     void validateCompilationTemplateErrorList() throws TException {
         ArrayList<Template> list = new ArrayList<>();

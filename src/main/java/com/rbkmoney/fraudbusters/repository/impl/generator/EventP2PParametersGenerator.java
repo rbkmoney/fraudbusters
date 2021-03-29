@@ -32,12 +32,14 @@ public class EventP2PParametersGenerator {
         Optional.ofNullable(value.getCountry()).ifPresent(v -> parameters.put(EventP2PField.country.name(), v));
         Optional.ofNullable(value.getMaskedPan()).ifPresent(v -> parameters.put(EventP2PField.maskedPan.name(), v));
         Optional.ofNullable(value.getBankName()).ifPresent(v -> parameters.put(EventP2PField.bankName.name(), v));
-        Optional.ofNullable(value.getCardTokenFrom()).ifPresent(v -> parameters.put(EventP2PField.cardTokenFrom.name(), v));
+        Optional.ofNullable(value.getCardTokenFrom())
+                .ifPresent(v -> parameters.put(EventP2PField.cardTokenFrom.name(), v));
         Optional.ofNullable(value.getCardTokenTo()).ifPresent(v -> parameters.put(EventP2PField.cardTokenTo.name(), v));
 
         parameters.put(EventP2PField.resultStatus.name(), value.getResultStatus());
         parameters.put(EventP2PField.checkedRule.name(), value.getCheckedRule());
-        Optional.ofNullable(value.getCheckedTemplate()).ifPresent(v -> parameters.put(EventP2PField.checkedTemplate.name(), v));
+        Optional.ofNullable(value.getCheckedTemplate())
+                .ifPresent(v -> parameters.put(EventP2PField.checkedTemplate.name(), v));
         return parameters;
     }
 

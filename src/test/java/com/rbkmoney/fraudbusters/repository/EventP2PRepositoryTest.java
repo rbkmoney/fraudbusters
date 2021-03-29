@@ -49,48 +49,43 @@ import static org.junit.Assert.assertEquals;
 @Slf4j
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = {EventP2PRepository.class, ScoresResultToEventConverter.class,
-        ScoresResultToEventP2PConverter.class, ClickhouseConfig.class, DbP2pFieldResolver.class, AggregationGeneralRepositoryImpl.class},
+@ContextConfiguration(classes = {
+        EventP2PRepository.class,
+        ScoresResultToEventConverter.class,
+        ScoresResultToEventP2PConverter.class,
+        ClickhouseConfig.class,
+        DbP2pFieldResolver.class,
+        AggregationGeneralRepositoryImpl.class
+},
         initializers = EventP2PRepositoryTest.Initializer.class)
 public class EventP2PRepositoryTest {
 
-    private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE = "SELECT count() as cnt from fraud.events_p_to_p";
+    private static final String SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE =
+            "SELECT count() as cnt from fraud.events_p_to_p";
 
     @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
-    @Autowired
-    private EventP2PRepository eventP2PRepository;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    public static ClickHouseContainer clickHouseContainer =
+            new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
     @Autowired
     ScoresResultToEventConverter scoresResultToEventConverter;
-
     @Autowired
     DbP2pFieldResolver dbP2pFieldResolver;
-
     @MockBean
     GeoIpServiceSrv.Iface iface;
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            TestPropertyValues
-                    .of("clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                            "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                            "clickhouse.db.password=" + clickHouseContainer.getPassword())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-        }
-    }
+    @Autowired
+    private EventP2PRepository eventP2PRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     private static void initDb() throws SQLException {
-        ChInitializer.initAllScripts(clickHouseContainer,
-                List.of("sql/db_init.sql",
-                        "sql/V2__create_events_p2p.sql"));
+        ChInitializer.initAllScripts(
+                clickHouseContainer,
+                List.of(
+                        "sql/db_init.sql",
+                        "sql/V2__create_events_p2p.sql"
+                )
+        );
     }
 
     @Before
@@ -106,8 +101,10 @@ public class EventP2PRepositoryTest {
                         .collect(Collectors.toList())
         );
 
-        Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
-                (resultSet, i) -> resultSet.getInt("cnt"));
+        Integer count = jdbcTemplate.queryForObject(
+                SELECT_COUNT_AS_CNT_FROM_FRAUD_EVENTS_UNIQUE,
+                (resultSet, i) -> resultSet.getInt("cnt")
+        );
 
         assertEquals(2, count.intValue());
     }
@@ -159,7 +156,8 @@ public class EventP2PRepositoryTest {
                 .convertBatch(List.of(
                         createScoresResult(ResultStatus.ACCEPT, BeanUtil.createP2PModel()),
                         createScoresResult(ResultStatus.DECLINE, BeanUtil.createP2PModelSecond()),
-                        createScoresResult(ResultStatus.DECLINE, p2PModelSecond))
+                        createScoresResult(ResultStatus.DECLINE, p2PModelSecond)
+                        )
                 )
         );
 
@@ -168,11 +166,23 @@ public class EventP2PRepositoryTest {
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
 
         FieldModel email = dbP2pFieldResolver.resolve(P2PCheckedField.EMAIL, p2PModelSecond);
-        int count = eventP2PRepository.countOperationByFieldWithGroupBy(EventP2PField.email.name(), email.getValue(), from, to, List.of());
+        int count = eventP2PRepository.countOperationByFieldWithGroupBy(
+                EventP2PField.email.name(),
+                email.getValue(),
+                from,
+                to,
+                List.of()
+        );
         assertEquals(2, count);
 
         FieldModel resolve = dbP2pFieldResolver.resolve(P2PCheckedField.IDENTITY_ID, p2PModelSecond);
-        count = eventP2PRepository.countOperationByFieldWithGroupBy(EventP2PField.email.name(), email.getValue(), from, to, List.of(resolve));
+        count = eventP2PRepository.countOperationByFieldWithGroupBy(
+                EventP2PField.email.name(),
+                email.getValue(),
+                from,
+                to,
+                List.of(resolve)
+        );
         assertEquals(1, count);
     }
 
@@ -184,7 +194,13 @@ public class EventP2PRepositoryTest {
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
 
-        Long sum = eventP2PRepository.sumOperationByFieldWithGroupBy(EventP2PField.email.name(), BeanUtil.EMAIL, from, to, List.of());
+        Long sum = eventP2PRepository.sumOperationByFieldWithGroupBy(
+                EventP2PField.email.name(),
+                BeanUtil.EMAIL,
+                from,
+                to,
+                List.of()
+        );
         assertEquals(BeanUtil.AMOUNT_FIRST, sum);
     }
 
@@ -197,7 +213,8 @@ public class EventP2PRepositoryTest {
                         createScoresResult(ResultStatus.ACCEPT, BeanUtil.createP2PModel()),
                         createScoresResult(ResultStatus.DECLINE, BeanUtil.createP2PModelSecond()),
                         createScoresResult(ResultStatus.DECLINE, BeanUtil.createP2PModel()),
-                        createScoresResult(ResultStatus.DECLINE, p2pModel))
+                        createScoresResult(ResultStatus.DECLINE, p2pModel)
+                        )
                 )
         );
 
@@ -205,7 +222,13 @@ public class EventP2PRepositoryTest {
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
 
-        Integer sum = eventP2PRepository.uniqCountOperation(EventP2PField.email.name(), BeanUtil.EMAIL, EventP2PField.fingerprint.name(), from, to);
+        Integer sum = eventP2PRepository.uniqCountOperation(
+                EventP2PField.email.name(),
+                BeanUtil.EMAIL,
+                EventP2PField.fingerprint.name(),
+                from,
+                to
+        );
         assertEquals(Integer.valueOf(2), sum);
     }
 
@@ -220,19 +243,49 @@ public class EventP2PRepositoryTest {
                         createScoresResult(ResultStatus.ACCEPT, BeanUtil.createP2PModel()),
                         createScoresResult(ResultStatus.DECLINE, BeanUtil.createP2PModelSecond()),
                         createScoresResult(ResultStatus.DECLINE, BeanUtil.createP2PModel()),
-                        createScoresResult(ResultStatus.DECLINE, p2pModel))
+                        createScoresResult(ResultStatus.DECLINE, p2pModel)
+                        )
                 )
         );
 
         Instant now = Instant.now();
         Long to = TimestampUtil.generateTimestampNowMillis(now);
         Long from = TimestampUtil.generateTimestampMinusMinutesMillis(now, 10L);
-        Integer sum = eventP2PRepository.uniqCountOperationWithGroupBy(EventP2PField.email.name(), BeanUtil.EMAIL, EventP2PField.fingerprint.name(), from, to, List.of());
+        Integer sum = eventP2PRepository.uniqCountOperationWithGroupBy(
+                EventP2PField.email.name(),
+                BeanUtil.EMAIL,
+                EventP2PField.fingerprint.name(),
+                from,
+                to,
+                List.of()
+        );
         assertEquals(Integer.valueOf(2), sum);
 
         FieldModel resolve = dbP2pFieldResolver.resolve(P2PCheckedField.IDENTITY_ID, p2pModel);
-        sum = eventP2PRepository.uniqCountOperationWithGroupBy(EventP2PField.email.name(), BeanUtil.EMAIL, EventP2PField.fingerprint.name(), from, to, List.of(resolve));
+        sum = eventP2PRepository.uniqCountOperationWithGroupBy(
+                EventP2PField.email.name(),
+                BeanUtil.EMAIL,
+                EventP2PField.fingerprint.name(),
+                from,
+                to,
+                List.of(resolve)
+        );
         assertEquals(Integer.valueOf(1), sum);
+    }
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @SneakyThrows
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
+            TestPropertyValues
+                    .of(
+                            "clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
+                            "clickhouse.db.user=" + clickHouseContainer.getUsername(),
+                            "clickhouse.db.password=" + clickHouseContainer.getPassword()
+                    )
+                    .applyTo(configurableApplicationContext.getEnvironment());
+        }
     }
 
 }

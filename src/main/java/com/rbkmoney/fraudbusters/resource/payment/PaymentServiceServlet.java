@@ -6,15 +6,15 @@ import lombok.RequiredArgsConstructor;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
+
 import java.io.IOException;
 
 @WebServlet("/fraud_payment/v1/")
 @RequiredArgsConstructor
 public class PaymentServiceServlet extends GenericServlet {
 
-    private Servlet thriftServlet;
-
     private final PaymentServiceSrv.Iface paymentServiceHandler;
+    private Servlet thriftServlet;
 
     @Override
     public void init(ServletConfig config) throws ServletException {

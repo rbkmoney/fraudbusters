@@ -66,6 +66,8 @@ public class PaymentKafkaConfig {
 
     @Bean
     public KafkaTemplate<String, FraudResult> kafkaFraudResultTemplate() {
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerJsonConfigs()));
+        return new KafkaTemplate<>(
+                new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerJsonConfigs())
+        );
     }
 }

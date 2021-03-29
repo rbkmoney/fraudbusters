@@ -37,11 +37,14 @@ public class SimpleMeasureAspect {
     public SimpleMeasureAspect(MeterRegistry registry) {
         this(registry, pjp ->
                 Tags.of("class", pjp.getStaticPart().getSignature().getDeclaringTypeName(),
-                        "method", pjp.getStaticPart().getSignature().getName())
+                        "method", pjp.getStaticPart().getSignature().getName()
+                )
         );
     }
 
-    public SimpleMeasureAspect(MeterRegistry registry, Function<ProceedingJoinPoint, Iterable<Tag>> tagsBasedOnJoinPoint) {
+    public SimpleMeasureAspect(
+            MeterRegistry registry,
+            Function<ProceedingJoinPoint, Iterable<Tag>> tagsBasedOnJoinPoint) {
         this.registry = registry;
         this.tagsBasedOnJoinPoint = tagsBasedOnJoinPoint;
     }

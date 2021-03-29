@@ -17,11 +17,17 @@ public class SslKafkaUtils {
         Map<String, Object> configProps = new HashMap<>();
         if (kafkaSslProperties.isEnable()) {
             configProps.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SSL);
-            configProps.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, new File(kafkaSslProperties.getServerKeystoreLocation()).getAbsolutePath());
+            configProps.put(
+                    SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
+                    new File(kafkaSslProperties.getServerKeystoreLocation()).getAbsolutePath()
+            );
             configProps.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, kafkaSslProperties.getServerPassword());
             configProps.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, PKCS_12);
             configProps.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, PKCS_12);
-            configProps.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, new File(kafkaSslProperties.getKeystoreLocation()).getAbsolutePath());
+            configProps.put(
+                    SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
+                    new File(kafkaSslProperties.getKeystoreLocation()).getAbsolutePath()
+            );
             configProps.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, kafkaSslProperties.getKeystorePassword());
             configProps.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, kafkaSslProperties.getKeyPassword());
         }
