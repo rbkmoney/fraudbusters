@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.rbkmoney</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>1.0.9</version>
+        <version>1.2.1</version>
     </parent>
 
     <name>fraudbusters</name>
@@ -149,11 +149,6 @@
             <groupId>ru.yandex.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
             <version>${clickhouse-jdbc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>27.0.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.janino</groupId>
