@@ -24,7 +24,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <fraudo.version>0.0.22</fraudo.version>
         <wb.list.proto.version>1.33-554d59c</wb.list.proto.version>
-        <clickhouse-jdbc.version>0.2.4</clickhouse-jdbc.version>
+        <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
         <fraudbusters-proto.version>1.67-fa4d6ec</fraudbusters-proto.version>
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
 
