@@ -12,6 +12,7 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.util.PayerFieldExtractor;
 import com.rbkmoney.fraudbusters.util.PaymentTypeByContextResolver;
 import com.rbkmoney.geck.common.util.TypeUtil;
+import com.rbkmoney.mamsel.TokenProviderUtil;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
@@ -83,7 +84,7 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
             metadata.setBankName(bankCard.getBankName());
             metadata.setPayerType(PayerFieldExtractor.getPayerType(context.getPayment().getPayment().getPayer()));
             metadata.setTokenProvider(paymentTypeByContextResolver.isMobile(bankCard)
-                    ? bankCard.getTokenProvider().name()
+                    ? TokenProviderUtil.getTokenProviderName(bankCard)
                     : ClickhouseUtilsValue.UNKNOWN);
         });
         return metadata;

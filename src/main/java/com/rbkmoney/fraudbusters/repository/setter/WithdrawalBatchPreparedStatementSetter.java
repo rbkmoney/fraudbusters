@@ -4,6 +4,7 @@ import com.rbkmoney.damsel.fraudbusters.Resource;
 import com.rbkmoney.damsel.fraudbusters.Withdrawal;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
+import com.rbkmoney.mamsel.PaymentSystemUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
@@ -17,12 +18,12 @@ import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
 public class WithdrawalBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
     public static final String FIELDS = " timestamp, eventTimeHour, eventTime, " +
-                                        "id, " +
-                                        "amount, currency, " +
-                                        "bin, maskedPan, cardToken, paymentSystem, " +
-                                        "terminal, providerId, bankCountry, " +
-                                        "identityId, accountId, accountCurrency, " +
-                                        "status, errorCode, errorReason";
+            "id, " +
+            "amount, currency, " +
+            "bin, maskedPan, cardToken, paymentSystem, " +
+            "terminal, providerId, bankCountry, " +
+            "identityId, accountId, accountCurrency, " +
+            "status, errorCode, errorReason";
 
     public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
@@ -49,11 +50,9 @@ public class WithdrawalBatchPreparedStatementSetter implements BatchPreparedStat
                 destinationResource.isSetBankCard() ? destinationResource.getBankCard().getLastDigits() : UNKNOWN
         );
         ps.setString(l++, destinationResource.isSetBankCard() ? destinationResource.getBankCard().getToken() : UNKNOWN);
-        ps.setString(
-                l++,
-                destinationResource.isSetBankCard()
-                        ? destinationResource.getBankCard().getPaymentSystem().name()
-                        : UNKNOWN
+        ps.setString(l++, destinationResource.isSetBankCard()
+                ? PaymentSystemUtil.getPaymentSystemName(destinationResource.getBankCard())
+                : UNKNOWN
         );
 
         ps.setString(l++, withdrawal.isSetProviderInfo() ? withdrawal.getProviderInfo().getTerminalId() : UNKNOWN);

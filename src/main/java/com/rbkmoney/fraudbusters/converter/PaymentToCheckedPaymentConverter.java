@@ -1,13 +1,15 @@
 package com.rbkmoney.fraudbusters.converter;
 
 import com.rbkmoney.damsel.domain.PaymentTool;
-import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.fraudbusters.Error;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.constant.PaymentToolType;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.geck.common.util.TBaseUtil;
+import com.rbkmoney.mamsel.PaymentSystemUtil;
+import com.rbkmoney.mamsel.TokenProviderUtil;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -37,9 +39,9 @@ public class PaymentToCheckedPaymentConverter implements Converter<Payment, Chec
         checkedPayment.setBin(paymentTool.isSetBankCard() ? paymentTool.getBankCard().getBin() : UNKNOWN);
         checkedPayment.setMaskedPan(paymentTool.isSetBankCard() ? paymentTool.getBankCard().getLastDigits() : UNKNOWN);
         checkedPayment.setCardToken(paymentTool.isSetBankCard() ? paymentTool.getBankCard().getToken() : UNKNOWN);
-        checkedPayment.setPaymentSystem(paymentTool.isSetBankCard() ? paymentTool.getBankCard()
-                .getPaymentSystem()
-                .name() : UNKNOWN);
+        checkedPayment.setPaymentSystem(paymentTool.isSetBankCard()
+                ? PaymentSystemUtil.getPaymentSystemName(paymentTool.getBankCard())
+                : UNKNOWN);
 
         ProviderInfo providerInfo = payment.getProviderInfo();
         checkedPayment.setTerminal(providerInfo.getTerminalId());
@@ -61,8 +63,9 @@ public class PaymentToCheckedPaymentConverter implements Converter<Payment, Chec
         checkedPayment.setErrorReason(error == null ? null : error.getErrorReason());
 
         checkedPayment.setPayerType(payment.isSetPayerType() ? payment.getPayerType().name() : UNKNOWN);
-        checkedPayment.setTokenProvider(paymentTool.isSetBankCard() && paymentTool.getBankCard().isSetTokenProvider()
-                ? paymentTool.getBankCard().getTokenProvider().name()
+        checkedPayment.setTokenProvider(paymentTool.isSetBankCard() &&
+                TokenProviderUtil.isSetTokenProvider(paymentTool.getBankCard())
+                ? TokenProviderUtil.getTokenProviderName(paymentTool.getBankCard())
                 : UNKNOWN);
         checkedPayment.setMobile(payment.isMobile());
         checkedPayment.setRecurrent(payment.isRecurrent());

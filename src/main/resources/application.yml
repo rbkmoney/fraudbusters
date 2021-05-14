@@ -6,7 +6,7 @@ management:
     export:
       statsd:
         flavor: etsy
-    enable:
+        enabled: true
       resolveCountry: true
       findInListSome: true
       findInListConcrete: true

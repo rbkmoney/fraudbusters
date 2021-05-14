@@ -2,17 +2,17 @@ package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.base.Content;
 import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.fraudbusters.ClientInfo;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.p2p_insp.Identity;
 import com.rbkmoney.damsel.p2p_insp.Raw;
 import com.rbkmoney.damsel.p2p_insp.Transfer;
 import com.rbkmoney.damsel.p2p_insp.TransferInfo;
 import com.rbkmoney.damsel.payment_processing.*;
-import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
+import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
@@ -148,11 +148,11 @@ public class BeanUtil {
     private static BankCard createBankCard() {
         BankCard value = new BankCard(
                 "477bba133c182267fe5f086924abdc5db71f77bfc27f01f2843f2cdc69d89f05",
-                BankCardPaymentSystem.mastercard,
                 BIN,
                 "4242"
         );
-        value.setIssuerCountry(Residence.RUS);
+        value.setIssuerCountry(Residence.RUS)
+                .setPaymentSystem(new PaymentSystemRef("mastercard"));
         return value;
     }
 
@@ -623,7 +623,7 @@ public class BeanUtil {
                 .setBin("1234")
                 .setToken(TOKEN)
                 .setLastDigits("433242")
-                .setPaymentSystem(BankCardPaymentSystem.visa)
+                .setPaymentSystem(new PaymentSystemRef("visa"))
         );
     }
 
