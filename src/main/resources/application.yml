@@ -6,7 +6,7 @@ management:
     export:
       statsd:
         flavor: etsy
-    enable:
+        enabled: true
       resolveCountry: true
       findInListSome: true
       findInListConcrete: true
@@ -114,5 +114,5 @@ card-token-pool:
 load.isTrusted.enabled: false
 
 trusted.providers:
-  list: "'108', '114', '118', '119', '121', '125', '126', '128', '130', '134', '135', '136', '132', '137', '143', '139', '144', '149'"
+  list: 108,114,118,119,121,125,126,128,130,134,135,136,132,137,143,139,144,149
   interval-time-year: 1.5

@@ -6,6 +6,8 @@ import com.rbkmoney.fraudbusters.constant.PaymentToolType;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.geck.common.util.TBaseUtil;
+import com.rbkmoney.mamsel.PaymentSystemUtil;
+import com.rbkmoney.mamsel.TokenProviderUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
@@ -19,14 +21,14 @@ import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
 public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
     public static final String FIELDS = " timestamp, eventTimeHour, eventTime, " +
-                                        "id, " +
-                                        "email, ip, fingerprint, " +
-                                        "bin, maskedPan, cardToken, paymentSystem, paymentTool , " +
-                                        "terminal, providerId, bankCountry, " +
-                                        "partyId, shopId, " +
-                                        "amount, currency, " +
-                                        "status, category, chargebackCode, paymentId, " +
-                                        "payerType, tokenProvider";
+            "id, " +
+            "email, ip, fingerprint, " +
+            "bin, maskedPan, cardToken, paymentSystem, paymentTool , " +
+            "terminal, providerId, bankCountry, " +
+            "partyId, shopId, " +
+            "amount, currency, " +
+            "status, category, chargebackCode, paymentId, " +
+            "payerType, tokenProvider";
 
     public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
@@ -53,7 +55,9 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
         ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getBin() : UNKNOWN);
         ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getLastDigits() : UNKNOWN);
         ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getToken() : UNKNOWN);
-        ps.setString(l++, paymentTool.isSetBankCard() ? paymentTool.getBankCard().getPaymentSystem().name() : UNKNOWN);
+        ps.setString(l++, paymentTool.isSetBankCard()
+                ? PaymentSystemUtil.getPaymentSystemName(paymentTool.getBankCard())
+                : UNKNOWN);
         ps.setString(l++, TBaseUtil.unionFieldToEnum(paymentTool, PaymentToolType.class).name());
 
         ProviderInfo providerInfo = event.getProviderInfo();
@@ -83,10 +87,9 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
         ps.setString(l++, event.getPaymentId());
 
         ps.setString(l++, event.isSetPayerType() ? event.getPayerType().name() : UNKNOWN);
-        ps.setString(l,
-                paymentTool.isSetBankCard() && paymentTool.getBankCard().isSetTokenProvider()
-                        ? paymentTool.getBankCard().getTokenProvider().name()
-                        : UNKNOWN
+        ps.setString(l, paymentTool.isSetBankCard() && TokenProviderUtil.isSetTokenProvider(paymentTool.getBankCard())
+                ? TokenProviderUtil.getTokenProviderName(paymentTool.getBankCard())
+                : UNKNOWN
         );
     }
 
