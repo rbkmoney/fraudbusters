@@ -151,7 +151,7 @@ public class BeanUtil {
                 BIN,
                 "4242"
         );
-        value.setIssuerCountry(Residence.RUS)
+        value.setIssuerCountry(CountryCode.RUS)
                 .setPaymentSystem(new PaymentSystemRef("mastercard"));
         return value;
     }

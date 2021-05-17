@@ -82,7 +82,8 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
                 .ifPresent(bankCard -> {
                     metadata.setMaskedPan(bankCard.getLastDigits());
                     metadata.setBankName(bankCard.getBankName());
-                    metadata.setPayerType(PayerFieldExtractor.getPayerType(context.getPayment().getPayment().getPayer()));
+                    metadata.setPayerType(
+                            PayerFieldExtractor.getPayerType(context.getPayment().getPayment().getPayer()));
                     metadata.setTokenProvider(paymentTypeByContextResolver.isMobile(bankCard)
                             ? TokenProviderUtil.getTokenProviderName(bankCard)
                             : ClickhouseUtilsValue.UNKNOWN);
