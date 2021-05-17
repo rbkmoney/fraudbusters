@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.setter.RefundBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.util.PaymentTypeByContextResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,6 +29,7 @@ public class RefundRepository implements Repository<Refund>, AggregationReposito
     );
     private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
+    private final PaymentTypeByContextResolver paymentTypeByContextResolver;
 
     @Override
     public void insert(Refund refund) {
@@ -38,7 +40,9 @@ public class RefundRepository implements Repository<Refund>, AggregationReposito
     public void insertBatch(List<Refund> batch) {
         if (!CollectionUtils.isEmpty(batch)) {
             log.debug("RefundRepository insertBatch batch size: {}", batch.size());
-            jdbcTemplate.batchUpdate(INSERT, new RefundBatchPreparedStatementSetter(batch));
+            jdbcTemplate.batchUpdate(
+                    INSERT,
+                    new RefundBatchPreparedStatementSetter(batch, paymentTypeByContextResolver));
         }
     }
 

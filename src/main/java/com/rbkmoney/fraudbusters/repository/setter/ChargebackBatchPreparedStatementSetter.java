@@ -4,6 +4,7 @@ import com.rbkmoney.damsel.domain.PaymentTool;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.constant.PaymentToolType;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
+import com.rbkmoney.fraudbusters.util.PaymentTypeByContextResolver;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.mamsel.PaymentSystemUtil;
@@ -33,6 +34,7 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
     public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
     private final List<Chargeback> batch;
+    private final PaymentTypeByContextResolver paymentTypeByContextResolver;
 
     @Override
     public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -87,7 +89,7 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
         ps.setString(l++, event.getPaymentId());
 
         ps.setString(l++, event.isSetPayerType() ? event.getPayerType().name() : UNKNOWN);
-        ps.setString(l, paymentTool.isSetBankCard() && TokenProviderUtil.isSetTokenProvider(paymentTool.getBankCard())
+        ps.setString(l, paymentTool.isSetBankCard() && paymentTypeByContextResolver.isMobile(paymentTool.getBankCard())
                 ? TokenProviderUtil.getTokenProviderName(paymentTool.getBankCard())
                 : UNKNOWN
         );

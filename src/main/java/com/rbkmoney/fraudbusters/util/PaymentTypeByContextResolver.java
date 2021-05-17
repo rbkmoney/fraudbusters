@@ -13,7 +13,7 @@ public class PaymentTypeByContextResolver {
     }
 
     public boolean isMobile(BankCard bankCard) {
-        return TokenProviderUtil.isSetTokenProvider(bankCard);
+        return TokenProviderUtil.getTokenProviderName(bankCard) != null;
     }
 
 }

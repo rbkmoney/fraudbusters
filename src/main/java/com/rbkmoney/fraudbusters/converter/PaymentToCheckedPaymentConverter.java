@@ -6,10 +6,12 @@ import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.constant.PaymentToolType;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.TimeProperties;
+import com.rbkmoney.fraudbusters.util.PaymentTypeByContextResolver;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.mamsel.PaymentSystemUtil;
 import com.rbkmoney.mamsel.TokenProviderUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -17,7 +19,10 @@ import org.springframework.stereotype.Component;
 import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
 
 @Component
+@RequiredArgsConstructor
 public class PaymentToCheckedPaymentConverter implements Converter<Payment, CheckedPayment> {
+
+    private final PaymentTypeByContextResolver paymentTypeByContextResolver;
 
     @NonNull
     @Override
@@ -64,7 +69,7 @@ public class PaymentToCheckedPaymentConverter implements Converter<Payment, Chec
 
         checkedPayment.setPayerType(payment.isSetPayerType() ? payment.getPayerType().name() : UNKNOWN);
         checkedPayment.setTokenProvider(paymentTool.isSetBankCard()
-                && TokenProviderUtil.isSetTokenProvider(paymentTool.getBankCard())
+                && paymentTypeByContextResolver.isMobile(paymentTool.getBankCard())
                 ? TokenProviderUtil.getTokenProviderName(paymentTool.getBankCard())
                 : UNKNOWN);
         checkedPayment.setMobile(payment.isMobile());

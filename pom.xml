@@ -114,6 +114,7 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>mamsel</artifactId>
+            <version>0.1.0000</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney.woody</groupId>
