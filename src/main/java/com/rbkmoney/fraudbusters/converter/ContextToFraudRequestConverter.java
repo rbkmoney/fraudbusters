@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-
 @Component
 @RequiredArgsConstructor
 public class ContextToFraudRequestConverter implements Converter<Context, FraudRequest> {
@@ -79,14 +78,16 @@ public class ContextToFraudRequestConverter implements Converter<Context, FraudR
         metadata.setCurrency(payment.getPayment().getCost().getCurrency().symbolic_code);
         metadata.setInvoiceId(payment.getInvoice().getId());
         metadata.setPaymentId(payment.getPayment().getId());
-        PayerFieldExtractor.getBankCard(context.getPayment().getPayment().getPayer()).ifPresent(bankCard -> {
-            metadata.setMaskedPan(bankCard.getLastDigits());
-            metadata.setBankName(bankCard.getBankName());
-            metadata.setPayerType(PayerFieldExtractor.getPayerType(context.getPayment().getPayment().getPayer()));
-            metadata.setTokenProvider(paymentTypeByContextResolver.isMobile(bankCard)
-                    ? TokenProviderUtil.getTokenProviderName(bankCard)
-                    : ClickhouseUtilsValue.UNKNOWN);
-        });
+        PayerFieldExtractor.getBankCard(context.getPayment().getPayment().getPayer())
+                .ifPresent(bankCard -> {
+                    metadata.setMaskedPan(bankCard.getLastDigits());
+                    metadata.setBankName(bankCard.getBankName());
+                    metadata.setPayerType(
+                            PayerFieldExtractor.getPayerType(context.getPayment().getPayment().getPayer()));
+                    metadata.setTokenProvider(paymentTypeByContextResolver.isMobile(bankCard)
+                            ? TokenProviderUtil.getTokenProviderName(bankCard)
+                            : ClickhouseUtilsValue.UNKNOWN);
+                });
         return metadata;
     }
 
