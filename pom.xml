@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.rbkmoney</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
     </parent>
 
     <name>fraudbusters</name>
@@ -114,7 +114,6 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>mamsel</artifactId>
-            <version>0.1.0000</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney.woody</groupId>
