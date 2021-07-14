@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.yandex.clickhouse.ClickHouseDataSource;
 import ru.yandex.clickhouse.settings.ClickHouseConnectionSettings;
 import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
@@ -59,6 +60,11 @@ public class ClickhouseConfig {
         info.put(ClickHouseConnectionSettings.CONNECTION_TIMEOUT.getKey(), Integer.parseInt(connectionTimeout));
         info.put(ClickHouseConnectionSettings.SOCKET_TIMEOUT.getKey(), Integer.parseInt(socketTimeout));
         return new JdbcTemplate(new ClickHouseDataSource(dbUrl, info));
+    }
+
+    @Bean
+    public NamedParameterJdbcTemplate namedParameterJdbcTemplate() {
+        return new NamedParameterJdbcTemplate(clickHouseDataSource());
     }
 
 }
