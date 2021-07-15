@@ -64,7 +64,6 @@ public class HistoricalDataRepositoryImpl implements HistoricalDataRepository {
                 .addValue("id", filter.getLastId())
                 .addValue("size", filter.getSize())
         ;
-        namedParameterJdbcTemplate.query(query, params, checkedPaymentMapper);
-        return null;
+        return namedParameterJdbcTemplate.query(query, params, checkedPaymentMapper);
     }
 }
