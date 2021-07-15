@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,16 +59,12 @@ public class HistoricalDataRepositoryImpl implements HistoricalDataRepository {
         String pagination = "ORDER BY id DESC LIMIT :size";
         String query = select + filters.toString() + pagination;
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("from", LocalDateTime.now()) // TODO поменять
-                .addValue("to", LocalDateTime.now()) // TODO поменять
+        params.addValue("from", filter.getTimeFrom())
+                .addValue("to", filter.getTimeTo())
                 .addValue("id", filter.getLastId())
                 .addValue("size", filter.getSize())
         ;
         namedParameterJdbcTemplate.query(query, params, checkedPaymentMapper);
         return null;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(LocalDateTime.now());
     }
 }

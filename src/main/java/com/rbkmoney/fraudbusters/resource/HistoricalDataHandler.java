@@ -24,18 +24,26 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
 
     @Override
     public PaymentInfoResult getPayments(Filter filter, Page page) {
-        Map<PaymentField, String> searchPatterns = buildFilters(filter);
-        FilterDto filterDto = FilterDto.builder()
-                .lastId(page.getContinuationId())
-                .size((int) page.getSize())
-                .searchPatterns(searchPatterns)
-                .build();
+        FilterDto filterDto = buildFilter(filter, page);
         HistoricalPaymentsDto historicalPaymentsDto = historicalDataService.getPayments(filterDto);
         return buildResult(historicalPaymentsDto);
     }
 
+    private FilterDto buildFilter(Filter filter, Page page) {
+        FilterDto filterDto = new FilterDto();
+        Map<PaymentField, String> searchPatterns = assembleSearchPatterns(filter);
+        if (filter.isSetInterval()) {
+            filterDto.setTimeFrom(filter.getInterval().getLowerBound().getBoundTime());
+            filterDto.setTimeTo(filter.getInterval().getUpperBound().getBoundTime());
+        }
+        filterDto.setLastId(page.getContinuationId());
+        filterDto.setSize((int) page.getSize());
+        filterDto.setSearchPatterns(searchPatterns);
+        return filterDto;
+    }
+
     @NotNull
-    private Map<PaymentField, String> buildFilters(Filter filter) {
+    private Map<PaymentField, String> assembleSearchPatterns(Filter filter) {
         Map<PaymentField, String> searchPatterns = new HashMap<>();
         if (filter.isSetCardToken()) {
             searchPatterns.put(PaymentField.CARD_TOKEN, filter.getCardToken());

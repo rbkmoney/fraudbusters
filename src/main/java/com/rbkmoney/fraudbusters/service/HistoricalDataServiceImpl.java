@@ -26,6 +26,7 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
                 .build();
     }
 
+    // TODO id надо брать составной
     @Nullable
     private String getLastId(Integer filterSize, List<CheckedPayment> payments) {
         if (payments.size() == filterSize) {
