@@ -31,7 +31,6 @@ public class CheckedPaymentMapper implements RowMapper<CheckedPayment> {
         payment.setPaymentStatus(rs.getString("status"));
         payment.setErrorCode(rs.getString("errorCode"));
         payment.setErrorReason(rs.getString("errorReason"));
-        payment.setTokenProvider(rs.getString("tokenProvider"));
         return payment;
     }
 }

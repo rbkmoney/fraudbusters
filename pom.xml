@@ -25,7 +25,7 @@
         <fraudo.version>0.0.22</fraudo.version>
         <wb.list.proto.version>1.33-554d59c</wb.list.proto.version>
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
-        <fraudbusters-proto.version>1.77-ad93ea7</fraudbusters-proto.version>
+        <fraudbusters-proto.version>1.80-46a1cc1</fraudbusters-proto.version>
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
 
         <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
@@ -200,7 +200,13 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>clickhouse</artifactId>
-            <version>1.15.1</version>
+            <version>1.15.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.15.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>

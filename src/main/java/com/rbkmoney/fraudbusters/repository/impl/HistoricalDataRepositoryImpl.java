@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.repository.impl;
 
+import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.constant.PaymentField;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.repository.HistoricalDataRepository;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -23,13 +25,14 @@ public class HistoricalDataRepositoryImpl implements HistoricalDataRepository {
 
     @Override
     public List<CheckedPayment> getPayments(FilterDto filter) {
-        String select = "SELECT " +
-                "    toDateTime(eventTime) as eventTime, " +
+        String select = "" +
+                "SELECT " +
+                "     eventTime, " +
                 "    partyId, " +
                 "    shopId, " +
                 "    email, " +
                 "    amount / 100 as amount, " +
-                "    currency as cur, " +
+                "    currency, " +
                 "    id, " +
                 "    cardToken, " +
                 "    bankCountry, " +
@@ -43,16 +46,19 @@ public class HistoricalDataRepositoryImpl implements HistoricalDataRepository {
                 "    paymentTool, " +
                 "    providerId, " +
                 "    terminal " +
-                "FROM payment " +
-                "WHERE " +
+                " FROM " +
+                EventSource.FRAUD_EVENTS_PAYMENT.getTable() +
+                " WHERE " +
                 "    timestamp >= toDate(:from) " +
                 "    and timestamp <= toDate(:to) " +
-                "    and toDateTime(eventTime) >= :from " +
-                "    and toDateTime(eventTime) <= :to ";
+                "    and toDateTime(eventTime) >= toDateTime(:from) " +
+                "    and toDateTime(eventTime) <= toDateTime(:to) ";
         StringBuilder filters = new StringBuilder();
         Map<PaymentField, String> filterFields = filter.getSearchPatterns();
-        filterFields.forEach((key, value) ->
-                filters.append(" and like(").append(key.getValue()).append(",'").append(value).append("')"));
+        if (!CollectionUtils.isEmpty(filterFields)) {
+            filterFields.forEach((key, value) ->
+                    filters.append(" and like(").append(key.getValue()).append(",'").append(value).append("')"));
+        }
         if (Objects.nonNull(filter.getLastId())) {
             filters.append(" and id <= :id ");
         }

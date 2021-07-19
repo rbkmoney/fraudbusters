@@ -1,11 +1,14 @@
 package com.rbkmoney.fraudbusters.converter;
 
-import com.rbkmoney.damsel.domain.CurrencyRef;
 import com.rbkmoney.damsel.fraudbusters.Error;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Component
 public class CheckedPaymentToPaymentInfoConverter implements Converter<CheckedPayment, PaymentInfo> {
@@ -14,12 +17,15 @@ public class CheckedPaymentToPaymentInfoConverter implements Converter<CheckedPa
     public PaymentInfo convert(CheckedPayment checkedPayment) {
         PaymentInfo paymentInfo = new PaymentInfo();
         paymentInfo.setId(checkedPayment.getId());
-        paymentInfo.setEventTime(checkedPayment.getEventTime().toString());
+        LocalDateTime eventTime =
+                Instant.ofEpochMilli(checkedPayment.getEventTime()).atZone(ZoneId.of("UTC")).toLocalDateTime();
+        paymentInfo.setEventTime(eventTime.toString());
         paymentInfo.setCardToken(checkedPayment.getCardToken());
         paymentInfo.setAmount(checkedPayment.getAmount());
         paymentInfo.setPaymentTool(checkedPayment.getPaymentTool());
         paymentInfo.setPaymentCountry(checkedPayment.getPaymentCountry());
-        paymentInfo.setCurrency(new CurrencyRef().setSymbolicCode(checkedPayment.getCurrency()));
+        paymentInfo.setCurrency(checkedPayment.getCurrency());
+        paymentInfo.setPaymentSystem(checkedPayment.getPaymentSystem());
         MerchantInfo merchantInfo = new MerchantInfo();
         merchantInfo.setPartyId(checkedPayment.getPartyId());
         merchantInfo.setShopId(checkedPayment.getShopId());
@@ -38,7 +44,6 @@ public class CheckedPaymentToPaymentInfoConverter implements Converter<CheckedPa
         providerInfo.setProviderId(checkedPayment.getProviderId());
         providerInfo.setCountry(checkedPayment.getBankCountry());
         providerInfo.setTerminalId(checkedPayment.getTerminal());
-        // TODO payment system
         return paymentInfo;
     }
 }
