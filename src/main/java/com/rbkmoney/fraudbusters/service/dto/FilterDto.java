@@ -8,8 +8,10 @@ import java.util.Map;
 @Data
 public class FilterDto {
 
+    private static final Long DEFAULT_PAGE_SIZE = 10L;
+
     private String lastId;
-    private Integer size;
+    private Long size = DEFAULT_PAGE_SIZE;
     private String timeFrom;
     private String timeTo;
     private Map<PaymentField, String> searchPatterns;

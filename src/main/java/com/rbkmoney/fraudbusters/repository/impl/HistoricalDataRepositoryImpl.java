@@ -60,7 +60,7 @@ public class HistoricalDataRepositoryImpl implements HistoricalDataRepository {
                     filters.append(" and like(").append(key.getValue()).append(",'").append(value).append("')"));
         }
         if (Objects.nonNull(filter.getLastId())) {
-            filters.append(" and id <= :id ");
+            filters.append(" and id < :id ");
         }
         String pagination = "ORDER BY id DESC LIMIT :size";
         String query = select + filters.toString() + pagination;

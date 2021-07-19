@@ -44,6 +44,7 @@ public class CheckedPaymentToPaymentInfoConverter implements Converter<CheckedPa
         providerInfo.setProviderId(checkedPayment.getProviderId());
         providerInfo.setCountry(checkedPayment.getBankCountry());
         providerInfo.setTerminalId(checkedPayment.getTerminal());
+        paymentInfo.setProvider(providerInfo);
         return paymentInfo;
     }
 }
