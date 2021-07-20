@@ -30,6 +30,7 @@ class FilterConverterTest {
         String providerCountry = TestObjectsFactory.randomString();
         String fingerPrint = TestObjectsFactory.randomString();
         String terminal = TestObjectsFactory.randomString();
+        String id = TestObjectsFactory.randomString();
         filter.setPartyId(partyId);
         filter.setEmail(email);
         filter.setCardToken(cardToken);
@@ -38,6 +39,7 @@ class FilterConverterTest {
         filter.setStatus(status);
         filter.setTerminal(terminal);
         filter.setProviderCountry(providerCountry);
+        filter.setPaymentId(id);
         TimestampInterval timestampInterval = new TimestampInterval();
         TimestampIntervalBound lowerBound = new TimestampIntervalBound();
         String lowerBoundTime = LocalDateTime.now().toString();
@@ -69,6 +71,7 @@ class FilterConverterTest {
         assertEquals(filter.getStatus(), searchPatterns.get(PaymentField.STATUS));
         assertEquals(filter.getProviderCountry(), searchPatterns.get(PaymentField.BANK_COUNTRY));
         assertEquals(filter.getTerminal(), searchPatterns.get(PaymentField.TERMINAL));
+        assertEquals(filter.getPaymentId(), searchPatterns.get(PaymentField.ID));
 
 
     }

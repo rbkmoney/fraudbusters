@@ -53,7 +53,9 @@ public class FilterConverter {
         if (filter.isSetTerminal()) {
             searchPatterns.put(PaymentField.TERMINAL, filter.getTerminal());
         }
-        // TODO payment_id
+        if (filter.isSetPaymentId()) {
+            searchPatterns.put(PaymentField.ID, filter.getPaymentId());
+        }
         return searchPatterns;
     }
 
