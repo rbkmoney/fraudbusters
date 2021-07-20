@@ -19,18 +19,18 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     @Override
     public HistoricalPaymentsDto getPayments(FilterDto filter) {
         List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
-        String lastId = getLastId(filter.getSize(), payments);
+        String lastId = buildLastId(filter.getSize(), payments);
         return HistoricalPaymentsDto.builder()
                 .payments(payments)
                 .lastId(lastId)
                 .build();
     }
 
-    // TODO id надо брать составной
     @Nullable
-    private String getLastId(Long filterSize, List<CheckedPayment> payments) {
+    private String buildLastId(Long filterSize, List<CheckedPayment> payments) {
         if (payments.size() == filterSize) {
-            return payments.get(payments.size() - 1).getId();
+            CheckedPayment lastPayment = payments.get(payments.size() - 1);
+            return lastPayment.getId() + "-" + lastPayment.getPaymentStatus();
         }
         return null;
     }

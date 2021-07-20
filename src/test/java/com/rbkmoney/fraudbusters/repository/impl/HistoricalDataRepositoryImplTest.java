@@ -87,11 +87,10 @@ class HistoricalDataRepositoryImplTest {
         FilterDto filter = new FilterDto();
         filter.setTimeFrom("2020-05-01T18:04:53");
         filter.setTimeTo("2020-10-01T18:04:53");
-        filter.setSize(3L);
-        filter.setLastId("1DkraVdGJfs.1");
+        filter.setLastId("1DkraVdGJfs.1-processed");
         List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
         assertFalse(payments.isEmpty());
-        assertEquals(2, payments.size());
+        assertEquals(3, payments.size());
     }
 
     @Test
@@ -100,7 +99,7 @@ class HistoricalDataRepositoryImplTest {
         filter.setTimeFrom("2020-05-01T18:04:53");
         filter.setTimeTo("2020-10-01T18:04:53");
         filter.setSize(3L);
-        filter.setLastId("1DkraVdGJfs.1");
+        filter.setLastId("1DkraVdGJfs.1-processed");
         Map<PaymentField, String> patterns = new HashMap<>();
         patterns.put(PaymentField.PARTY_ID, "partyId_2");
         filter.setSearchPatterns(patterns);

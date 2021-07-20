@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.repository.impl;
 
+import com.google.common.base.Splitter;
 import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.constant.PaymentField;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
@@ -59,15 +60,21 @@ public class HistoricalDataRepositoryImpl implements HistoricalDataRepository {
             filterFields.forEach((key, value) ->
                     filters.append(" and like(").append(key.getValue()).append(",'").append(value).append("')"));
         }
+        MapSqlParameterSource params = new MapSqlParameterSource();
         if (Objects.nonNull(filter.getLastId())) {
-            filters.append(" and id < :id ");
+            List<String> compositeId = Splitter.on("-")
+                    .splitToList(filter.getLastId());
+            if (compositeId.size() == 2) {
+                params.addValue("id", compositeId.get(0))
+                        .addValue("status", compositeId.get(1));
+            }
+            filters.append(" and (id < :id or (status != :status and id = :id)) ");
         }
         String pagination = "ORDER BY id DESC LIMIT :size";
         String query = select + filters.toString() + pagination;
-        MapSqlParameterSource params = new MapSqlParameterSource();
+
         params.addValue("from", filter.getTimeFrom())
                 .addValue("to", filter.getTimeTo())
-                .addValue("id", filter.getLastId())
                 .addValue("size", filter.getSize())
         ;
         return namedParameterJdbcTemplate.query(query, params, checkedPaymentMapper);
