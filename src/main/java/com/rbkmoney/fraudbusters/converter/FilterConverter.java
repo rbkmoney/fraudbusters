@@ -2,8 +2,10 @@ package com.rbkmoney.fraudbusters.converter;
 
 import com.rbkmoney.damsel.fraudbusters.Filter;
 import com.rbkmoney.damsel.fraudbusters.Page;
+import com.rbkmoney.damsel.fraudbusters.Sort;
 import com.rbkmoney.fraudbusters.constant.PaymentField;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
+import com.rbkmoney.fraudbusters.service.dto.SortDto;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +15,7 @@ import java.util.Map;
 @Component
 public class FilterConverter {
 
-    public FilterDto convert(Filter filter, Page page) {
+    public FilterDto convert(Filter filter, Page page, Sort sort) {
         FilterDto filterDto = new FilterDto();
         Map<PaymentField, String> searchPatterns = assembleSearchPatterns(filter);
         filterDto.setSearchPatterns(searchPatterns);
@@ -23,6 +25,10 @@ public class FilterConverter {
             filterDto.setTimeFrom(filter.getInterval().getLowerBound().getBoundTime());
             filterDto.setTimeTo(filter.getInterval().getUpperBound().getBoundTime());
         }
+        SortDto sortDto = new SortDto();
+        sortDto.setField(sort.getField());
+        sortDto.setOrder(com.rbkmoney.fraudbusters.constant.SortOrder.valueOf(sort.getOrder().name()));
+        filterDto.setSort(sortDto);
         return filterDto;
     }
 

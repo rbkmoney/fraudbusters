@@ -22,8 +22,8 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
     private final FilterConverter filterConverter;
 
     @Override
-    public PaymentInfoResult getPayments(Filter filter, Page page) {
-        FilterDto filterDto = filterConverter.convert(filter, page);
+    public PaymentInfoResult getPayments(Filter filter, Page page, Sort sort) {
+        FilterDto filterDto = filterConverter.convert(filter, page, sort);
         HistoricalPaymentsDto historicalPaymentsDto = historicalDataService.getPayments(filterDto);
         return buildResult(historicalPaymentsDto);
     }

@@ -1,9 +1,6 @@
 package com.rbkmoney.fraudbusters.resource;
 
-import com.rbkmoney.damsel.fraudbusters.Filter;
-import com.rbkmoney.damsel.fraudbusters.Page;
-import com.rbkmoney.damsel.fraudbusters.PaymentInfo;
-import com.rbkmoney.damsel.fraudbusters.PaymentInfoResult;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.TestObjectsFactory;
 import com.rbkmoney.fraudbusters.converter.CheckedPaymentToPaymentInfoConverter;
 import com.rbkmoney.fraudbusters.converter.FilterConverter;
@@ -43,13 +40,14 @@ class HistoricalDataHandlerTest {
     void getPaymentsWithoutPayments() {
         Filter filter = new Filter();
         Page page = new Page();
+        Sort sort = new Sort();
         HistoricalPaymentsDto dto = HistoricalPaymentsDto.builder()
                 .payments(Collections.emptyList())
                 .lastId(null)
                 .build();
         when(service.getPayments(any(FilterDto.class))).thenReturn(dto);
 
-        PaymentInfoResult actualPayments = handler.getPayments(filter, page);
+        PaymentInfoResult actualPayments = handler.getPayments(filter, page, sort);
 
         assertNull(actualPayments.getContinuationId());
         assertTrue(actualPayments.getPayments().isEmpty());
@@ -59,6 +57,7 @@ class HistoricalDataHandlerTest {
     void getPaymentsWithoutLastId() {
         Filter filter = new Filter();
         Page page = new Page();
+        Sort sort = new Sort();
         CheckedPayment checkedPayment = TestObjectsFactory.testCheckedPayment();
         HistoricalPaymentsDto dto = HistoricalPaymentsDto.builder()
                 .payments(List.of(checkedPayment))
@@ -66,7 +65,7 @@ class HistoricalDataHandlerTest {
                 .build();
         when(service.getPayments(any(FilterDto.class))).thenReturn(dto);
 
-        PaymentInfoResult actualPayments = handler.getPayments(filter, page);
+        PaymentInfoResult actualPayments = handler.getPayments(filter, page, sort);
 
         assertNull(actualPayments.getContinuationId());
         assertFalse(actualPayments.getPayments().isEmpty());
@@ -97,6 +96,7 @@ class HistoricalDataHandlerTest {
     void getPayments() {
         Filter filter = new Filter();
         Page page = new Page();
+        Sort sort = new Sort();
         String lastId = TestObjectsFactory.randomString();
         CheckedPayment checkedPayment = TestObjectsFactory.testCheckedPayment();
         List<CheckedPayment> checkedPayments = List.of(checkedPayment);
@@ -106,7 +106,7 @@ class HistoricalDataHandlerTest {
                 .build();
         when(service.getPayments(any(FilterDto.class))).thenReturn(dto);
 
-        PaymentInfoResult actualPayments = handler.getPayments(filter, page);
+        PaymentInfoResult actualPayments = handler.getPayments(filter, page, sort);
 
         assertEquals(lastId, actualPayments.getContinuationId());
         assertEquals(checkedPayments.size(), actualPayments.getPaymentsSize());

@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters.repository.impl;
 import com.google.common.base.Splitter;
 import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.constant.PaymentField;
+import com.rbkmoney.fraudbusters.constant.SortOrder;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.repository.HistoricalDataRepository;
 import com.rbkmoney.fraudbusters.repository.mapper.CheckedPaymentMapper;
@@ -68,10 +69,15 @@ public class HistoricalDataRepositoryImpl implements HistoricalDataRepository {
                 params.addValue("id", compositeId.get(0))
                         .addValue("status", compositeId.get(1));
             }
-            filters.append(" and (id < :id or (status != :status and id = :id)) ");
+            String paging = " and (id %s :id or (status != :status and id = :id)) ";
+            if (SortOrder.DESC.equals(filter.getSort().getOrder())) {
+                filters.append(String.format(paging, "<"));
+            } else {
+                filters.append(String.format(paging, ">"));
+            }
         }
-        String pagination = "ORDER BY id DESC LIMIT :size";
-        String query = select + filters.toString() + pagination;
+        String sorting = "ORDER BY (eventTime, id) " + filter.getSort().getOrder().name() + " LIMIT :size";
+        String query = select + filters.toString() + sorting;
 
         params.addValue("from", filter.getTimeFrom())
                 .addValue("to", filter.getTimeTo())

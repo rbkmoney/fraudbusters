@@ -3,10 +3,12 @@ package com.rbkmoney.fraudbusters.repository.impl;
 import com.rbkmoney.clickhouse.initializer.ChInitializer;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.PaymentField;
+import com.rbkmoney.fraudbusters.constant.SortOrder;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.repository.HistoricalDataRepository;
 import com.rbkmoney.fraudbusters.repository.mapper.CheckedPaymentMapper;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
+import com.rbkmoney.fraudbusters.service.dto.SortDto;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +52,12 @@ class HistoricalDataRepositoryImplTest {
         FilterDto filter = new FilterDto();
         filter.setTimeFrom("2020-05-01T18:04:53");
         filter.setTimeTo("2020-10-01T18:04:53");
+        SortDto sortDto = new SortDto();
+        sortDto.setOrder(SortOrder.DESC);
+        filter.setSort(sortDto);
+
         List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
+
         assertFalse(payments.isEmpty());
         assertEquals(6, payments.size());
     }
@@ -64,7 +71,12 @@ class HistoricalDataRepositoryImplTest {
         patterns.put(PaymentField.PARTY_ID, "partyId_2");
         patterns.put(PaymentField.SHOP_ID, "2035728");
         filter.setSearchPatterns(patterns);
+        SortDto sortDto = new SortDto();
+        sortDto.setOrder(SortOrder.DESC);
+        filter.setSort(sortDto);
+
         List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
+
         assertFalse(payments.isEmpty());
         assertEquals(1, payments.size());
         assertEquals("2035728", payments.get(0).getShopId());
@@ -77,33 +89,48 @@ class HistoricalDataRepositoryImplTest {
         filter.setTimeFrom("2020-05-01T18:04:53");
         filter.setTimeTo("2020-10-01T18:04:53");
         filter.setSize(3L);
+        SortDto sortDto = new SortDto();
+        sortDto.setOrder(SortOrder.DESC);
+        filter.setSort(sortDto);
+
         List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
+
         assertFalse(payments.isEmpty());
         assertEquals(3, payments.size());
     }
 
     @Test
-    void getPaymentsByTimeSlotAndPage() {
+    void getPaymentsByTimeSlotAndPageAndSort() {
         FilterDto filter = new FilterDto();
         filter.setTimeFrom("2020-05-01T18:04:53");
         filter.setTimeTo("2020-10-01T18:04:53");
         filter.setLastId("1DkraVdGJfs.1-processed");
+        SortDto sortDto = new SortDto();
+        sortDto.setOrder(SortOrder.DESC);
+        filter.setSort(sortDto);
+
         List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
+
         assertFalse(payments.isEmpty());
         assertEquals(3, payments.size());
     }
 
     @Test
-    void getPaymentsByTimeSlotAndPageAndSearchPatterns() {
+    void getPaymentsByTimeSlotAndPageAndSearchPatternsAndSort() {
         FilterDto filter = new FilterDto();
         filter.setTimeFrom("2020-05-01T18:04:53");
         filter.setTimeTo("2020-10-01T18:04:53");
         filter.setSize(3L);
         filter.setLastId("1DkraVdGJfs.1-processed");
+        SortDto sortDto = new SortDto();
+        sortDto.setOrder(SortOrder.DESC);
+        filter.setSort(sortDto);
         Map<PaymentField, String> patterns = new HashMap<>();
         patterns.put(PaymentField.PARTY_ID, "partyId_2");
         filter.setSearchPatterns(patterns);
+
         List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
+
         assertFalse(payments.isEmpty());
         assertEquals(1, payments.size());
         assertEquals("partyId_2", payments.get(0).getPartyId());

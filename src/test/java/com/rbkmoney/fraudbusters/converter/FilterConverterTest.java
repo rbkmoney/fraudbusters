@@ -4,6 +4,8 @@ import com.rbkmoney.damsel.base.TimestampInterval;
 import com.rbkmoney.damsel.base.TimestampIntervalBound;
 import com.rbkmoney.damsel.fraudbusters.Filter;
 import com.rbkmoney.damsel.fraudbusters.Page;
+import com.rbkmoney.damsel.fraudbusters.Sort;
+import com.rbkmoney.damsel.fraudbusters.SortOrder;
 import com.rbkmoney.fraudbusters.TestObjectsFactory;
 import com.rbkmoney.fraudbusters.constant.PaymentField;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
@@ -55,8 +57,11 @@ class FilterConverterTest {
         Long size = TestObjectsFactory.randomLong();
         page.setSize(size);
         page.setContinuationId(continuationId);
+        Sort sort = new Sort();
+        sort.setField(TestObjectsFactory.randomString());
+        sort.setOrder(SortOrder.DESC);
 
-        FilterDto dto = filterConverter.convert(filter, page);
+        FilterDto dto = filterConverter.convert(filter, page, sort);
 
         assertEquals(page.getSize(), dto.getSize());
         assertEquals(page.getContinuationId(), dto.getLastId());
@@ -72,6 +77,8 @@ class FilterConverterTest {
         assertEquals(filter.getProviderCountry(), searchPatterns.get(PaymentField.BANK_COUNTRY));
         assertEquals(filter.getTerminal(), searchPatterns.get(PaymentField.TERMINAL));
         assertEquals(filter.getPaymentId(), searchPatterns.get(PaymentField.ID));
+        assertEquals(sort.getField(), dto.getSort().getField());
+        assertEquals(sort.getOrder(), SortOrder.valueOf(dto.getSort().getOrder().name()));
 
 
     }

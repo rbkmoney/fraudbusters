@@ -15,5 +15,6 @@ public class FilterDto {
     private String timeFrom;
     private String timeTo;
     private Map<PaymentField, String> searchPatterns;
+    private SortDto sort;
 
 }
