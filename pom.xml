@@ -70,6 +70,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <!--        remove when release spring parent with spring.security up 5.5.0-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>5.3.8</version>
+        </dependency>
 
         <!-- logback -->
         <dependency>

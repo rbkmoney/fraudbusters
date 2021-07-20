@@ -16,13 +16,13 @@ public class FilterConverter {
     public FilterDto convert(Filter filter, Page page) {
         FilterDto filterDto = new FilterDto();
         Map<PaymentField, String> searchPatterns = assembleSearchPatterns(filter);
+        filterDto.setSearchPatterns(searchPatterns);
+        filterDto.setLastId(page.getContinuationId());
+        filterDto.setSize(page.getSize());
         if (filter.isSetInterval()) {
             filterDto.setTimeFrom(filter.getInterval().getLowerBound().getBoundTime());
             filterDto.setTimeTo(filter.getInterval().getUpperBound().getBoundTime());
         }
-        filterDto.setLastId(page.getContinuationId());
-        filterDto.setSize(page.getSize());
-        filterDto.setSearchPatterns(searchPatterns);
         return filterDto;
     }
 
