@@ -41,6 +41,7 @@ class HistoricalDataHandlerTest {
         Filter filter = new Filter();
         Page page = new Page();
         Sort sort = new Sort();
+        sort.setOrder(SortOrder.DESC);
         HistoricalPaymentsDto dto = HistoricalPaymentsDto.builder()
                 .payments(Collections.emptyList())
                 .lastId(null)
@@ -58,6 +59,7 @@ class HistoricalDataHandlerTest {
         Filter filter = new Filter();
         Page page = new Page();
         Sort sort = new Sort();
+        sort.setOrder(SortOrder.DESC);
         CheckedPayment checkedPayment = TestObjectsFactory.testCheckedPayment();
         HistoricalPaymentsDto dto = HistoricalPaymentsDto.builder()
                 .payments(List.of(checkedPayment))
@@ -97,6 +99,7 @@ class HistoricalDataHandlerTest {
         Filter filter = new Filter();
         Page page = new Page();
         Sort sort = new Sort();
+        sort.setOrder(SortOrder.DESC);
         String lastId = TestObjectsFactory.randomString();
         CheckedPayment checkedPayment = TestObjectsFactory.testCheckedPayment();
         List<CheckedPayment> checkedPayments = List.of(checkedPayment);
