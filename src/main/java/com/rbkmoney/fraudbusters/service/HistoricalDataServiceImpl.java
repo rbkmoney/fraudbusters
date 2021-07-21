@@ -4,6 +4,7 @@ import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.repository.HistoricalDataRepository;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
+import com.rbkmoney.fraudbusters.util.CompositeIdUtil;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     private String buildLastId(Long filterSize, List<CheckedPayment> payments) {
         if (payments.size() == filterSize) {
             CheckedPayment lastPayment = payments.get(payments.size() - 1);
-            return lastPayment.getId() + "-" + lastPayment.getPaymentStatus();
+            return CompositeIdUtil.create(lastPayment.getId(), lastPayment.getPaymentStatus());
         }
         return null;
     }

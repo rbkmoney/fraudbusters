@@ -81,7 +81,7 @@ class HistoricalDataServiceImplTest {
 
         HistoricalPaymentsDto actualPayments = historicalDataService.getPayments(filterDto);
 
-        String expectedLastId = checkedPayments.get(3).getId() + "-" + checkedPayments.get(3).getPaymentStatus();
+        String expectedLastId = checkedPayments.get(3).getId() + "|" + checkedPayments.get(3).getPaymentStatus();
         assertEquals(expectedLastId, actualPayments.getLastId());
         assertFalse(actualPayments.getPayments().isEmpty());
         assertEquals(checkedPayments.size(), actualPayments.getPayments().size());

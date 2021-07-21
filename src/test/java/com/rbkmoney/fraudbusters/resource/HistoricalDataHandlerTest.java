@@ -4,6 +4,7 @@ import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.TestObjectsFactory;
 import com.rbkmoney.fraudbusters.converter.CheckedPaymentToPaymentInfoConverter;
 import com.rbkmoney.fraudbusters.converter.FilterConverter;
+import com.rbkmoney.fraudbusters.converter.PaymentInfoResultConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.service.HistoricalDataService;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {HistoricalDataHandler.class, CheckedPaymentToPaymentInfoConverter.class,
-        FilterConverter.class})
+        FilterConverter.class, PaymentInfoResultConverter.class})
 class HistoricalDataHandlerTest {
 
     @Autowired

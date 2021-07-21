@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.repository.mapper;
 
+import com.rbkmoney.fraudbusters.constant.PaymentField;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -13,24 +14,24 @@ public class CheckedPaymentMapper implements RowMapper<CheckedPayment> {
     @Override
     public CheckedPayment mapRow(ResultSet rs, int i) throws SQLException {
         CheckedPayment payment = new CheckedPayment();
-        payment.setEventTime(rs.getLong("eventTime"));
-        payment.setId(rs.getString("id"));
-        payment.setEmail(rs.getString("email"));
-        payment.setIp(rs.getString("ip"));
-        payment.setFingerprint(rs.getString("fingerprint"));
-        payment.setCardToken(rs.getString("cardToken"));
-        payment.setPaymentSystem(rs.getString("paymentSystem"));
-        payment.setPaymentTool(rs.getString("paymentTool"));
-        payment.setTerminal(rs.getString("terminal"));
-        payment.setProviderId(rs.getString("providerId"));
-        payment.setBankCountry(rs.getString("bankCountry"));
-        payment.setPartyId(rs.getString("partyId"));
-        payment.setShopId(rs.getString("shopId"));
-        payment.setAmount(rs.getLong("amount"));
-        payment.setCurrency(rs.getString("currency"));
-        payment.setPaymentStatus(rs.getString("status"));
-        payment.setErrorCode(rs.getString("errorCode"));
-        payment.setErrorReason(rs.getString("errorReason"));
+        payment.setEventTime(rs.getLong(PaymentField.EVENT_TIME.getValue()));
+        payment.setId(rs.getString(PaymentField.ID.getValue()));
+        payment.setEmail(rs.getString(PaymentField.EMAIL.getValue()));
+        payment.setIp(rs.getString(PaymentField.IP.getValue()));
+        payment.setFingerprint(rs.getString(PaymentField.FINGERPRINT.getValue()));
+        payment.setCardToken(rs.getString(PaymentField.CARD_TOKEN.getValue()));
+        payment.setPaymentSystem(rs.getString(PaymentField.PAYMENT_SYSTEM.getValue()));
+        payment.setPaymentTool(rs.getString(PaymentField.PAYMENT_TOOL.getValue()));
+        payment.setTerminal(rs.getString(PaymentField.TERMINAL.getValue()));
+        payment.setProviderId(rs.getString(PaymentField.PROVIDER_ID.getValue()));
+        payment.setBankCountry(rs.getString(PaymentField.BANK_COUNTRY.getValue()));
+        payment.setPartyId(rs.getString(PaymentField.PARTY_ID.getValue()));
+        payment.setShopId(rs.getString(PaymentField.SHOP_ID.getValue()));
+        payment.setAmount(rs.getLong(PaymentField.AMOUNT.getValue()));
+        payment.setCurrency(rs.getString(PaymentField.CURRENCY.getValue()));
+        payment.setPaymentStatus(rs.getString(PaymentField.STATUS.getValue()));
+        payment.setErrorCode(rs.getString(PaymentField.ERROR_CODE.getValue()));
+        payment.setErrorReason(rs.getString(PaymentField.ERROR_REASON.getValue()));
         return payment;
     }
 }

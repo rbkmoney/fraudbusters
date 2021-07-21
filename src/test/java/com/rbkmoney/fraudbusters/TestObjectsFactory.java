@@ -1,5 +1,11 @@
 package com.rbkmoney.fraudbusters;
 
+import com.rbkmoney.damsel.base.TimestampInterval;
+import com.rbkmoney.damsel.base.TimestampIntervalBound;
+import com.rbkmoney.damsel.fraudbusters.Filter;
+import com.rbkmoney.damsel.fraudbusters.Page;
+import com.rbkmoney.damsel.fraudbusters.Sort;
+import com.rbkmoney.damsel.fraudbusters.SortOrder;
 import com.rbkmoney.fraudbusters.constant.PaymentStatus;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 
@@ -47,5 +53,54 @@ public abstract class TestObjectsFactory {
 
     public static String randomString() {
         return UUID.randomUUID().toString();
+    }
+
+    public static Filter testFilter() {
+        Filter filter = new Filter();
+        String email = randomString();
+        String cardToken = randomString();
+        String status = randomString();
+        String shopId = randomString();
+        String partyId = randomString();
+        String providerCountry = randomString();
+        String fingerPrint = randomString();
+        String terminal = randomString();
+        String id = randomString();
+        filter.setPartyId(partyId);
+        filter.setEmail(email);
+        filter.setCardToken(cardToken);
+        filter.setFingerprint(fingerPrint);
+        filter.setShopId(shopId);
+        filter.setStatus(status);
+        filter.setTerminal(terminal);
+        filter.setProviderCountry(providerCountry);
+        filter.setPaymentId(id);
+        TimestampInterval timestampInterval = new TimestampInterval();
+        TimestampIntervalBound lowerBound = new TimestampIntervalBound();
+        String lowerBoundTime = LocalDateTime.now().toString();
+        lowerBound.setBoundTime(lowerBoundTime);
+        TimestampIntervalBound upperBound = new TimestampIntervalBound();
+        String upperBoundTime = LocalDateTime.now().toString();
+        upperBound.setBoundTime(upperBoundTime);
+        timestampInterval.setLowerBound(lowerBound);
+        timestampInterval.setUpperBound(upperBound);
+        filter.setInterval(timestampInterval);
+        return filter;
+    }
+
+    public static Sort testSort() {
+        Sort sort = new Sort();
+        sort.setField(randomString());
+        sort.setOrder(SortOrder.DESC);
+        return sort;
+    }
+
+    public static Page testPage() {
+        Page page = new Page();
+        String continuationId = randomString();
+        Long size = randomLong();
+        page.setSize(size);
+        page.setContinuationId(continuationId);
+        return page;
     }
 }
