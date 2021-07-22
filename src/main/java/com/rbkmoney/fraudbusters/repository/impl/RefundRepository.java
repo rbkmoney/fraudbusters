@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.setter.RefundBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.util.PaymentTypeByContextResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,12 @@ public class RefundRepository implements Repository<Refund>, AggregationReposito
                     INSERT,
                     new RefundBatchPreparedStatementSetter(batch, paymentTypeByContextResolver));
         }
+    }
+
+    @Override
+    public List<Refund> getByFilter(FilterDto filter) {
+        // TODO implement
+        return null;
     }
 
     @Override

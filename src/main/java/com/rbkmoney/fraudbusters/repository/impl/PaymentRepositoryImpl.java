@@ -1,23 +1,31 @@
 package com.rbkmoney.fraudbusters.repository.impl;
 
-import com.rbkmoney.fraudbusters.constant.EventSource;
-import com.rbkmoney.fraudbusters.constant.PaymentStatus;
+import com.rbkmoney.fraudbusters.constant.*;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
+import com.rbkmoney.fraudbusters.repository.mapper.CheckedPaymentMapper;
+import com.rbkmoney.fraudbusters.repository.query.PaymentQuery;
 import com.rbkmoney.fraudbusters.repository.setter.PaymentBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
+import com.rbkmoney.fraudbusters.service.dto.FilterDto;
+import com.rbkmoney.fraudbusters.util.CompositeIdUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Primary
@@ -26,6 +34,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentRepositoryImpl implements Repository<CheckedPayment>, PaymentRepository {
 
+    private static final String PAGE_CONTENT_FILTER = " and (id %s :id or (status != :status and id = :id)) ";
     private static final String TABLE = EventSource.FRAUD_EVENTS_PAYMENT.getTable();
     private static final String INSERT = String.format(
             "INSERT INTO %1s (%2s) VALUES (%3s)",
@@ -34,6 +43,8 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
             PaymentBatchPreparedStatementSetter.FIELDS_MARK
     );
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final CheckedPaymentMapper checkedPaymentMapper;
 
     @Override
     public void insert(CheckedPayment payment) {
@@ -49,14 +60,54 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
     }
 
     @Override
+    public List<CheckedPayment> getByFilter(FilterDto filter) {
+        StringBuilder filters = new StringBuilder();
+        Map<PaymentField, String> filterFields = filter.getSearchPatterns();
+        if (!CollectionUtils.isEmpty(filterFields)) {
+            filterFields.forEach((key, value) ->
+                    filters.append(" and like(").append(key.getValue()).append(",'").append(value).append("')"));
+        }
+        if (Objects.nonNull(filter.getLastId())) {
+            if (SortOrder.DESC.equals(filter.getSort().getOrder())) {
+                filters.append(String.format(PAGE_CONTENT_FILTER, "<"));
+            } else {
+                filters.append(String.format(PAGE_CONTENT_FILTER, ">"));
+            }
+        }
+        String sorting = String.format("ORDER BY (eventTime, id) %s ", filter.getSort().getOrder().name());
+        String limit = " LIMIT :size ";
+        String query = PaymentQuery.SELECT_HISTORY_PAYMENT +
+                filters.toString() +
+                sorting +
+                limit;
+        MapSqlParameterSource params = buildParams(filter);
+        return namedParameterJdbcTemplate.query(query, params, checkedPaymentMapper);
+    }
+
+    private MapSqlParameterSource buildParams(FilterDto filter) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        if (Objects.nonNull(filter.getLastId())) {
+            List<String> compositeId = CompositeIdUtil.extract(filter.getLastId());
+            if (compositeId.size() == 2) {
+                params.addValue(QueryParamName.ID, compositeId.get(0))
+                        .addValue(QueryParamName.STATUS, compositeId.get(1));
+            }
+        }
+        params.addValue(QueryParamName.FROM, filter.getTimeFrom())
+                .addValue(QueryParamName.TO, filter.getTimeTo())
+                .addValue(QueryParamName.SIZE, filter.getSize());
+        return params;
+    }
+
+    @Override
     public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
         String sql = String.format(
                 "select %1$s, count() as cnt " +
-                "from %2$s " +
-                "where timestamp >= ? " +
-                "and timestamp <= ? " +
-                "and eventTime >= ? " +
-                "and eventTime <= ? " +
+                        "from %2$s " +
+                        "where timestamp >= ? " +
+                        "and timestamp <= ? " +
+                        "and eventTime >= ? " +
+                        "and eventTime <= ? " +
                 "and %1$s = ?  and status != ?" +
                 "group by %1$s", fieldName, TABLE);
         List<Object> params = AggregationUtil.generateStatusParams(from, to, value, PaymentStatus.captured.name());

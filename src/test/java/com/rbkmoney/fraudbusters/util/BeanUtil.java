@@ -11,6 +11,7 @@ import com.rbkmoney.damsel.p2p_insp.TransferInfo;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
+import com.rbkmoney.damsel.proxy_inspector.PaymentInfo;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
 import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
