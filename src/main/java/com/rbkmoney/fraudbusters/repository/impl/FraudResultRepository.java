@@ -13,6 +13,7 @@ import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.impl.generator.EventParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.setter.EventBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
+import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +54,12 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
                     new EventBatchPreparedStatementSetter(events)
             );
         }
+    }
+
+    @Override
+    public List<Event> getByFilter(FilterDto filter) {
+        // TODO implement
+        return null;
     }
 
     @Override

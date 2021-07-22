@@ -5,7 +5,7 @@ import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.PaymentField;
 import com.rbkmoney.fraudbusters.constant.SortOrder;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
-import com.rbkmoney.fraudbusters.repository.HistoricalDataRepository;
+import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.mapper.CheckedPaymentMapper;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.dto.SortDto;
@@ -18,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.ClickHouseContainer;
@@ -31,16 +32,18 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@ActiveProfiles("full-prod")
 @Testcontainers
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {ClickhouseConfig.class, CheckedPaymentMapper.class,
-        HistoricalDataRepositoryImpl.class}, initializers = HistoricalDataRepositoryImplTest.Initializer.class)
-class HistoricalDataRepositoryImplTest {
+        PaymentRepositoryImpl.class},
+        initializers = HistoricalPaymentDataTest.Initializer.class)
+class HistoricalPaymentDataTest {
 
     @Autowired
-    private HistoricalDataRepository historicalDataRepository;
+    private Repository<CheckedPayment> paymentRepository;
 
     @Container
     public static ClickHouseContainer clickHouseContainer =
@@ -56,7 +59,7 @@ class HistoricalDataRepositoryImplTest {
         sortDto.setOrder(SortOrder.DESC);
         filter.setSort(sortDto);
 
-        List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
+        List<CheckedPayment> payments = paymentRepository.getByFilter(filter);
 
         assertFalse(payments.isEmpty());
         assertEquals(6, payments.size());
@@ -75,7 +78,7 @@ class HistoricalDataRepositoryImplTest {
         sortDto.setOrder(SortOrder.DESC);
         filter.setSort(sortDto);
 
-        List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
+        List<CheckedPayment> payments = paymentRepository.getByFilter(filter);
 
         assertFalse(payments.isEmpty());
         assertEquals(1, payments.size());
@@ -93,7 +96,7 @@ class HistoricalDataRepositoryImplTest {
         sortDto.setOrder(SortOrder.DESC);
         filter.setSort(sortDto);
 
-        List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
+        List<CheckedPayment> payments = paymentRepository.getByFilter(filter);
 
         assertFalse(payments.isEmpty());
         assertEquals(3, payments.size());
@@ -109,7 +112,7 @@ class HistoricalDataRepositoryImplTest {
         sortDto.setOrder(SortOrder.DESC);
         filter.setSort(sortDto);
 
-        List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
+        List<CheckedPayment> payments = paymentRepository.getByFilter(filter);
 
         assertFalse(payments.isEmpty());
         assertEquals(3, payments.size());
@@ -129,7 +132,7 @@ class HistoricalDataRepositoryImplTest {
         patterns.put(PaymentField.PARTY_ID, "partyId_2");
         filter.setSearchPatterns(patterns);
 
-        List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
+        List<CheckedPayment> payments = paymentRepository.getByFilter(filter);
 
         assertFalse(payments.isEmpty());
         assertEquals(1, payments.size());

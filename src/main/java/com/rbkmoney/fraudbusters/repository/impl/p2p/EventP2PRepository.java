@@ -10,6 +10,7 @@ import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.impl.generator.EventP2PParametersGenerator;
 import com.rbkmoney.fraudbusters.repository.setter.EventP2PBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -54,6 +55,12 @@ public class EventP2PRepository implements Repository<EventP2P>, AggregationRepo
         if (events != null && !events.isEmpty()) {
             jdbcTemplate.batchUpdate(INSERT, new EventP2PBatchPreparedStatementSetter(events));
         }
+    }
+
+    @Override
+    public List<EventP2P> getByFilter(FilterDto filter) {
+        // TODO implement
+        return null;
     }
 
     public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {

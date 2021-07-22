@@ -11,12 +11,29 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 class FilterConverterTest {
 
     private final FilterConverter filterConverter = new FilterConverter();
+
+    @Test
+    void convertWithEmptyFiled() {
+        Filter filter = new Filter();
+        filter.setPaymentId("");
+        filter.setTerminal(null);
+        Page page = new Page();
+        Sort sort = new Sort();
+
+        FilterDto dto = filterConverter.convert(filter, page, sort);
+
+        assertTrue(dto.getSearchPatterns().isEmpty());
+        assertEquals(10L, dto.getSize());
+        assertNull(dto.getLastId());
+        assertNull(dto.getSort().getOrder());
+        assertNull(dto.getSort().getField());
+    }
 
     @Test
     void convert() {
@@ -42,7 +59,5 @@ class FilterConverterTest {
         assertEquals(filter.getPaymentId(), searchPatterns.get(PaymentField.ID));
         assertEquals(sort.getField(), dto.getSort().getField());
         assertEquals(sort.getOrder(), SortOrder.valueOf(dto.getSort().getOrder().name()));
-
-
     }
 }

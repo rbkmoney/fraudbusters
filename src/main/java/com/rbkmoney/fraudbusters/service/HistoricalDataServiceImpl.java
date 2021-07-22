@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
-import com.rbkmoney.fraudbusters.repository.HistoricalDataRepository;
+import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
 import com.rbkmoney.fraudbusters.util.CompositeIdUtil;
@@ -15,11 +15,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HistoricalDataServiceImpl implements HistoricalDataService {
 
-    private final HistoricalDataRepository historicalDataRepository;
+    private final Repository<CheckedPayment> paymentRepository;
 
     @Override
     public HistoricalPaymentsDto getPayments(FilterDto filter) {
-        List<CheckedPayment> payments = historicalDataRepository.getPayments(filter);
+        List<CheckedPayment> payments = paymentRepository.getByFilter(filter);
         String lastId = buildLastId(filter.getSize(), payments);
         return HistoricalPaymentsDto.builder()
                 .payments(payments)

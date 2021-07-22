@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.setter.ChargebackBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.util.PaymentTypeByContextResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,12 @@ public class ChargebackRepository implements Repository<Chargeback>, Aggregation
                     INSERT,
                     new ChargebackBatchPreparedStatementSetter(batch, paymentTypeByContextResolver));
         }
+    }
+
+    @Override
+    public List<Chargeback> getByFilter(FilterDto filter) {
+        // TODO implement
+        return null;
     }
 
     @Override

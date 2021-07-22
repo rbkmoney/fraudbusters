@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.setter.FraudPaymentBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -63,6 +64,12 @@ public class FraudPaymentRepository implements Repository<FraudPaymentRow>, Aggr
         if (!CollectionUtils.isEmpty(payments)) {
             jdbcTemplate.batchUpdate(INSERT, new FraudPaymentBatchPreparedStatementSetter(payments));
         }
+    }
+
+    @Override
+    public List<FraudPaymentRow> getByFilter(FilterDto filter) {
+        // TODO implement
+        return null;
     }
 
     @Override

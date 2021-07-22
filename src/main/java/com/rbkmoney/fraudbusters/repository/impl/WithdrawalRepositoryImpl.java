@@ -4,6 +4,7 @@ import com.rbkmoney.damsel.fraudbusters.Withdrawal;
 import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.setter.WithdrawalBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -39,6 +40,12 @@ public class WithdrawalRepositoryImpl implements Repository<Withdrawal> {
             log.debug("insertBatch batch withdrawals: {}", batch);
             jdbcTemplate.batchUpdate(INSERT, new WithdrawalBatchPreparedStatementSetter(batch));
         }
+    }
+
+    @Override
+    public List<Withdrawal> getByFilter(FilterDto filter) {
+        // TODO implement
+        return null;
     }
 
 }

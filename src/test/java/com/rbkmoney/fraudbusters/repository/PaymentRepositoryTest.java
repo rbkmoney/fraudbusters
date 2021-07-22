@@ -11,6 +11,7 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
+import com.rbkmoney.fraudbusters.repository.mapper.CheckedPaymentMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.ClassRule;
@@ -39,7 +40,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = {PaymentRepositoryImpl.class, FraudResultToEventConverter.class, ClickhouseConfig.class,
-        DatabasePaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class},
+        DatabasePaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, CheckedPaymentMapper.class},
         initializers = PaymentRepositoryTest.Initializer.class)
 public class PaymentRepositoryTest {
 

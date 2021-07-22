@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.fraudbusters.TestObjectsFactory;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
-import com.rbkmoney.fraudbusters.repository.HistoricalDataRepository;
+import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
 import org.junit.jupiter.api.Test;
@@ -26,12 +26,12 @@ class HistoricalDataServiceImplTest {
     private HistoricalDataService historicalDataService;
 
     @MockBean
-    private HistoricalDataRepository historicalDataRepository;
+    private Repository<CheckedPayment> paymentRepository;
 
     @Test
     void getPaymentsWithoutPayments() {
         FilterDto filterDto = new FilterDto();
-        when(historicalDataRepository.getPayments(filterDto)).thenReturn(Collections.emptyList());
+        when(paymentRepository.getByFilter(filterDto)).thenReturn(Collections.emptyList());
 
         HistoricalPaymentsDto actualPayments = historicalDataService.getPayments(filterDto);
 
@@ -44,7 +44,7 @@ class HistoricalDataServiceImplTest {
         FilterDto filterDto = new FilterDto();
         CheckedPayment checkedPayment = TestObjectsFactory.testCheckedPayment();
         List<CheckedPayment> checkedPayments = List.of(checkedPayment);
-        when(historicalDataRepository.getPayments(filterDto)).thenReturn(checkedPayments);
+        when(paymentRepository.getByFilter(filterDto)).thenReturn(checkedPayments);
 
         HistoricalPaymentsDto actualPayments = historicalDataService.getPayments(filterDto);
 
@@ -77,7 +77,7 @@ class HistoricalDataServiceImplTest {
         FilterDto filterDto = new FilterDto();
         List<CheckedPayment> checkedPayments = TestObjectsFactory.testCheckedPayments(4);
         filterDto.setSize((long) checkedPayments.size());
-        when(historicalDataRepository.getPayments(filterDto)).thenReturn(checkedPayments);
+        when(paymentRepository.getByFilter(filterDto)).thenReturn(checkedPayments);
 
         HistoricalPaymentsDto actualPayments = historicalDataService.getPayments(filterDto);
 
