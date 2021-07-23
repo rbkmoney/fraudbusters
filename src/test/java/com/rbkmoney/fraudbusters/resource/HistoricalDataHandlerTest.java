@@ -2,13 +2,15 @@ package com.rbkmoney.fraudbusters.resource;
 
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.TestObjectsFactory;
-import com.rbkmoney.fraudbusters.converter.CheckedPaymentToPaymentInfoConverter;
+import com.rbkmoney.fraudbusters.constant.PaymentToolType;
+import com.rbkmoney.fraudbusters.converter.CheckedPaymentToPaymentConverter;
 import com.rbkmoney.fraudbusters.converter.FilterConverter;
-import com.rbkmoney.fraudbusters.converter.PaymentInfoResultConverter;
+import com.rbkmoney.fraudbusters.converter.HistoricalDataResponseConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.service.HistoricalDataService;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
+import com.rbkmoney.geck.common.util.TBaseUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +28,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {HistoricalDataHandler.class, CheckedPaymentToPaymentInfoConverter.class,
-        FilterConverter.class, PaymentInfoResultConverter.class})
+@SpringBootTest(classes = {HistoricalDataHandler.class, CheckedPaymentToPaymentConverter.class,
+        FilterConverter.class, HistoricalDataResponseConverter.class})
 class HistoricalDataHandlerTest {
 
     @Autowired
@@ -49,10 +51,10 @@ class HistoricalDataHandlerTest {
                 .build();
         when(service.getPayments(any(FilterDto.class))).thenReturn(dto);
 
-        PaymentInfoResult actualPayments = handler.getPayments(filter, page, sort);
+        HistoricalDataResponse actualResponse = handler.getPayments(filter, page, sort);
 
-        assertNull(actualPayments.getContinuationId());
-        assertTrue(actualPayments.getPayments().isEmpty());
+        assertNull(actualResponse.getContinuationId());
+        assertTrue(actualResponse.getData().getPayments().isEmpty());
     }
 
     @Test
@@ -68,30 +70,33 @@ class HistoricalDataHandlerTest {
                 .build();
         when(service.getPayments(any(FilterDto.class))).thenReturn(dto);
 
-        PaymentInfoResult actualPayments = handler.getPayments(filter, page, sort);
+        HistoricalDataResponse actualResponse = handler.getPayments(filter, page, sort);
 
-        assertNull(actualPayments.getContinuationId());
-        assertFalse(actualPayments.getPayments().isEmpty());
-        PaymentInfo actualPaymentInfo = actualPayments.getPayments().get(0);
-        assertEquals(checkedPayment.getPaymentSystem(), actualPaymentInfo.getPaymentSystem());
-        assertEquals(checkedPayment.getPaymentTool(), actualPaymentInfo.getPaymentTool());
-        assertEquals(checkedPayment.getPaymentCountry(), actualPaymentInfo.getPaymentCountry());
-        assertEquals(checkedPayment.getIp(), actualPaymentInfo.getClientInfo().getIp());
-        assertEquals(checkedPayment.getEmail(), actualPaymentInfo.getClientInfo().getEmail());
-        assertEquals(checkedPayment.getFingerprint(), actualPaymentInfo.getClientInfo().getFingerprint());
-        assertEquals(checkedPayment.getPartyId(), actualPaymentInfo.getMerchantInfo().getPartyId());
-        assertEquals(checkedPayment.getShopId(), actualPaymentInfo.getMerchantInfo().getShopId());
-        assertEquals(checkedPayment.getProviderId(), actualPaymentInfo.getProvider().getProviderId());
-        assertEquals(checkedPayment.getTerminal(), actualPaymentInfo.getProvider().getTerminalId());
-        assertEquals(checkedPayment.getBankCountry(), actualPaymentInfo.getProvider().getCountry());
-        assertEquals(checkedPayment.getPaymentStatus(), actualPaymentInfo.getStatus().toString());
-        assertEquals(checkedPayment.getAmount(), actualPaymentInfo.getAmount());
-        assertEquals(checkedPayment.getCardToken(), actualPaymentInfo.getCardToken());
-        assertEquals(checkedPayment.getCurrency(), actualPaymentInfo.getCurrency());
+        assertNull(actualResponse.getContinuationId());
+        assertFalse(actualResponse.getData().getPayments().isEmpty());
+        Payment actualPayment = actualResponse.getData().getPayments().get(0);
+        assertEquals("bank_card",
+                TBaseUtil.unionFieldToEnum(actualPayment.getPaymentTool(), PaymentToolType.class).name());
+        assertEquals(checkedPayment.getPaymentSystem(),
+                actualPayment.getPaymentTool().getBankCard().getPaymentSystem().getId());
+        assertEquals(checkedPayment.getPaymentCountry(),
+                actualPayment.getPaymentTool().getBankCard().getIssuerCountry().name());
+        assertEquals(checkedPayment.getCardToken(), actualPayment.getPaymentTool().getBankCard().getToken());
+        assertEquals(checkedPayment.getIp(), actualPayment.getClientInfo().getIp());
+        assertEquals(checkedPayment.getEmail(), actualPayment.getClientInfo().getEmail());
+        assertEquals(checkedPayment.getFingerprint(), actualPayment.getClientInfo().getFingerprint());
+        assertEquals(checkedPayment.getPartyId(), actualPayment.getReferenceInfo().getMerchantInfo().getPartyId());
+        assertEquals(checkedPayment.getShopId(), actualPayment.getReferenceInfo().getMerchantInfo().getShopId());
+        assertEquals(checkedPayment.getProviderId(), actualPayment.getProviderInfo().getProviderId());
+        assertEquals(checkedPayment.getTerminal(), actualPayment.getProviderInfo().getTerminalId());
+        assertEquals(checkedPayment.getBankCountry(), actualPayment.getProviderInfo().getCountry());
+        assertEquals(checkedPayment.getPaymentStatus(), actualPayment.getStatus().toString());
+        assertEquals(checkedPayment.getAmount(), actualPayment.getCost().getAmount());
+        assertEquals(checkedPayment.getCurrency(), actualPayment.getCost().getCurrency().getSymbolicCode());
         assertEquals(Instant.ofEpochMilli(checkedPayment.getEventTime()).atZone(ZoneId.of("UTC")).toLocalDateTime()
                         .toString(),
-                actualPaymentInfo.getEventTime());
-        assertEquals(checkedPayment.getId(), actualPaymentInfo.getId());
+                actualPayment.getEventTime());
+        assertEquals(checkedPayment.getId(), actualPayment.getId());
 
     }
 
@@ -110,10 +115,10 @@ class HistoricalDataHandlerTest {
                 .build();
         when(service.getPayments(any(FilterDto.class))).thenReturn(dto);
 
-        PaymentInfoResult actualPayments = handler.getPayments(filter, page, sort);
+        HistoricalDataResponse actualResponse = handler.getPayments(filter, page, sort);
 
-        assertEquals(lastId, actualPayments.getContinuationId());
-        assertEquals(checkedPayments.size(), actualPayments.getPaymentsSize());
+        assertEquals(lastId, actualResponse.getContinuationId());
+        assertEquals(checkedPayments.size(), actualResponse.getData().getPayments().size());
 
     }
 }
