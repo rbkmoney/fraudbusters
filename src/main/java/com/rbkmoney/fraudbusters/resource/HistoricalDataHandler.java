@@ -41,6 +41,11 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
     }
 
     @Override
+    public HistoricalDataResponse getFraudPayments(Filter filter, Page page, Sort sort) throws TException {
+        return null;
+    }
+
+    @Override
     public HistoricalDataSetCheckResult applyRuleOnHistoricalDataSet(
             EmulationRuleApplyRequest emulationRuleApplyRequest) throws HistoricalDataServiceException, TException {
         return null;
