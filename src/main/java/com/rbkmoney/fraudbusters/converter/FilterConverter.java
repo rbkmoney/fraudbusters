@@ -68,6 +68,12 @@ public class FilterConverter {
         if (filter.isSetPaymentId() && StringUtils.hasLength(filter.getPaymentId())) {
             searchPatterns.put(PaymentField.ID, filter.getPaymentId());
         }
+        if (filter.isSetMaskedPan()) {
+            searchPatterns.put(PaymentField.MASKED_PAN, filter.getMaskedPan());
+        }
+        if (filter.isSetInvoiceId()) {
+            searchPatterns.put(PaymentField.INVOICE_ID, filter.getInvoiceId());
+        }
         return searchPatterns;
     }
 

@@ -6,6 +6,7 @@ import com.rbkmoney.fraudbusters.converter.HistoricalDataResponseConverter;
 import com.rbkmoney.fraudbusters.service.HistoricalDataService;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
+import com.rbkmoney.fraudbusters.service.dto.HistoricalRefundsDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
     public HistoricalDataResponse getPayments(Filter filter, Page page, Sort sort) {
         FilterDto filterDto = filterConverter.convert(filter, page, sort);
         HistoricalPaymentsDto historicalPaymentsDto = historicalDataService.getPayments(filterDto);
-        return resultConverter.convert(historicalPaymentsDto);
+        return resultConverter.convertPayment(historicalPaymentsDto);
     }
 
     @Override
@@ -32,7 +33,9 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
 
     @Override
     public HistoricalDataResponse getRefunds(Filter filter, Page page, Sort sort) throws TException {
-        return null;
+        FilterDto filterDto = filterConverter.convert(filter, page, sort);
+        HistoricalRefundsDto historicalRefundsDto = historicalDataService.getRefunds(filterDto);
+        return resultConverter.convertRefund(historicalRefundsDto);
     }
 
     @Override

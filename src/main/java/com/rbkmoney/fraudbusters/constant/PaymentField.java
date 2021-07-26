@@ -24,7 +24,9 @@ public enum PaymentField {
     PAYMENT_COUNTRY("paymentCountry"),
     PAYMENT_TOOL("paymentTool"),
     PROVIDER_ID("providerId"),
-    TERMINAL("terminal");
+    TERMINAL("terminal"),
+    MASKED_PAN("maskedPan"),
+    INVOICE_ID("invoiceId");
 
     @Getter
     private final String value;
