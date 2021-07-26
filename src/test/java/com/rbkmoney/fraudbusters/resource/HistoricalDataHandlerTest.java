@@ -79,8 +79,6 @@ class HistoricalDataHandlerTest {
                 TBaseUtil.unionFieldToEnum(actualPayment.getPaymentTool(), PaymentToolType.class).name());
         assertEquals(checkedPayment.getPaymentSystem(),
                 actualPayment.getPaymentTool().getBankCard().getPaymentSystem().getId());
-        assertEquals(checkedPayment.getPaymentCountry(),
-                actualPayment.getPaymentTool().getBankCard().getIssuerCountry().name());
         assertEquals(checkedPayment.getCardToken(), actualPayment.getPaymentTool().getBankCard().getToken());
         assertEquals(checkedPayment.getIp(), actualPayment.getClientInfo().getIp());
         assertEquals(checkedPayment.getEmail(), actualPayment.getClientInfo().getEmail());
