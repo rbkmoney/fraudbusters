@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters.converter;
 import com.rbkmoney.damsel.fraudbusters.HistoricalData;
 import com.rbkmoney.damsel.fraudbusters.HistoricalDataResponse;
 import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.fraudbusters.service.dto.HistoricalChargebacksDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalRefundsDto;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,14 @@ public class HistoricalDataResponseConverter {
         historicalData.setRefunds(historicalRefundsDto.getRefunds());
         return new HistoricalDataResponse()
                 .setContinuationId(historicalRefundsDto.getLastId())
+                .setData(historicalData);
+    }
+
+    public HistoricalDataResponse convertChargeback(HistoricalChargebacksDto historicalChargebacksDto) {
+        HistoricalData historicalData = new HistoricalData();
+        historicalData.setChargebacks(historicalChargebacksDto.getChargebacks());
+        return new HistoricalDataResponse()
+                .setContinuationId(historicalChargebacksDto.getLastId())
                 .setData(historicalData);
     }
 }

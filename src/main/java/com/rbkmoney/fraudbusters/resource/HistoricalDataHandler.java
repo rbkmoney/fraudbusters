@@ -5,6 +5,7 @@ import com.rbkmoney.fraudbusters.converter.FilterConverter;
 import com.rbkmoney.fraudbusters.converter.HistoricalDataResponseConverter;
 import com.rbkmoney.fraudbusters.service.HistoricalDataService;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
+import com.rbkmoney.fraudbusters.service.dto.HistoricalChargebacksDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalRefundsDto;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,9 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
 
     @Override
     public HistoricalDataResponse getChargebacks(Filter filter, Page page, Sort sort) throws TException {
-        return null;
+        FilterDto filterDto = filterConverter.convert(filter, page, sort);
+        HistoricalChargebacksDto historicalChargebacksDto = historicalDataService.getChargebacks(filterDto);
+        return resultConverter.convertChargeback(historicalChargebacksDto);
     }
 
     @Override
