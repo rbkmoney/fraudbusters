@@ -18,12 +18,17 @@ public class ChargeBackQuery {
             "    id, " +
             "    bankCountry, " +
             "    cardToken, " +
+            "    bin, " +
+            "    maskedPan, " +
             "    paymentSystem, " +
             "    providerId, " +
             "    status, " +
             "    ip, " +
             "    fingerprint, " +
-            "    terminal" +
+            "    terminal, " +
+            "    paymentId, " +
+            "    chargebackCode, " +
+            "    category " +
             " FROM " +
             EventSource.FRAUD_EVENTS_CHARGEBACK.getTable() +
             " WHERE " +

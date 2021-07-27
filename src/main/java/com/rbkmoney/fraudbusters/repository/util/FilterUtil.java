@@ -18,7 +18,8 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FilterUtil {
 
-    public static final String PAGE_CONTENT_FILTER = " and (id %s :id or (status != :status and id = :id)) ";
+    private static final String PAGE_CONTENT_COMPOSITE_FILTER = " and (id %s :id or (status != :status and id = :id)) ";
+    private static final String PAGE_CONTENT_FILTER = " and (id %s :id ) ";
 
     public static String appendFilters(FilterDto filter) {
         StringBuilder filters = new StringBuilder();
@@ -28,10 +29,13 @@ public class FilterUtil {
                     filters.append(" and like(").append(key.getValue()).append(",'").append(value).append("')"));
         }
         if (Objects.nonNull(filter.getLastId())) {
+            String pageFilter = CompositeIdUtil.isComposite(filter.getLastId())
+                    ? PAGE_CONTENT_COMPOSITE_FILTER
+                    : PAGE_CONTENT_FILTER;
             if (SortOrder.DESC.equals(filter.getSort().getOrder())) {
-                filters.append(String.format(PAGE_CONTENT_FILTER, "<"));
+                filters.append(String.format(pageFilter, "<"));
             } else {
-                filters.append(String.format(PAGE_CONTENT_FILTER, ">"));
+                filters.append(String.format(pageFilter, ">"));
             }
         }
         String sorting = String.format("ORDER BY (eventTime, id) %s ", filter.getSort().getOrder().name());
@@ -44,15 +48,22 @@ public class FilterUtil {
     public static MapSqlParameterSource initParams(FilterDto filter) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         if (Objects.nonNull(filter.getLastId())) {
+            addCompositeIdParams(filter, params);
+            params.addValue(QueryParamName.ID, filter.getLastId());
+        }
+        params.addValue(QueryParamName.FROM, filter.getTimeFrom())
+                .addValue(QueryParamName.TO, filter.getTimeTo())
+                .addValue(QueryParamName.SIZE, filter.getSize());
+        return params;
+    }
+
+    private static void addCompositeIdParams(FilterDto filter, MapSqlParameterSource params) {
+        if (CompositeIdUtil.isComposite(filter.getLastId())) {
             List<String> compositeId = CompositeIdUtil.extract(filter.getLastId());
             if (compositeId.size() == 2) {
                 params.addValue(QueryParamName.ID, compositeId.get(0))
                         .addValue(QueryParamName.STATUS, compositeId.get(1));
             }
         }
-        params.addValue(QueryParamName.FROM, filter.getTimeFrom())
-                .addValue(QueryParamName.TO, filter.getTimeTo())
-                .addValue(QueryParamName.SIZE, filter.getSize());
-        return params;
     }
 }

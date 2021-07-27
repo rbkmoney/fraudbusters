@@ -17,6 +17,8 @@ public class RefundQuery {
             "    currency, " +
             "    id, " +
             "    cardToken, " +
+            "    bin, " +
+            "    maskedPan, " +
             "    bankCountry, " +
             "    fingerprint, " +
             "    ip, " +
@@ -25,7 +27,8 @@ public class RefundQuery {
             "    errorCode, " +
             "    paymentSystem, " +
             "    providerId, " +
-            "    terminal " +
+            "    terminal, " +
+            "    paymentId " +
             " FROM " +
             EventSource.FRAUD_EVENTS_REFUND.getTable() +
             " WHERE " +

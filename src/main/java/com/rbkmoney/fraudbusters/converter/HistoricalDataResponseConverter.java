@@ -2,8 +2,10 @@ package com.rbkmoney.fraudbusters.converter;
 
 import com.rbkmoney.damsel.fraudbusters.HistoricalData;
 import com.rbkmoney.damsel.fraudbusters.HistoricalDataResponse;
+import com.rbkmoney.damsel.fraudbusters.HistoricalTransactionCheck;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalChargebacksDto;
+import com.rbkmoney.fraudbusters.service.dto.HistoricalFraudResultsDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalRefundsDto;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +18,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HistoricalDataResponseConverter {
 
-    private final CheckedPaymentToPaymentConverter converter;
+    private final CheckedPaymentToPaymentConverter paymentConverter;
+    private final EventToHistoricalTransactionCheckConverter transactionCheckConverter;
 
     public HistoricalDataResponse convertPayment(HistoricalPaymentsDto historicalPaymentsDto) {
         List<Payment> payments = historicalPaymentsDto.getPayments().stream()
-                .map(converter::convert)
+                .map(paymentConverter::convert)
                 .collect(Collectors.toList());
         HistoricalData historicalData = new HistoricalData();
         historicalData.setPayments(payments);
@@ -42,6 +45,17 @@ public class HistoricalDataResponseConverter {
         historicalData.setChargebacks(historicalChargebacksDto.getChargebacks());
         return new HistoricalDataResponse()
                 .setContinuationId(historicalChargebacksDto.getLastId())
+                .setData(historicalData);
+    }
+
+    public HistoricalDataResponse convertFraudResult(HistoricalFraudResultsDto historicalFraudResultsDto) {
+        List<HistoricalTransactionCheck> transactionChecks = historicalFraudResultsDto.getFraudResults().stream()
+                .map(transactionCheckConverter::convert)
+                .collect(Collectors.toList());
+        HistoricalData historicalData = new HistoricalData();
+        historicalData.setFraudResults(transactionChecks);
+        return new HistoricalDataResponse()
+                .setContinuationId(historicalFraudResultsDto.getLastId())
                 .setData(historicalData);
     }
 }

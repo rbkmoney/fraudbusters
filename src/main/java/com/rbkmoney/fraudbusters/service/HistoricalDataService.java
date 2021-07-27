@@ -1,9 +1,6 @@
 package com.rbkmoney.fraudbusters.service;
 
-import com.rbkmoney.fraudbusters.service.dto.FilterDto;
-import com.rbkmoney.fraudbusters.service.dto.HistoricalChargebacksDto;
-import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
-import com.rbkmoney.fraudbusters.service.dto.HistoricalRefundsDto;
+import com.rbkmoney.fraudbusters.service.dto.*;
 
 public interface HistoricalDataService {
 
@@ -12,5 +9,7 @@ public interface HistoricalDataService {
     HistoricalRefundsDto getRefunds(FilterDto filter);
 
     HistoricalChargebacksDto getChargebacks(FilterDto filter);
+
+    HistoricalFraudResultsDto getFraudResults(FilterDto filter);
 
 }

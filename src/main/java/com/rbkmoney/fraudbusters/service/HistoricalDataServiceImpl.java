@@ -3,11 +3,9 @@ package com.rbkmoney.fraudbusters.service;
 import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
+import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.service.dto.FilterDto;
-import com.rbkmoney.fraudbusters.service.dto.HistoricalChargebacksDto;
-import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
-import com.rbkmoney.fraudbusters.service.dto.HistoricalRefundsDto;
+import com.rbkmoney.fraudbusters.service.dto.*;
 import com.rbkmoney.fraudbusters.util.CompositeIdUtil;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +20,7 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     private final Repository<CheckedPayment> paymentRepository;
     private final Repository<Refund> refundRepository;
     private final Repository<Chargeback> chargebackRepository;
+    private final Repository<Event> fraudResultRepository;
 
     @Override
     public HistoricalPaymentsDto getPayments(FilterDto filter) {
@@ -49,6 +48,16 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
         String lastId = buildLastChargebackId(filter.getSize(), chargebacks);
         return HistoricalChargebacksDto.builder()
                 .chargebacks(chargebacks)
+                .lastId(lastId)
+                .build();
+    }
+
+    @Override
+    public HistoricalFraudResultsDto getFraudResults(FilterDto filter) {
+        List<Event> fraudResults = fraudResultRepository.getByFilter(filter);
+        String lastId = fraudResults.get(fraudResults.size() - 1).getPaymentId();
+        return HistoricalFraudResultsDto.builder()
+                .fraudResults(fraudResults)
                 .lastId(lastId)
                 .build();
     }

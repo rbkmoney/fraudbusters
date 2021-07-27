@@ -3,6 +3,7 @@ package com.rbkmoney.fraudbusters.repository.mapper;
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.ClientInfo;
 import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.fraudbusters.constant.ChargebackField;
 import com.rbkmoney.fraudbusters.constant.PaymentField;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -26,9 +27,12 @@ public class ChargebackMapper implements RowMapper<Chargeback> {
         BankCard bankCard = new BankCard();
         paymentTool.setBankCard(bankCard);
         bankCard.setToken(rs.getString(PaymentField.CARD_TOKEN.getValue()));
+        bankCard.setBin(rs.getString(PaymentField.BIN.getValue()));
+        bankCard.setLastDigits(rs.getString(PaymentField.MASKED_PAN.getValue()));
         bankCard.setPaymentSystem(new PaymentSystemRef().setId(rs.getString(PaymentField.PAYMENT_SYSTEM.getValue())));
         return new Chargeback()
                 .setId(rs.getString(PaymentField.ID.getValue()))
+                .setPaymentId(rs.getString(PaymentField.PAYMENT_ID.getValue()))
                 .setEventTime(
                         Instant.ofEpochMilli(rs.getLong(PaymentField.EVENT_TIME.getValue()))
                                 .atZone(ZoneId.of("UTC"))
@@ -48,6 +52,8 @@ public class ChargebackMapper implements RowMapper<Chargeback> {
                 .setProviderInfo(new ProviderInfo()
                         .setProviderId(rs.getString(PaymentField.PROVIDER_ID.getValue()))
                         .setCountry(rs.getString(PaymentField.BANK_COUNTRY.getValue()))
-                        .setTerminalId(rs.getString(PaymentField.TERMINAL.getValue())));
+                        .setTerminalId(rs.getString(PaymentField.TERMINAL.getValue())))
+                .setChargebackCode(rs.getString(ChargebackField.CHARGEBACK_CODE.getValue()))
+                .setCategory(ChargebackCategory.valueOf(rs.getString(ChargebackField.CATEGORY.getValue())));
     }
 }

@@ -26,7 +26,12 @@ public enum PaymentField {
     PROVIDER_ID("providerId"),
     TERMINAL("terminal"),
     MASKED_PAN("maskedPan"),
-    INVOICE_ID("invoiceId");
+    INVOICE_ID("invoiceId"),
+    PAYMENT_ID("paymentId"),
+    BIN("bin"),
+    BANK_NAME("bankName"),
+    MOBILE("mobile"),
+    RECURRENT("recurrent");
 
     @Getter
     private final String value;

@@ -27,9 +27,12 @@ public class RefundMapper implements RowMapper<Refund> {
         BankCard bankCard = new BankCard();
         paymentTool.setBankCard(bankCard);
         bankCard.setToken(rs.getString(PaymentField.CARD_TOKEN.getValue()));
+        bankCard.setBin(rs.getString(PaymentField.BIN.getValue()));
+        bankCard.setLastDigits(rs.getString(PaymentField.MASKED_PAN.getValue()));
         bankCard.setPaymentSystem(new PaymentSystemRef().setId(rs.getString(PaymentField.PAYMENT_SYSTEM.getValue())));
         return new Refund()
                 .setId(rs.getString(PaymentField.ID.getValue()))
+                .setPaymentId(rs.getString(PaymentField.PAYMENT_ID.getValue()))
                 .setEventTime(
                         Instant.ofEpochMilli(rs.getLong(PaymentField.EVENT_TIME.getValue()))
                                 .atZone(ZoneId.of("UTC"))

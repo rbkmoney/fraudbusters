@@ -11,13 +11,18 @@ import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.extractor.CountExtractor;
 import com.rbkmoney.fraudbusters.repository.extractor.SumExtractor;
 import com.rbkmoney.fraudbusters.repository.impl.generator.EventParametersGenerator;
+import com.rbkmoney.fraudbusters.repository.mapper.EventMapper;
+import com.rbkmoney.fraudbusters.repository.query.FraudResultQuery;
 import com.rbkmoney.fraudbusters.repository.setter.EventBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.util.AggregationUtil;
+import com.rbkmoney.fraudbusters.repository.util.FilterUtil;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +36,8 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
 
     private final AggregationGeneralRepository aggregationGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final EventMapper eventMapper;
 
     @Override
     public void insert(Event value) {
@@ -58,8 +65,10 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
 
     @Override
     public List<Event> getByFilter(FilterDto filter) {
-        // TODO implement
-        return null;
+        String filters = FilterUtil.appendFilters(filter);
+        String query = FraudResultQuery.SELECT_HISTORY_FRAUD_RESULT + filters;
+        MapSqlParameterSource params = FilterUtil.initParams(filter);
+        return namedParameterJdbcTemplate.query(query, params, eventMapper);
     }
 
     @Override
