@@ -7,7 +7,7 @@ import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.mapper.ChargebackMapper;
-import com.rbkmoney.fraudbusters.repository.query.RefundQuery;
+import com.rbkmoney.fraudbusters.repository.query.ChargeBackQuery;
 import com.rbkmoney.fraudbusters.repository.setter.ChargebackBatchPreparedStatementSetter;
 import com.rbkmoney.fraudbusters.repository.util.FilterUtil;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
@@ -58,7 +58,7 @@ public class ChargebackRepository implements Repository<Chargeback>, Aggregation
     @Override
     public List<Chargeback> getByFilter(FilterDto filter) {
         String filters = FilterUtil.appendFilters(filter);
-        String query = RefundQuery.SELECT_HISTORY_REFUND + filters;
+        String query = ChargeBackQuery.SELECT_HISTORY_CHARGEBACK + filters;
         MapSqlParameterSource params = FilterUtil.initParams(filter);
         return namedParameterJdbcTemplate.query(query, params, chargebackMapper);
     }

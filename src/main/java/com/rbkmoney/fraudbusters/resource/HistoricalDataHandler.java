@@ -47,7 +47,9 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
 
     @Override
     public HistoricalDataResponse getFraudPayments(Filter filter, Page page, Sort sort) throws TException {
-        return null;
+        FilterDto filterDto = filterConverter.convert(filter, page, sort);
+        HistoricalPaymentsDto historicalPaymentsDto = historicalDataService.getFraudPayments(filterDto);
+        return resultConverter.convertPayment(historicalPaymentsDto); // TODO fraudPaymentInfo
     }
 
     @Override

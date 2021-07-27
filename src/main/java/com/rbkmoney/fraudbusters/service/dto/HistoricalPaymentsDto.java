@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public class HistoricalPaymentsDto {
 
-    private List<CheckedPayment> payments;
+    private List<? extends CheckedPayment> payments;
     private String lastId;
 
 }

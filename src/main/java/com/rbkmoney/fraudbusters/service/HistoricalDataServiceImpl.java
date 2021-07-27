@@ -4,6 +4,7 @@ import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.Event;
+import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.service.dto.*;
 import com.rbkmoney.fraudbusters.util.CompositeIdUtil;
@@ -21,6 +22,7 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     private final Repository<Refund> refundRepository;
     private final Repository<Chargeback> chargebackRepository;
     private final Repository<Event> fraudResultRepository;
+    private final Repository<FraudPaymentRow> fraudPaymentRepository;
 
     @Override
     public HistoricalPaymentsDto getPayments(FilterDto filter) {
@@ -62,8 +64,18 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
                 .build();
     }
 
+    @Override
+    public HistoricalPaymentsDto getFraudPayments(FilterDto filter) {
+        List<FraudPaymentRow> payments = fraudPaymentRepository.getByFilter(filter);
+        String lastId = buildLastPaymentId(filter.getSize(), payments);
+        return HistoricalPaymentsDto.builder()
+                .payments(payments)
+                .lastId(lastId)
+                .build();
+    }
+
     @Nullable
-    private String buildLastPaymentId(Long filterSize, List<CheckedPayment> payments) {
+    private String buildLastPaymentId(Long filterSize, List<? extends CheckedPayment> payments) {
         if (payments.size() == filterSize) {
             CheckedPayment lastPayment = payments.get(payments.size() - 1);
             return CompositeIdUtil.create(lastPayment.getId(), lastPayment.getPaymentStatus());
