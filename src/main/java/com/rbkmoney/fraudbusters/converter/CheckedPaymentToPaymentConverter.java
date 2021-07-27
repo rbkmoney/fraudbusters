@@ -26,6 +26,8 @@ public class CheckedPaymentToPaymentConverter implements Converter<CheckedPaymen
         paymentTool.setBankCard(bankCard);
         bankCard.setToken(checkedPayment.getCardToken());
         bankCard.setPaymentSystem(new PaymentSystemRef().setId(checkedPayment.getPaymentSystem()));
+        bankCard.setBin(checkedPayment.getBin());
+        bankCard.setLastDigits(checkedPayment.getMaskedPan());
         //TODO paymentCountry mapping
         return new Payment()
                 .setId(checkedPayment.getId())
