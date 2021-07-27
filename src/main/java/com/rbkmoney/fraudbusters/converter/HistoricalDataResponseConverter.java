@@ -1,9 +1,6 @@
 package com.rbkmoney.fraudbusters.converter;
 
-import com.rbkmoney.damsel.fraudbusters.HistoricalData;
-import com.rbkmoney.damsel.fraudbusters.HistoricalDataResponse;
-import com.rbkmoney.damsel.fraudbusters.HistoricalTransactionCheck;
-import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalChargebacksDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalFraudResultsDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
@@ -20,6 +17,7 @@ public class HistoricalDataResponseConverter {
 
     private final CheckedPaymentToPaymentConverter paymentConverter;
     private final EventToHistoricalTransactionCheckConverter transactionCheckConverter;
+    private final CheckedPaymentToFraudPaymentInfoConverter fraudPaymentInfoConverter;
 
     public HistoricalDataResponse convertPayment(HistoricalPaymentsDto historicalPaymentsDto) {
         List<Payment> payments = historicalPaymentsDto.getPayments().stream()
@@ -56,6 +54,17 @@ public class HistoricalDataResponseConverter {
         historicalData.setFraudResults(transactionChecks);
         return new HistoricalDataResponse()
                 .setContinuationId(historicalFraudResultsDto.getLastId())
+                .setData(historicalData);
+    }
+
+    public HistoricalDataResponse convertFraudPayment(HistoricalPaymentsDto historicalPaymentsDto) {
+        List<FraudPaymentInfo> payments = historicalPaymentsDto.getPayments().stream()
+                .map(fraudPaymentInfoConverter::convert)
+                .collect(Collectors.toList());
+        HistoricalData historicalData = new HistoricalData();
+        historicalData.setFraudPayments(payments);
+        return new HistoricalDataResponse()
+                .setContinuationId(historicalPaymentsDto.getLastId())
                 .setData(historicalData);
     }
 }

@@ -49,7 +49,7 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
     public HistoricalDataResponse getFraudPayments(Filter filter, Page page, Sort sort) throws TException {
         FilterDto filterDto = filterConverter.convert(filter, page, sort);
         HistoricalPaymentsDto historicalPaymentsDto = historicalDataService.getFraudPayments(filterDto);
-        return resultConverter.convertPayment(historicalPaymentsDto); // TODO fraudPaymentInfo
+        return resultConverter.convertFraudPayment(historicalPaymentsDto);
     }
 
     @Override
