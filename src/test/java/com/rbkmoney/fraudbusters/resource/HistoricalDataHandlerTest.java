@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.converter.CheckedPaymentToPaymentConverter;
 import com.rbkmoney.fraudbusters.converter.FilterConverter;
 import com.rbkmoney.fraudbusters.converter.HistoricalDataResponseConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
+import com.rbkmoney.fraudbusters.resource.payment.handler.HistoricalDataHandler;
 import com.rbkmoney.fraudbusters.service.HistoricalDataService;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;

@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.resource;
+package com.rbkmoney.fraudbusters.resource.payment.handler;
 
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.converter.FilterConverter;
