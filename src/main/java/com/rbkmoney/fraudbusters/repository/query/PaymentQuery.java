@@ -17,6 +17,8 @@ public class PaymentQuery {
             "    currency, " +
             "    id, " +
             "    cardToken, " +
+            "    bin, " +
+            "    maskedPan, " +
             "    bankCountry, " +
             "    fingerprint, " +
             "    ip, " +
