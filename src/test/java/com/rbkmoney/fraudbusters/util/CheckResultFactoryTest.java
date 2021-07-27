@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.fraudbusters.Accept;
 import com.rbkmoney.damsel.fraudbusters.CheckResult;
+import com.rbkmoney.fraudbusters.converter.ResultStatusConverter;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.ResultModel;
 import com.rbkmoney.fraudo.model.RuleResult;
@@ -15,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CheckResultFactoryTest {
 
-    private final CheckResultFactory factory = new CheckResultFactory();
+    private final ResultStatusConverter resultStatusConverter = new ResultStatusConverter();
+    private final CheckResultFactory factory = new CheckResultFactory(resultStatusConverter);
 
     private static final String TEMPLATE = "template string";
     private static final String RULE_CHECKED = "0";

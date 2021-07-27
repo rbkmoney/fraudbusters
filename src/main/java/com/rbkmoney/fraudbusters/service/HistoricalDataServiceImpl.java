@@ -1,9 +1,9 @@
 package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.damsel.fraudbusters.HistoricalTransactionCheck;
-import com.rbkmoney.damsel.fraudbusters.PaymentInfo;
+import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.Template;
-import com.rbkmoney.fraudbusters.converter.PaymentInfoToPaymentModelConverter;
+import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
 import com.rbkmoney.fraudbusters.util.CheckResultFactory;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.exception.InvalidTemplateException;
@@ -34,7 +34,7 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     private final FraudContextParser<FraudoPaymentParser.ParseContext> paymentContextParser;
     private final PaymentTemplateValidator paymentTemplateValidator;
     private final TemplateVisitor<PaymentModel, ResultModel> paymentRuleVisitor;
-    private final PaymentInfoToPaymentModelConverter paymentModelConverter;
+    private final PaymentToPaymentModelConverter paymentModelConverter;
     private final CheckResultFactory checkResultFactory;
     private final Repository<CheckedPayment> paymentRepository;
 
@@ -49,24 +49,24 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     }
 
     @Override
-    public Set<HistoricalTransactionCheck> applySingleRule(Template template, Set<PaymentInfo> transactions) {
+    public Set<HistoricalTransactionCheck> applySingleRule(Template template, Set<Payment> transactions) {
         final String templateString = new String(template.getTemplate(), StandardCharsets.UTF_8);
         validateTemplate(templateString);
         final FraudoPaymentParser.ParseContext parseContext = paymentContextParser.parse(templateString);
         return transactions.stream()
-                .map(paymentInfo -> checkTransaction(paymentInfo, templateString, parseContext))
+                .map(payment -> checkTransaction(payment, templateString, parseContext))
                 .collect(Collectors.toSet());
     }
 
     private HistoricalTransactionCheck checkTransaction(
-            PaymentInfo paymentInfo,
+            Payment payment,
             String templateString,
             FraudoPaymentParser.ParseContext parseContext
     ) {
-        final ResultModel resultModel =
-                paymentRuleVisitor.visit(parseContext, paymentModelConverter.convert(paymentInfo));
+        final PaymentModel paymentModel = paymentModelConverter.convert(payment);
+        final ResultModel resultModel = paymentRuleVisitor.visit(parseContext, paymentModel);
         final HistoricalTransactionCheck check = new HistoricalTransactionCheck();
-        check.setTransaction(paymentInfo);
+        check.setTransaction(payment);
         check.setCheckResult(checkResultFactory.createCheckResult(templateString, resultModel));
         return check;
     }

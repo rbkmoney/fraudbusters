@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.damsel.fraudbusters.HistoricalTransactionCheck;
-import com.rbkmoney.damsel.fraudbusters.PaymentInfo;
+import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
@@ -12,5 +12,5 @@ public interface HistoricalDataService {
 
     HistoricalPaymentsDto getPayments(FilterDto filter);
 
-    Set<HistoricalTransactionCheck> applySingleRule(Template template, Set<PaymentInfo> transactions);
+    Set<HistoricalTransactionCheck> applySingleRule(Template template, Set<Payment> transactions);
 }
