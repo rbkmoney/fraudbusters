@@ -49,6 +49,7 @@ public class FilterUtil {
         MapSqlParameterSource params = new MapSqlParameterSource();
         if (Objects.nonNull(filter.getLastId())) {
             addCompositeIdParams(filter, params);
+        } else {
             params.addValue(QueryParamName.ID, filter.getLastId());
         }
         params.addValue(QueryParamName.FROM, filter.getTimeFrom())

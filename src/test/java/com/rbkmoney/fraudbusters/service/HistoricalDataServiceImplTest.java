@@ -1,7 +1,11 @@
 package com.rbkmoney.fraudbusters.service;
 
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
+import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.fraudbusters.TestObjectsFactory;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
+import com.rbkmoney.fraudbusters.domain.Event;
+import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
@@ -27,6 +31,14 @@ class HistoricalDataServiceImplTest {
 
     @MockBean
     private Repository<CheckedPayment> paymentRepository;
+    @MockBean
+    private Repository<Refund> refundRepository;
+    @MockBean
+    private Repository<Chargeback> chargebackRepository;
+    @MockBean
+    private Repository<Event> fraudResultRepository;
+    @MockBean
+    private Repository<FraudPaymentRow> fraudPaymentRepository;
 
     @Test
     void getPaymentsWithoutPayments() {
