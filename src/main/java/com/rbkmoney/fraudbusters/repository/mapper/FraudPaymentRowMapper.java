@@ -16,7 +16,7 @@ public class FraudPaymentRowMapper implements RowMapper<FraudPaymentRow> {
     public FraudPaymentRow mapRow(ResultSet rs, int i) throws SQLException {
         FraudPaymentRow fraudPaymentRow = new FraudPaymentRow();
         fraudPaymentRow.setComment(rs.getString(FraudPaymentField.COMMENT.getValue()));
-        fraudPaymentRow.setComment(rs.getString(FraudPaymentField.FRAUD_TYPE.getValue()));
+        fraudPaymentRow.setType(rs.getString(FraudPaymentField.FRAUD_TYPE.getValue()));
         fraudPaymentRow.setEventTime(rs.getLong(PaymentField.EVENT_TIME.getValue()));
         fraudPaymentRow.setId(rs.getString(PaymentField.ID.getValue()));
         fraudPaymentRow.setEmail(rs.getString(PaymentField.EMAIL.getValue()));

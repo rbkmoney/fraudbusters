@@ -25,28 +25,28 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
     }
 
     @Override
-    public HistoricalDataResponse getFraudResults(Filter filter, Page page, Sort sort) throws TException {
+    public HistoricalDataResponse getFraudResults(Filter filter, Page page, Sort sort) {
         FilterDto filterDto = filterConverter.convert(filter, page, sort);
         HistoricalFraudResultsDto historicalFraudResultsDto = historicalDataService.getFraudResults(filterDto);
         return resultConverter.convertFraudResult(historicalFraudResultsDto);
     }
 
     @Override
-    public HistoricalDataResponse getRefunds(Filter filter, Page page, Sort sort) throws TException {
+    public HistoricalDataResponse getRefunds(Filter filter, Page page, Sort sort) {
         FilterDto filterDto = filterConverter.convert(filter, page, sort);
         HistoricalRefundsDto historicalRefundsDto = historicalDataService.getRefunds(filterDto);
         return resultConverter.convertRefund(historicalRefundsDto);
     }
 
     @Override
-    public HistoricalDataResponse getChargebacks(Filter filter, Page page, Sort sort) throws TException {
+    public HistoricalDataResponse getChargebacks(Filter filter, Page page, Sort sort) {
         FilterDto filterDto = filterConverter.convert(filter, page, sort);
         HistoricalChargebacksDto historicalChargebacksDto = historicalDataService.getChargebacks(filterDto);
         return resultConverter.convertChargeback(historicalChargebacksDto);
     }
 
     @Override
-    public HistoricalDataResponse getFraudPayments(Filter filter, Page page, Sort sort) throws TException {
+    public HistoricalDataResponse getFraudPayments(Filter filter, Page page, Sort sort) {
         FilterDto filterDto = filterConverter.convert(filter, page, sort);
         HistoricalPaymentsDto historicalPaymentsDto = historicalDataService.getFraudPayments(filterDto);
         return resultConverter.convertFraudPayment(historicalPaymentsDto);

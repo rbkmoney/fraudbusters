@@ -57,7 +57,9 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     @Override
     public HistoricalFraudResultsDto getFraudResults(FilterDto filter) {
         List<Event> fraudResults = fraudResultRepository.getByFilter(filter);
-        String lastId = fraudResults.get(fraudResults.size() - 1).getPaymentId();
+        String lastId = filter.getSize() == fraudResults.size()
+                ? fraudResults.get(fraudResults.size() - 1).getPaymentId()
+                : null;
         return HistoricalFraudResultsDto.builder()
                 .fraudResults(fraudResults)
                 .lastId(lastId)

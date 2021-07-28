@@ -7,8 +7,7 @@ import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.service.dto.FilterDto;
-import com.rbkmoney.fraudbusters.service.dto.HistoricalPaymentsDto;
+import com.rbkmoney.fraudbusters.service.dto.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,4 +97,169 @@ class HistoricalDataServiceImplTest {
         assertFalse(actualPayments.getPayments().isEmpty());
         assertEquals(checkedPayments.size(), actualPayments.getPayments().size());
     }
+
+    @Test
+    void getRefundsWithoutRefunds() {
+        FilterDto filterDto = new FilterDto();
+        when(refundRepository.getByFilter(filterDto)).thenReturn(Collections.emptyList());
+
+        HistoricalRefundsDto actualRefunds = historicalDataService.getRefunds(filterDto);
+
+        assertNull(actualRefunds.getLastId());
+        assertTrue(actualRefunds.getRefunds().isEmpty());
+    }
+
+    @Test
+    void getRefundsWithoutLastId() {
+        FilterDto filterDto = new FilterDto();
+        Refund refund = TestObjectsFactory.testRefund();
+        List<Refund> refunds = List.of(refund);
+        when(refundRepository.getByFilter(filterDto)).thenReturn(refunds);
+
+        HistoricalRefundsDto actualRefunds = historicalDataService.getRefunds(filterDto);
+
+        assertNull(actualRefunds.getLastId());
+        assertFalse(actualRefunds.getRefunds().isEmpty());
+        assertIterableEquals(refunds, actualRefunds.getRefunds());
+    }
+
+    @Test
+    void getRefundsWithLastId() {
+        FilterDto filterDto = new FilterDto();
+        List<Refund> refunds = TestObjectsFactory.testRefunds(4);
+        filterDto.setSize((long) refunds.size());
+        when(refundRepository.getByFilter(filterDto)).thenReturn(refunds);
+
+        HistoricalRefundsDto actualRefunds = historicalDataService.getRefunds(filterDto);
+
+        String expectedLastId = refunds.get(3).getId() + "|" + refunds.get(3).getStatus();
+        assertEquals(expectedLastId, actualRefunds.getLastId());
+        assertFalse(actualRefunds.getRefunds().isEmpty());
+        assertEquals(refunds.size(), actualRefunds.getRefunds().size());
+    }
+
+    @Test
+    void getChargebacksWithoutChargebacks() {
+        FilterDto filterDto = new FilterDto();
+        when(chargebackRepository.getByFilter(filterDto)).thenReturn(Collections.emptyList());
+
+        HistoricalChargebacksDto actualChargebacks = historicalDataService.getChargebacks(filterDto);
+
+        assertNull(actualChargebacks.getLastId());
+        assertTrue(actualChargebacks.getChargebacks().isEmpty());
+    }
+
+    @Test
+    void getChargebacksWithoutLastId() {
+        FilterDto filterDto = new FilterDto();
+        Chargeback chargeback = TestObjectsFactory.testChargeback();
+        List<Chargeback> chargebacks = List.of(chargeback);
+        when(chargebackRepository.getByFilter(filterDto)).thenReturn(chargebacks);
+
+        HistoricalChargebacksDto actualChargebacks = historicalDataService.getChargebacks(filterDto);
+
+        assertNull(actualChargebacks.getLastId());
+        assertFalse(actualChargebacks.getChargebacks().isEmpty());
+        assertIterableEquals(chargebacks, actualChargebacks.getChargebacks());
+    }
+
+    @Test
+    void getChargebacksWithLastId() {
+        FilterDto filterDto = new FilterDto();
+        List<Chargeback> chargebacks = TestObjectsFactory.testChargebacks(4);
+        filterDto.setSize((long) chargebacks.size());
+        when(chargebackRepository.getByFilter(filterDto)).thenReturn(chargebacks);
+
+        HistoricalChargebacksDto actualChargebacks = historicalDataService.getChargebacks(filterDto);
+
+        String expectedLastId = chargebacks.get(3).getId() + "|" + chargebacks.get(3).getStatus();
+        assertEquals(expectedLastId, actualChargebacks.getLastId());
+        assertFalse(actualChargebacks.getChargebacks().isEmpty());
+        assertEquals(chargebacks.size(), actualChargebacks.getChargebacks().size());
+        assertIterableEquals(chargebacks, actualChargebacks.getChargebacks());
+    }
+
+    @Test
+    void getFraudResultsWithoutFraudResults() {
+        FilterDto filterDto = new FilterDto();
+        when(fraudResultRepository.getByFilter(filterDto)).thenReturn(Collections.emptyList());
+
+        HistoricalFraudResultsDto actualFraudResults = historicalDataService.getFraudResults(filterDto);
+
+        assertNull(actualFraudResults.getLastId());
+        assertTrue(actualFraudResults.getFraudResults().isEmpty());
+    }
+
+    @Test
+    void getFraudResultsWithoutLastId() {
+        FilterDto filterDto = new FilterDto();
+        Event event = TestObjectsFactory.testEvent();
+        List<Event> events = List.of(event);
+        when(fraudResultRepository.getByFilter(filterDto)).thenReturn(events);
+
+        HistoricalFraudResultsDto actualFraudResults = historicalDataService.getFraudResults(filterDto);
+
+        assertNull(actualFraudResults.getLastId());
+        assertFalse(actualFraudResults.getFraudResults().isEmpty());
+        assertEquals(events.size(), actualFraudResults.getFraudResults().size());
+        assertIterableEquals(events, actualFraudResults.getFraudResults());
+
+    }
+
+    @Test
+    void getFraudResultsWithLastId() {
+        FilterDto filterDto = new FilterDto();
+        List<Event> fraudResults = TestObjectsFactory.testEvents(4);
+        filterDto.setSize((long) fraudResults.size());
+        when(fraudResultRepository.getByFilter(filterDto)).thenReturn(fraudResults);
+
+        HistoricalFraudResultsDto actualFraudResults = historicalDataService.getFraudResults(filterDto);
+
+        assertEquals(fraudResults.get(3).getPaymentId(), actualFraudResults.getLastId());
+        assertFalse(actualFraudResults.getFraudResults().isEmpty());
+        assertEquals(fraudResults.size(), actualFraudResults.getFraudResults().size());
+    }
+
+    @Test
+    void getFraudPaymentsWithoutFraudPayments() {
+        FilterDto filterDto = new FilterDto();
+        when(fraudPaymentRepository.getByFilter(filterDto)).thenReturn(Collections.emptyList());
+
+        HistoricalPaymentsDto actualFraudPayments = historicalDataService.getFraudPayments(filterDto);
+
+        assertNull(actualFraudPayments.getLastId());
+        assertTrue(actualFraudPayments.getPayments().isEmpty());
+    }
+
+    @Test
+    void getFraudPaymentsWithoutLastId() {
+        FilterDto filterDto = new FilterDto();
+        FraudPaymentRow fraudPaymentRow = TestObjectsFactory.testFraudPaymentRow();
+        List<FraudPaymentRow> fraudPaymentRows = List.of(fraudPaymentRow);
+        when(fraudPaymentRepository.getByFilter(filterDto)).thenReturn(fraudPaymentRows);
+
+        HistoricalPaymentsDto actualFraudPayments = historicalDataService.getFraudPayments(filterDto);
+
+        assertNull(actualFraudPayments.getLastId());
+        assertFalse(actualFraudPayments.getPayments().isEmpty());
+        assertEquals(fraudPaymentRows.size(), actualFraudPayments.getPayments().size());
+        assertIterableEquals(fraudPaymentRows, actualFraudPayments.getPayments());
+
+    }
+
+    @Test
+    void getFraudPaymentsWithLastId() {
+        FilterDto filterDto = new FilterDto();
+        List<FraudPaymentRow> fraudPaymentRows = TestObjectsFactory.testFraudPaymentRows(4);
+        filterDto.setSize((long) fraudPaymentRows.size());
+        when(fraudPaymentRepository.getByFilter(filterDto)).thenReturn(fraudPaymentRows);
+
+        HistoricalPaymentsDto actualFraudPayments = historicalDataService.getFraudPayments(filterDto);
+
+        String expectedLastId = fraudPaymentRows.get(3).getId() + "|" + fraudPaymentRows.get(3).getPaymentStatus();
+        assertEquals(expectedLastId, actualFraudPayments.getLastId());
+        assertFalse(actualFraudPayments.getPayments().isEmpty());
+        assertEquals(fraudPaymentRows.size(), actualFraudPayments.getPayments().size());
+    }
+
 }
