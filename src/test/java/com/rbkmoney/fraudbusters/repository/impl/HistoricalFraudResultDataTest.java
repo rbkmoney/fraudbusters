@@ -11,7 +11,6 @@ import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.dto.SortDto;
 import com.rbkmoney.fraudbusters.util.PaymentTypeByContextResolver;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ExtendWith(SpringExtension.class)
-@Disabled("Disabled until fix")
 @ContextConfiguration(classes = {ClickhouseConfig.class, PaymentTypeByContextResolver.class,
         FraudResultRepository.class, EventMapper.class, AggregationGeneralRepositoryImpl.class},
         initializers = HistoricalFraudResultDataTest.Initializer.class)
@@ -108,7 +106,7 @@ class HistoricalFraudResultDataTest {
         FilterDto filter = new FilterDto();
         filter.setTimeFrom("2020-05-01T18:04:53");
         filter.setTimeTo("2020-10-01T18:04:53");
-        filter.setLastId("1DkraVdGJfs.1|rejected");
+        filter.setLastId("1DkraVdGJfs.1");
         SortDto sortDto = new SortDto();
         sortDto.setOrder(SortOrder.DESC);
         filter.setSort(sortDto);
@@ -125,7 +123,7 @@ class HistoricalFraudResultDataTest {
         filter.setTimeFrom("2020-05-01T18:04:53");
         filter.setTimeTo("2020-10-01T18:04:53");
         filter.setSize(3L);
-        filter.setLastId("1DkraVdGJfs.1|rejected");
+        filter.setLastId("1DkraVdGJfs.1");
         SortDto sortDto = new SortDto();
         sortDto.setOrder(SortOrder.DESC);
         filter.setSort(sortDto);
@@ -159,7 +157,7 @@ class HistoricalFraudResultDataTest {
                     "sql/V5__add_fields.sql",
                     "sql/V6__add_result_fields_payment.sql",
                     "sql/V7__add_fields.sql",
-                    "sql/data/insert_history_chargebacks.sql"
+                    "sql/data/insert_history_fraud_results.sql"
             ));
         }
     }

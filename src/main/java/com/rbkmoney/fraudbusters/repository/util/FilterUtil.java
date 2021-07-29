@@ -48,23 +48,19 @@ public class FilterUtil {
     public static MapSqlParameterSource initParams(FilterDto filter) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         if (Objects.nonNull(filter.getLastId())) {
-            addCompositeIdParams(filter, params);
-        } else {
-            params.addValue(QueryParamName.ID, filter.getLastId());
+            if (CompositeIdUtil.isComposite(filter.getLastId())) {
+                List<String> compositeId = CompositeIdUtil.extract(filter.getLastId());
+                if (compositeId.size() == 2) {
+                    params.addValue(QueryParamName.ID, compositeId.get(0))
+                            .addValue(QueryParamName.STATUS, compositeId.get(1));
+                }
+            } else {
+                params.addValue(QueryParamName.ID, filter.getLastId());
+            }
         }
         params.addValue(QueryParamName.FROM, filter.getTimeFrom())
                 .addValue(QueryParamName.TO, filter.getTimeTo())
                 .addValue(QueryParamName.SIZE, filter.getSize());
         return params;
-    }
-
-    private static void addCompositeIdParams(FilterDto filter, MapSqlParameterSource params) {
-        if (CompositeIdUtil.isComposite(filter.getLastId())) {
-            List<String> compositeId = CompositeIdUtil.extract(filter.getLastId());
-            if (compositeId.size() == 2) {
-                params.addValue(QueryParamName.ID, compositeId.get(0))
-                        .addValue(QueryParamName.STATUS, compositeId.get(1));
-            }
-        }
     }
 }

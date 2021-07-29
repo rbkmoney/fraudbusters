@@ -16,7 +16,7 @@ public class EventMapper implements RowMapper<Event> {
     public Event mapRow(ResultSet rs, int i) throws SQLException {
         Event event = new Event();
         event.setEventTime(rs.getLong(PaymentField.EVENT_TIME.getValue()));
-        event.setPaymentId(rs.getString(PaymentField.PAYMENT_ID.getValue()));
+        event.setPaymentId(rs.getString(PaymentField.ID.getValue()));
         event.setInvoiceId(rs.getString(PaymentField.INVOICE_ID.getValue()));
         event.setEmail(rs.getString(PaymentField.EMAIL.getValue()));
         event.setIp(rs.getString(PaymentField.IP.getValue()));

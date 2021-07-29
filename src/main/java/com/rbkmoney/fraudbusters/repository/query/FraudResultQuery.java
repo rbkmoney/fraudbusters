@@ -23,7 +23,7 @@ public class FraudResultQuery {
             "    maskedPan, " +
             "    bin, " +
             "    bankName, " +
-            "    paymentId, " +
+            "    paymentId as id, " +
             "    resultStatus, " +
             "    checkedRule, " +
             "    checkedTemplate, " +
