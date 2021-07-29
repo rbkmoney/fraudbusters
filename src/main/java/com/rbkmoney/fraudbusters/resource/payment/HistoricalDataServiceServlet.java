@@ -1,7 +1,6 @@
 package com.rbkmoney.fraudbusters.resource.payment;
 
 import com.rbkmoney.damsel.fraudbusters.HistoricalDataServiceSrv;
-import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.woody.thrift.impl.http.THServiceBuilder;
 import lombok.RequiredArgsConstructor;
 

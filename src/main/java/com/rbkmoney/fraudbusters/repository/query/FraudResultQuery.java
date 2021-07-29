@@ -5,35 +5,32 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PaymentQuery {
+public class FraudResultQuery {
 
-    public static final String SELECT_HISTORY_PAYMENT = "" +
+    public static final String SELECT_HISTORY_FRAUD_RESULT = "" +
             "SELECT " +
-            "     eventTime, " +
+            "    eventTime, " +
             "    partyId, " +
             "    shopId, " +
             "    email, " +
             "    amount / 100 as amount, " +
             "    currency, " +
-            "    id, " +
-            "    cardToken, " +
-            "    bin, " +
-            "    maskedPan, " +
             "    bankCountry, " +
-            "    fingerprint, " +
+            "    cardToken, " +
             "    ip, " +
-            "    status, " +
-            "    errorReason, " +
-            "    errorCode, " +
-            "    paymentSystem, " +
-            "    paymentCountry, " +
-            "    paymentTool, " +
-            "    providerId, " +
-            "    terminal, " +
+            "    fingerprint, " +
+            "    invoiceId, " +
+            "    maskedPan, " +
+            "    bin, " +
+            "    bankName, " +
+            "    paymentId as id, " +
+            "    resultStatus, " +
+            "    checkedRule, " +
+            "    checkedTemplate, " +
             "    mobile, " +
             "    recurrent " +
             " FROM " +
-            EventSource.FRAUD_EVENTS_PAYMENT.getTable() +
+            EventSource.FRAUD_EVENTS_UNIQUE.getTable() +
             " WHERE " +
             "    timestamp >= toDate(:from) " +
             "    and timestamp <= toDate(:to) " +

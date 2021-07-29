@@ -6,12 +6,17 @@ import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
+import com.rbkmoney.fraudbusters.repository.mapper.ChargebackMapper;
+import com.rbkmoney.fraudbusters.repository.query.ChargeBackQuery;
 import com.rbkmoney.fraudbusters.repository.setter.ChargebackBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.repository.util.FilterUtil;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.util.PaymentTypeByContextResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +36,8 @@ public class ChargebackRepository implements Repository<Chargeback>, Aggregation
     private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
     private final PaymentTypeByContextResolver paymentTypeByContextResolver;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final ChargebackMapper chargebackMapper;
 
 
     @Override
@@ -50,8 +57,10 @@ public class ChargebackRepository implements Repository<Chargeback>, Aggregation
 
     @Override
     public List<Chargeback> getByFilter(FilterDto filter) {
-        // TODO implement
-        return null;
+        String filters = FilterUtil.appendFilters(filter);
+        String query = ChargeBackQuery.SELECT_HISTORY_CHARGEBACK + filters;
+        MapSqlParameterSource params = FilterUtil.initParams(filter);
+        return namedParameterJdbcTemplate.query(query, params, chargebackMapper);
     }
 
     @Override

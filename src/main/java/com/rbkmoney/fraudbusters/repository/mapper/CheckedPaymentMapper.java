@@ -34,6 +34,8 @@ public class CheckedPaymentMapper implements RowMapper<CheckedPayment> {
         payment.setPaymentStatus(rs.getString(PaymentField.STATUS.getValue()));
         payment.setErrorCode(rs.getString(PaymentField.ERROR_CODE.getValue()));
         payment.setErrorReason(rs.getString(PaymentField.ERROR_REASON.getValue()));
+        payment.setMobile(rs.getBoolean(PaymentField.MOBILE.getValue()));
+        payment.setRecurrent(rs.getBoolean(PaymentField.RECURRENT.getValue()));
         return payment;
     }
 }
