@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
@@ -67,11 +68,17 @@ public class TimestampUtil {
     @NotNull
     public static LocalDateTime parseDate(String eventTime) {
         LocalDateTime date = LocalDateTime.now();
-        if (!StringUtils.isEmpty(eventTime)) {
+        if (StringUtils.hasLength(eventTime)) {
             date = LocalDateTime.parse(eventTime, DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS));
         } else {
             log.warn("parseDate() eventTime can't parse: {}", eventTime);
         }
         return date;
+    }
+
+    public static String getStringDate(Long time) {
+        return LocalDateTime
+                .ofInstant(Instant.ofEpochSecond(time), ZoneId.of("UTC"))
+                .format(DateTimeFormatter.ISO_DATE_TIME);
     }
 }

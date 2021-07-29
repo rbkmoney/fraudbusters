@@ -5,13 +5,12 @@ import com.rbkmoney.damsel.fraudbusters.ClientInfo;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.constant.ChargebackField;
 import com.rbkmoney.fraudbusters.constant.PaymentField;
+import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.ZoneId;
 
 @Component
 public class ChargebackMapper implements RowMapper<Chargeback> {
@@ -33,11 +32,7 @@ public class ChargebackMapper implements RowMapper<Chargeback> {
         return new Chargeback()
                 .setId(rs.getString(PaymentField.ID.getValue()))
                 .setPaymentId(rs.getString(PaymentField.PAYMENT_ID.getValue()))
-                .setEventTime(
-                        Instant.ofEpochMilli(rs.getLong(PaymentField.EVENT_TIME.getValue()))
-                                .atZone(ZoneId.of("UTC"))
-                                .toLocalDateTime()
-                                .toString())
+                .setEventTime(TimestampUtil.getStringDate(rs.getLong(PaymentField.EVENT_TIME.getValue())))
                 .setClientInfo(new ClientInfo()
                         .setFingerprint(rs.getString(PaymentField.FINGERPRINT.getValue()))
                         .setIp(rs.getString(PaymentField.IP.getValue()))

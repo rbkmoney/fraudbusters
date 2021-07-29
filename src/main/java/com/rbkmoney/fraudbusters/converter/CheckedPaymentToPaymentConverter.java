@@ -5,11 +5,9 @@ import com.rbkmoney.damsel.fraudbusters.ClientInfo;
 import com.rbkmoney.damsel.fraudbusters.Error;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
+import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.time.ZoneId;
 
 @Component
 public class CheckedPaymentToPaymentConverter implements Converter<CheckedPayment, Payment> {
@@ -31,11 +29,7 @@ public class CheckedPaymentToPaymentConverter implements Converter<CheckedPaymen
         //TODO paymentCountry mapping
         return new Payment()
                 .setId(checkedPayment.getId())
-                .setEventTime(
-                        Instant.ofEpochMilli(checkedPayment.getEventTime())
-                                .atZone(ZoneId.of("UTC"))
-                                .toLocalDateTime()
-                                .toString())
+                .setEventTime(TimestampUtil.getStringDate(checkedPayment.getEventTime()))
                 .setClientInfo(new ClientInfo()
                         .setFingerprint(checkedPayment.getFingerprint())
                         .setIp(checkedPayment.getIp())

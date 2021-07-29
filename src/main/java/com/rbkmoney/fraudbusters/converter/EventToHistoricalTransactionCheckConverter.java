@@ -6,14 +6,12 @@ import com.rbkmoney.damsel.domain.CurrencyRef;
 import com.rbkmoney.damsel.domain.PaymentTool;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.domain.Event;
+import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.time.ZoneId;
 
 @Component
 @RequiredArgsConstructor
@@ -59,11 +57,7 @@ public class EventToHistoricalTransactionCheckConverter implements Converter<Eve
         bankCard.setLastDigits(event.getMaskedPan());
         return new Payment()
                 .setId(event.getPaymentId())
-                .setEventTime(
-                        Instant.ofEpochMilli(event.getEventTime())
-                                .atZone(ZoneId.of("UTC"))
-                                .toLocalDateTime()
-                                .toString())
+                .setEventTime(TimestampUtil.getStringDate(event.getEventTime()))
                 .setClientInfo(new ClientInfo()
                         .setFingerprint(event.getFingerprint())
                         .setIp(event.getIp())
