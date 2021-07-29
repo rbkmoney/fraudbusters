@@ -69,6 +69,8 @@ public abstract class TestObjectsFactory {
         String fingerPrint = randomString();
         String terminal = randomString();
         String id = randomString();
+        String maskedPan = randomString();
+        String invoiceId = randomString();
         filter.setPartyId(partyId);
         filter.setEmail(email);
         filter.setCardToken(cardToken);
@@ -78,6 +80,8 @@ public abstract class TestObjectsFactory {
         filter.setTerminal(terminal);
         filter.setProviderCountry(providerCountry);
         filter.setPaymentId(id);
+        filter.setMaskedPan(maskedPan);
+        filter.setInvoiceId(invoiceId);
         TimestampInterval timestampInterval = new TimestampInterval();
         TimestampIntervalBound lowerBound = new TimestampIntervalBound();
         String lowerBoundTime = LocalDateTime.now().toString();

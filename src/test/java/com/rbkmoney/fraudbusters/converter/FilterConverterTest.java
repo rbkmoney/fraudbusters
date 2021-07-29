@@ -57,6 +57,8 @@ class FilterConverterTest {
         assertEquals(filter.getProviderCountry(), searchPatterns.get(PaymentField.BANK_COUNTRY));
         assertEquals(filter.getTerminal(), searchPatterns.get(PaymentField.TERMINAL));
         assertEquals(filter.getPaymentId(), searchPatterns.get(PaymentField.ID));
+        assertEquals(filter.getInvoiceId(), searchPatterns.get(PaymentField.INVOICE_ID));
+        assertEquals(filter.getMaskedPan(), searchPatterns.get(PaymentField.MASKED_PAN));
         assertEquals(sort.getField(), dto.getSort().getField());
         assertEquals(sort.getOrder(), SortOrder.valueOf(dto.getSort().getOrder().name()));
     }
