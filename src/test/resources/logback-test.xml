@@ -2,10 +2,25 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
-
-    <root level="warn">
+    <root level="info">
         <appender-ref ref="CONSOLE"/>
     </root>
-    <logger name="com.rbkmoney" level="ALL"/>
-
+    <logger name="com.rbkmoney.fraudbusters">
+        <level value="info"/>
+    </logger>
+    <logger name="org.apache.kafka">
+        <level value="warn"/>
+    </logger>
+    <logger name="org.springframework.boot.test.context">
+        <level value="warn"/>
+    </logger>
+    <logger name="org.springframework.test.context">
+        <level value="warn"/>
+    </logger>
+    <logger name="org.apache.http.impl.execchain">
+        <level value="warn"/>
+    </logger>
+    <logger name="ru.yandex.clickhouse">
+        <level value="warn"/>
+    </logger>
 </configuration>

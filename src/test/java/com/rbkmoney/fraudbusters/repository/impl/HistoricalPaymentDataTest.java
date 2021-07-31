@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.repository.impl;
 
-import com.rbkmoney.clickhouse.initializer.ChInitializer;
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.constant.PaymentField;
 import com.rbkmoney.fraudbusters.constant.SortOrder;
@@ -9,21 +8,13 @@ import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.repository.mapper.CheckedPaymentMapper;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.dto.SortDto;
-import lombok.SneakyThrows;
+import com.rbkmoney.testcontainers.annotations.clickhouse.ClickhouseTestcontainer;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.testcontainers.containers.ClickHouseContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,22 +24,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ActiveProfiles("full-prod")
-@Testcontainers
+@ClickhouseTestcontainer(
+        migrations = {
+                "sql/db_init.sql",
+                "sql/V4__create_payment.sql",
+                "sql/V5__add_fields.sql",
+                "sql/V6__add_result_fields_payment.sql",
+                "sql/V7__add_fields.sql",
+                "sql/data/insert_history_payments.sql"})
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {ClickhouseConfig.class, CheckedPaymentMapper.class,
-        PaymentRepositoryImpl.class},
-        initializers = HistoricalPaymentDataTest.Initializer.class)
+@ContextConfiguration(
+        classes = {
+                ClickhouseConfig.class,
+                CheckedPaymentMapper.class,
+                PaymentRepositoryImpl.class})
 class HistoricalPaymentDataTest {
 
     @Autowired
     private Repository<CheckedPayment> paymentRepository;
-
-    @Container
-    public static ClickHouseContainer clickHouseContainer =
-            new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
 
     @Test
     void getPaymentsByTimeSlot() {
@@ -137,28 +131,5 @@ class HistoricalPaymentDataTest {
         assertFalse(payments.isEmpty());
         assertEquals(1, payments.size());
         assertEquals("partyId_2", payments.get(0).getPartyId());
-    }
-
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            TestPropertyValues
-                    .of(
-                            "clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                            "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                            "clickhouse.db.password=" + clickHouseContainer.getPassword()
-                    )
-                    .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer, List.of(
-                    "sql/db_init.sql",
-                    "sql/V4__create_payment.sql",
-                    "sql/V5__add_fields.sql",
-                    "sql/V6__add_result_fields_payment.sql",
-                    "sql/V7__add_fields.sql",
-                    "sql/data/insert_history_payments.sql"
-            ));
-        }
     }
 }
