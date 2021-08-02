@@ -297,6 +297,8 @@ class HistoricalDataHandlerTest {
         assertEquals(event.getCheckedTemplate(), actualFraudResult.getCheckResult().getCheckedTemplate());
         assertEquals(ResultStatus.accept(new Accept()),
                 actualFraudResult.getCheckResult().getConcreteCheckResult().getResultStatus());
+        assertEquals(Collections.emptyList(),
+                actualFraudResult.getCheckResult().getConcreteCheckResult().getNotificationsRule());
         assertEquals(event.getAmount(), actualFraudResult.getTransaction().getCost().getAmount());
         assertEquals(event.getCurrency(), actualFraudResult.getTransaction().getCost().getCurrency().getSymbolicCode());
         assertEquals(LocalDateTime.ofInstant(

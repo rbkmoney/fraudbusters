@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+
 @Component
 @RequiredArgsConstructor
 public class EventToHistoricalTransactionCheckConverter implements Converter<Event, HistoricalTransactionCheck> {
@@ -35,6 +37,7 @@ public class EventToHistoricalTransactionCheckConverter implements Converter<Eve
         CheckResult checkResult = new CheckResult();
         checkResult.setCheckedTemplate(event.getCheckedTemplate());
         ConcreteCheckResult concreteCheckResult = new ConcreteCheckResult();
+        concreteCheckResult.setNotificationsRule(Collections.emptyList());
         concreteCheckResult.setRuleChecked(event.getCheckedRule());
         ResultStatus resultStatus = ResultStatus.valueOf(event.getResultStatus());
         concreteCheckResult.setResultStatus(resultStatusConverter.convert(resultStatus));
