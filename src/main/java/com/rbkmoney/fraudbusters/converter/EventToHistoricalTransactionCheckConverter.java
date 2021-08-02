@@ -74,6 +74,6 @@ public class EventToHistoricalTransactionCheckConverter implements Converter<Eve
                         .setProviderId(EMPTY_FILED)
                         .setCountry(EMPTY_FILED)
                         .setTerminalId(EMPTY_FILED))
-                .setStatus(null);
+                .setStatus(PaymentStatus.unknown);
     }
 }

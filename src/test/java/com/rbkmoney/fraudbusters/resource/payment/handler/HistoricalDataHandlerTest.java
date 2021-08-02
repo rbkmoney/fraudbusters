@@ -304,6 +304,7 @@ class HistoricalDataHandlerTest {
                         .format(DateTimeFormatter.ISO_DATE_TIME),
                 actualFraudResult.getTransaction().getEventTime());
         assertEquals(event.getPaymentId(), actualFraudResult.getTransaction().getId());
+        assertEquals(PaymentStatus.unknown, actualFraudResult.getTransaction().getStatus());
     }
 
     @Test
