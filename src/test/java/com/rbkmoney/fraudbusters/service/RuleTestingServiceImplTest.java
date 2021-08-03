@@ -80,7 +80,7 @@ class RuleTestingServiceImplTest {
         paymentModelMap.put(firstId, firstPaymentModel);
         paymentModelMap.put(secondId, secondPaymentModel);
 
-        Map<String, ResultModel> actual = ruleTestingService.applySingleRule(paymentModelMap , TEMPLATE);
+        Map<String, ResultModel> actual = ruleTestingService.applySingleRule(paymentModelMap, TEMPLATE);
 
         //result verification
         assertEquals(2, actual.size());
