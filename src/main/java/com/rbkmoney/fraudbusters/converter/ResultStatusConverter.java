@@ -19,7 +19,7 @@ public class ResultStatusConverter implements Converter<ResultStatus, com.rbkmon
 
     @Override
     public com.rbkmoney.damsel.fraudbusters.ResultStatus convert(ResultStatus resultStatus) {
-        com.rbkmoney.damsel.fraudbusters.ResultStatus status = new com.rbkmoney.damsel.fraudbusters.ResultStatus();
+        var status = new com.rbkmoney.damsel.fraudbusters.ResultStatus();
         switch (resultStatus) {
             case ACCEPT: {
                 status.setAccept(new Accept());

@@ -20,26 +20,19 @@ public class CheckResultFactory {
     public CheckResult createCheckResult(String templateString, ResultModel resultModel) {
         log.info("createCheckResult() - templateString {}, resultModel: {}", templateString, resultModel);
         return ResultUtils.findFirstNotNotifyStatus(resultModel)
-                .map(ruleResult -> {
-                    ConcreteCheckResult concreteCheckResult = new ConcreteCheckResult();
-                    concreteCheckResult.setResultStatus(resultStatusConverter.convert(ruleResult.getResultStatus()));
-                    concreteCheckResult.setRuleChecked(ruleResult.getRuleChecked());
-                    concreteCheckResult.setNotificationsRule(ResultUtils.getNotifications(resultModel));
-                    CheckResult checkResult = new CheckResult();
-                    checkResult.setConcreteCheckResult(concreteCheckResult);
-                    checkResult.setCheckedTemplate(templateString);
-                    return checkResult;
-                })
-                .orElse(createDefaultCheckResult(templateString, resultModel));
-    }
-
-    private CheckResult createDefaultCheckResult(String templateString, ResultModel resultModel) {
-        ConcreteCheckResult concreteCheckResult = new ConcreteCheckResult();
-        concreteCheckResult.setNotificationsRule(ResultUtils.getNotifications(resultModel));
-        CheckResult checkResult = new CheckResult();
-        checkResult.setCheckedTemplate(templateString);
-
-        return checkResult;
+                .map(ruleResult ->
+                        new CheckResult()
+                                .setCheckedTemplate(templateString)
+                                .setConcreteCheckResult(new ConcreteCheckResult()
+                                        .setResultStatus(resultStatusConverter.convert(ruleResult.getResultStatus()))
+                                        .setRuleChecked(ruleResult.getRuleChecked())
+                                        .setNotificationsRule(ResultUtils.getNotifications(resultModel))))
+                .orElse(new CheckResult()
+                        .setCheckedTemplate(templateString)
+                        .setConcreteCheckResult(new ConcreteCheckResult()
+                                        .setNotificationsRule(ResultUtils.getNotifications(resultModel))
+                        )
+                );
     }
 
 }

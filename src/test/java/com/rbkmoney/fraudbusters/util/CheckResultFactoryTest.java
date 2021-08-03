@@ -50,7 +50,10 @@ class CheckResultFactoryTest {
 
         CheckResult actual = factory.createCheckResult(TEMPLATE, model);
         assertEquals(TEMPLATE, actual.getCheckedTemplate());
-        assertNull(actual.getConcreteCheckResult());
+        assertNotNull(actual.getConcreteCheckResult());
+        assertNull(actual.getConcreteCheckResult().getResultStatus());
+        assertNull(actual.getConcreteCheckResult().getRuleChecked());
+        assertNotNull(actual.getConcreteCheckResult().getNotificationsRule());
     }
 
     @Test
@@ -61,7 +64,10 @@ class CheckResultFactoryTest {
 
         CheckResult actual = factory.createCheckResult(TEMPLATE, model);
         assertEquals(TEMPLATE, actual.getCheckedTemplate());
-        assertNull(actual.getConcreteCheckResult());
+        assertNull(actual.getConcreteCheckResult().getResultStatus());
+        assertNull(actual.getConcreteCheckResult().getRuleChecked());
+        assertEquals(1, actual.getConcreteCheckResult().getNotificationsRule().size());
+        assertEquals(NOTIFICATION_RULE_CHECKED, actual.getConcreteCheckResult().getNotificationsRule().get(0));
     }
 
     private RuleResult createAcceptRuleResult() {
