@@ -5,11 +5,11 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PaymentQuery {
+public class RefundQuery {
 
-    public static final String SELECT_HISTORY_PAYMENT = "" +
+    public static final String SELECT_HISTORY_REFUND = "" +
             "SELECT " +
-            "     eventTime, " +
+            "    eventTime, " +
             "    partyId, " +
             "    shopId, " +
             "    email, " +
@@ -26,14 +26,11 @@ public class PaymentQuery {
             "    errorReason, " +
             "    errorCode, " +
             "    paymentSystem, " +
-            "    paymentCountry, " +
-            "    paymentTool, " +
             "    providerId, " +
             "    terminal, " +
-            "    mobile, " +
-            "    recurrent " +
+            "    paymentId " +
             " FROM " +
-            EventSource.FRAUD_EVENTS_PAYMENT.getTable() +
+            EventSource.FRAUD_EVENTS_REFUND.getTable() +
             " WHERE " +
             "    timestamp >= toDate(:from) " +
             "    and timestamp <= toDate(:to) " +

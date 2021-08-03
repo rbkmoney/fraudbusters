@@ -20,6 +20,8 @@ public class CheckedPaymentMapper implements RowMapper<CheckedPayment> {
         payment.setIp(rs.getString(PaymentField.IP.getValue()));
         payment.setFingerprint(rs.getString(PaymentField.FINGERPRINT.getValue()));
         payment.setCardToken(rs.getString(PaymentField.CARD_TOKEN.getValue()));
+        payment.setBin(rs.getString(PaymentField.BIN.getValue()));
+        payment.setMaskedPan(rs.getString(PaymentField.MASKED_PAN.getValue()));
         payment.setPaymentSystem(rs.getString(PaymentField.PAYMENT_SYSTEM.getValue()));
         payment.setPaymentTool(rs.getString(PaymentField.PAYMENT_TOOL.getValue()));
         payment.setTerminal(rs.getString(PaymentField.TERMINAL.getValue()));
@@ -32,6 +34,8 @@ public class CheckedPaymentMapper implements RowMapper<CheckedPayment> {
         payment.setPaymentStatus(rs.getString(PaymentField.STATUS.getValue()));
         payment.setErrorCode(rs.getString(PaymentField.ERROR_CODE.getValue()));
         payment.setErrorReason(rs.getString(PaymentField.ERROR_REASON.getValue()));
+        payment.setMobile(rs.getBoolean(PaymentField.MOBILE.getValue()));
+        payment.setRecurrent(rs.getBoolean(PaymentField.RECURRENT.getValue()));
         return payment;
     }
 }

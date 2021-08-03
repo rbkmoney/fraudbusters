@@ -5,35 +5,32 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PaymentQuery {
+public class ChargeBackQuery {
 
-    public static final String SELECT_HISTORY_PAYMENT = "" +
+    public static final String SELECT_HISTORY_CHARGEBACK = "" +
             "SELECT " +
-            "     eventTime, " +
+            "    eventTime, " +
             "    partyId, " +
             "    shopId, " +
             "    email, " +
             "    amount / 100 as amount, " +
             "    currency, " +
             "    id, " +
+            "    bankCountry, " +
             "    cardToken, " +
             "    bin, " +
             "    maskedPan, " +
-            "    bankCountry, " +
-            "    fingerprint, " +
-            "    ip, " +
-            "    status, " +
-            "    errorReason, " +
-            "    errorCode, " +
             "    paymentSystem, " +
-            "    paymentCountry, " +
-            "    paymentTool, " +
             "    providerId, " +
+            "    status, " +
+            "    ip, " +
+            "    fingerprint, " +
             "    terminal, " +
-            "    mobile, " +
-            "    recurrent " +
+            "    paymentId, " +
+            "    chargebackCode, " +
+            "    category " +
             " FROM " +
-            EventSource.FRAUD_EVENTS_PAYMENT.getTable() +
+            EventSource.FRAUD_EVENTS_CHARGEBACK.getTable() +
             " WHERE " +
             "    timestamp >= toDate(:from) " +
             "    and timestamp <= toDate(:to) " +

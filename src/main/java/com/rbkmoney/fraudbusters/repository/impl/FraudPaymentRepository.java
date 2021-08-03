@@ -6,11 +6,16 @@ import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
+import com.rbkmoney.fraudbusters.repository.mapper.FraudPaymentRowMapper;
+import com.rbkmoney.fraudbusters.repository.query.FraudPaymentQuery;
 import com.rbkmoney.fraudbusters.repository.setter.FraudPaymentBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.repository.util.FilterUtil;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -42,16 +47,18 @@ public class FraudPaymentRepository implements Repository<FraudPaymentRow>, Aggr
                                          "  bankCountry," +
                                          "  partyId," +
                                          "  shopId," +
-                                         "  amount," +
-                                         "  currency," +
-                                         "  status," +
-                                         "  errorReason," +
-                                         "  errorCode," +
-                                         "  paymentCountry)" +
-                                         " VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, " +
-                                         "?, ?)";
+            "  amount," +
+            "  currency," +
+            "  status," +
+            "  errorReason," +
+            "  errorCode," +
+            "  paymentCountry)" +
+            " VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, " +
+            "?, ?)";
     private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final FraudPaymentRowMapper fraudPaymentRowMapper;
 
     @Override
     public void insert(FraudPaymentRow value) {
@@ -68,8 +75,10 @@ public class FraudPaymentRepository implements Repository<FraudPaymentRow>, Aggr
 
     @Override
     public List<FraudPaymentRow> getByFilter(FilterDto filter) {
-        // TODO implement
-        return null;
+        String filters = FilterUtil.appendFilters(filter);
+        String query = FraudPaymentQuery.SELECT_HISTORY_FRAUD_PAYMENT + filters;
+        MapSqlParameterSource params = FilterUtil.initParams(filter);
+        return namedParameterJdbcTemplate.query(query, params, fraudPaymentRowMapper);
     }
 
     @Override
