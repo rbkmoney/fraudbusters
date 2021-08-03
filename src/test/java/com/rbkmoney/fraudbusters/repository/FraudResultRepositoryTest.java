@@ -12,6 +12,7 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
+import com.rbkmoney.fraudbusters.repository.mapper.EventMapper;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
@@ -44,7 +45,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = {FraudResultToEventConverter.class, ClickhouseConfig.class,
-        DatabasePaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, FraudResultRepository.class},
+        DatabasePaymentFieldResolver.class, AggregationGeneralRepositoryImpl.class, FraudResultRepository.class,
+        EventMapper.class},
         initializers = FraudResultRepositoryTest.Initializer.class)
 public class FraudResultRepositoryTest {
 

@@ -19,4 +19,8 @@ public class CompositeIdUtil {
         return Splitter.on(ID_SPLITTER)
                 .splitToList(compositeId);
     }
+
+    public static boolean isComposite(String id) {
+        return id.contains(ID_SPLITTER);
+    }
 }

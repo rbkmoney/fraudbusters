@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.service.dto;
 
-import com.rbkmoney.fraudbusters.domain.CheckedPayment;
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,9 +8,9 @@ import java.util.List;
 
 @Data
 @Builder
-public class HistoricalPaymentsDto {
+public class HistoricalChargebacksDto {
 
-    private List<? extends CheckedPayment> payments;
+    private List<Chargeback> chargebacks;
     private String lastId;
 
 }
