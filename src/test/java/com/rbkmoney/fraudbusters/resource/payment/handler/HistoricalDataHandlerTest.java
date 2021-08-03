@@ -33,6 +33,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -463,28 +465,27 @@ class HistoricalDataHandlerTest {
     void applyRuleOnHistoricalDataSetApplySingleRule() throws TException {
         long firstAmount = 1L;
         long secondAmount = 2L;
-        Payment firstPayment = createPayment(firstAmount);
-        Payment secondPayment = createPayment(secondAmount);
-        PaymentModel firstPaymentModel = createPaymentModel(firstAmount);
-        PaymentModel secondPaymentModel = createPaymentModel(secondAmount);
         var acceptedStatus = new ResultStatus();
         acceptedStatus.setAccept(new Accept());
         var declinedStatus = new ResultStatus();
         declinedStatus.setAccept(new Accept());
-        HistoricalTransactionCheck acceptedCheck = createHistoricalTransactionCheck(firstPayment, acceptedStatus);
-        HistoricalTransactionCheck declinedCheck = createHistoricalTransactionCheck(secondPayment, declinedStatus);
+        Payment firstPayment = createPayment(firstAmount);
+        Payment secondPayment = createPayment(secondAmount);
         ResultModel firstResultModel = createResultModel(com.rbkmoney.fraudo.constant.ResultStatus.ACCEPT);
         ResultModel secondResultModel = createResultModel(com.rbkmoney.fraudo.constant.ResultStatus.DECLINE);
-        EmulationRuleApplyRequest request = createEmulationRuleApplyRequest(Set.of(firstPayment, secondPayment));
+        Map<String, ResultModel> resultModelMap = new LinkedHashMap<>();
+        resultModelMap.put(firstPayment.getId(), firstResultModel);
+        resultModelMap.put(secondPayment.getId(), secondResultModel);
+        EmulationRuleApplyRequest request = createEmulationRuleApplyRequest(firstPayment, secondPayment);
+        HistoricalTransactionCheck acceptedCheck = createHistoricalTransactionCheck(firstPayment, acceptedStatus);
+        HistoricalTransactionCheck declinedCheck = createHistoricalTransactionCheck(secondPayment, declinedStatus);
+        PaymentModel firstPaymentModel = createPaymentModel(firstAmount);
+        PaymentModel secondPaymentModel = createPaymentModel(secondAmount);
 
         when(paymentModelConverter.convert(any(Payment.class)))
                 .thenReturn(firstPaymentModel)
                 .thenReturn(secondPaymentModel);
-        when(ruleTestingService.applySingleRule(anyMap(), anyString()))
-                .thenReturn(Map.of(
-                        firstPayment.getId(), firstResultModel,
-                        secondPayment.getId(), secondResultModel
-                ));
+        when(ruleTestingService.applySingleRule(anyMap(), anyString())).thenReturn(resultModelMap);
         when(historicalTransactionCheckFactory
                 .createHistoricalTransactionCheck(any(Payment.class), anyString(), any(ResultModel.class))
         )
@@ -558,9 +559,16 @@ class HistoricalDataHandlerTest {
         assertNull(actual.getHistoricalTransactionCheck());
     }
 
-
     private EmulationRuleApplyRequest createEmulationRuleApplyRequest() {
         return createEmulationRuleApplyRequest(Set.of(createPayment(), createPayment()));
+    }
+
+    private EmulationRuleApplyRequest createEmulationRuleApplyRequest(Payment... payments) {
+        Set<Payment> transactions = new LinkedHashSet<>();
+        for (Payment payment : payments) {
+            transactions.add(payment);
+        }
+        return createEmulationRuleApplyRequest(transactions);
     }
 
     private EmulationRuleApplyRequest createEmulationRuleApplyRequest(Set<Payment> transactions) {
