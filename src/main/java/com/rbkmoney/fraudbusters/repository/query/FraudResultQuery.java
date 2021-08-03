@@ -13,7 +13,7 @@ public class FraudResultQuery {
             "    partyId, " +
             "    shopId, " +
             "    email, " +
-            "    amount / 100 as amount, " +
+            "    amount as amount, " +
             "    currency, " +
             "    bankCountry, " +
             "    cardToken, " +
