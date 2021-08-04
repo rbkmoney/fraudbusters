@@ -12,7 +12,7 @@ import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
 import com.rbkmoney.fraudbusters.exception.InvalidTemplateException;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.service.HistoricalDataService;
-import com.rbkmoney.fraudbusters.service.RuleTestingService;
+import com.rbkmoney.fraudbusters.service.RuleCheckingService;
 import com.rbkmoney.fraudbusters.service.dto.*;
 import com.rbkmoney.fraudbusters.util.HistoricalTransactionCheckFactory;
 import com.rbkmoney.fraudo.model.ResultModel;
@@ -62,7 +62,7 @@ class HistoricalDataHandlerTest {
     private HistoricalDataService service;
 
     @MockBean
-    private RuleTestingService ruleTestingService;
+    private RuleCheckingService ruleCheckingService;
 
     @MockBean
     private PaymentToPaymentModelConverter paymentModelConverter;
@@ -457,7 +457,7 @@ class HistoricalDataHandlerTest {
         EmulationRuleApplyRequest request = createEmulationRuleApplyRequest();
         when(paymentModelConverter.convert(any(Payment.class)))
                 .thenReturn(createPaymentModel(ThreadLocalRandom.current().nextLong()));
-        when(ruleTestingService.applySingleRule(any(), anyString())).thenThrow(new InvalidTemplateException());
+        when(ruleCheckingService.checkSingleRule(any(), anyString())).thenThrow(new InvalidTemplateException());
         assertThrows(HistoricalDataServiceException.class, () -> handler.applyRuleOnHistoricalDataSet(request));
     }
 
@@ -485,7 +485,7 @@ class HistoricalDataHandlerTest {
         when(paymentModelConverter.convert(any(Payment.class)))
                 .thenReturn(firstPaymentModel)
                 .thenReturn(secondPaymentModel);
-        when(ruleTestingService.applySingleRule(anyMap(), anyString())).thenReturn(resultModelMap);
+        when(ruleCheckingService.checkSingleRule(anyMap(), anyString())).thenReturn(resultModelMap);
         when(historicalTransactionCheckFactory
                 .createHistoricalTransactionCheck(any(Payment.class), anyString(), any(ResultModel.class))
         )
@@ -508,8 +508,8 @@ class HistoricalDataHandlerTest {
         // rule testing service mock verification
         ArgumentCaptor<Map<String, PaymentModel>> mapCaptor = ArgumentCaptor.forClass(Map.class);
         ArgumentCaptor<String> serviceTemplateStringCaptor = ArgumentCaptor.forClass(String.class);
-        verify(ruleTestingService, times(1))
-                .applySingleRule(mapCaptor.capture(), serviceTemplateStringCaptor.capture());
+        verify(ruleCheckingService, times(1))
+                .checkSingleRule(mapCaptor.capture(), serviceTemplateStringCaptor.capture());
         assertEquals(1, mapCaptor.getAllValues().size());
         Map<String, PaymentModel> paymentModelMap = mapCaptor.getAllValues().get(0);
         assertEquals(2, paymentModelMap.size());
@@ -555,7 +555,7 @@ class HistoricalDataHandlerTest {
 
         HistoricalDataSetCheckResult actual = handler.applyRuleOnHistoricalDataSet(request);
 
-        verify(ruleTestingService, times(0)).applySingleRule(any(), any());
+        verify(ruleCheckingService, times(0)).checkSingleRule(any(), any());
         assertNull(actual.getHistoricalTransactionCheck());
     }
 

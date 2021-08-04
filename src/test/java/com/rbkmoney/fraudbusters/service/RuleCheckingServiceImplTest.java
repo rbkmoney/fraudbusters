@@ -33,11 +33,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {RuleTestingServiceImpl.class})
-class RuleTestingServiceImplTest {
+@SpringBootTest(classes = {RuleCheckingServiceImpl.class})
+class RuleCheckingServiceImplTest {
 
     @Autowired
-    private RuleTestingServiceImpl ruleTestingService;
+    private RuleCheckingServiceImpl ruleTestingService;
 
     @MockBean
     private FraudContextParser<FraudoPaymentParser.ParseContext> paymentContextParser;
@@ -53,7 +53,7 @@ class RuleTestingServiceImplTest {
     @Test
     void applySingleRuleThrowsInvalidTemplateException() {
         when(paymentTemplateValidator.validate(TEMPLATE)).thenReturn(List.of("123", "321"));
-        assertThrows(InvalidTemplateException.class, () -> ruleTestingService.applySingleRule(
+        assertThrows(InvalidTemplateException.class, () -> ruleTestingService.checkSingleRule(
                 Map.of(
                         UUID.randomUUID().toString(), createPaymentModel(0L),
                         UUID.randomUUID().toString(), createPaymentModel(1L)),
@@ -80,7 +80,7 @@ class RuleTestingServiceImplTest {
         paymentModelMap.put(firstId, firstPaymentModel);
         paymentModelMap.put(secondId, secondPaymentModel);
 
-        Map<String, ResultModel> actual = ruleTestingService.applySingleRule(paymentModelMap, TEMPLATE);
+        Map<String, ResultModel> actual = ruleTestingService.checkSingleRule(paymentModelMap, TEMPLATE);
 
         //result verification
         assertEquals(2, actual.size());

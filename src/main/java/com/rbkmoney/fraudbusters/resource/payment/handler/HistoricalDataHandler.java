@@ -7,7 +7,7 @@ import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
 import com.rbkmoney.fraudbusters.exception.InvalidTemplateException;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.service.HistoricalDataService;
-import com.rbkmoney.fraudbusters.service.RuleTestingService;
+import com.rbkmoney.fraudbusters.service.RuleCheckingService;
 import com.rbkmoney.fraudbusters.service.dto.*;
 import com.rbkmoney.fraudbusters.util.HistoricalTransactionCheckFactory;
 import com.rbkmoney.fraudo.model.ResultModel;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
 
     private final HistoricalDataService historicalDataService;
-    private final RuleTestingService ruleTestingService;
+    private final RuleCheckingService ruleCheckingService;
     private final HistoricalDataResponseConverter resultConverter;
     private final FilterConverter filterConverter;
     private final PaymentToPaymentModelConverter paymentModelConverter;
@@ -81,7 +81,7 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
                 final Map<String, PaymentModel> paymentModelMap = emulationRuleApplyRequest.getTransactions().stream()
                         .collect(Collectors.toMap(Payment::getId, paymentModelConverter::convert));
                 final Map<String, ResultModel> resultMap =
-                        ruleTestingService.applySingleRule(paymentModelMap, templateString);
+                        ruleCheckingService.checkSingleRule(paymentModelMap, templateString);
                 historicalTransactionChecks = emulationRuleApplyRequest.getTransactions().stream()
                         .map(transaction -> historicalTransactionCheckFactory.createHistoricalTransactionCheck(
                                 transaction,

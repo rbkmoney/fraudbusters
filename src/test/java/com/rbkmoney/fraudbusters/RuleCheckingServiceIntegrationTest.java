@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.service.RuleTestingServiceImpl;
+import com.rbkmoney.fraudbusters.service.RuleCheckingServiceImpl;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.ResultModel;
 import lombok.extern.slf4j.Slf4j;
@@ -24,17 +24,17 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
         properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true"})
-public class RuleTestingServiceIntegrationTest extends JUnit5IntegrationTest {
+public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
 
     @Autowired
-    private RuleTestingServiceImpl ruleTestingService;
+    private RuleCheckingServiceImpl ruleTestingService;
 
     private static final String TEMPLATE = "rule: amount() > 10 \n" +
             "-> accept;";
     private static final String RULE_CHECKED = "0";
 
     @Test
-    public void applyOneRuleOnly() {
+    void applyOneRuleOnly() {
         PaymentModel firstTransaction = createPaymentModel();
         firstTransaction.setAmount(25L);
         PaymentModel secondTransaction = createPaymentModel();
@@ -42,7 +42,7 @@ public class RuleTestingServiceIntegrationTest extends JUnit5IntegrationTest {
         String firstTransactionId = UUID.randomUUID().toString();
         String secondTransactionId = UUID.randomUUID().toString();
 
-        Map<String, ResultModel> result = ruleTestingService.applySingleRule(
+        Map<String, ResultModel> result = ruleTestingService.checkSingleRule(
                 Map.of(firstTransactionId, firstTransaction,
                         secondTransactionId, secondTransaction),
                 TEMPLATE

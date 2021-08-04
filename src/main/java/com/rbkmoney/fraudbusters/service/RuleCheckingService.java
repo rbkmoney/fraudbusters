@@ -5,8 +5,8 @@ import com.rbkmoney.fraudo.model.ResultModel;
 
 import java.util.Map;
 
-public interface RuleTestingService {
+public interface RuleCheckingService {
 
-    Map<String, ResultModel> applySingleRule(Map<String, PaymentModel> paymentModelMap, String templateString);
+    Map<String, ResultModel> checkSingleRule(Map<String, PaymentModel> paymentModelMap, String templateString);
 
 }

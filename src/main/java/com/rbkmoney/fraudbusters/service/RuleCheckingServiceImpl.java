@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-public class RuleTestingServiceImpl implements RuleTestingService {
+public class RuleCheckingServiceImpl implements RuleCheckingService {
 
     private final PaymentTemplateValidator paymentTemplateValidator;
     private final FraudContextParser<FraudoPaymentParser.ParseContext> paymentContextParser;
     private final TemplateVisitor<PaymentModel, ResultModel> paymentRuleVisitor;
 
     @Override
-    public Map<String, ResultModel> applySingleRule(Map<String, PaymentModel> paymentModelMap, String templateString) {
+    public Map<String, ResultModel> checkSingleRule(Map<String, PaymentModel> paymentModelMap, String templateString) {
         validateTemplate(templateString);
         final FraudoPaymentParser.ParseContext parseContext = paymentContextParser.parse(templateString);
         return paymentModelMap.entrySet().stream()
