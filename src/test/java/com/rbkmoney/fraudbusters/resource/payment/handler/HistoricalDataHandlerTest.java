@@ -29,8 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -126,10 +125,7 @@ class HistoricalDataHandlerTest {
         assertEquals(checkedPayment.getPaymentStatus(), actualPayment.getStatus().toString());
         assertEquals(checkedPayment.getAmount(), actualPayment.getCost().getAmount());
         assertEquals(checkedPayment.getCurrency(), actualPayment.getCost().getCurrency().getSymbolicCode());
-        assertEquals(LocalDateTime.ofInstant(
-                Instant.ofEpochSecond(checkedPayment.getEventTime()), ZoneId.of("UTC"))
-                        .format(DateTimeFormatter.ISO_DATE_TIME),
-                actualPayment.getEventTime());
+        assertEquals(getTimestampAsString(checkedPayment.getEventTime()), actualPayment.getEventTime());
         assertEquals(checkedPayment.getId(), actualPayment.getId());
     }
 
@@ -334,10 +330,7 @@ class HistoricalDataHandlerTest {
                 actualFraudResult.getCheckResult().getConcreteCheckResult().getNotificationsRule());
         assertEquals(event.getAmount(), actualFraudResult.getTransaction().getCost().getAmount());
         assertEquals(event.getCurrency(), actualFraudResult.getTransaction().getCost().getCurrency().getSymbolicCode());
-        assertEquals(LocalDateTime.ofInstant(
-                Instant.ofEpochSecond(event.getEventTime()), ZoneId.of("UTC"))
-                        .format(DateTimeFormatter.ISO_DATE_TIME),
-                actualFraudResult.getTransaction().getEventTime());
+        assertEquals(getTimestampAsString(event.getEventTime()), actualFraudResult.getTransaction().getEventTime());
         assertEquals(event.getPaymentId(), actualFraudResult.getTransaction().getId());
         assertEquals(PaymentStatus.unknown, actualFraudResult.getTransaction().getStatus());
     }
@@ -422,9 +415,7 @@ class HistoricalDataHandlerTest {
                 actualFraudPaymentInfo.getPayment().getProviderInfo().getCountry());
         assertEquals(fraudPaymentRow.getPaymentStatus(), actualFraudPaymentInfo.getPayment().getStatus().toString());
         assertEquals(fraudPaymentRow.getAmount(), actualFraudPaymentInfo.getPayment().getCost().getAmount());
-        assertEquals(LocalDateTime.ofInstant(
-                Instant.ofEpochSecond(fraudPaymentRow.getEventTime()), ZoneId.of("UTC"))
-                        .format(DateTimeFormatter.ISO_DATE_TIME),
+        assertEquals(getTimestampAsString(fraudPaymentRow.getEventTime()),
                 actualFraudPaymentInfo.getPayment().getEventTime());
         assertEquals(fraudPaymentRow.getId(), actualFraudPaymentInfo.getPayment().getId());
         assertEquals(fraudPaymentRow.getComment(), actualFraudPaymentInfo.getComment());
@@ -628,5 +619,11 @@ class HistoricalDataHandlerTest {
                                 .setResultStatus(resultStatus)
                         )
                 );
+    }
+
+    private String getTimestampAsString(long epochSeconds) {
+        return DateTimeFormatter.ISO_DATE_TIME
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.ofEpochSecond(epochSeconds));
     }
 }
