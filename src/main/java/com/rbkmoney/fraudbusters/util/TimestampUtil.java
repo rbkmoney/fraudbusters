@@ -19,6 +19,9 @@ import static java.time.temporal.ChronoUnit.HOURS;
 public class TimestampUtil {
 
     public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd[ HH:mm:ss]";
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS);
+    private static final DateTimeFormatter ISO_DATE_TIME_FORMATTER_UTC_ZONE =
+            DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC);
 
     public static Long generateTimestampWithParse(String time) {
         Instant instant = parseInstantFromString(time);
@@ -67,11 +70,15 @@ public class TimestampUtil {
     @NotNull
     public static LocalDateTime parseDate(String eventTime) {
         LocalDateTime date = LocalDateTime.now();
-        if (!StringUtils.isEmpty(eventTime)) {
-            date = LocalDateTime.parse(eventTime, DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS));
+        if (StringUtils.hasLength(eventTime)) {
+            date = LocalDateTime.parse(eventTime, DATE_TIME_FORMATTER);
         } else {
             log.warn("parseDate() eventTime can't parse: {}", eventTime);
         }
         return date;
+    }
+
+    public static String getStringDate(Long time) {
+        return ISO_DATE_TIME_FORMATTER_UTC_ZONE.format(Instant.ofEpochSecond(time));
     }
 }

@@ -11,6 +11,7 @@ import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldReso
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationStatusGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.FraudPaymentRepository;
+import com.rbkmoney.fraudbusters.repository.mapper.FraudPaymentRowMapper;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,8 @@ import static org.junit.Assert.assertEquals;
         DatabasePaymentFieldResolver.class,
         AggregationGeneralRepositoryImpl.class,
         AggregationStatusGeneralRepositoryImpl.class,
-        FraudPaymentRepository.class
+        FraudPaymentRepository.class,
+        FraudPaymentRowMapper.class
 },
         initializers = FraudPaymentRepositoryTest.Initializer.class)
 public class FraudPaymentRepositoryTest {

@@ -6,12 +6,17 @@ import com.rbkmoney.fraudbusters.constant.RefundStatus;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.Repository;
+import com.rbkmoney.fraudbusters.repository.mapper.RefundMapper;
+import com.rbkmoney.fraudbusters.repository.query.RefundQuery;
 import com.rbkmoney.fraudbusters.repository.setter.RefundBatchPreparedStatementSetter;
+import com.rbkmoney.fraudbusters.repository.util.FilterUtil;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.util.PaymentTypeByContextResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -31,6 +36,8 @@ public class RefundRepository implements Repository<Refund>, AggregationReposito
     private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
     private final PaymentTypeByContextResolver paymentTypeByContextResolver;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final RefundMapper refundMapper;
 
     @Override
     public void insert(Refund refund) {
@@ -49,8 +56,10 @@ public class RefundRepository implements Repository<Refund>, AggregationReposito
 
     @Override
     public List<Refund> getByFilter(FilterDto filter) {
-        // TODO implement
-        return null;
+        String filters = FilterUtil.appendFilters(filter);
+        String query = RefundQuery.SELECT_HISTORY_REFUND + filters;
+        MapSqlParameterSource params = FilterUtil.initParams(filter);
+        return namedParameterJdbcTemplate.query(query, params, refundMapper);
     }
 
     @Override

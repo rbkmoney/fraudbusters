@@ -17,6 +17,8 @@ public class PaymentQuery {
             "    currency, " +
             "    id, " +
             "    cardToken, " +
+            "    bin, " +
+            "    maskedPan, " +
             "    bankCountry, " +
             "    fingerprint, " +
             "    ip, " +
@@ -27,7 +29,9 @@ public class PaymentQuery {
             "    paymentCountry, " +
             "    paymentTool, " +
             "    providerId, " +
-            "    terminal " +
+            "    terminal, " +
+            "    mobile, " +
+            "    recurrent " +
             " FROM " +
             EventSource.FRAUD_EVENTS_PAYMENT.getTable() +
             " WHERE " +
