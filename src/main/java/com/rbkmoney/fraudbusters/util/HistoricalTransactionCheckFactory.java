@@ -2,7 +2,8 @@ package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.damsel.fraudbusters.HistoricalTransactionCheck;
 import com.rbkmoney.damsel.fraudbusters.Payment;
-import com.rbkmoney.fraudo.model.ResultModel;
+import com.rbkmoney.fraudbusters.converter.CheckedResultModelToCheckResultConverter;
+import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,16 +11,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class HistoricalTransactionCheckFactory {
 
-    private final CheckResultFactory checkResultFactory;
+    private final CheckedResultModelToCheckResultConverter checkResultConverter;
 
     public HistoricalTransactionCheck createHistoricalTransactionCheck(
             Payment payment,
-            String templateString,
-            ResultModel resultModel
+            CheckedResultModel checkedResultModel
     ) {
         return new HistoricalTransactionCheck()
                 .setTransaction(payment)
-                .setCheckResult(checkResultFactory.createCheckResult(templateString, resultModel));
+                .setCheckResult(checkResultConverter.convert(checkedResultModel));
     }
 
 }

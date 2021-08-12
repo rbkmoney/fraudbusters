@@ -33,15 +33,15 @@ public class TemplateVisitorImpl implements TemplateVisitor<PaymentModel, Checke
         String partyId = paymentModel.getPartyId();
         String partyShopKey = ReferenceKeyGenerator.generateTemplateKey(partyId, paymentModel.getShopId());
         return ruleApplier.apply(paymentModel, referencePoolImpl.get(TemplateLevel.GLOBAL.name()))
-                .orElse(ruleApplier
+                .orElseGet(() -> ruleApplier
                         .applyForAny(paymentModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyId)))
-                        .orElse(ruleApplier
+                        .orElseGet(() -> ruleApplier
                                 .applyForAny(paymentModel, groupPoolImpl.get(groupReferencePoolImpl.get(partyShopKey)))
-                                .orElse(ruleApplier
+                                .orElseGet(() -> ruleApplier
                                         .apply(paymentModel, referencePoolImpl.get(partyId))
-                                        .orElse(ruleApplier
+                                        .orElseGet(() -> ruleApplier
                                                 .apply(paymentModel, referencePoolImpl.get(partyShopKey))
-                                                .orElse(createDefaultResult())))));
+                                                .orElseGet(this::createDefaultResult)))));
     }
 
     @NotNull
