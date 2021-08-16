@@ -10,6 +10,7 @@ import com.rbkmoney.fraudbusters.fraud.payment.validator.PaymentTemplateValidato
 import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.service.dto.CascadingTemplateDto;
 import com.rbkmoney.fraudbusters.stream.impl.RuleCheckingApplierImpl;
+import com.rbkmoney.fraudbusters.util.CheckedResultModelUtil;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.FraudoPaymentParser;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,30 +137,7 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
         return processRuleCheckingApplierResult(result, notifications);
     }
 
-    private void addNotifications(Optional<CheckedResultModel> optionalCheckedResult,
-                                  @NotNull List<String> notificationsList) {
-        optionalCheckedResult
-                .filter(model -> model.getResultModel() != null
-                        && model.getResultModel().getNotificationsRule() != null
-                        && !(model.getResultModel().getNotificationsRule().isEmpty()))
-                .map(model -> model.getResultModel().getNotificationsRule())
-                .ifPresent(notificationsList::addAll);
-    }
 
-    private CheckedResultModel finalizeResult(CheckedResultModel model, List<String> notifications) {
-        if (model.getResultModel().getNotificationsRule() == null) {
-            model.getResultModel().setNotificationsRule(notifications);
-        } else {
-            model.getResultModel().getNotificationsRule().addAll(notifications);
-        }
-        return model;
-    }
-
-    private boolean isTerminal(CheckedResultModel model) {
-        return model != null
-                && model.getResultModel() != null
-                && StringUtils.hasLength(model.getResultModel().getRuleChecked());
-    }
 
     private boolean isSamePartyShopKey(String modelPartyShopKey, CascadingTemplateDto dto) {
         return modelPartyShopKey.equals(ReferenceKeyGenerator.generateTemplateKey(dto.getPartyId(), dto.getShopId()));
@@ -174,11 +151,11 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
                                                                           List<String> notifications) {
         if (optional.isPresent()) {
             CheckedResultModel model = optional.get();
-            if (isTerminal(model)) {
-                finalizeResult(model, notifications);
+            if (CheckedResultModelUtil.isTerminal(model)) {
+                CheckedResultModelUtil.finalizeCheckedResultModel(model, notifications);
                 return Optional.of(model);
             } else {
-                addNotifications(optional, notifications);
+                notifications.addAll(CheckedResultModelUtil.extractNotifications(optional));
                 return Optional.empty();
             }
         }

@@ -639,6 +639,7 @@ class RuleCheckingServiceImplTest {
         ConcreteResultModel concreteResultModel = new ConcreteResultModel();
         concreteResultModel.setResultStatus(resultStatus);
         concreteResultModel.setRuleChecked(template);
+        concreteResultModel.setNotificationsRule(new ArrayList<>());
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setResultModel(concreteResultModel);
 
@@ -648,6 +649,7 @@ class RuleCheckingServiceImplTest {
     private CheckedResultModel createNotificationOnlyCheckedResult(String level) {
         ConcreteResultModel concreteResultModel = new ConcreteResultModel();
         concreteResultModel.setNotificationsRule(List.of(level));
+        concreteResultModel.setResultStatus(ResultStatus.NOTIFY);
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setResultModel(concreteResultModel);
         return checkedResultModel;

@@ -4,6 +4,7 @@ import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.stream.RuleCheckingApplier;
 import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
+import com.rbkmoney.fraudbusters.util.CheckedResultModelUtil;
 import com.rbkmoney.fraudo.FraudoPaymentParser;
 import com.rbkmoney.fraudo.model.BaseModel;
 import com.rbkmoney.fraudo.model.ResultModel;
@@ -11,6 +12,7 @@ import com.rbkmoney.fraudo.visitor.TemplateVisitor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,10 +33,19 @@ public class RuleCheckingApplierImpl<T extends BaseModel> implements RuleCheckin
     @Override
     public Optional<CheckedResultModel> applyForAny(T model, List<String> templateStrings) {
         if (templateStrings != null) {
+            List<String> notifications = new ArrayList<>();
             for (String templateKey : templateStrings) {
-                Optional<CheckedResultModel> result = apply(model, templateKey);
-                if (result.isPresent()) {
-                    return result;
+                Optional<CheckedResultModel> optionalResult = apply(model, templateKey);
+                // for each non terminal result, add notifications and continue processing
+                if (optionalResult.isPresent()) {
+                    CheckedResultModel result = optionalResult.get();
+                    if (CheckedResultModelUtil.isTerminal(result)) {
+                        return Optional.of(
+                                CheckedResultModelUtil.finalizeCheckedResultModel(result, notifications)
+                        );
+                    } else {
+                        notifications.addAll(CheckedResultModelUtil.extractNotifications(optionalResult));
+                    }
                 }
             }
         }
