@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.service;
 
-import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.exception.InvalidTemplateException;
@@ -11,7 +10,6 @@ import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.service.dto.CascadingTemplateDto;
 import com.rbkmoney.fraudbusters.stream.impl.RuleCheckingApplierImpl;
 import com.rbkmoney.fraudbusters.util.CheckedResultModelUtil;
-import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.FraudoPaymentParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator.generateTemplateKey;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -76,42 +76,23 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
         final FraudoPaymentParser.ParseContext parseContext = paymentContextParser.parse(dto.getTemplate());
         Long timestamp = dto.getTimestamp() == null ? paymentModel.getTimestamp() : dto.getTimestamp();
         String partyId = paymentModel.getPartyId();
-        String partyShopKey = ReferenceKeyGenerator.generateTemplateKey(partyId, paymentModel.getShopId());
+        String partyShopKey = generateTemplateKey(partyId, paymentModel.getShopId());
         List<String> notifications = new ArrayList<>();
-//         global template
-        return applyGlobalTemplate(paymentModel, timestamp, notifications)
-                // group template by party id
-                .orElseGet(() -> applyGroupTemplateByAttribute(paymentModel, timestamp, partyId, notifications)
-                        // group template by party-shop key
-                        .orElseGet(() ->
-                                applyGroupTemplateByAttribute(paymentModel, timestamp, partyShopKey, notifications)
-                                // template by party id
-                                .orElseGet(() -> (isSamePartyId(partyId, dto)
-                                        ? applyExactRule(paymentModel, dto.getTemplate(), parseContext, notifications)
-                                        : applyTemplateByAttribute(paymentModel, timestamp, partyId, notifications))
-                                        // template by party-shop key
-                                        .orElseGet(() -> (isSamePartyShopKey(partyShopKey, dto)
-                                                ? applyExactRule(
-                                                paymentModel, dto.getTemplate(), parseContext, notifications)
-                                                : applyTemplateByAttribute(
-                                                paymentModel, timestamp, partyShopKey, notifications))
-                                                // no checks triggered, may contain notifications
-                                                .orElseGet(() -> createDefaultResult(dto.getTemplate(), notifications)
-                                                )))));
-    }
-
-    private Optional<CheckedResultModel> applyGlobalTemplate(PaymentModel paymentModel, Long timestamp,
-                                                             List<String> notifications) {
-        Optional<CheckedResultModel> result = ruleCheckingApplier
-                .apply(paymentModel, timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), timestamp));
-
-        return processRuleCheckingApplierResult(result, notifications);
+        return applyGroupTemplateByAttribute(paymentModel, timestamp, notifications, partyId)
+                .orElseGet(() -> applyGroupTemplateByAttribute(paymentModel, timestamp, notifications, partyShopKey)
+                        .orElseGet(() -> applyTemplateByPartyId(paymentModel, timestamp, notifications, partyId,
+                                dto, parseContext)
+                                .orElseGet(() -> applyTemplateByPartyShopKey(paymentModel, timestamp, notifications,
+                                        partyShopKey, dto, parseContext)
+                                        .orElseGet(() -> createDefaultResult(dto.getTemplate(),
+                                                notifications)
+                                        ))));
     }
 
     private Optional<CheckedResultModel> applyGroupTemplateByAttribute(PaymentModel paymentModel,
                                                                        Long timestamp,
-                                                                       String referenceAttribute,
-                                                                       List<String> notifications) {
+                                                                       List<String> notifications,
+                                                                       String referenceAttribute) {
         Optional<CheckedResultModel> result = ruleCheckingApplier.applyForAny(
                 paymentModel,
                 timeGroupPoolImpl.get(timeGroupReferencePoolImpl.get(referenceAttribute, timestamp), timestamp)
@@ -119,10 +100,37 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
         return processRuleCheckingApplierResult(result, notifications);
     }
 
+    private Optional<CheckedResultModel> applyTemplateByPartyId(PaymentModel paymentModel,
+                                                                Long timestamp,
+                                                                List<String> notifications,
+                                                                String partyId,
+                                                                CascadingTemplateDto dto,
+                                                                FraudoPaymentParser.ParseContext parseContext) {
+        if (isSamePartyId(partyId, dto)) {
+            return applyExactRule(paymentModel, dto.getTemplate(), parseContext, notifications);
+        } else {
+            return applyTemplateByAttribute(paymentModel, timestamp, notifications, partyId);
+        }
+    }
+
+    private Optional<CheckedResultModel> applyTemplateByPartyShopKey(PaymentModel paymentModel,
+                                                                     Long timestamp,
+                                                                     List<String> notifications,
+                                                                     String partyShopKey,
+                                                                     CascadingTemplateDto dto,
+                                                                     FraudoPaymentParser.ParseContext parseContext) {
+        if (isSamePartyShopKey(partyShopKey, dto)) {
+            return applyExactRule(paymentModel, dto.getTemplate(), parseContext, notifications);
+        } else {
+            return applyTemplateByAttribute(
+                    paymentModel, timestamp, notifications, partyShopKey);
+        }
+    }
+
     private Optional<CheckedResultModel> applyTemplateByAttribute(PaymentModel paymentModel,
                                                                   Long timestamp,
-                                                                  String referenceAttribute,
-                                                                  List<String> notifications) {
+                                                                  List<String> notifications,
+                                                                  String referenceAttribute) {
         Optional<CheckedResultModel> result =
                 ruleCheckingApplier.apply(paymentModel, timeReferencePoolImpl.get(referenceAttribute, timestamp));
         return processRuleCheckingApplierResult(result, notifications);
@@ -138,13 +146,13 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
     }
 
 
-
     private boolean isSamePartyShopKey(String modelPartyShopKey, CascadingTemplateDto dto) {
-        return modelPartyShopKey.equals(ReferenceKeyGenerator.generateTemplateKey(dto.getPartyId(), dto.getShopId()));
+        return dto.getShopId() != null
+                && modelPartyShopKey.equals(generateTemplateKey(dto.getPartyId(), dto.getShopId()));
     }
 
     private boolean isSamePartyId(String modelPartyId, CascadingTemplateDto dto) {
-        return modelPartyId.equals(dto.getPartyId());
+        return dto.getShopId() == null && modelPartyId.equals(dto.getPartyId());
     }
 
     private Optional<CheckedResultModel> processRuleCheckingApplierResult(Optional<CheckedResultModel> optional,

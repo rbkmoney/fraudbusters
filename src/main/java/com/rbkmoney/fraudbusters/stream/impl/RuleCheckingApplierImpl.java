@@ -36,7 +36,6 @@ public class RuleCheckingApplierImpl<T extends BaseModel> implements RuleCheckin
             List<String> notifications = new ArrayList<>();
             for (String templateKey : templateStrings) {
                 Optional<CheckedResultModel> optionalResult = apply(model, templateKey);
-                // for each non terminal result, add notifications and continue processing
                 if (optionalResult.isPresent()) {
                     CheckedResultModel result = optionalResult.get();
                     if (CheckedResultModelUtil.isTerminal(result)) {
@@ -61,6 +60,5 @@ public class RuleCheckingApplierImpl<T extends BaseModel> implements RuleCheckin
         }
         return Optional.empty();
     }
-
 
 }

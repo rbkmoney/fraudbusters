@@ -120,40 +120,6 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
     }
 
     @Test
-    void applyRuleWithinRulesetGlobalTemplate() {
-        // single templates
-        timeReferencePoolImpl.add(TemplateLevel.GLOBAL.name(), RULE_TIMESTAMP, GLOBAL_TEMPLATE);
-        timeReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, TEMPLATE_PARTY);
-        timeReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, TEMPLATE_SHOP);
-
-        //groups of rules
-        timeGroupReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, GROUP_REF_PARTY);
-        timeGroupReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, GROUP_REF_SHOP);
-        timeGroupPoolImpl.add(GROUP_REF_PARTY, RULE_TIMESTAMP,
-                List.of(FIRST_GROUP_TEMPLATE_PARTY, SECOND_GROUP_TEMPLATE_PARTY));
-        timeGroupPoolImpl.add(GROUP_REF_SHOP, RULE_TIMESTAMP,
-                List.of(FIRST_GROUP_TEMPLATE_SHOP, SECOND_GROUP_TEMPLATE_SHOP));
-
-        String globalTransactionId = UUID.randomUUID().toString();
-
-        CascadingTemplateDto dto = new CascadingTemplateDto();
-        dto.setTemplate(TEMPLATE);
-        dto.setPartyId(PARTY_ID);
-        dto.setShopId(SHOP_ID);
-        dto.setTimestamp(TIMESTAMP);
-
-        Map<String, CheckedResultModel> actual = ruleTestingService.checkRuleWithinRuleset(
-                Map.of(
-                        globalTransactionId, createPaymentModel(201L, RULE_TIMESTAMP)
-                ),
-                dto
-        );
-        assertEquals(1, actual.size());
-        assertEquals(GLOBAL_TEMPLATE, actual.get(globalTransactionId).getCheckedTemplate());
-        assertEquals(ResultStatus.ACCEPT, actual.get(globalTransactionId).getResultModel().getResultStatus());;
-    }
-
-    @Test
     void applyRuleWithinRulesetNoTimestampDifferentPartyShop() {
         // single templates
         timeReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, TEMPLATE_PARTY);
@@ -303,6 +269,62 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
         assertEquals(1, actual.size());
         assertEquals(TEMPLATE, actual.get(checkTemplateTransactionId).getCheckedTemplate());
         assertEquals(ResultStatus.ACCEPT, actual.get(checkTemplateTransactionId).getResultModel().getResultStatus());
+    }
+
+    @Test
+    void applyRuleWithinRulesetOnlyRuleFromDto() {
+        String checkTemplateTransactionId = UUID.randomUUID().toString();
+
+        CascadingTemplateDto dto = new CascadingTemplateDto();
+        dto.setTemplate(TEMPLATE);
+        dto.setPartyId(PARTY_ID);
+        dto.setShopId(SHOP_ID);
+        dto.setTimestamp(TIMESTAMP);
+
+        Map<String, CheckedResultModel> actual = ruleTestingService.checkRuleWithinRuleset(
+                Map.of(
+                        checkTemplateTransactionId, createPaymentModel(10L, RULE_TIMESTAMP)
+                ),
+                dto
+        );
+        assertEquals(1, actual.size());
+        assertEquals(TEMPLATE, actual.get(checkTemplateTransactionId).getCheckedTemplate());
+        assertEquals(ResultStatus.ACCEPT, actual.get(checkTemplateTransactionId).getResultModel().getResultStatus());
+    }
+
+    @Test
+    void applyRuleWithinRulesetDefaultResult() {
+        // single templates
+        timeReferencePoolImpl.add(TemplateLevel.GLOBAL.name(), RULE_TIMESTAMP, GLOBAL_TEMPLATE);
+        timeReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, TEMPLATE_PARTY);
+        timeReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, TEMPLATE_SHOP);
+
+        //groups of rules
+        timeGroupReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, GROUP_REF_PARTY);
+        timeGroupReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, GROUP_REF_SHOP);
+        timeGroupPoolImpl.add(GROUP_REF_PARTY, RULE_TIMESTAMP,
+                List.of(FIRST_GROUP_TEMPLATE_PARTY, SECOND_GROUP_TEMPLATE_PARTY));
+        timeGroupPoolImpl.add(GROUP_REF_SHOP, RULE_TIMESTAMP,
+                List.of(FIRST_GROUP_TEMPLATE_SHOP, SECOND_GROUP_TEMPLATE_SHOP));
+
+        String checkTemplateTransactionId = UUID.randomUUID().toString();
+
+        CascadingTemplateDto dto = new CascadingTemplateDto();
+        dto.setTemplate(TEMPLATE);
+        dto.setPartyId(PARTY_ID);
+        dto.setShopId(SHOP_ID);
+        dto.setTimestamp(TIMESTAMP);
+
+        Map<String, CheckedResultModel> actual = ruleTestingService.checkRuleWithinRuleset(
+                Map.of(
+                        checkTemplateTransactionId, createPaymentModel(-5L, RULE_TIMESTAMP)
+                ),
+                dto
+        );
+
+        assertEquals(1, actual.size());
+        assertEquals(TEMPLATE, actual.get(checkTemplateTransactionId).getCheckedTemplate());
+        assertNull(actual.get(checkTemplateTransactionId).getResultModel().getResultStatus());
     }
 
     private PaymentModel createPaymentModel() {

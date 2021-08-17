@@ -76,13 +76,13 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
         Set<HistoricalTransactionCheck> historicalTransactionChecks = null;
         try {
             if (emulationRuleApplyRequest.getEmulationRule().isSetTemplateEmulation()) {
-                final String templateString = new String(
+                String templateString = new String(
                         emulationRuleApplyRequest.getEmulationRule().getTemplateEmulation().getTemplate().getTemplate(),
                         StandardCharsets.UTF_8
                 );
-                final Map<String, PaymentModel> paymentModelMap =
+                Map<String, PaymentModel> paymentModelMap =
                         createPaymentModelMap(emulationRuleApplyRequest.getTransactions());
-                final Map<String, CheckedResultModel> resultMap =
+                Map<String, CheckedResultModel> resultMap =
                         ruleCheckingService.checkSingleRule(paymentModelMap, templateString);
                 historicalTransactionChecks = emulationRuleApplyRequest.getTransactions().stream()
                         .map(transaction -> historicalTransactionCheckFactory.createHistoricalTransactionCheck(
@@ -91,12 +91,12 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
                         ))
                         .collect(Collectors.toSet());
             } else if (emulationRuleApplyRequest.getEmulationRule().isSetCascadingEmulation()) {
-                final CascadingTemplateDto templateDto = cascadingTemplateDtoConverter.convert(
+                CascadingTemplateDto templateDto = cascadingTemplateDtoConverter.convert(
                         emulationRuleApplyRequest.getEmulationRule().getCascadingEmulation()
                 );
-                final Map<String, PaymentModel> paymentModelMap =
+                Map<String, PaymentModel> paymentModelMap =
                         createPaymentModelMap(emulationRuleApplyRequest.getTransactions());
-                final Map<String, CheckedResultModel> resultMap =
+                Map<String, CheckedResultModel> resultMap =
                         ruleCheckingService.checkRuleWithinRuleset(paymentModelMap, templateDto);
                 historicalTransactionChecks =
                         createHistoricalTransactionChecks(emulationRuleApplyRequest.getTransactions(), resultMap);

@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.service;
 
-import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.exception.InvalidTemplateException;
@@ -66,7 +65,6 @@ class RuleCheckingServiceImplTest {
 
     private static final Long TIMESTAMP = Instant.now().toEpochMilli();
     private static final String TEMPLATE = "rule: amount > 100 -> accept;";
-    private static final String GLOBAL_TEMPLATE = "rule: amount > 15 -> accept;";
     private static final List<String> GROUP_PARTY_TEMPLATE = List.of("rule: amount > 20 -> accept;");
     private static final List<String> GROUP_SHOP_TEMPLATE = List.of("rule: amount > 21 -> accept;");
     private static final String PARTY_TEMPLATE = "rule: amount > 25 -> accept;";
@@ -75,7 +73,6 @@ class RuleCheckingServiceImplTest {
     private static final String GROUP_REF_PARTY = "GROUP_REF_PARTY";
     private static final String GROUP_REF_SHOP = "GROUP_REF_SHOP";
 
-    private static final String GLOBAL_LEVEL = "GLOBAL_LEVEL";
     private static final String TEMPLATE_REF_PARTY_LEVEL = "TEMPLATE_REF_PARTY_LEVEL";
     private static final String TEMPLATE_REF_SHOP_LEVEL = "TEMPLATE_REF_SHOP_LEVEL";
     private static final String GROUP_REF_PARTY_LEVEL = "GROUP_REF_PARTY_LEVEL";
@@ -176,43 +173,12 @@ class RuleCheckingServiceImplTest {
     }
 
     @Test
-    void checkRuleWithinRulesetGlobalLevel() {
-        FraudoPaymentParser.ParseContext context = new FraudoPaymentParser.ParseContext(null, 0);
-        PaymentModel paymentModel = createPaymentModel(ThreadLocalRandom.current().nextLong());
-
-        when(paymentTemplateValidator.validate(anyString())).thenReturn(new ArrayList<>());
-        when(paymentContextParser.parse(anyString())).thenReturn(context);
-        when(timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), TIMESTAMP))
-                .thenReturn(GLOBAL_TEMPLATE);
-        when(ruleCheckingApplier.apply(paymentModel, GLOBAL_TEMPLATE))
-                .thenReturn(Optional.of(createResultModel(GLOBAL_TEMPLATE, ResultStatus.ACCEPT)));
-
-        String transactionId = UUID.randomUUID().toString();
-        Map<String, CheckedResultModel> actual =
-                service.checkRuleWithinRuleset(Map.of(transactionId, paymentModel), createCascadingDto(TEMPLATE));
-
-        assertEquals(1, actual.size());
-        CheckedResultModel expected = createResultModel(GLOBAL_TEMPLATE, ResultStatus.ACCEPT);
-        expected.getResultModel().setNotificationsRule(new ArrayList<>());
-        assertEquals(expected, actual.get(transactionId));
-        verify(paymentTemplateValidator, times(1)).validate(anyString());
-        verify(paymentContextParser, times(1)).parse(anyString());
-        verify(timeReferencePoolImpl, times(1)).get(anyString(), anyLong());
-        verify(ruleCheckingApplier, times(1)).apply(any(PaymentModel.class), anyString());
-    }
-
-    @Test
     void checkRuleWithinRulesetGroupTemplateByParty() {
         FraudoPaymentParser.ParseContext context = new FraudoPaymentParser.ParseContext(null, 0);
         PaymentModel paymentModel = createPaymentModel(ThreadLocalRandom.current().nextLong());
 
         when(paymentTemplateValidator.validate(anyString())).thenReturn(new ArrayList<>());
         when(paymentContextParser.parse(anyString())).thenReturn(context);
-        // global template
-        when(timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), TIMESTAMP))
-                .thenReturn(GLOBAL_TEMPLATE);
-        when(ruleCheckingApplier.apply(paymentModel, GLOBAL_TEMPLATE))
-                .thenReturn(Optional.of(createNotificationOnlyCheckedResult(GLOBAL_LEVEL)));
         //group template by party
         when(timeGroupReferencePoolImpl.get(PARTY, TIMESTAMP)).thenReturn(GROUP_REF_PARTY_LEVEL);
         when(timeGroupPoolImpl.get(GROUP_REF_PARTY_LEVEL, TIMESTAMP)).thenReturn(GROUP_PARTY_TEMPLATE);
@@ -226,12 +192,9 @@ class RuleCheckingServiceImplTest {
 
         assertEquals(1, actual.size());
         CheckedResultModel expected = createResultModel(GROUP_PARTY_TEMPLATE.get(0), ResultStatus.ACCEPT);
-        expected.getResultModel().setNotificationsRule(List.of(GLOBAL_LEVEL));
         assertEquals(expected, actual.get(transactionId));
         verify(paymentTemplateValidator, times(1)).validate(anyString());
         verify(paymentContextParser, times(1)).parse(anyString());
-        verify(timeReferencePoolImpl, times(1)).get(anyString(), anyLong());
-        verify(ruleCheckingApplier, times(1)).apply(any(PaymentModel.class), anyString());
         verify(timeGroupReferencePoolImpl, times(1)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(1)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(1)).applyForAny(any(PaymentModel.class), anyList());
@@ -244,11 +207,6 @@ class RuleCheckingServiceImplTest {
 
         when(paymentTemplateValidator.validate(anyString())).thenReturn(new ArrayList<>());
         when(paymentContextParser.parse(anyString())).thenReturn(context);
-        // global template
-        when(timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), TIMESTAMP))
-                .thenReturn(GLOBAL_TEMPLATE);
-        when(ruleCheckingApplier.apply(paymentModel, GLOBAL_TEMPLATE))
-                .thenReturn(Optional.of(createNotificationOnlyCheckedResult(GLOBAL_LEVEL)));
         //group template by party
         when(timeGroupReferencePoolImpl.get(PARTY, TIMESTAMP)).thenReturn(GROUP_REF_PARTY);
         when(timeGroupPoolImpl.get(GROUP_REF_PARTY, TIMESTAMP)).thenReturn(GROUP_PARTY_TEMPLATE);
@@ -267,12 +225,10 @@ class RuleCheckingServiceImplTest {
 
         assertEquals(1, actual.size());
         CheckedResultModel expected = createResultModel(GROUP_SHOP_TEMPLATE.get(0), ResultStatus.ACCEPT);
-        expected.getResultModel().setNotificationsRule(List.of(GLOBAL_LEVEL, GROUP_REF_PARTY_LEVEL));
+        expected.getResultModel().setNotificationsRule(List.of(GROUP_REF_PARTY_LEVEL));
         assertEquals(expected, actual.get(transactionId));
         verify(paymentTemplateValidator, times(1)).validate(anyString());
         verify(paymentContextParser, times(1)).parse(anyString());
-        verify(timeReferencePoolImpl, times(1)).get(anyString(), anyLong());
-        verify(ruleCheckingApplier, times(1)).apply(any(PaymentModel.class), anyString());
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
@@ -287,11 +243,6 @@ class RuleCheckingServiceImplTest {
 
         when(paymentTemplateValidator.validate(anyString())).thenReturn(new ArrayList<>());
         when(paymentContextParser.parse(anyString())).thenReturn(context);
-        // global template
-        when(timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), TIMESTAMP))
-                .thenReturn(GLOBAL_TEMPLATE);
-        when(ruleCheckingApplier.apply(paymentModel, GLOBAL_TEMPLATE))
-                .thenReturn(Optional.of(createNotificationOnlyCheckedResult(GLOBAL_LEVEL)));
         //group template by party
         when(timeGroupReferencePoolImpl.get(differentPartyId, TIMESTAMP)).thenReturn(GROUP_REF_PARTY);
         when(timeGroupPoolImpl.get(GROUP_REF_PARTY, TIMESTAMP)).thenReturn(GROUP_PARTY_TEMPLATE);
@@ -316,15 +267,14 @@ class RuleCheckingServiceImplTest {
         assertEquals(1, actual.size());
         CheckedResultModel expected = createResultModel(PARTY_TEMPLATE, ResultStatus.ACCEPT);
         expected.getResultModel().setNotificationsRule(List.of(
-                GLOBAL_LEVEL,
                 GROUP_REF_PARTY_LEVEL,
                 GROUP_REF_SHOP_LEVEL
         ));
         assertEquals(expected, actual.get(transactionId));
         verify(paymentTemplateValidator, times(1)).validate(anyString());
         verify(paymentContextParser, times(1)).parse(anyString());
-        verify(timeReferencePoolImpl, times(2)).get(anyString(), anyLong());
-        verify(ruleCheckingApplier, times(2)).apply(any(PaymentModel.class), anyString());
+        verify(timeReferencePoolImpl, times(1)).get(anyString(), anyLong());
+        verify(ruleCheckingApplier, times(1)).apply(any(PaymentModel.class), anyString());
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
@@ -341,11 +291,6 @@ class RuleCheckingServiceImplTest {
 
         when(paymentTemplateValidator.validate(anyString())).thenReturn(new ArrayList<>());
         when(paymentContextParser.parse(anyString())).thenReturn(context);
-        // global template
-        when(timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), TIMESTAMP))
-                .thenReturn(GLOBAL_TEMPLATE);
-        when(ruleCheckingApplier.apply(paymentModel, GLOBAL_TEMPLATE))
-                .thenReturn(Optional.of(createNotificationOnlyCheckedResult(GLOBAL_LEVEL)));
         //group template by party
         when(timeGroupReferencePoolImpl.get(differentPartyId, TIMESTAMP)).thenReturn(GROUP_REF_PARTY);
         when(timeGroupPoolImpl.get(GROUP_REF_PARTY, TIMESTAMP)).thenReturn(GROUP_PARTY_TEMPLATE);
@@ -374,7 +319,6 @@ class RuleCheckingServiceImplTest {
         assertEquals(1, actual.size());
         CheckedResultModel expected = createResultModel(SHOP_TEMPLATE, ResultStatus.ACCEPT);
         expected.getResultModel().setNotificationsRule(List.of(
-                GLOBAL_LEVEL,
                 GROUP_REF_PARTY_LEVEL,
                 GROUP_REF_SHOP_LEVEL,
                 TEMPLATE_REF_PARTY_LEVEL
@@ -382,8 +326,8 @@ class RuleCheckingServiceImplTest {
         assertEquals(expected, actual.get(transactionId));
         verify(paymentTemplateValidator, times(1)).validate(anyString());
         verify(paymentContextParser, times(1)).parse(anyString());
-        verify(timeReferencePoolImpl, times(3)).get(anyString(), anyLong());
-        verify(ruleCheckingApplier, times(3)).apply(any(PaymentModel.class), anyString());
+        verify(timeReferencePoolImpl, times(2)).get(anyString(), anyLong());
+        verify(ruleCheckingApplier, times(2)).apply(any(PaymentModel.class), anyString());
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
@@ -396,11 +340,6 @@ class RuleCheckingServiceImplTest {
 
         when(paymentTemplateValidator.validate(anyString())).thenReturn(new ArrayList<>());
         when(paymentContextParser.parse(anyString())).thenReturn(context);
-        // global template
-        when(timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), TIMESTAMP))
-                .thenReturn(GLOBAL_TEMPLATE);
-        when(ruleCheckingApplier.apply(paymentModel, GLOBAL_TEMPLATE))
-                .thenReturn(Optional.of(createNotificationOnlyCheckedResult(GLOBAL_LEVEL)));
         //group template by party
         when(timeGroupReferencePoolImpl.get(PARTY, TIMESTAMP)).thenReturn(GROUP_REF_PARTY);
         when(timeGroupPoolImpl.get(GROUP_REF_PARTY, TIMESTAMP)).thenReturn(GROUP_PARTY_TEMPLATE);
@@ -422,16 +361,10 @@ class RuleCheckingServiceImplTest {
 
         assertEquals(1, actual.size());
         CheckedResultModel expected = createResultModel(TEMPLATE, ResultStatus.ACCEPT);
-        expected.getResultModel().setNotificationsRule(List.of(
-                GLOBAL_LEVEL,
-                GROUP_REF_PARTY_LEVEL,
-                GROUP_REF_SHOP_LEVEL
-        ));
+        expected.getResultModel().setNotificationsRule(List.of(GROUP_REF_PARTY_LEVEL, GROUP_REF_SHOP_LEVEL));
         assertEquals(expected, actual.get(transactionId));
         verify(paymentTemplateValidator, times(1)).validate(anyString());
         verify(paymentContextParser, times(1)).parse(anyString());
-        verify(timeReferencePoolImpl, times(1)).get(anyString(), anyLong());
-        verify(ruleCheckingApplier, times(1)).apply(any(PaymentModel.class), anyString());
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
@@ -446,11 +379,6 @@ class RuleCheckingServiceImplTest {
 
         when(paymentTemplateValidator.validate(anyString())).thenReturn(new ArrayList<>());
         when(paymentContextParser.parse(anyString())).thenReturn(context);
-        // global template
-        when(timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), TIMESTAMP))
-                .thenReturn(GLOBAL_TEMPLATE);
-        when(ruleCheckingApplier.apply(paymentModel, GLOBAL_TEMPLATE))
-                .thenReturn(Optional.of(createNotificationOnlyCheckedResult(GLOBAL_LEVEL)));
         //group template by party
         when(timeGroupReferencePoolImpl.get(PARTY, TIMESTAMP)).thenReturn(GROUP_REF_PARTY);
         when(timeGroupPoolImpl.get(GROUP_REF_PARTY, TIMESTAMP)).thenReturn(GROUP_PARTY_TEMPLATE);
@@ -462,9 +390,11 @@ class RuleCheckingServiceImplTest {
         when(ruleCheckingApplier.applyForAny(paymentModel, GROUP_SHOP_TEMPLATE))
                 .thenReturn(Optional.of(createNotificationOnlyCheckedResult(GROUP_REF_SHOP_LEVEL)));
         //template by party (not substituted by template from request)
+        when(timeReferencePoolImpl.get(PARTY, TIMESTAMP)).thenReturn(PARTY_TEMPLATE);
+        when(ruleCheckingApplier.apply(paymentModel, PARTY_TEMPLATE))
+                .thenReturn(Optional.of(createNotificationOnlyCheckedResult(TEMPLATE_REF_PARTY_LEVEL)));
+        //template by party-shop key (substituted by template from request)
         when(ruleCheckingApplier.applyWithContext(paymentModel, TEMPLATE, context))
-                .thenReturn(Optional.of(createNotificationOnlyCheckedResult(TEMPLATE_REF_PARTY_LEVEL)))
-                //template by party-shop key (not substituted by template from request)
                 .thenReturn(Optional.of(createResultModel(TEMPLATE, ResultStatus.ACCEPT)));
 
 
@@ -475,7 +405,6 @@ class RuleCheckingServiceImplTest {
         assertEquals(1, actual.size());
         CheckedResultModel expected = createResultModel(TEMPLATE, ResultStatus.ACCEPT);
         expected.getResultModel().setNotificationsRule(List.of(
-                GLOBAL_LEVEL,
                 GROUP_REF_PARTY_LEVEL,
                 GROUP_REF_SHOP_LEVEL,
                 TEMPLATE_REF_PARTY_LEVEL
@@ -483,12 +412,11 @@ class RuleCheckingServiceImplTest {
         assertEquals(expected, actual.get(transactionId));
         verify(paymentTemplateValidator, times(1)).validate(anyString());
         verify(paymentContextParser, times(1)).parse(anyString());
-        verify(timeReferencePoolImpl, times(1)).get(anyString(), anyLong());
-        verify(ruleCheckingApplier, times(1)).apply(any(PaymentModel.class), anyString());
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
-        verify(ruleCheckingApplier, times(2))
+        verify(ruleCheckingApplier, times(1)).apply(any(PaymentModel.class), anyString());
+        verify(ruleCheckingApplier, times(1))
                 .applyWithContext(any(PaymentModel.class), anyString(), any(FraudoPaymentParser.ParseContext.class));
     }
 
@@ -503,11 +431,6 @@ class RuleCheckingServiceImplTest {
 
         when(paymentTemplateValidator.validate(anyString())).thenReturn(new ArrayList<>());
         when(paymentContextParser.parse(anyString())).thenReturn(context);
-        // global template
-        when(timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), TIMESTAMP))
-                .thenReturn(GLOBAL_TEMPLATE);
-        when(ruleCheckingApplier.apply(paymentModel, GLOBAL_TEMPLATE))
-                .thenReturn(Optional.of(createNotificationOnlyCheckedResult(GLOBAL_LEVEL)));
         //group template by party
         when(timeGroupReferencePoolImpl.get(differentPartyId, TIMESTAMP)).thenReturn(GROUP_REF_PARTY);
         when(timeGroupPoolImpl.get(GROUP_REF_PARTY, TIMESTAMP)).thenReturn(GROUP_PARTY_TEMPLATE);
@@ -536,7 +459,6 @@ class RuleCheckingServiceImplTest {
         CheckedResultModel defaultResult = createDefaultResult(
                 TEMPLATE,
                 List.of(
-                        GLOBAL_LEVEL,
                         GROUP_REF_PARTY_LEVEL,
                         GROUP_REF_SHOP_LEVEL,
                         TEMPLATE_REF_PARTY_LEVEL,
@@ -546,8 +468,8 @@ class RuleCheckingServiceImplTest {
         assertEquals(defaultResult, actual.get(transactionId));
         verify(paymentTemplateValidator, times(1)).validate(anyString());
         verify(paymentContextParser, times(1)).parse(anyString());
-        verify(timeReferencePoolImpl, times(3)).get(anyString(), anyLong());
-        verify(ruleCheckingApplier, times(3)).apply(any(PaymentModel.class), anyString());
+        verify(timeReferencePoolImpl, times(2)).get(anyString(), anyLong());
+        verify(ruleCheckingApplier, times(2)).apply(any(PaymentModel.class), anyString());
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
@@ -565,11 +487,6 @@ class RuleCheckingServiceImplTest {
 
         when(paymentTemplateValidator.validate(anyString())).thenReturn(new ArrayList<>());
         when(paymentContextParser.parse(anyString())).thenReturn(context);
-        // global template
-        when(timeReferencePoolImpl.get(TemplateLevel.GLOBAL.name(), differentTimestamp))
-                .thenReturn(GLOBAL_TEMPLATE);
-        when(ruleCheckingApplier.apply(paymentModel, GLOBAL_TEMPLATE))
-                .thenReturn(Optional.of(createNotificationOnlyCheckedResult(GLOBAL_LEVEL)));
         //group template by party
         when(timeGroupReferencePoolImpl.get(differentPartyId, differentTimestamp)).thenReturn(GROUP_REF_PARTY);
         when(timeGroupPoolImpl.get(GROUP_REF_PARTY, differentTimestamp)).thenReturn(GROUP_PARTY_TEMPLATE);
@@ -600,7 +517,6 @@ class RuleCheckingServiceImplTest {
         CheckedResultModel defaultResult = createDefaultResult(
                 TEMPLATE,
                 List.of(
-                        GLOBAL_LEVEL,
                         GROUP_REF_PARTY_LEVEL,
                         GROUP_REF_SHOP_LEVEL,
                         TEMPLATE_REF_PARTY_LEVEL,
@@ -610,8 +526,8 @@ class RuleCheckingServiceImplTest {
         assertEquals(defaultResult, actual.get(transactionId));
         verify(paymentTemplateValidator, times(1)).validate(anyString());
         verify(paymentContextParser, times(1)).parse(anyString());
-        verify(timeReferencePoolImpl, times(3)).get(anyString(), anyLong());
-        verify(ruleCheckingApplier, times(3)).apply(any(PaymentModel.class), anyString());
+        verify(timeReferencePoolImpl, times(2)).get(anyString(), anyLong());
+        verify(ruleCheckingApplier, times(2)).apply(any(PaymentModel.class), anyString());
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
