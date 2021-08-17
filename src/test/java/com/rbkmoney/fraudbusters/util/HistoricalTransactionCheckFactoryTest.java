@@ -6,7 +6,7 @@ import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.fraudbusters.converter.CheckedResultModelToCheckResultConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
+import com.rbkmoney.fraudo.constant.ResultStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createCheckedResultModel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,7 +41,7 @@ class HistoricalTransactionCheckFactoryTest {
     @Test
     void createHistoricalTransactionCheck() {
         Payment payment = BeanUtil.createPayment(PaymentStatus.captured);
-        CheckedResultModel resultModel = createCheckedResultModel();
+        CheckedResultModel resultModel = createCheckedResultModel(TEMPLATE, ResultStatus.ACCEPT);
         CheckResult checkResult = new CheckResult()
                 .setCheckedTemplate(TEMPLATE)
                 .setConcreteCheckResult(new ConcreteCheckResult());
@@ -53,11 +54,4 @@ class HistoricalTransactionCheckFactoryTest {
         assertEquals(actual.getTransaction(), payment);
     }
 
-    private CheckedResultModel createCheckedResultModel() {
-        CheckedResultModel checkedResultModel = new CheckedResultModel();
-        checkedResultModel.setCheckedTemplate(TEMPLATE);
-        checkedResultModel.setResultModel(new ConcreteResultModel());
-
-        return checkedResultModel;
-    }
 }
