@@ -1,14 +1,11 @@
 package com.rbkmoney.fraudbusters.resource.payment.handler;
 
-import com.rbkmoney.damsel.domain.Cash;
-import com.rbkmoney.damsel.domain.CurrencyRef;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.TestObjectsFactory;
 import com.rbkmoney.fraudbusters.constant.PaymentToolType;
 import com.rbkmoney.fraudbusters.converter.*;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;
 import com.rbkmoney.fraudbusters.exception.InvalidTemplateException;
@@ -27,19 +24,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createCascadingEmulationRuleApplyRequest;
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createCascadingTemplateDto;
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createCheckedResultModel;
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createEmulationRuleApplyRequest;
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createHistoricalTransactionCheck;
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createPayment;
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createPaymentModel;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -72,10 +73,8 @@ class HistoricalDataHandlerTest {
     @MockBean
     private CascadingTemplateEmulationToCascadingTemplateDtoConverter cascadingTemplateDtoConverter;
 
-    private static final String TEMPLATE = UUID.randomUUID().toString();
-    private static final String TEMPLATE_ID = UUID.randomUUID().toString();
-    private static final String SHOP_ID = UUID.randomUUID().toString();
-    private static final String PARTY_ID = UUID.randomUUID().toString();
+    private static final String TEMPLATE = "TEMPLATE";
+    private static final String TEMPLATE_ID = "TEMPLATE_ID";
 
 
     @Test
@@ -450,7 +449,7 @@ class HistoricalDataHandlerTest {
 
     @Test
     void applyRuleOnHistoricalDataSetThrowsHistoricalDataServiceException() {
-        EmulationRuleApplyRequest request = createEmulationRuleApplyRequest();
+        EmulationRuleApplyRequest request = createEmulationRuleApplyRequest(TEMPLATE, TEMPLATE_ID);
         when(paymentModelConverter.convert(any(Payment.class)))
                 .thenReturn(createPaymentModel(ThreadLocalRandom.current().nextLong()));
         when(ruleCheckingService.checkSingleRule(any(), anyString())).thenThrow(new InvalidTemplateException());
@@ -468,15 +467,18 @@ class HistoricalDataHandlerTest {
         Payment firstPayment = createPayment(firstAmount);
         Payment secondPayment = createPayment(secondAmount);
         CheckedResultModel firstResultModel =
-                createCheckedResultModel(com.rbkmoney.fraudo.constant.ResultStatus.ACCEPT);
+                createCheckedResultModel(TEMPLATE, com.rbkmoney.fraudo.constant.ResultStatus.ACCEPT);
         CheckedResultModel secondResultModel =
-                createCheckedResultModel(com.rbkmoney.fraudo.constant.ResultStatus.DECLINE);
+                createCheckedResultModel(TEMPLATE, com.rbkmoney.fraudo.constant.ResultStatus.DECLINE);
         Map<String, CheckedResultModel> resultModelMap = new LinkedHashMap<>();
         resultModelMap.put(firstPayment.getId(), firstResultModel);
         resultModelMap.put(secondPayment.getId(), secondResultModel);
-        EmulationRuleApplyRequest request = createEmulationRuleApplyRequest(firstPayment, secondPayment);
-        HistoricalTransactionCheck acceptedCheck = createHistoricalTransactionCheck(firstPayment, acceptedStatus);
-        HistoricalTransactionCheck declinedCheck = createHistoricalTransactionCheck(secondPayment, declinedStatus);
+        EmulationRuleApplyRequest request =
+                createEmulationRuleApplyRequest(TEMPLATE, TEMPLATE_ID, firstPayment, secondPayment);
+        HistoricalTransactionCheck acceptedCheck =
+                createHistoricalTransactionCheck(TEMPLATE, firstPayment, acceptedStatus);
+        HistoricalTransactionCheck declinedCheck =
+                createHistoricalTransactionCheck(TEMPLATE, secondPayment, declinedStatus);
         PaymentModel firstPaymentModel = createPaymentModel(firstAmount);
         PaymentModel secondPaymentModel = createPaymentModel(secondAmount);
 
@@ -536,7 +538,7 @@ class HistoricalDataHandlerTest {
         when(cascadingTemplateDtoConverter.convert(any()))
                 .thenReturn(new CascadingTemplateDto());
         when(ruleCheckingService.checkRuleWithinRuleset(any(), any())).thenThrow(new InvalidTemplateException());
-        EmulationRuleApplyRequest request = createCascadingEmulationRuleApplyRequest();
+        EmulationRuleApplyRequest request = createCascadingEmulationRuleApplyRequest(TEMPLATE, TEMPLATE_ID);
         assertThrows(HistoricalDataServiceException.class, () -> handler.applyRuleOnHistoricalDataSet(request));
     }
 
@@ -551,18 +553,21 @@ class HistoricalDataHandlerTest {
         Payment firstPayment = createPayment(firstAmount);
         Payment secondPayment = createPayment(secondAmount);
         CheckedResultModel firstResultModel =
-                createCheckedResultModel(com.rbkmoney.fraudo.constant.ResultStatus.ACCEPT);
+                createCheckedResultModel(TEMPLATE, com.rbkmoney.fraudo.constant.ResultStatus.ACCEPT);
         CheckedResultModel secondResultModel =
-                createCheckedResultModel(com.rbkmoney.fraudo.constant.ResultStatus.DECLINE);
+                createCheckedResultModel(TEMPLATE, com.rbkmoney.fraudo.constant.ResultStatus.DECLINE);
         Map<String, CheckedResultModel> resultModelMap = new LinkedHashMap<>();
         resultModelMap.put(firstPayment.getId(), firstResultModel);
         resultModelMap.put(secondPayment.getId(), secondResultModel);
-        HistoricalTransactionCheck acceptedCheck = createHistoricalTransactionCheck(firstPayment, acceptedStatus);
-        HistoricalTransactionCheck declinedCheck = createHistoricalTransactionCheck(secondPayment, declinedStatus);
+        HistoricalTransactionCheck acceptedCheck =
+                createHistoricalTransactionCheck(TEMPLATE, firstPayment, acceptedStatus);
+        HistoricalTransactionCheck declinedCheck =
+                createHistoricalTransactionCheck(TEMPLATE, secondPayment, declinedStatus);
         PaymentModel firstPaymentModel = createPaymentModel(firstAmount);
         PaymentModel secondPaymentModel = createPaymentModel(secondAmount);
-        EmulationRuleApplyRequest request = createCascadingEmulationRuleApplyRequest(firstPayment, secondPayment);
-        CascadingTemplateDto cascadingTemplateDto = createCascadingTemplateDto();
+        EmulationRuleApplyRequest request =
+                createCascadingEmulationRuleApplyRequest(TEMPLATE, TEMPLATE_ID, firstPayment, secondPayment);
+        CascadingTemplateDto cascadingTemplateDto = createCascadingTemplateDto(TEMPLATE);
 
         when(cascadingTemplateDtoConverter.convert(any(CascasdingTemplateEmulation.class)))
                 .thenReturn(cascadingTemplateDto);
@@ -620,111 +625,6 @@ class HistoricalDataHandlerTest {
         assertEquals(List.of(firstPayment, secondPayment), checkResultFactoryPaymentCaptor.getAllValues());
         assertEquals(2, resultModelCaptor.getAllValues().size());
         assertEquals(List.of(firstResultModel, secondResultModel), resultModelCaptor.getAllValues());
-    }
-
-    private CascadingTemplateDto createCascadingTemplateDto() {
-        CascadingTemplateDto dto = new CascadingTemplateDto();
-        dto.setTimestamp(Instant.now().toEpochMilli());
-        dto.setTemplate(TEMPLATE);
-        dto.setShopId(SHOP_ID);
-        dto.setPartyId(PARTY_ID);
-        return dto;
-    }
-
-    private EmulationRuleApplyRequest createCascadingEmulationRuleApplyRequest(Payment... payments) {
-        Template template = new Template();
-        template.setId(TEMPLATE_ID);
-        template.setTemplate(TEMPLATE.getBytes(StandardCharsets.UTF_8));
-        TemplateReference templateReference = new TemplateReference();
-        templateReference.setTemplateId(TEMPLATE_ID);
-        templateReference.setPartyId(UUID.randomUUID().toString());
-        templateReference.setShopId(UUID.randomUUID().toString());
-        CascasdingTemplateEmulation cascasdingTemplateEmulation = new CascasdingTemplateEmulation();
-        cascasdingTemplateEmulation.setTemplate(template);
-        cascasdingTemplateEmulation.setRef(templateReference);
-        EmulationRule emulationRule = new EmulationRule();
-        emulationRule.setCascadingEmulation(cascasdingTemplateEmulation);
-        EmulationRuleApplyRequest request = new EmulationRuleApplyRequest();
-        request.setEmulationRule(emulationRule);
-
-        LinkedHashSet<Payment> linkedPayments = new LinkedHashSet<>();
-        for (Payment payment : payments) {
-            linkedPayments.add(payment);
-        }
-        request.setTransactions(linkedPayments);
-
-        return request;
-    }
-
-    private EmulationRuleApplyRequest createEmulationRuleApplyRequest() {
-        return createEmulationRuleApplyRequest(Set.of(createPayment(), createPayment()));
-    }
-
-    private EmulationRuleApplyRequest createEmulationRuleApplyRequest(Payment... payments) {
-        Set<Payment> transactions = new LinkedHashSet<>();
-        for (Payment payment : payments) {
-            transactions.add(payment);
-        }
-        return createEmulationRuleApplyRequest(transactions);
-    }
-
-    private EmulationRuleApplyRequest createEmulationRuleApplyRequest(Set<Payment> transactions) {
-        Template template = new Template();
-        template.setId(TEMPLATE_ID);
-        template.setTemplate(TEMPLATE.getBytes(StandardCharsets.UTF_8));
-        OnlyTemplateEmulation onlyTemplateEmulation = new OnlyTemplateEmulation();
-        onlyTemplateEmulation.setTemplate(template);
-        EmulationRule emulationRule = new EmulationRule();
-        emulationRule.setTemplateEmulation(onlyTemplateEmulation);
-        EmulationRuleApplyRequest request = new EmulationRuleApplyRequest();
-        request.setEmulationRule(emulationRule);
-        request.setTransactions(transactions);
-
-        return request;
-    }
-
-    private Payment createPayment() {
-        return createPayment(ThreadLocalRandom.current().nextLong());
-    }
-
-    private Payment createPayment(Long amount) {
-        return new Payment()
-                .setId(UUID.randomUUID().toString())
-                .setCost(new Cash()
-                        .setAmount(amount)
-                        .setCurrency(new CurrencyRef("RUB"))
-                );
-    }
-
-    private PaymentModel createPaymentModel(Long amount) {
-        PaymentModel paymentModel = new PaymentModel();
-        paymentModel.setAmount(amount);
-
-        return paymentModel;
-    }
-
-    private CheckedResultModel createCheckedResultModel(com.rbkmoney.fraudo.constant.ResultStatus resultStatus) {
-        ConcreteResultModel concreteResultModel = new ConcreteResultModel();
-        concreteResultModel.setResultStatus(resultStatus);
-        concreteResultModel.setRuleChecked(TEMPLATE);
-        CheckedResultModel checkedResultModel = new CheckedResultModel();
-        checkedResultModel.setResultModel(concreteResultModel);
-
-        return checkedResultModel;
-    }
-
-    private HistoricalTransactionCheck createHistoricalTransactionCheck(
-            Payment payment, com.rbkmoney.damsel.fraudbusters.ResultStatus resultStatus
-    ) {
-        return new HistoricalTransactionCheck()
-                .setTransaction(payment)
-                .setCheckResult(new CheckResult()
-                        .setCheckedTemplate(TEMPLATE)
-                        .setConcreteCheckResult(new ConcreteCheckResult()
-                                .setRuleChecked("0")
-                                .setResultStatus(resultStatus)
-                        )
-                );
     }
 
     private String getTimestampAsString(long epochSeconds) {

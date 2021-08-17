@@ -75,7 +75,7 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
             EmulationRuleApplyRequest emulationRuleApplyRequest) throws HistoricalDataServiceException, TException {
         Set<HistoricalTransactionCheck> historicalTransactionChecks = null;
         try {
-            if (emulationRuleApplyRequest.getEmulationRule().isSetTemplateEmulation()) {
+            if (isSingleRuleCheck(emulationRuleApplyRequest)) {
                 String templateString = new String(
                         emulationRuleApplyRequest.getEmulationRule().getTemplateEmulation().getTemplate().getTemplate(),
                         StandardCharsets.UTF_8
@@ -90,7 +90,7 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
                                 resultMap.get(transaction.getId())
                         ))
                         .collect(Collectors.toSet());
-            } else if (emulationRuleApplyRequest.getEmulationRule().isSetCascadingEmulation()) {
+            } else if (isSetRuleCheckWithinRuleset(emulationRuleApplyRequest)) {
                 CascadingTemplateDto templateDto = cascadingTemplateDtoConverter.convert(
                         emulationRuleApplyRequest.getEmulationRule().getCascadingEmulation()
                 );
@@ -109,6 +109,14 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
 
         return new HistoricalDataSetCheckResult()
                 .setHistoricalTransactionCheck(historicalTransactionChecks);
+    }
+
+    private boolean isSetRuleCheckWithinRuleset(EmulationRuleApplyRequest emulationRuleApplyRequest) {
+        return emulationRuleApplyRequest.getEmulationRule().isSetCascadingEmulation();
+    }
+
+    private boolean isSingleRuleCheck(EmulationRuleApplyRequest emulationRuleApplyRequest) {
+        return emulationRuleApplyRequest.getEmulationRule().isSetTemplateEmulation();
     }
 
     private Map<String, PaymentModel> createPaymentModelMap(Set<Payment> transactions) {

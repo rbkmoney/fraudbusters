@@ -106,7 +106,7 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
                                                                 String partyId,
                                                                 CascadingTemplateDto dto,
                                                                 FraudoPaymentParser.ParseContext parseContext) {
-        if (isSamePartyId(partyId, dto)) {
+        if (isSubstituteOnPartyShopLevel(partyId, dto)) {
             return applyExactRule(paymentModel, dto.getTemplate(), parseContext, notifications);
         } else {
             return applyTemplateByAttribute(paymentModel, timestamp, notifications, partyId);
@@ -119,11 +119,10 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
                                                                      String partyShopKey,
                                                                      CascadingTemplateDto dto,
                                                                      FraudoPaymentParser.ParseContext parseContext) {
-        if (isSamePartyShopKey(partyShopKey, dto)) {
+        if (isSubstituteOnPartyLevel(partyShopKey, dto)) {
             return applyExactRule(paymentModel, dto.getTemplate(), parseContext, notifications);
         } else {
-            return applyTemplateByAttribute(
-                    paymentModel, timestamp, notifications, partyShopKey);
+            return applyTemplateByAttribute(paymentModel, timestamp, notifications, partyShopKey);
         }
     }
 
@@ -146,12 +145,12 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
     }
 
 
-    private boolean isSamePartyShopKey(String modelPartyShopKey, CascadingTemplateDto dto) {
+    private boolean isSubstituteOnPartyLevel(String modelPartyShopKey, CascadingTemplateDto dto) {
         return dto.getShopId() != null
                 && modelPartyShopKey.equals(generateTemplateKey(dto.getPartyId(), dto.getShopId()));
     }
 
-    private boolean isSamePartyId(String modelPartyId, CascadingTemplateDto dto) {
+    private boolean isSubstituteOnPartyShopLevel(String modelPartyId, CascadingTemplateDto dto) {
         return dto.getShopId() == null && modelPartyId.equals(dto.getPartyId());
     }
 

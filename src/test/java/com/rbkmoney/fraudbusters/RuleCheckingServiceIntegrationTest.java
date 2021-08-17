@@ -6,7 +6,6 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.service.RuleCheckingServiceImpl;
 import com.rbkmoney.fraudbusters.service.dto.CascadingTemplateDto;
-import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createPaymentModel;
 import static com.rbkmoney.fraudbusters.util.BeanUtil.PARTY_ID;
 import static com.rbkmoney.fraudbusters.util.BeanUtil.SHOP_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -93,10 +93,8 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
 
     @Test
     void applyOneRuleOnly() {
-        PaymentModel firstTransaction = createPaymentModel();
-        firstTransaction.setAmount(25L);
-        PaymentModel secondTransaction = createPaymentModel();
-        secondTransaction.setAmount(2L);
+        PaymentModel firstTransaction = createPaymentModel(25L);
+        PaymentModel secondTransaction = createPaymentModel(2L);
         String firstTransactionId = UUID.randomUUID().toString();
         String secondTransactionId = UUID.randomUUID().toString();
 
@@ -327,14 +325,4 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
         assertNull(actual.get(checkTemplateTransactionId).getResultModel().getResultStatus());
     }
 
-    private PaymentModel createPaymentModel() {
-        return BeanUtil.createPaymentModel();
-    }
-
-    private PaymentModel createPaymentModel(Long amount, Long timestamp) {
-        PaymentModel paymentModel = BeanUtil.createPaymentModel();
-        paymentModel.setAmount(amount);
-        paymentModel.setTimestamp(timestamp);
-        return paymentModel;
-    }
 }

@@ -35,15 +35,15 @@ public class RuleCheckingApplierImpl<T extends BaseModel> implements RuleCheckin
         if (templateStrings != null) {
             List<String> notifications = new ArrayList<>();
             for (String templateKey : templateStrings) {
-                Optional<CheckedResultModel> optionalResult = apply(model, templateKey);
-                if (optionalResult.isPresent()) {
-                    CheckedResultModel result = optionalResult.get();
-                    if (CheckedResultModelUtil.isTerminal(result)) {
+                Optional<CheckedResultModel> result = apply(model, templateKey);
+                if (result.isPresent()) {
+                    CheckedResultModel checkedResultModel = result.get();
+                    if (CheckedResultModelUtil.isTerminal(checkedResultModel)) {
                         return Optional.of(
-                                CheckedResultModelUtil.finalizeCheckedResultModel(result, notifications)
+                                CheckedResultModelUtil.finalizeCheckedResultModel(checkedResultModel, notifications)
                         );
                     } else {
-                        notifications.addAll(CheckedResultModelUtil.extractNotifications(optionalResult));
+                        notifications.addAll(CheckedResultModelUtil.extractNotifications(result));
                     }
                 }
             }

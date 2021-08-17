@@ -1,7 +1,6 @@
 package com.rbkmoney.fraudbusters.stream.impl;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
@@ -21,9 +20,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createCheckedResultModel;
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createPaymentModel;
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createResultModel;
+import static com.rbkmoney.fraudbusters.TestObjectsFactory.createRuleResult;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -49,6 +50,8 @@ class RuleCheckingApplierImplTest {
     private static final String DECLINE_TEMPLATE_STRING = "DECLINE_TEMPLATE_STRING";
     private static final String ACCEPT_RULE_CHECKED = "0";
     private static final String DECLINE_RULE_CHECKED = "1";
+    private static final RuleResult ACCEPTED_RULE_RESULT = createRuleResult(ACCEPT_RULE_CHECKED, ResultStatus.ACCEPT);
+    private static final RuleResult DECLINED_RULE_RESULT = createRuleResult(DECLINE_RULE_CHECKED, ResultStatus.DECLINE);
 
     @BeforeEach
     void setUp() {
@@ -71,7 +74,7 @@ class RuleCheckingApplierImplTest {
         FraudoPaymentParser.ParseContext parseContext =
                 new FraudoPaymentParser.ParseContext(new ParserRuleContext(), 0);
         PaymentModel paymentModel = createPaymentModel();
-        ResultModel resultModel = createResultModel();
+        ResultModel resultModel = createResultModel(List.of(ACCEPTED_RULE_RESULT, DECLINED_RULE_RESULT));
         CheckedResultModel checkedResultModel =
                 createCheckedResultModel(ACCEPT_TEMPLATE_STRING, ACCEPT_RULE_CHECKED, ResultStatus.ACCEPT);
 
@@ -94,7 +97,7 @@ class RuleCheckingApplierImplTest {
         FraudoPaymentParser.ParseContext parseContext =
                 new FraudoPaymentParser.ParseContext(new ParserRuleContext(), 0);
         PaymentModel paymentModel = createPaymentModel();
-        ResultModel resultModel = createResultModel();
+        ResultModel resultModel = createResultModel(List.of(ACCEPTED_RULE_RESULT, DECLINED_RULE_RESULT));
         CheckedResultModel checkedResultModel =
                 createCheckedResultModel(ACCEPT_TEMPLATE_STRING, ACCEPT_RULE_CHECKED, ResultStatus.ACCEPT);
 
@@ -141,7 +144,7 @@ class RuleCheckingApplierImplTest {
         FraudoPaymentParser.ParseContext parseContext =
                 new FraudoPaymentParser.ParseContext(new ParserRuleContext(), 0);
         PaymentModel paymentModel = createPaymentModel();
-        ResultModel resultModel = createResultModel();
+        ResultModel resultModel = createResultModel(List.of(ACCEPTED_RULE_RESULT, DECLINED_RULE_RESULT));
         CheckedResultModel checkedResultModel =
                 createCheckedResultModel(ACCEPT_TEMPLATE_STRING, ACCEPT_RULE_CHECKED, ResultStatus.ACCEPT);
 
@@ -159,35 +162,4 @@ class RuleCheckingApplierImplTest {
                 .createCheckedResultWithNotifications(ACCEPT_TEMPLATE_STRING, resultModel);
     }
 
-    private PaymentModel createPaymentModel() {
-        PaymentModel paymentModel = new PaymentModel();
-        paymentModel.setAmount(ThreadLocalRandom.current().nextLong());
-        paymentModel.setPartyId(UUID.randomUUID().toString());
-
-        return paymentModel;
-    }
-
-    private ResultModel createResultModel() {
-        RuleResult acceptedRuleResult = new RuleResult();
-        acceptedRuleResult.setRuleChecked(ACCEPT_RULE_CHECKED);
-        acceptedRuleResult.setResultStatus(ResultStatus.ACCEPT);
-        RuleResult declineRuleResult = new RuleResult();
-        declineRuleResult.setRuleChecked(DECLINE_RULE_CHECKED);
-        declineRuleResult.setResultStatus(ResultStatus.DECLINE);
-        ResultModel resultModel = new ResultModel();
-        resultModel.setRuleResults(List.of(acceptedRuleResult, declineRuleResult));
-
-        return resultModel;
-    }
-
-    private CheckedResultModel createCheckedResultModel(String template, String ruleChecked, ResultStatus status) {
-        ConcreteResultModel concreteResultModel = new ConcreteResultModel();
-        concreteResultModel.setRuleChecked(ruleChecked);
-        concreteResultModel.setResultStatus(status);
-        CheckedResultModel checkedResultModel = new CheckedResultModel();
-        checkedResultModel.setCheckedTemplate(template);
-        checkedResultModel.setResultModel(concreteResultModel);
-
-        return checkedResultModel;
-    }
 }
