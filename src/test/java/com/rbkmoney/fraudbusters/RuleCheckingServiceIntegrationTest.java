@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.pool.HistoricalPool;
@@ -49,8 +48,6 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
     @Autowired
     private HistoricalPool<String> timeGroupReferencePoolImpl;
 
-    private static final String GLOBAL_TEMPLATE = "rule: amount() > 200 \n" +
-            "-> accept;";
     private static final String FIRST_GROUP_TEMPLATE_PARTY = "rule: amount() > 110 \n" +
             "-> accept;";
     private static final String SECOND_GROUP_TEMPLATE_PARTY = "rule: amount() > 100 \n" +
@@ -205,7 +202,6 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
     @Test
     void applyRuleWithinRulesetChangeTemplateByParty() {
         // single templates
-        timeReferencePoolImpl.add(TemplateLevel.GLOBAL.name(), RULE_TIMESTAMP, GLOBAL_TEMPLATE);
         timeReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, TEMPLATE_PARTY);
         timeReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, TEMPLATE_SHOP);
 
@@ -238,7 +234,6 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
     @Test
     void applyRuleWithinRulesetChangeTemplateByShop() {
         // single templates
-        timeReferencePoolImpl.add(TemplateLevel.GLOBAL.name(), RULE_TIMESTAMP, GLOBAL_TEMPLATE);
         timeReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, TEMPLATE_PARTY);
         timeReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, TEMPLATE_SHOP);
 
@@ -280,9 +275,7 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
         dto.setTimestamp(TIMESTAMP);
 
         Map<String, CheckedResultModel> actual = ruleTestingService.checkRuleWithinRuleset(
-                Map.of(
-                        checkTemplateTransactionId, createPaymentModel(10L, RULE_TIMESTAMP)
-                ),
+                Map.of(checkTemplateTransactionId, createPaymentModel(10L, RULE_TIMESTAMP)),
                 dto
         );
         assertEquals(1, actual.size());
@@ -293,7 +286,6 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
     @Test
     void applyRuleWithinRulesetDefaultResult() {
         // single templates
-        timeReferencePoolImpl.add(TemplateLevel.GLOBAL.name(), RULE_TIMESTAMP, GLOBAL_TEMPLATE);
         timeReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, TEMPLATE_PARTY);
         timeReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, TEMPLATE_SHOP);
 

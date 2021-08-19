@@ -9,6 +9,7 @@ import com.rbkmoney.fraudbusters.fraud.payment.validator.PaymentTemplateValidato
 import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.service.dto.CascadingTemplateDto;
 import com.rbkmoney.fraudbusters.stream.impl.RuleCheckingApplierImpl;
+import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
 import com.rbkmoney.fraudo.FraudoPaymentParser;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import org.junit.jupiter.api.Test;
@@ -62,6 +63,9 @@ class RuleCheckingServiceImplTest {
 
     @MockBean(name = "timeGroupReferencePoolImpl")
     private HistoricalPool<String> timeGroupReferencePoolImpl;
+
+    @MockBean
+    private CheckedResultFactory checkedResultFactory;
 
     private static final Long TIMESTAMP = Instant.now().toEpochMilli();
     private static final String TEMPLATE = "rule: amount > 100 -> accept;";
@@ -138,6 +142,8 @@ class RuleCheckingServiceImplTest {
                         ruleCheckingApplierTemplateStringCaptor.capture(),
                         contextCaptor.capture()
                 );
+        verify(checkedResultFactory, times(0))
+                .createNotificationOnlyResultModel(anyString(), anyList());
 
         //template validator verification
         assertEquals(1, validatorTemplateStringCaptor.getAllValues().size());
@@ -198,6 +204,8 @@ class RuleCheckingServiceImplTest {
         verify(timeGroupReferencePoolImpl, times(1)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(1)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(1)).applyForAny(any(PaymentModel.class), anyList());
+        verify(checkedResultFactory, times(0))
+                .createNotificationOnlyResultModel(anyString(), anyList());
     }
 
     @Test
@@ -232,6 +240,8 @@ class RuleCheckingServiceImplTest {
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
+        verify(checkedResultFactory, times(0))
+                .createNotificationOnlyResultModel(anyString(), anyList());
     }
 
     @Test
@@ -278,6 +288,8 @@ class RuleCheckingServiceImplTest {
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
+        verify(checkedResultFactory, times(0))
+                .createNotificationOnlyResultModel(anyString(), anyList());
     }
 
     @Test
@@ -331,6 +343,8 @@ class RuleCheckingServiceImplTest {
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
+        verify(checkedResultFactory, times(0))
+                .createNotificationOnlyResultModel(anyString(), anyList());
     }
 
     @Test
@@ -370,6 +384,8 @@ class RuleCheckingServiceImplTest {
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
         verify(ruleCheckingApplier, times(1))
                 .applyWithContext(any(PaymentModel.class), anyString(), any(FraudoPaymentParser.ParseContext.class));
+        verify(checkedResultFactory, times(0))
+                .createNotificationOnlyResultModel(anyString(), anyList());
     }
 
     @Test
@@ -418,6 +434,8 @@ class RuleCheckingServiceImplTest {
         verify(ruleCheckingApplier, times(1)).apply(any(PaymentModel.class), anyString());
         verify(ruleCheckingApplier, times(1))
                 .applyWithContext(any(PaymentModel.class), anyString(), any(FraudoPaymentParser.ParseContext.class));
+        verify(checkedResultFactory, times(0))
+                .createNotificationOnlyResultModel(anyString(), anyList());
     }
 
     @Test
@@ -450,21 +468,22 @@ class RuleCheckingServiceImplTest {
         when(timeReferencePoolImpl.get(differentPartyShopKey, TIMESTAMP)).thenReturn(SHOP_TEMPLATE);
         when(ruleCheckingApplier.apply(paymentModel, SHOP_TEMPLATE))
                 .thenReturn(Optional.of(createNotificationOnlyCheckedResult(TEMPLATE_REF_SHOP_LEVEL)));
+        //default result
+        List<String> notifications = List.of(
+                GROUP_REF_PARTY_LEVEL,
+                GROUP_REF_SHOP_LEVEL,
+                TEMPLATE_REF_PARTY_LEVEL,
+                TEMPLATE_REF_SHOP_LEVEL
+        );
+        when(checkedResultFactory.createNotificationOnlyResultModel(TEMPLATE, notifications))
+                .thenReturn(createDefaultResult(TEMPLATE, notifications));
 
         String transactionId = UUID.randomUUID().toString();
         Map<String, CheckedResultModel> actual =
                 service.checkRuleWithinRuleset(Map.of(transactionId, paymentModel), createCascadingDto(TEMPLATE));
 
         assertEquals(1, actual.size());
-        CheckedResultModel defaultResult = createDefaultResult(
-                TEMPLATE,
-                List.of(
-                        GROUP_REF_PARTY_LEVEL,
-                        GROUP_REF_SHOP_LEVEL,
-                        TEMPLATE_REF_PARTY_LEVEL,
-                        TEMPLATE_REF_SHOP_LEVEL
-                )
-        );
+        CheckedResultModel defaultResult = createDefaultResult(TEMPLATE, notifications);
         assertEquals(defaultResult, actual.get(transactionId));
         verify(paymentTemplateValidator, times(1)).validate(anyString());
         verify(paymentContextParser, times(1)).parse(anyString());
@@ -473,13 +492,15 @@ class RuleCheckingServiceImplTest {
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
+        verify(checkedResultFactory, times(1))
+                .createNotificationOnlyResultModel(anyString(), anyList());
     }
 
     @Test
     void checkRuleWithinRulesetDefaultResultNoSetTimestamp() {
         String differentPartyId = UUID.randomUUID().toString();
         String differentShopId = UUID.randomUUID().toString();
-        Long differentTimestamp = ThreadLocalRandom.current().nextLong();;
+        Long differentTimestamp = ThreadLocalRandom.current().nextLong();
         PaymentModel paymentModel = createPaymentModel(ThreadLocalRandom.current().nextLong(), differentTimestamp);
         paymentModel.setPartyId(differentPartyId);
         paymentModel.setShopId(differentShopId);
@@ -506,6 +527,15 @@ class RuleCheckingServiceImplTest {
         when(timeReferencePoolImpl.get(differentPartyShopKey, differentTimestamp)).thenReturn(SHOP_TEMPLATE);
         when(ruleCheckingApplier.apply(paymentModel, SHOP_TEMPLATE))
                 .thenReturn(Optional.of(createNotificationOnlyCheckedResult(TEMPLATE_REF_SHOP_LEVEL)));
+        //default result
+        List<String> notifications = List.of(
+                GROUP_REF_PARTY_LEVEL,
+                GROUP_REF_SHOP_LEVEL,
+                TEMPLATE_REF_PARTY_LEVEL,
+                TEMPLATE_REF_SHOP_LEVEL
+        );
+        when(checkedResultFactory.createNotificationOnlyResultModel(TEMPLATE, notifications))
+                .thenReturn(createDefaultResult(TEMPLATE, notifications));
 
         String transactionId = UUID.randomUUID().toString();
         Map<String, CheckedResultModel> actual = service.checkRuleWithinRuleset(
@@ -514,15 +544,7 @@ class RuleCheckingServiceImplTest {
         );
 
         assertEquals(1, actual.size());
-        CheckedResultModel defaultResult = createDefaultResult(
-                TEMPLATE,
-                List.of(
-                        GROUP_REF_PARTY_LEVEL,
-                        GROUP_REF_SHOP_LEVEL,
-                        TEMPLATE_REF_PARTY_LEVEL,
-                        TEMPLATE_REF_SHOP_LEVEL
-                )
-        );
+        CheckedResultModel defaultResult = createDefaultResult(TEMPLATE, notifications);
         assertEquals(defaultResult, actual.get(transactionId));
         verify(paymentTemplateValidator, times(1)).validate(anyString());
         verify(paymentContextParser, times(1)).parse(anyString());
@@ -531,6 +553,8 @@ class RuleCheckingServiceImplTest {
         verify(timeGroupReferencePoolImpl, times(2)).get(anyString(), anyLong());
         verify(timeGroupPoolImpl, times(2)).get(anyString(), anyLong());
         verify(ruleCheckingApplier, times(2)).applyForAny(any(PaymentModel.class), anyList());
+        verify(checkedResultFactory, times(1))
+                .createNotificationOnlyResultModel(anyString(), anyList());
     }
 
     private PaymentModel createPaymentModel(Long amount) {

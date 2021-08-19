@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -33,12 +34,13 @@ public class CheckedResultFactory {
     @NonNull
     public CheckedResultModel createCheckedResultWithNotifications(String templateKey, ResultModel resultModel) {
         return createCheckedResult(templateKey, resultModel)
-                .orElseGet(() -> createNotificationOnlyResultModel(templateKey, resultModel));
+                .orElseGet(() ->
+                        createNotificationOnlyResultModel(templateKey, ResultUtils.getNotifications(resultModel)));
     }
 
-    private CheckedResultModel createNotificationOnlyResultModel(String templateKey, ResultModel resultModel) {
+    public CheckedResultModel createNotificationOnlyResultModel(String templateKey, List<String> notifications) {
         ConcreteResultModel concreteResultModel = new ConcreteResultModel();
-        concreteResultModel.setNotificationsRule(ResultUtils.getNotifications(resultModel));
+        concreteResultModel.setNotificationsRule(notifications);
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setResultModel(concreteResultModel);
         checkedResultModel.setCheckedTemplate(templateKey);

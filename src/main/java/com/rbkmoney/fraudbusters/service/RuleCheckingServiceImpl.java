@@ -1,7 +1,6 @@
 package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
 import com.rbkmoney.fraudbusters.exception.InvalidTemplateException;
 import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
@@ -9,11 +8,11 @@ import com.rbkmoney.fraudbusters.fraud.payment.validator.PaymentTemplateValidato
 import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.service.dto.CascadingTemplateDto;
 import com.rbkmoney.fraudbusters.stream.impl.RuleCheckingApplierImpl;
+import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
 import com.rbkmoney.fraudbusters.util.CheckedResultModelUtil;
 import com.rbkmoney.fraudo.FraudoPaymentParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -36,6 +35,7 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
     private final HistoricalPool<List<String>> timeGroupPoolImpl;
     private final HistoricalPool<String> timeReferencePoolImpl;
     private final HistoricalPool<String> timeGroupReferencePoolImpl;
+    private final CheckedResultFactory checkedResultFactory;
 
 
     @Override
@@ -48,7 +48,8 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
                         Map.Entry::getKey,
                         entry -> ruleCheckingApplier
                                 .applyWithContext(entry.getValue(), templateString, parseContext)
-                                .orElseGet(() -> createDefaultResult(templateString, null))
+                                .orElseGet(() -> checkedResultFactory.createNotificationOnlyResultModel(
+                                        templateString, null))
                 ));
     }
 
@@ -64,13 +65,6 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
     }
 
 
-    private void validateTemplate(String templateString) {
-        List<String> validationErrors = paymentTemplateValidator.validate(templateString);
-        if (!CollectionUtils.isEmpty(validationErrors)) {
-            throw new InvalidTemplateException(templateString, validationErrors);
-        }
-    }
-
     private CheckedResultModel checkWithinRuleset(PaymentModel paymentModel, CascadingTemplateDto dto) {
         log.debug("HistoricalTemplateVisitorImpl visit paymentModel: {}", paymentModel);
         final FraudoPaymentParser.ParseContext parseContext = paymentContextParser.parse(dto.getTemplate());
@@ -84,8 +78,8 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
                                 dto, parseContext)
                                 .orElseGet(() -> applyTemplateByPartyShopKey(paymentModel, timestamp, notifications,
                                         partyShopKey, dto, parseContext)
-                                        .orElseGet(() -> createDefaultResult(dto.getTemplate(),
-                                                notifications)
+                                        .orElseGet(() -> checkedResultFactory.createNotificationOnlyResultModel(
+                                                dto.getTemplate(), notifications)
                                         ))));
     }
 
@@ -106,11 +100,10 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
                                                                 String partyId,
                                                                 CascadingTemplateDto dto,
                                                                 FraudoPaymentParser.ParseContext parseContext) {
-        if (isSubstituteOnPartyShopLevel(partyId, dto)) {
+        if (isSubstituteOnPartyLevel(partyId, dto)) {
             return applyExactRule(paymentModel, dto.getTemplate(), parseContext, notifications);
-        } else {
-            return applyTemplateByAttribute(paymentModel, timestamp, notifications, partyId);
         }
+        return applyTemplateByAttribute(paymentModel, timestamp, notifications, partyId);
     }
 
     private Optional<CheckedResultModel> applyTemplateByPartyShopKey(PaymentModel paymentModel,
@@ -119,11 +112,10 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
                                                                      String partyShopKey,
                                                                      CascadingTemplateDto dto,
                                                                      FraudoPaymentParser.ParseContext parseContext) {
-        if (isSubstituteOnPartyLevel(partyShopKey, dto)) {
+        if (isSubstituteOnPartyShopLevel(partyShopKey, dto)) {
             return applyExactRule(paymentModel, dto.getTemplate(), parseContext, notifications);
-        } else {
-            return applyTemplateByAttribute(paymentModel, timestamp, notifications, partyShopKey);
         }
+        return applyTemplateByAttribute(paymentModel, timestamp, notifications, partyShopKey);
     }
 
     private Optional<CheckedResultModel> applyTemplateByAttribute(PaymentModel paymentModel,
@@ -145,13 +137,13 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
     }
 
 
-    private boolean isSubstituteOnPartyLevel(String modelPartyShopKey, CascadingTemplateDto dto) {
-        return dto.getShopId() != null
-                && modelPartyShopKey.equals(generateTemplateKey(dto.getPartyId(), dto.getShopId()));
+    private boolean isSubstituteOnPartyLevel(String modelPartyId, CascadingTemplateDto dto) {
+        return dto.getShopId() == null && modelPartyId.equals(dto.getPartyId());
     }
 
-    private boolean isSubstituteOnPartyShopLevel(String modelPartyId, CascadingTemplateDto dto) {
-        return dto.getShopId() == null && modelPartyId.equals(dto.getPartyId());
+    private boolean isSubstituteOnPartyShopLevel(String modelPartyShopKey, CascadingTemplateDto dto) {
+        return dto.getShopId() != null
+                && modelPartyShopKey.equals(generateTemplateKey(dto.getPartyId(), dto.getShopId()));
     }
 
     private Optional<CheckedResultModel> processRuleCheckingApplierResult(Optional<CheckedResultModel> optional,
@@ -169,13 +161,10 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
         return Optional.empty();
     }
 
-    @NotNull
-    private CheckedResultModel createDefaultResult(String template, List<String> notifications) {
-        ConcreteResultModel resultModel = new ConcreteResultModel();
-        resultModel.setNotificationsRule(notifications);
-        CheckedResultModel checkedResultModel = new CheckedResultModel();
-        checkedResultModel.setResultModel(resultModel);
-        checkedResultModel.setCheckedTemplate(template);
-        return checkedResultModel;
+    private void validateTemplate(String templateString) {
+        List<String> validationErrors = paymentTemplateValidator.validate(templateString);
+        if (!CollectionUtils.isEmpty(validationErrors)) {
+            throw new InvalidTemplateException(templateString, validationErrors);
+        }
     }
 }
