@@ -1,8 +1,8 @@
 package com.rbkmoney.fraudbusters.stream.impl;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
 import com.rbkmoney.fraudo.FraudoPaymentParser;
 import com.rbkmoney.fraudo.constant.ResultStatus;
@@ -13,10 +13,10 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +26,7 @@ import static com.rbkmoney.fraudbusters.TestObjectsFactory.createPaymentModel;
 import static com.rbkmoney.fraudbusters.TestObjectsFactory.createResultModel;
 import static com.rbkmoney.fraudbusters.TestObjectsFactory.createRuleResult;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,7 +44,7 @@ class RuleCheckingApplierImplTest {
     private CheckedResultFactory checkedResultFactory;
 
     @Mock
-    private FraudContextParser<FraudoPaymentParser.ParseContext> paymentContextParser;
+    private HistoricalPool<ParserRuleContext> templatePool;
 
     private static final String ACCEPT_TEMPLATE_STRING = "ACCEPT_TEMPLATE_STRING";
     private static final String DECLINE_TEMPLATE_STRING = "DECLINE_TEMPLATE_STRING";
@@ -52,21 +52,23 @@ class RuleCheckingApplierImplTest {
     private static final String DECLINE_RULE_CHECKED = "1";
     private static final RuleResult ACCEPTED_RULE_RESULT = createRuleResult(ACCEPT_RULE_CHECKED, ResultStatus.ACCEPT);
     private static final RuleResult DECLINED_RULE_RESULT = createRuleResult(DECLINE_RULE_CHECKED, ResultStatus.DECLINE);
+    private static final Long TIMESTAMP = Instant.now().toEpochMilli();
 
     @BeforeEach
     void setUp() {
         ruleCheckingApplier =
-                new RuleCheckingApplierImpl<>(templateVisitor, checkedResultFactory, paymentContextParser);
+                new RuleCheckingApplierImpl<>(templateVisitor, templatePool, checkedResultFactory);
     }
 
     @Test
     void applyNullContext() {
-        when(paymentContextParser.parse(ACCEPT_TEMPLATE_STRING)).thenReturn(null);
+        when(templatePool.get(ACCEPT_TEMPLATE_STRING, TIMESTAMP)).thenReturn(null);
 
-        Optional<CheckedResultModel> actual = ruleCheckingApplier.apply(createPaymentModel(), ACCEPT_TEMPLATE_STRING);
+        Optional<CheckedResultModel> actual =
+                ruleCheckingApplier.apply(createPaymentModel(), ACCEPT_TEMPLATE_STRING, TIMESTAMP);
 
         assertEquals(Optional.empty(), actual);
-        verify(paymentContextParser, times(1)).parse(ACCEPT_TEMPLATE_STRING);
+        verify(templatePool, times(1)).get(ACCEPT_TEMPLATE_STRING, TIMESTAMP);
     }
 
     @Test
@@ -78,15 +80,16 @@ class RuleCheckingApplierImplTest {
         CheckedResultModel checkedResultModel =
                 createCheckedResultModel(ACCEPT_TEMPLATE_STRING, ACCEPT_RULE_CHECKED, ResultStatus.ACCEPT);
 
-        when(paymentContextParser.parse(ACCEPT_TEMPLATE_STRING)).thenReturn(parseContext);
+        when(templatePool.get(ACCEPT_TEMPLATE_STRING, TIMESTAMP)).thenReturn(parseContext);
         when(templateVisitor.visit(parseContext, paymentModel)).thenReturn(resultModel);
         when(checkedResultFactory.createCheckedResultWithNotifications(ACCEPT_TEMPLATE_STRING, resultModel))
                 .thenReturn(checkedResultModel);
 
-        Optional<CheckedResultModel> actual = ruleCheckingApplier.apply(paymentModel, ACCEPT_TEMPLATE_STRING);
+        Optional<CheckedResultModel> actual =
+                ruleCheckingApplier.apply(paymentModel, ACCEPT_TEMPLATE_STRING, TIMESTAMP);
         assertEquals(Optional.of(checkedResultModel), actual);
 
-        verify(paymentContextParser, times(1)).parse(ACCEPT_TEMPLATE_STRING);
+        verify(templatePool, times(1)).get(ACCEPT_TEMPLATE_STRING, TIMESTAMP);
         verify(templateVisitor, times(1)).visit(parseContext, paymentModel);
         verify(checkedResultFactory, times(1))
                 .createCheckedResultWithNotifications(ACCEPT_TEMPLATE_STRING, resultModel);
@@ -101,20 +104,19 @@ class RuleCheckingApplierImplTest {
         CheckedResultModel checkedResultModel =
                 createCheckedResultModel(ACCEPT_TEMPLATE_STRING, ACCEPT_RULE_CHECKED, ResultStatus.ACCEPT);
 
-        when(paymentContextParser.parse(anyString())).thenReturn(parseContext);
+        when(templatePool.get(ACCEPT_TEMPLATE_STRING, TIMESTAMP)).thenReturn(parseContext);
         when(templateVisitor.visit(parseContext, paymentModel)).thenReturn(resultModel);
         when(checkedResultFactory.createCheckedResultWithNotifications(ACCEPT_TEMPLATE_STRING, resultModel))
                 .thenReturn(checkedResultModel);
 
         Optional<CheckedResultModel> actual = ruleCheckingApplier.applyForAny(
                 paymentModel,
-                List.of(ACCEPT_TEMPLATE_STRING, DECLINE_TEMPLATE_STRING)
+                List.of(ACCEPT_TEMPLATE_STRING, DECLINE_TEMPLATE_STRING),
+                TIMESTAMP
         );
         assertEquals(Optional.of(checkedResultModel), actual);
 
-        ArgumentCaptor<String> templateStringCaptor = ArgumentCaptor.forClass(String.class);
-        verify(paymentContextParser, times(1)).parse(templateStringCaptor.capture());
-        assertEquals(List.of(ACCEPT_TEMPLATE_STRING), templateStringCaptor.getAllValues());
+        verify(templatePool, times(1)).get(ACCEPT_TEMPLATE_STRING, TIMESTAMP);
         verify(templateVisitor, times(1)).visit(parseContext, paymentModel);
         verify(checkedResultFactory, times(1))
                 .createCheckedResultWithNotifications(ACCEPT_TEMPLATE_STRING, resultModel);
@@ -123,12 +125,12 @@ class RuleCheckingApplierImplTest {
 
     @Test
     void applyForAnyNullList() {
-        assertEquals(Optional.empty(), ruleCheckingApplier.applyForAny(createPaymentModel(), null));
+        assertEquals(Optional.empty(), ruleCheckingApplier.applyForAny(createPaymentModel(), null, null));
     }
 
     @Test
     void applyForAnyEmptyList() {
-        assertEquals(Optional.empty(), ruleCheckingApplier.applyForAny(createPaymentModel(), new ArrayList<>()));
+        assertEquals(Optional.empty(), ruleCheckingApplier.applyForAny(createPaymentModel(), new ArrayList<>(), null));
     }
 
     @Test
@@ -156,7 +158,7 @@ class RuleCheckingApplierImplTest {
                 ruleCheckingApplier.applyWithContext(paymentModel, ACCEPT_TEMPLATE_STRING, parseContext);
         assertEquals(Optional.of(checkedResultModel), actual);
 
-        verify(paymentContextParser, times(0)).parse(any());
+        verify(templatePool, times(0)).get(anyString(), anyLong());
         verify(templateVisitor, times(1)).visit(parseContext, paymentModel);
         verify(checkedResultFactory, times(1))
                 .createCheckedResultWithNotifications(ACCEPT_TEMPLATE_STRING, resultModel);

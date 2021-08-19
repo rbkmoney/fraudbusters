@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -272,13 +273,16 @@ public abstract class TestObjectsFactory {
                 .collect(Collectors.toList());
     }
 
-
     public static CascadingTemplateDto createCascadingTemplateDto(String template) {
+        return createCascadingTemplateDto(template, Instant.now().toEpochMilli());
+    }
+
+    public static CascadingTemplateDto createCascadingTemplateDto(String template, Long timestamp) {
         CascadingTemplateDto dto = new CascadingTemplateDto();
-        dto.setTimestamp(Instant.now().toEpochMilli());
         dto.setTemplate(template);
         dto.setShopId(SHOP_ID);
         dto.setPartyId(PARTY_ID);
+        dto.setTimestamp(timestamp);
         return dto;
     }
 
@@ -358,13 +362,19 @@ public abstract class TestObjectsFactory {
     }
 
     public static PaymentModel createPaymentModel(Long amount) {
-        return createPaymentModel(amount, Instant.now().toEpochMilli());
+        return createPaymentModel(amount, Instant.now().toEpochMilli(), PARTY_ID, SHOP_ID);
     }
 
     public static PaymentModel createPaymentModel(Long amount, Long timestamp) {
+        return createPaymentModel(amount, timestamp, PARTY_ID, SHOP_ID);
+    }
+
+    public static PaymentModel createPaymentModel(Long amount, Long timestamp, String partyId, String shopId) {
         PaymentModel paymentModel = BeanUtil.createPaymentModel();
         paymentModel.setAmount(amount);
         paymentModel.setTimestamp(timestamp);
+        paymentModel.setPartyId(partyId);
+        paymentModel.setShopId(shopId);
         return paymentModel;
     }
 
@@ -382,16 +392,28 @@ public abstract class TestObjectsFactory {
         return ruleResult;
     }
 
+    public static CheckedResultModel createCheckedResultModel(ResultStatus resultStatus) {
+        return createCheckedResultModel(null, null, resultStatus, new ArrayList<>());
+    }
+
     public static CheckedResultModel createCheckedResultModel(String template, ResultStatus resultStatus) {
-        return createCheckedResultModel(template, null, resultStatus);
+        return createCheckedResultModel(template, null, resultStatus, new ArrayList<>());
     }
 
     public static CheckedResultModel createCheckedResultModel(String template,
                                                               String ruleChecked,
                                                               ResultStatus status) {
+        return createCheckedResultModel(template, ruleChecked, status, new ArrayList<>());
+    }
+
+    public static CheckedResultModel createCheckedResultModel(String template,
+                                                              String ruleChecked,
+                                                              ResultStatus status,
+                                                              List<String> notifications) {
         ConcreteResultModel concreteResultModel = new ConcreteResultModel();
         concreteResultModel.setRuleChecked(ruleChecked);
         concreteResultModel.setResultStatus(status);
+        concreteResultModel.setNotificationsRule(notifications);
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setCheckedTemplate(template);
         checkedResultModel.setResultModel(concreteResultModel);

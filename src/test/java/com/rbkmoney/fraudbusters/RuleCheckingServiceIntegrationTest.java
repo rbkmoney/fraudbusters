@@ -1,13 +1,16 @@
 package com.rbkmoney.fraudbusters;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
+import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.service.RuleCheckingServiceImpl;
 import com.rbkmoney.fraudbusters.service.dto.CascadingTemplateDto;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
+import com.rbkmoney.fraudo.FraudoPaymentParser;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import lombok.extern.slf4j.Slf4j;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,20 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
     @Autowired
     private HistoricalPool<String> timeGroupReferencePoolImpl;
 
+    @Autowired
+    private HistoricalPool<ParserRuleContext> timeTemplatePoolImpl;
+
+    @Autowired
+    private FraudContextParser<FraudoPaymentParser.ParseContext> paymentContextParser;
+
+    private static final String FIRST_GROUP_TEMPLATE_PARTY_KEY = "FIRST_GROUP_TEMPLATE_PARTY_KEY";
+    private static final String SECOND_GROUP_TEMPLATE_PARTY_KEY = "SECOND_GROUP_TEMPLATE_PARTY_KEY";
+    private static final String FIRST_GROUP_TEMPLATE_SHOP_KEY = "FIRST_GROUP_TEMPLATE_SHOP_KEY";
+    private static final String SECOND_GROUP_TEMPLATE_SHOP_KEY = "SECOND_GROUP_TEMPLATE_SHOP_KEY";
+    private static final String TEMPLATE_PARTY_KEY = "TEMPLATE_PARTY_KEY";
+    private static final String TEMPLATE_SHOP_KEY = "TEMPLATE_SHOP_KEY";
+    private static final String PREVIOUS_TEMPLATE_PARTY_KEY = "PREVIOUS_TEMPLATE_PARTY_KEY";
+    private static final String PREVIOUS_TEMPLATE_SHOP_KEY = "PREVIOUS_TEMPLATE_SHOP_KEY";
     private static final String FIRST_GROUP_TEMPLATE_PARTY = "rule: amount() > 110 \n" +
             "-> accept;";
     private static final String SECOND_GROUP_TEMPLATE_PARTY = "rule: amount() > 100 \n" +
@@ -86,6 +103,8 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
                 .forEach(key -> timeReferencePoolImpl.remove(key, null));
         timeGroupReferencePoolImpl.keySet()
                 .forEach(key -> timeGroupReferencePoolImpl.remove(key, null));
+        timeTemplatePoolImpl.keySet()
+                .forEach(key -> timeTemplatePoolImpl.remove(key, null));
     }
 
     @Test
@@ -117,10 +136,9 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
     @Test
     void applyRuleWithinRulesetNoTimestampDifferentPartyShop() {
         // single templates
-        timeReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, TEMPLATE_PARTY);
-        timeReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, TEMPLATE_SHOP);
-        timeReferencePoolImpl.add(PARTY_ID, PREVIOUS_RULE_TIMESTAMP, PREVIOUS_TEMPLATE_PARTY);
-        timeReferencePoolImpl.add(PARTY_SHOP_KEY, PREVIOUS_RULE_TIMESTAMP, PREVIOUS_TEMPLATE_SHOP);
+        addPartyAndShopTemplateRules();
+        addTemplateRule(PREVIOUS_TEMPLATE_PARTY, PREVIOUS_TEMPLATE_PARTY_KEY, PARTY_ID, PREVIOUS_RULE_TIMESTAMP);
+        addTemplateRule(PREVIOUS_TEMPLATE_SHOP, PREVIOUS_TEMPLATE_SHOP_KEY, PARTY_SHOP_KEY, PREVIOUS_RULE_TIMESTAMP);
 
         String partyTransactionId = UUID.randomUUID().toString();
         String partyShopTransactionId = UUID.randomUUID().toString();
@@ -142,13 +160,13 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
                 dto
         );
         assertEquals(4, actual.size());
-        assertEquals(TEMPLATE_PARTY, actual.get(partyTransactionId).getCheckedTemplate());
+        assertEquals(TEMPLATE_PARTY_KEY, actual.get(partyTransactionId).getCheckedTemplate());
         assertEquals(ResultStatus.ACCEPT, actual.get(partyTransactionId).getResultModel().getResultStatus());
-        assertEquals(TEMPLATE_SHOP, actual.get(partyShopTransactionId).getCheckedTemplate());
+        assertEquals(TEMPLATE_SHOP_KEY, actual.get(partyShopTransactionId).getCheckedTemplate());
         assertEquals(ResultStatus.ACCEPT, actual.get(partyShopTransactionId).getResultModel().getResultStatus());
-        assertEquals(PREVIOUS_TEMPLATE_PARTY, actual.get(previousPartyTransactionId).getCheckedTemplate());
+        assertEquals(PREVIOUS_TEMPLATE_PARTY_KEY, actual.get(previousPartyTransactionId).getCheckedTemplate());
         assertEquals(ResultStatus.ACCEPT, actual.get(previousPartyTransactionId).getResultModel().getResultStatus());
-        assertEquals(PREVIOUS_TEMPLATE_SHOP, actual.get(previousPartyShopTransactionId).getCheckedTemplate());
+        assertEquals(PREVIOUS_TEMPLATE_SHOP_KEY, actual.get(previousPartyShopTransactionId).getCheckedTemplate());
         assertEquals(
                 ResultStatus.ACCEPT,
                 actual.get(previousPartyShopTransactionId).getResultModel().getResultStatus()
@@ -157,13 +175,7 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
 
     @Test
     void applyRuleWithinRulesetGroupRules() {
-        //groups of rules
-        timeGroupReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, GROUP_REF_PARTY);
-        timeGroupReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, GROUP_REF_SHOP);
-        timeGroupPoolImpl.add(GROUP_REF_PARTY, RULE_TIMESTAMP,
-                List.of(FIRST_GROUP_TEMPLATE_PARTY, SECOND_GROUP_TEMPLATE_PARTY));
-        timeGroupPoolImpl.add(GROUP_REF_SHOP, RULE_TIMESTAMP,
-                List.of(FIRST_GROUP_TEMPLATE_SHOP, SECOND_GROUP_TEMPLATE_SHOP));
+        addPartyAndShopGroupTemplateRules();
 
         String firstPartyTransaction = UUID.randomUUID().toString();
         String secondPartyTransaction = UUID.randomUUID().toString();
@@ -186,13 +198,13 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
                 dto
         );
         assertEquals(4, actual.size());
-        assertEquals(FIRST_GROUP_TEMPLATE_PARTY, actual.get(firstPartyTransaction).getCheckedTemplate());
+        assertEquals(FIRST_GROUP_TEMPLATE_PARTY_KEY, actual.get(firstPartyTransaction).getCheckedTemplate());
         assertEquals(ResultStatus.ACCEPT, actual.get(firstPartyTransaction).getResultModel().getResultStatus());
-        assertEquals(SECOND_GROUP_TEMPLATE_PARTY, actual.get(secondPartyTransaction).getCheckedTemplate());
+        assertEquals(SECOND_GROUP_TEMPLATE_PARTY_KEY, actual.get(secondPartyTransaction).getCheckedTemplate());
         assertEquals(ResultStatus.ACCEPT, actual.get(secondPartyTransaction).getResultModel().getResultStatus());
-        assertEquals(FIRST_GROUP_TEMPLATE_SHOP, actual.get(firstPartyShopTransaction).getCheckedTemplate());
+        assertEquals(FIRST_GROUP_TEMPLATE_SHOP_KEY, actual.get(firstPartyShopTransaction).getCheckedTemplate());
         assertEquals(ResultStatus.ACCEPT, actual.get(firstPartyShopTransaction).getResultModel().getResultStatus());
-        assertEquals(SECOND_GROUP_TEMPLATE_SHOP, actual.get(secondPartyShopTransaction).getCheckedTemplate());
+        assertEquals(SECOND_GROUP_TEMPLATE_SHOP_KEY, actual.get(secondPartyShopTransaction).getCheckedTemplate());
         assertEquals(
                 ResultStatus.ACCEPT,
                 actual.get(secondPartyShopTransaction).getResultModel().getResultStatus()
@@ -201,17 +213,8 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
 
     @Test
     void applyRuleWithinRulesetChangeTemplateByParty() {
-        // single templates
-        timeReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, TEMPLATE_PARTY);
-        timeReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, TEMPLATE_SHOP);
-
-        //groups of rules
-        timeGroupReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, GROUP_REF_PARTY);
-        timeGroupReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, GROUP_REF_SHOP);
-        timeGroupPoolImpl.add(GROUP_REF_PARTY, RULE_TIMESTAMP,
-                List.of(FIRST_GROUP_TEMPLATE_PARTY, SECOND_GROUP_TEMPLATE_PARTY));
-        timeGroupPoolImpl.add(GROUP_REF_SHOP, RULE_TIMESTAMP,
-                List.of(FIRST_GROUP_TEMPLATE_SHOP, SECOND_GROUP_TEMPLATE_SHOP));
+        addPartyAndShopTemplateRules();
+        addPartyAndShopGroupTemplateRules();
 
         String checkTemplateTransactionId = UUID.randomUUID().toString();
 
@@ -221,9 +224,7 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
         dto.setTimestamp(TIMESTAMP);
 
         Map<String, CheckedResultModel> actual = ruleTestingService.checkRuleWithinRuleset(
-                Map.of(
-                        checkTemplateTransactionId, createPaymentModel(10L, RULE_TIMESTAMP)
-                ),
+                Map.of(checkTemplateTransactionId, createPaymentModel(10L, RULE_TIMESTAMP)),
                 dto
         );
         assertEquals(1, actual.size());
@@ -233,17 +234,8 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
 
     @Test
     void applyRuleWithinRulesetChangeTemplateByShop() {
-        // single templates
-        timeReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, TEMPLATE_PARTY);
-        timeReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, TEMPLATE_SHOP);
-
-        //groups of rules
-        timeGroupReferencePoolImpl.add(PARTY_ID, RULE_TIMESTAMP, GROUP_REF_PARTY);
-        timeGroupReferencePoolImpl.add(PARTY_SHOP_KEY, RULE_TIMESTAMP, GROUP_REF_SHOP);
-        timeGroupPoolImpl.add(GROUP_REF_PARTY, RULE_TIMESTAMP,
-                List.of(FIRST_GROUP_TEMPLATE_PARTY, SECOND_GROUP_TEMPLATE_PARTY));
-        timeGroupPoolImpl.add(GROUP_REF_SHOP, RULE_TIMESTAMP,
-                List.of(FIRST_GROUP_TEMPLATE_SHOP, SECOND_GROUP_TEMPLATE_SHOP));
+        addPartyAndShopTemplateRules();
+        addPartyAndShopGroupTemplateRules();
 
         String checkTemplateTransactionId = UUID.randomUUID().toString();
 
@@ -254,9 +246,7 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
         dto.setTimestamp(TIMESTAMP);
 
         Map<String, CheckedResultModel> actual = ruleTestingService.checkRuleWithinRuleset(
-                Map.of(
-                        checkTemplateTransactionId, createPaymentModel(10L, RULE_TIMESTAMP)
-                ),
+                Map.of(checkTemplateTransactionId, createPaymentModel(10L, RULE_TIMESTAMP)),
                 dto
         );
         assertEquals(1, actual.size());
@@ -265,7 +255,7 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
     }
 
     @Test
-    void applyRuleWithinRulesetOnlyRuleFromDto() {
+    void applyRuleWithinRulesetOnlyRuleFromDtoOnPartyShopLevel() {
         String checkTemplateTransactionId = UUID.randomUUID().toString();
 
         CascadingTemplateDto dto = new CascadingTemplateDto();
@@ -315,6 +305,42 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
         assertEquals(1, actual.size());
         assertEquals(TEMPLATE, actual.get(checkTemplateTransactionId).getCheckedTemplate());
         assertNull(actual.get(checkTemplateTransactionId).getResultModel().getResultStatus());
+    }
+
+    private void addPartyAndShopTemplateRules() {
+        addTemplateRule(TEMPLATE_PARTY, TEMPLATE_PARTY_KEY, PARTY_ID, RULE_TIMESTAMP);
+        addTemplateRule(TEMPLATE_SHOP, TEMPLATE_SHOP_KEY, PARTY_SHOP_KEY, RULE_TIMESTAMP);
+    }
+
+    private void addPartyAndShopGroupTemplateRules() {
+        addGroupRule(
+                List.of(FIRST_GROUP_TEMPLATE_PARTY, SECOND_GROUP_TEMPLATE_PARTY),
+                List.of(FIRST_GROUP_TEMPLATE_PARTY_KEY, SECOND_GROUP_TEMPLATE_PARTY_KEY),
+                GROUP_REF_PARTY,
+                PARTY_ID,
+                RULE_TIMESTAMP
+        );
+        addGroupRule(
+                List.of(FIRST_GROUP_TEMPLATE_SHOP, SECOND_GROUP_TEMPLATE_SHOP),
+                List.of(FIRST_GROUP_TEMPLATE_SHOP_KEY, SECOND_GROUP_TEMPLATE_SHOP_KEY),
+                GROUP_REF_SHOP,
+                PARTY_SHOP_KEY,
+                RULE_TIMESTAMP
+        );
+    }
+
+    private void addTemplateRule(String template, String templateKey, String refKey, Long timestamp) {
+        timeReferencePoolImpl.add(refKey, timestamp, templateKey);
+        timeTemplatePoolImpl.add(templateKey, timestamp, paymentContextParser.parse(template));
+    }
+
+    private void addGroupRule(List<String> templates, List<String> templateKeys, String groupRefKey, String groupKey,
+                              Long timestamp) {
+        timeGroupReferencePoolImpl.add(groupKey, timestamp, groupRefKey);
+        timeGroupPoolImpl.add(groupRefKey, timestamp, templateKeys);
+        for (int i = 0; i < templates.size(); i++) {
+            timeTemplatePoolImpl.add(templateKeys.get(i), timestamp, paymentContextParser.parse(templates.get(i)));
+        }
     }
 
 }

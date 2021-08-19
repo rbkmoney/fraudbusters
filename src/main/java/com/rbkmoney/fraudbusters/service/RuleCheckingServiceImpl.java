@@ -37,7 +37,6 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
     private final HistoricalPool<String> timeGroupReferencePoolImpl;
     private final CheckedResultFactory checkedResultFactory;
 
-
     @Override
     public Map<String, CheckedResultModel> checkSingleRule(Map<String, PaymentModel> paymentModelMap,
                                                            String templateString) {
@@ -89,7 +88,8 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
                                                                        String referenceAttribute) {
         Optional<CheckedResultModel> result = ruleCheckingApplier.applyForAny(
                 paymentModel,
-                timeGroupPoolImpl.get(timeGroupReferencePoolImpl.get(referenceAttribute, timestamp), timestamp)
+                timeGroupPoolImpl.get(timeGroupReferencePoolImpl.get(referenceAttribute, timestamp), timestamp),
+                timestamp
         );
         return processRuleCheckingApplierResult(result, notifications);
     }
@@ -122,8 +122,11 @@ public class RuleCheckingServiceImpl implements RuleCheckingService {
                                                                   Long timestamp,
                                                                   List<String> notifications,
                                                                   String referenceAttribute) {
-        Optional<CheckedResultModel> result =
-                ruleCheckingApplier.apply(paymentModel, timeReferencePoolImpl.get(referenceAttribute, timestamp));
+        Optional<CheckedResultModel> result = ruleCheckingApplier.apply(
+                paymentModel,
+                timeReferencePoolImpl.get(referenceAttribute, timestamp),
+                timestamp
+        );
         return processRuleCheckingApplierResult(result, notifications);
     }
 

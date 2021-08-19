@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.config.payment;
 
-import com.rbkmoney.fraudbusters.fraud.FraudContextParser;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.pool.HistoricalPool;
@@ -8,7 +7,6 @@ import com.rbkmoney.fraudbusters.pool.HistoricalPoolImpl;
 import com.rbkmoney.fraudbusters.stream.impl.FullRuleApplierImpl;
 import com.rbkmoney.fraudbusters.stream.impl.RuleCheckingApplierImpl;
 import com.rbkmoney.fraudbusters.util.CheckedResultFactory;
-import com.rbkmoney.fraudo.FraudoPaymentParser;
 import com.rbkmoney.fraudo.payment.visitor.impl.FirstFindVisitorImpl;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.springframework.context.annotation.Bean;
@@ -50,9 +48,9 @@ public class HistoricalPaymentPoolConfig {
     @Bean
     public RuleCheckingApplierImpl<PaymentModel> ruleCheckingApplier(
             FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> paymentRuleVisitor,
-            CheckedResultFactory checkedResultFactory,
-            FraudContextParser<FraudoPaymentParser.ParseContext> paymentContextParser) {
-        return new RuleCheckingApplierImpl<>(paymentRuleVisitor, checkedResultFactory, paymentContextParser);
+            HistoricalPool<ParserRuleContext> timeTemplatePoolImpl,
+            CheckedResultFactory checkedResultFactory) {
+        return new RuleCheckingApplierImpl<>(paymentRuleVisitor, timeTemplatePoolImpl, checkedResultFactory);
     }
 
 }
