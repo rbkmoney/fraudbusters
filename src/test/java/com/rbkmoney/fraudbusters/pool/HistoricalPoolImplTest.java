@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.pool;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -16,10 +16,12 @@ class HistoricalPoolImplTest {
         initTimePool(40);
 
         String result = timePool.get(TEST, Instant.now().toEpochMilli() - 1000L);
-        Assert.assertEquals(ID_REFERENCE + 30, result);
+        Assertions.assertEquals(ID_REFERENCE + 30, result);
 
         result = timePool.get(TEST, Instant.now().toEpochMilli());
-        Assert.assertEquals(ID_REFERENCE + 39, result);
+        Assertions.assertEquals(ID_REFERENCE + 39, result);
+
+        Assertions.assertNull(timePool.get(TEST, 0L));
     }
 
     private void initTimePool(int size) throws InterruptedException {
@@ -33,9 +35,9 @@ class HistoricalPoolImplTest {
     @Test
     void cleanTimePool() throws InterruptedException {
         initTimePool(20);
-        Assert.assertEquals(20, timePool.deepSize());
+        Assertions.assertEquals(20, timePool.deepSize());
 
         timePool.cleanUntil(TEST, Instant.now().toEpochMilli() - 1000L);
-        Assert.assertEquals(9, timePool.deepSize());
+        Assertions.assertEquals(9, timePool.deepSize());
     }
 }
