@@ -1,16 +1,17 @@
 package com.rbkmoney.fraudbusters.resource.payment.handler;
 
 import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.fraudbusters.converter.CascadingTemplateEmulationToCascadingTemplateDtoConverter;
 import com.rbkmoney.fraudbusters.converter.FilterConverter;
 import com.rbkmoney.fraudbusters.converter.HistoricalDataResponseConverter;
 import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
+import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.exception.InvalidTemplateException;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.service.HistoricalDataService;
 import com.rbkmoney.fraudbusters.service.RuleCheckingService;
 import com.rbkmoney.fraudbusters.service.dto.*;
 import com.rbkmoney.fraudbusters.util.HistoricalTransactionCheckFactory;
-import com.rbkmoney.fraudo.model.ResultModel;
 import lombok.RequiredArgsConstructor;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
     private final RuleCheckingService ruleCheckingService;
     private final HistoricalDataResponseConverter resultConverter;
     private final FilterConverter filterConverter;
+    private final CascadingTemplateEmulationToCascadingTemplateDtoConverter cascadingTemplateDtoConverter;
     private final PaymentToPaymentModelConverter paymentModelConverter;
     private final HistoricalTransactionCheckFactory historicalTransactionCheckFactory;
 
@@ -73,22 +75,31 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
             EmulationRuleApplyRequest emulationRuleApplyRequest) throws HistoricalDataServiceException, TException {
         Set<HistoricalTransactionCheck> historicalTransactionChecks = null;
         try {
-            if (emulationRuleApplyRequest.getEmulationRule().isSetTemplateEmulation()) {
-                final String templateString = new String(
+            if (isSingleRuleCheck(emulationRuleApplyRequest)) {
+                String templateString = new String(
                         emulationRuleApplyRequest.getEmulationRule().getTemplateEmulation().getTemplate().getTemplate(),
                         StandardCharsets.UTF_8
                 );
-                final Map<String, PaymentModel> paymentModelMap = emulationRuleApplyRequest.getTransactions().stream()
-                        .collect(Collectors.toMap(Payment::getId, paymentModelConverter::convert));
-                final Map<String, ResultModel> resultMap =
+                Map<String, PaymentModel> paymentModelMap =
+                        createPaymentModelMap(emulationRuleApplyRequest.getTransactions());
+                Map<String, CheckedResultModel> resultMap =
                         ruleCheckingService.checkSingleRule(paymentModelMap, templateString);
                 historicalTransactionChecks = emulationRuleApplyRequest.getTransactions().stream()
                         .map(transaction -> historicalTransactionCheckFactory.createHistoricalTransactionCheck(
                                 transaction,
-                                templateString,
                                 resultMap.get(transaction.getId())
                         ))
                         .collect(Collectors.toSet());
+            } else if (isSetRuleCheckWithinRuleset(emulationRuleApplyRequest)) {
+                CascadingTemplateDto templateDto = cascadingTemplateDtoConverter.convert(
+                        emulationRuleApplyRequest.getEmulationRule().getCascadingEmulation()
+                );
+                Map<String, PaymentModel> paymentModelMap =
+                        createPaymentModelMap(emulationRuleApplyRequest.getTransactions());
+                Map<String, CheckedResultModel> resultMap =
+                        ruleCheckingService.checkRuleWithinRuleset(paymentModelMap, templateDto);
+                historicalTransactionChecks =
+                        createHistoricalTransactionChecks(emulationRuleApplyRequest.getTransactions(), resultMap);
             }
         } catch (InvalidTemplateException ex) {
             throw new HistoricalDataServiceException()
@@ -98,5 +109,33 @@ public class HistoricalDataHandler implements HistoricalDataServiceSrv.Iface {
 
         return new HistoricalDataSetCheckResult()
                 .setHistoricalTransactionCheck(historicalTransactionChecks);
+    }
+
+    private boolean isSetRuleCheckWithinRuleset(EmulationRuleApplyRequest emulationRuleApplyRequest) {
+        return emulationRuleApplyRequest.getEmulationRule().isSetCascadingEmulation();
+    }
+
+    private boolean isSingleRuleCheck(EmulationRuleApplyRequest emulationRuleApplyRequest) {
+        return emulationRuleApplyRequest.getEmulationRule().isSetTemplateEmulation();
+    }
+
+    private Map<String, PaymentModel> createPaymentModelMap(Set<Payment> transactions) {
+        return transactions.stream()
+                .collect(Collectors.toMap(
+                        Payment::getId,
+                        paymentModelConverter::convert
+                ));
+    }
+
+    private Set<HistoricalTransactionCheck> createHistoricalTransactionChecks(
+            Set<Payment> transactions,
+            Map<String, CheckedResultModel> resultMap
+    ) {
+        return transactions.stream()
+                .map(transaction -> historicalTransactionCheckFactory.createHistoricalTransactionCheck(
+                        transaction,
+                        resultMap.get(transaction.getId())
+                ))
+                .collect(Collectors.toSet());
     }
 }

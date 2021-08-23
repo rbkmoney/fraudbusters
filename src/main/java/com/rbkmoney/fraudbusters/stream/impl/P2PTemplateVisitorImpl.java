@@ -32,11 +32,11 @@ public class P2PTemplateVisitorImpl implements TemplateVisitor<P2PModel, Checked
         String identityId = p2PModel.getIdentityId();
         return ruleP2PApplier
                 .apply(p2PModel, referenceP2PPoolImpl.get(TemplateLevel.GLOBAL.name()))
-                .orElse(ruleP2PApplier
+                .orElseGet(() -> ruleP2PApplier
                         .applyForAny(p2PModel, groupP2PPoolImpl.get(groupReferenceP2PPoolImpl.get(identityId)))
-                        .orElse(ruleP2PApplier
+                        .orElseGet(() -> ruleP2PApplier
                                 .apply(p2PModel, referenceP2PPoolImpl.get(identityId))
-                                .orElse(createDefaultResult())));
+                                .orElseGet(this::createDefaultResult)));
     }
 
     @NotNull

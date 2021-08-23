@@ -4,11 +4,13 @@ import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.thrift.TException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,12 +24,16 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -66,6 +72,13 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
 
+    private static final String GLOBAL_REF = UUID.randomUUID().toString();
+    private static final String PARTY_TEMPLATE = UUID.randomUUID().toString();
+    private static final String SHOP_REF = UUID.randomUUID().toString();
+    private static final String GROUP_TEMPLATE_DECLINE = UUID.randomUUID().toString();
+    private static final String GROUP_TEMPLATE_NORMAL = UUID.randomUUID().toString();
+    private static final String GROUP_ID = UUID.randomUUID().toString();
+
     private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
 
     @Autowired
@@ -76,35 +89,37 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
     RefundRepository refundRepository;
     @Autowired
     JdbcTemplate jdbcTemplate;
+    @Autowired
+    HistoricalPool<ParserRuleContext> timeTemplatePoolImpl;
+    @Autowired
+    private HistoricalPool<List<String>> timeGroupPoolImpl;
+    @Autowired
+    private HistoricalPool<String> timeReferencePoolImpl;
+    @Autowired
+    private HistoricalPool<String> timeGroupReferencePoolImpl;
     @LocalServerPort
     int serverPort;
 
     @BeforeEach
     public void init() throws ExecutionException, InterruptedException, TException {
-        String globalRef = UUID.randomUUID().toString();
-        produceTemplate(globalRef, TEMPLATE, kafkaTopics.getFullTemplate());
-        produceReference(true, null, null, globalRef);
+        produceTemplate(GLOBAL_REF, TEMPLATE, kafkaTopics.getFullTemplate());
+        produceReference(true, null, null, GLOBAL_REF);
 
-        String partyTemplate = UUID.randomUUID().toString();
-        produceTemplate(partyTemplate, TEMPLATE_CONCRETE, kafkaTopics.getFullTemplate());
-        produceReference(false, P_ID, null, partyTemplate);
+        produceTemplate(PARTY_TEMPLATE, TEMPLATE_CONCRETE, kafkaTopics.getFullTemplate());
+        produceReference(false, P_ID, null, PARTY_TEMPLATE);
 
-        String shopRef = UUID.randomUUID().toString();
-        produceTemplate(shopRef, TEMPLATE_CONCRETE_SHOP, kafkaTopics.getFullTemplate());
-        produceReference(false, P_ID, ID_VALUE_SHOP, shopRef);
+        produceTemplate(SHOP_REF, TEMPLATE_CONCRETE_SHOP, kafkaTopics.getFullTemplate());
+        produceReference(false, P_ID, ID_VALUE_SHOP, SHOP_REF);
 
-        String groupTemplateDecline = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateDecline, GROUP_DECLINE, kafkaTopics.getFullTemplate());
-        String groupTemplateNormal = UUID.randomUUID().toString();
-        produceTemplate(groupTemplateNormal, GROUP_NORMAL, kafkaTopics.getFullTemplate());
+        produceTemplate(GROUP_TEMPLATE_DECLINE, GROUP_DECLINE, kafkaTopics.getFullTemplate());
+        produceTemplate(GROUP_TEMPLATE_NORMAL, GROUP_NORMAL, kafkaTopics.getFullTemplate());
 
-        String groupId = UUID.randomUUID().toString();
-        produceGroup(groupId, List.of(new PriorityId()
-                .setId(groupTemplateDecline)
+        produceGroup(GROUP_ID, List.of(new PriorityId()
+                .setId(GROUP_TEMPLATE_DECLINE)
                 .setPriority(2L), new PriorityId()
-                .setId(groupTemplateNormal)
+                .setId(GROUP_TEMPLATE_NORMAL)
                 .setPriority(1L)), kafkaTopics.getFullGroupList());
-        produceGroupReference(GROUP_P_ID, null, groupId);
+        produceGroupReference(GROUP_P_ID, null, GROUP_ID);
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
 
     }
@@ -115,10 +130,13 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
         waitingTopic(kafkaTopics.getGroupList());
         waitingTopic(kafkaTopics.getReference());
         waitingTopic(kafkaTopics.getGroupReference());
+        waitingTopic(kafkaTopics.getFullTemplate());
 
         testFraudRules();
 
         testValidation();
+
+        testHistoricalPoolLinks();
     }
 
     private void testFraudRules() throws URISyntaxException, InterruptedException, TException {
@@ -188,7 +206,7 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
         assertEquals(RiskScore.fatal, riskScore);
     }
 
-    public void testValidation() throws URISyntaxException, TException {
+    private void testValidation() throws URISyntaxException, TException {
         THClientBuilder clientBuilder = new THClientBuilder()
                 .withAddress(new URI(String.format("http://localhost:%s/fraud_payment_validator/v1/", serverPort)))
                 .withNetworkTimeout(300000);
@@ -201,6 +219,33 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
         );
 
         assertTrue(validateTemplateResponse.getErrors().isEmpty());
+    }
+
+    private void testHistoricalPoolLinks() {
+        assertEquals(5, timeTemplatePoolImpl.size());
+        long timestamp = Instant.now().plus(Duration.ofDays(30)).toEpochMilli();
+        assertNotNull(timeTemplatePoolImpl.get(GLOBAL_REF, timestamp));
+        assertNotNull(timeTemplatePoolImpl.get(PARTY_TEMPLATE, timestamp));
+        assertNotNull(timeTemplatePoolImpl.get(SHOP_REF, timestamp));
+        assertNotNull(timeTemplatePoolImpl.get(GROUP_TEMPLATE_DECLINE, timestamp));
+        assertNotNull(timeTemplatePoolImpl.get(GROUP_TEMPLATE_NORMAL, timestamp));
+
+        String partyTemplateRefId = timeReferencePoolImpl.get(P_ID, timestamp);
+        assertEquals(PARTY_TEMPLATE, partyTemplateRefId);
+        assertNotNull(timeTemplatePoolImpl.get(partyTemplateRefId, timestamp));
+
+        String groupRefId = timeGroupReferencePoolImpl.get(GROUP_P_ID, timestamp);
+        assertEquals(GROUP_ID, groupRefId);
+        List<String> groupTemplateIds = timeGroupPoolImpl.get(groupRefId, timestamp);
+        for (String groupTemplateId : groupTemplateIds) {
+            assertNotNull(timeTemplatePoolImpl.get(groupTemplateId, timestamp));
+        }
+
+        assertNull(timeTemplatePoolImpl.get(GLOBAL_REF, 0L));
+        assertNull(timeTemplatePoolImpl.get(PARTY_TEMPLATE, 0L));
+        assertNull(timeTemplatePoolImpl.get(SHOP_REF, 0L));
+        assertNull(timeTemplatePoolImpl.get(GROUP_TEMPLATE_DECLINE, 0L));
+        assertNull(timeTemplatePoolImpl.get(GROUP_TEMPLATE_NORMAL, 0L));
     }
 
 }

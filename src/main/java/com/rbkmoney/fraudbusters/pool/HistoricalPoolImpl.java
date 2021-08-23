@@ -31,12 +31,16 @@ public class HistoricalPoolImpl<T> implements HistoricalPool<T> {
 
     @Override
     public T get(String key, Long timestamp) {
-        T value = key != null
-                  && timestamp != null
-                  && references.containsKey(key)
-                  && !CollectionUtils.isEmpty(references.get(key))
-                ? references.get(key).lowerEntry(timestamp).getValue()
-                : null;
+        T value = null;
+        if (key != null && timestamp != null) {
+            TreeMap<Long, T> treeMap = references.get(key);
+            if (treeMap != null && !treeMap.isEmpty()) {
+                Map.Entry<Long, T> greatestLeaf = treeMap.lowerEntry(timestamp);
+                if (greatestLeaf != null) {
+                    value = greatestLeaf.getValue();
+                }
+            }
+        }
         log.debug("HistoricalPoolImpl get key: {} timestamp: {} value: {}", key, timestamp, value);
         return value;
     }
