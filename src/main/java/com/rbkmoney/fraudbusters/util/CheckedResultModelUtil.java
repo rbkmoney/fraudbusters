@@ -6,11 +6,15 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CheckedResultModelUtil {
+
+    private static final Set<ResultStatus> NON_TERMINAL_STATUSES = EnumSet.of(ResultStatus.NORMAL, ResultStatus.NOTIFY);
 
     public static CheckedResultModel finalizeCheckedResultModel(CheckedResultModel model, List<String> notifications) {
         if (notifications != null && !notifications.isEmpty()) {
@@ -27,7 +31,7 @@ public class CheckedResultModelUtil {
         return model != null
                 && model.getResultModel() != null
                 && model.getResultModel().getResultStatus() != null
-                && !ResultStatus.NOTIFY.equals(model.getResultModel().getResultStatus());
+                && !NON_TERMINAL_STATUSES.contains(model.getResultModel().getResultStatus());
     }
 
     public static List<String> extractNotifications(Optional<CheckedResultModel> optionalCheckedResult) {

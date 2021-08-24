@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
 import com.rbkmoney.fraudbusters.domain.ConcreteResultModel;
+import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.ResultModel;
 import com.rbkmoney.fraudo.utils.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +39,14 @@ public class CheckedResultFactory {
                         createNotificationOnlyResultModel(templateKey, ResultUtils.getNotifications(resultModel)));
     }
 
+    @NonNull
     public CheckedResultModel createNotificationOnlyResultModel(String templateKey, List<String> notifications) {
         ConcreteResultModel concreteResultModel = new ConcreteResultModel();
+        if (notifications != null && !notifications.isEmpty()) {
+            concreteResultModel.setResultStatus(ResultStatus.NOTIFY);
+        } else {
+            concreteResultModel.setResultStatus(ResultStatus.NORMAL);
+        }
         concreteResultModel.setNotificationsRule(notifications);
         CheckedResultModel checkedResultModel = new CheckedResultModel();
         checkedResultModel.setResultModel(concreteResultModel);

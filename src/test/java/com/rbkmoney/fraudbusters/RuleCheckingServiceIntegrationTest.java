@@ -128,9 +128,27 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
         assertEquals(new ArrayList<>(), firstCheckedResult.getResultModel().getNotificationsRule());
         CheckedResultModel secondCheckedResult = result.get(secondTransactionId);
         assertNotNull(secondCheckedResult.getResultModel());
-        assertNull(secondCheckedResult.getResultModel().getResultStatus());
+        assertEquals(ResultStatus.NORMAL, secondCheckedResult.getResultModel().getResultStatus());
         assertNull(secondCheckedResult.getResultModel().getRuleChecked());
         assertEquals(new ArrayList<>(), secondCheckedResult.getResultModel().getNotificationsRule());
+    }
+
+    @Test
+    void applyOneRuleOnlyRuleNotTriggered() {
+        PaymentModel firstTransaction = createPaymentModel(25L);
+        String firstTransactionId = UUID.randomUUID().toString();
+        String ruleTemplate = "rule: amount() < 1 -> accept;";
+        Map<String, CheckedResultModel> result = ruleTestingService.checkSingleRule(
+                Map.of(firstTransactionId, firstTransaction),
+                ruleTemplate
+        );
+
+        assertEquals(1, result.size());
+        CheckedResultModel firstCheckedResult = result.get(firstTransactionId);
+        assertEquals(ruleTemplate, firstCheckedResult.getCheckedTemplate());
+        assertEquals(ResultStatus.NORMAL, firstCheckedResult.getResultModel().getResultStatus());
+        assertNull(firstCheckedResult.getResultModel().getRuleChecked());
+        assertEquals(new ArrayList<>(), firstCheckedResult.getResultModel().getNotificationsRule());
     }
 
     @Test
@@ -304,7 +322,7 @@ public class RuleCheckingServiceIntegrationTest extends JUnit5IntegrationTest {
 
         assertEquals(1, actual.size());
         assertEquals(TEMPLATE, actual.get(checkTemplateTransactionId).getCheckedTemplate());
-        assertNull(actual.get(checkTemplateTransactionId).getResultModel().getResultStatus());
+        assertEquals(ResultStatus.NORMAL, actual.get(checkTemplateTransactionId).getResultModel().getResultStatus());
     }
 
     private void addPartyAndShopTemplateRules() {

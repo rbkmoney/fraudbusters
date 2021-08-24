@@ -32,6 +32,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.rbkmoney.fraudbusters.util.BeanUtil.EMAIL;
+import static com.rbkmoney.fraudbusters.util.BeanUtil.FINGERPRINT;
+import static com.rbkmoney.fraudbusters.util.BeanUtil.IP;
 import static com.rbkmoney.fraudbusters.util.BeanUtil.PARTY_ID;
 import static com.rbkmoney.fraudbusters.util.BeanUtil.SHOP_ID;
 
@@ -289,13 +292,22 @@ public abstract class TestObjectsFactory {
     public static EmulationRuleApplyRequest createCascadingEmulationRuleApplyRequest(String templateString,
                                                                                      String templateId,
                                                                                      Payment... payments) {
+        return createCascadingEmulationRuleApplyRequest(templateString, templateId, UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(), payments);
+    }
+
+    public static EmulationRuleApplyRequest createCascadingEmulationRuleApplyRequest(String templateString,
+                                                                                     String templateId,
+                                                                                     String partyId,
+                                                                                     String shopId,
+                                                                                     Payment... payments) {
         Template template = new Template();
         template.setId(templateId);
         template.setTemplate(templateString.getBytes(StandardCharsets.UTF_8));
         TemplateReference templateReference = new TemplateReference();
         templateReference.setTemplateId(templateId);
-        templateReference.setPartyId(UUID.randomUUID().toString());
-        templateReference.setShopId(UUID.randomUUID().toString());
+        templateReference.setPartyId(partyId);
+        templateReference.setShopId(shopId);
         CascasdingTemplateEmulation cascasdingTemplateEmulation = new CascasdingTemplateEmulation();
         cascasdingTemplateEmulation.setTemplate(template);
         cascasdingTemplateEmulation.setRef(templateReference);
@@ -349,11 +361,28 @@ public abstract class TestObjectsFactory {
     }
 
     public static Payment createPayment(Long amount) {
+        return createPayment(amount, PARTY_ID, SHOP_ID);
+    }
+
+    public static Payment createPayment(Long amount, String partyId, String shopId) {
+        ReferenceInfo referenceInfo = new ReferenceInfo();
+        referenceInfo.setMerchantInfo(new MerchantInfo()
+                .setPartyId(partyId)
+                .setShopId(shopId));
         return new Payment()
                 .setId(UUID.randomUUID().toString())
+                .setEventTime(Instant.now().toString())
+                .setReferenceInfo(referenceInfo)
+                .setPaymentTool(BeanUtil.createPaymentTool())
                 .setCost(new Cash()
                         .setAmount(amount)
-                        .setCurrency(new CurrencyRef("RUB"))
+                        .setCurrency(new CurrencyRef("RUB")))
+                .setProviderInfo(BeanUtil.createProviderInfo())
+                .setStatus(com.rbkmoney.damsel.fraudbusters.PaymentStatus.captured)
+                .setClientInfo(new ClientInfo()
+                        .setEmail(EMAIL)
+                        .setFingerprint(FINGERPRINT)
+                        .setIp(IP)
                 );
     }
 

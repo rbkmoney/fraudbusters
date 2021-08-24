@@ -9,6 +9,7 @@ import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
+import com.rbkmoney.woody.thrift.impl.http.THSpawnClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.thrift.TException;
@@ -26,7 +27,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -79,7 +82,8 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
     private static final String GROUP_TEMPLATE_NORMAL = UUID.randomUUID().toString();
     private static final String GROUP_ID = UUID.randomUUID().toString();
 
-    private static String SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
+    private static final String FRAUD_INSPECTOR_SERVICE_URL = "http://localhost:%s/fraud_inspector/v1";
+    private static final String HISTORICAL_SERVICE_URL = "http://localhost:%s/historical_data/v1/";
 
     @Autowired
     PaymentRepositoryImpl paymentRepository;
@@ -137,11 +141,13 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
         testValidation();
 
         testHistoricalPoolLinks();
+
+        testApplyRuleOnHistoricalDataSets();
     }
 
     private void testFraudRules() throws URISyntaxException, InterruptedException, TException {
         THClientBuilder clientBuilder = new THClientBuilder()
-                .withAddress(new URI(String.format(SERVICE_URL, serverPort)))
+                .withAddress(new URI(String.format(FRAUD_INSPECTOR_SERVICE_URL, serverPort)))
                 .withNetworkTimeout(300000);
         InspectorProxySrv.Iface client = clientBuilder.build(InspectorProxySrv.Iface.class);
 
@@ -246,6 +252,109 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
         assertNull(timeTemplatePoolImpl.get(SHOP_REF, 0L));
         assertNull(timeTemplatePoolImpl.get(GROUP_TEMPLATE_DECLINE, 0L));
         assertNull(timeTemplatePoolImpl.get(GROUP_TEMPLATE_NORMAL, 0L));
+    }
+
+
+    private void testApplyRuleOnHistoricalDataSets() throws URISyntaxException, TException {
+        HistoricalDataServiceSrv.Iface client = new THSpawnClientBuilder()
+                .withNetworkTimeout(30_000)
+                .withAddress(new URI(String.format(HISTORICAL_SERVICE_URL, serverPort)))
+                .build(HistoricalDataServiceSrv.Iface.class);
+
+        testApplyRuleOnHistoricalDataSetsSingleRule(client);
+        testApplyRuleOnHistoricalDataSetsWithinRuleSet(client);
+    }
+
+    private void testApplyRuleOnHistoricalDataSetsSingleRule(HistoricalDataServiceSrv.Iface client) throws TException {
+        String rule = "rule: amount() < 1 -> decline;";
+        Payment firstPayment = TestObjectsFactory.createPayment(10L);
+        Payment secondPayment = TestObjectsFactory.createPayment(0L);
+        HistoricalDataSetCheckResult result = client.applyRuleOnHistoricalDataSet(
+                TestObjectsFactory.createEmulationRuleApplyRequest(
+                        rule,
+                        UUID.randomUUID().toString(),
+                        firstPayment,
+                        secondPayment)
+        );
+        assertEquals(2, result.getHistoricalTransactionCheck().size());
+        var check = findHistoricalTransactionCheck(result.getHistoricalTransactionCheck(), firstPayment.getId());
+        assertEquals(firstPayment, check.getTransaction());
+        assertEquals(rule, check.getCheckResult().getCheckedTemplate());
+        assertNull(check.getCheckResult().getConcreteCheckResult().getRuleChecked());
+        assertEquals(new ArrayList<>(), check.getCheckResult().getConcreteCheckResult().getNotificationsRule());
+        assertEquals(
+                ResultStatus.normal(new Normal()),
+                check.getCheckResult().getConcreteCheckResult().getResultStatus()
+        );
+        check = findHistoricalTransactionCheck(result.getHistoricalTransactionCheck(), secondPayment.getId());
+        assertEquals(secondPayment, check.getTransaction());
+        assertEquals(rule, check.getCheckResult().getCheckedTemplate());
+        assertEquals("0", check.getCheckResult().getConcreteCheckResult().getRuleChecked());
+        assertEquals(new ArrayList<>(), check.getCheckResult().getConcreteCheckResult().getNotificationsRule());
+        assertEquals(
+                ResultStatus.decline(new Decline()),
+                check.getCheckResult().getConcreteCheckResult().getResultStatus()
+        );
+
+        String notifyRule = "rule: amount() < 1 -> notify;";
+        result = client.applyRuleOnHistoricalDataSet(
+                TestObjectsFactory.createEmulationRuleApplyRequest(
+                        notifyRule,
+                        UUID.randomUUID().toString(),
+                        secondPayment)
+        );
+        check = findHistoricalTransactionCheck(result.getHistoricalTransactionCheck(), secondPayment.getId());
+        assertEquals(secondPayment, check.getTransaction());
+        assertEquals(notifyRule, check.getCheckResult().getCheckedTemplate());
+        assertNull(check.getCheckResult().getConcreteCheckResult().getRuleChecked());
+        assertEquals(List.of("0"), check.getCheckResult().getConcreteCheckResult().getNotificationsRule());
+        assertEquals(
+                ResultStatus.notify(new Notify()),
+                check.getCheckResult().getConcreteCheckResult().getResultStatus()
+        );
+    }
+
+    private void testApplyRuleOnHistoricalDataSetsWithinRuleSet(HistoricalDataServiceSrv.Iface client)
+            throws TException {
+        String rule = "rule: amount() < 1 -> decline;";
+        Payment firstPayment = TestObjectsFactory.createPayment(10L, P_ID, SHOP_ID);
+        Payment secondPayment = TestObjectsFactory.createPayment(0L, P_ID, SHOP_ID);
+        HistoricalDataSetCheckResult result = client.applyRuleOnHistoricalDataSet(
+                TestObjectsFactory.createCascadingEmulationRuleApplyRequest(
+                        rule,
+                        UUID.randomUUID().toString(),
+                        P_ID,
+                        null,
+                        firstPayment,
+                        secondPayment)
+        );
+        assertEquals(2, result.getHistoricalTransactionCheck().size());
+        var check = findHistoricalTransactionCheck(result.getHistoricalTransactionCheck(), firstPayment.getId());
+        assertEquals(firstPayment, check.getTransaction());
+        assertEquals(rule, check.getCheckResult().getCheckedTemplate());
+        assertNull(check.getCheckResult().getConcreteCheckResult().getRuleChecked());
+        assertEquals(new ArrayList<>(), check.getCheckResult().getConcreteCheckResult().getNotificationsRule());
+        assertEquals(
+                ResultStatus.normal(new Normal()),
+                check.getCheckResult().getConcreteCheckResult().getResultStatus()
+        );
+        check = findHistoricalTransactionCheck(result.getHistoricalTransactionCheck(), secondPayment.getId());
+        assertEquals(secondPayment, check.getTransaction());
+        assertEquals(rule, check.getCheckResult().getCheckedTemplate());
+        assertEquals("0", check.getCheckResult().getConcreteCheckResult().getRuleChecked());
+        assertEquals(new ArrayList<>(), check.getCheckResult().getConcreteCheckResult().getNotificationsRule());
+        assertEquals(
+                ResultStatus.decline(new Decline()),
+                check.getCheckResult().getConcreteCheckResult().getResultStatus()
+        );
+    }
+
+    private HistoricalTransactionCheck findHistoricalTransactionCheck(Set<HistoricalTransactionCheck> checks,
+                                                                      String id) {
+        return checks.stream()
+                .filter(check -> check.getTransaction().getId().equals(id))
+                .findFirst()
+                .orElseThrow();
     }
 
 }
