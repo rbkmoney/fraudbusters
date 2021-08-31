@@ -9,7 +9,6 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
@@ -20,6 +19,9 @@ import static java.time.temporal.ChronoUnit.HOURS;
 public class TimestampUtil {
 
     public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd[ HH:mm:ss]";
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS);
+    private static final DateTimeFormatter ISO_DATE_TIME_FORMATTER_UTC_ZONE =
+            DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC);
 
     public static Long generateTimestampWithParse(String time) {
         Instant instant = parseInstantFromString(time);
@@ -69,7 +71,7 @@ public class TimestampUtil {
     public static LocalDateTime parseDate(String eventTime) {
         LocalDateTime date = LocalDateTime.now();
         if (StringUtils.hasLength(eventTime)) {
-            date = LocalDateTime.parse(eventTime, DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS));
+            date = LocalDateTime.parse(eventTime, DATE_TIME_FORMATTER);
         } else {
             log.warn("parseDate() eventTime can't parse: {}", eventTime);
         }
@@ -77,8 +79,6 @@ public class TimestampUtil {
     }
 
     public static String getStringDate(Long time) {
-        return LocalDateTime
-                .ofInstant(Instant.ofEpochSecond(time), ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ISO_DATE_TIME);
+        return ISO_DATE_TIME_FORMATTER_UTC_ZONE.format(Instant.ofEpochSecond(time));
     }
 }

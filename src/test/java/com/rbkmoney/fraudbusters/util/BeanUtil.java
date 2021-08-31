@@ -139,7 +139,7 @@ public class BeanUtil {
         ));
     }
 
-    private static com.rbkmoney.damsel.domain.PaymentTool createPaymentTool() {
+    public static com.rbkmoney.damsel.domain.PaymentTool createPaymentTool() {
         PaymentTool paymentTool = new PaymentTool();
         paymentTool.setBankCard(createBankCard());
         return paymentTool;
@@ -544,7 +544,7 @@ public class BeanUtil {
                 .setReferenceInfo(createReferenceInfo());
     }
 
-    private static ProviderInfo createProviderInfo() {
+    public static ProviderInfo createProviderInfo() {
         return new ProviderInfo()
                 .setProviderId("provider_id")
                 .setCountry("RUS")

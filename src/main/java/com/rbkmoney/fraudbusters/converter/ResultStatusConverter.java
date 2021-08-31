@@ -1,6 +1,13 @@
 package com.rbkmoney.fraudbusters.converter;
 
-import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.fraudbusters.Accept;
+import com.rbkmoney.damsel.fraudbusters.AcceptAndNotify;
+import com.rbkmoney.damsel.fraudbusters.Decline;
+import com.rbkmoney.damsel.fraudbusters.DeclineAndNotify;
+import com.rbkmoney.damsel.fraudbusters.HighRisk;
+import com.rbkmoney.damsel.fraudbusters.Normal;
+import com.rbkmoney.damsel.fraudbusters.Notify;
+import com.rbkmoney.damsel.fraudbusters.ThreeDs;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -12,7 +19,7 @@ public class ResultStatusConverter implements Converter<ResultStatus, com.rbkmon
 
     @Override
     public com.rbkmoney.damsel.fraudbusters.ResultStatus convert(ResultStatus resultStatus) {
-        com.rbkmoney.damsel.fraudbusters.ResultStatus status = new com.rbkmoney.damsel.fraudbusters.ResultStatus();
+        var status = new com.rbkmoney.damsel.fraudbusters.ResultStatus();
         switch (resultStatus) {
             case ACCEPT: {
                 status.setAccept(new Accept());
