@@ -16,7 +16,7 @@ public class CountryByIpResolver {
     private final GeoIpServiceSrv.Iface geoIpServiceSrv;
 
     @Cacheable(value = "resolveCountry", key = "#ip")
-    @BasicMetric("resolveCountry") // TODO нужно ли, если будем кешировать?
+    @BasicMetric("resolveCountry")
     public String resolveCountry(String ip) {
         try {
             return geoIpServiceSrv.getLocationIsoCode(ip);
