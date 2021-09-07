@@ -1,52 +1,78 @@
 package com.rbkmoney.fraudbusters.fraud.resolver;
 
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
+import com.rbkmoney.fraudbusters.config.CachingConfig;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
 import org.apache.thrift.TException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cache.CacheManager;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith({MockitoExtension.class, SpringExtension.class})
+@ContextConfiguration(classes = {CachingConfig.class, CountryByIpResolver.class, CountryResolverImpl.class})
 public class CountryResolverImplTest {
 
-    public static final String TEST = "test";
+    public static final String IP = "123.123.123.123";
     public static final String COUNTRY_GEO_ISO_CODE = "RU";
 
-    @Mock
-    GeoIpServiceSrv.Iface geoIpServiceSrv;
+    @MockBean
+    private GeoIpServiceSrv.Iface geoIpServiceSrv;
 
-    CountryResolverImpl countryResolver;
+    @Autowired
+    private CountryResolverImpl countryResolver;
 
-    @Before
-    public void init() throws TException {
-        MockitoAnnotations.initMocks(this);
-        Mockito.when(geoIpServiceSrv.getLocationIsoCode(TEST)).thenReturn(COUNTRY_GEO_ISO_CODE);
-        countryResolver = new CountryResolverImpl(new CountryByIpResolver(geoIpServiceSrv));
+    @Autowired
+    private CacheManager cacheManager;
+
+    @BeforeEach
+    void setUp() {
+        cacheManager.getCache("resolveCountry").clear();
     }
 
     @Test
-    public void resolveCountry() {
-        String country = countryResolver.resolveCountry(PaymentCheckedField.IP, TEST);
-        Assert.assertEquals(COUNTRY_GEO_ISO_CODE, country);
+    void resolveCountryUnknownLocationTest() throws TException {
+        Mockito.when(geoIpServiceSrv.getLocationIsoCode(IP)).thenReturn(null);
+        String result = countryResolver.resolveCountry(PaymentCheckedField.IP, IP);
+        assertEquals(result, ClickhouseUtilsValue.UNKNOWN);
     }
 
     @Test
-    public void resolveCountryUnknownLocationTest() throws TException {
-        Mockito.when(geoIpServiceSrv.getLocation(TEST)).thenReturn(null);
-        String result = countryResolver.resolveCountry(PaymentCheckedField.IP, "123.123.123.123");
-        Assert.assertEquals(result, ClickhouseUtilsValue.UNKNOWN);
+    void resolveCountryExceptionInvocationTest() throws TException {
+        Mockito.when(geoIpServiceSrv.getLocationIsoCode(IP)).thenThrow(new TException());
+        String result = countryResolver.resolveCountry(PaymentCheckedField.IP, IP);
+        assertEquals(result, ClickhouseUtilsValue.UNKNOWN);
     }
 
     @Test
-    public void resolveCountryExceptionInvocationTest() throws TException {
-        Mockito.when(geoIpServiceSrv.getLocation(TEST)).thenThrow(new TException());
-        String result = countryResolver.resolveCountry(PaymentCheckedField.IP, "123.123.123.123");
-        Assert.assertEquals(result, ClickhouseUtilsValue.UNKNOWN);
+    void resolveCountry() throws TException {
+        Mockito.when(geoIpServiceSrv.getLocationIsoCode(IP)).thenReturn(COUNTRY_GEO_ISO_CODE);
+        String country = countryResolver.resolveCountry(PaymentCheckedField.IP, IP);
+        assertEquals(COUNTRY_GEO_ISO_CODE, country);
+    }
+
+    @Test
+    void resolveCountryWithCache() throws TException {
+        Mockito.when(geoIpServiceSrv.getLocationIsoCode(IP)).thenReturn(COUNTRY_GEO_ISO_CODE);
+
+        String firstResult = countryResolver.resolveCountry(PaymentCheckedField.IP, IP);
+        String secondResult = countryResolver.resolveCountry(PaymentCheckedField.IP, IP);
+
+        verify(geoIpServiceSrv, times(1)).getLocationIsoCode(IP);
+        assertEquals(COUNTRY_GEO_ISO_CODE, firstResult);
+        assertEquals(COUNTRY_GEO_ISO_CODE, secondResult);
     }
 }
