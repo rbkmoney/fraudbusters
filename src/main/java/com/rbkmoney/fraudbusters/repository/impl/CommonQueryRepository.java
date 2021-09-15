@@ -67,7 +67,8 @@ public class CommonQueryRepository {
                     List.of(timeHour.getEpochSecond(), timeIntervalYear, timeHour.getEpochSecond()).toArray(),
                     (rs, rowNum) -> rs.getString(1)
             );
-            log.info("select withdrawal card tokens result size: {}", cardTokensWithdrawal.size());
+            log.info("select withdrawal card tokens result size: {}",
+                    cardTokensWithdrawal != null ? cardTokensWithdrawal.size() : null);
             data.addAll(cardTokensWithdrawal);
             return data.stream()
                     .distinct()
