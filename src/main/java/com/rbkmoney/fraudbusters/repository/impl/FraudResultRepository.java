@@ -143,14 +143,14 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
     public Integer countOperationSuccessWithGroupBy(
             String fieldName, Object value, Long from, Long to,
             List<FieldModel> fieldModels) {
-        StringBuilder sql = new StringBuilder(String.format(
-                "select %1$s, count() as cnt " +
-                "from %2$s " +
-                "where timestamp >= ? " +
-                "and timestamp <= ? " +
-                "and eventTime >= ? " +
-                "and eventTime <= ? " +
-                "and %1$s = ? and resultStatus != ? ",
+        StringBuilder sql = new StringBuilder(String.format("""
+                select %1$s, count() as cnt
+                from %2$s
+                where timestamp >= ?
+                and timestamp <= ?
+                and eventTime >= ?
+                and eventTime <= ?
+                and %1$s = ? and resultStatus != ?""",
                 fieldName,
                 EventSource.FRAUD_EVENTS_UNIQUE.getTable()
         ));
@@ -170,14 +170,14 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
                 EventSource.FRAUD_EVENTS_UNIQUE.getTable(),
                 errorCode
         );
-        StringBuilder sql = new StringBuilder(String.format(
-                "select %1$s, count() as cnt " +
-                "from %2$s " +
-                "where timestamp >= ? " +
-                "and timestamp <= ? " +
-                "and eventTime >= ? " +
-                "and eventTime <= ? " +
-                "and %1$s = ? and resultStatus = ? ",
+        StringBuilder sql = new StringBuilder(String.format("""
+                select %1$s, count() as cnt
+                from %2$s
+                where timestamp >= ?
+                and timestamp <= ?
+                and eventTime >= ?
+                and eventTime <= ?
+                and %1$s = ? and resultStatus = ?""",
                 fieldName,
                 EventSource.FRAUD_EVENTS_UNIQUE.getTable()
         ));
@@ -192,14 +192,14 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
     public Long sumOperationSuccessWithGroupBy(
             String fieldName, Object value, Long from, Long to,
             List<FieldModel> fieldModels) {
-        StringBuilder sql = new StringBuilder(String.format(
-                "select %1$s, sum(amount) as sum " +
-                "from %2$s " +
-                "where timestamp >= ? " +
-                "and timestamp <= ? " +
-                "and eventTime >= ? " +
-                "and eventTime <= ? " +
-                "and %1$s = ? and resultStatus != ? ",
+        StringBuilder sql = new StringBuilder(String.format("""
+                select %1$s, sum(amount) as sum
+                from %2$s
+                where timestamp >= ?
+                and timestamp <= ?
+                and eventTime >= ?
+                and eventTime <= ?
+                and %1$s = ? and resultStatus != ?""",
                 fieldName,
                 EventSource.FRAUD_EVENTS_UNIQUE.getTable()
         ));
@@ -219,14 +219,14 @@ public class FraudResultRepository implements Repository<Event>, PaymentReposito
                 EventSource.FRAUD_EVENTS_UNIQUE.getTable(),
                 errorCode
         );
-        StringBuilder sql = new StringBuilder(String.format(
-                "select %1$s, sum(amount) as sum " +
-                "from %2$s " +
-                "where timestamp >= ? " +
-                "and timestamp <= ? " +
-                "and eventTime >= ? " +
-                "and eventTime <= ? " +
-                "and %1$s = ? and resultStatus = ? ",
+        StringBuilder sql = new StringBuilder(String.format("""
+                select %1$s, sum(amount) as sum
+                from %2$s
+                where timestamp >= ?
+                and timestamp <= ?
+                and eventTime >= ?
+                and eventTime <= ?
+                and %1$s = ? and resultStatus = ?""",
                 fieldName,
                 EventSource.FRAUD_EVENTS_UNIQUE.getTable()
         ));

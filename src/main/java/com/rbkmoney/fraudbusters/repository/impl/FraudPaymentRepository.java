@@ -26,35 +26,36 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FraudPaymentRepository implements Repository<FraudPaymentRow>, AggregationRepository {
 
-    private static final String INSERT = "INSERT INTO " +
-                                         EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable() +
-                                         " (timestamp," +
-                                         "  eventTimeHour," +
-                                         "  eventTime," +
-                                         "  id," +
-                                         "  fraudType ," +
-                                         "  comment," +
-                                         "  email," +
-                                         "  ip," +
-                                         "  fingerprint," +
-                                         "  bin," +
-                                         "  maskedPan," +
-                                         "  cardToken," +
-                                         "  paymentSystem," +
-                                         "  paymentTool," +
-                                         "  terminal," +
-                                         "  providerId," +
-                                         "  bankCountry," +
-                                         "  partyId," +
-                                         "  shopId," +
-            "  amount," +
-            "  currency," +
-            "  status," +
-            "  errorReason," +
-            "  errorCode," +
-            "  paymentCountry)" +
-            " VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, " +
-            "?, ?)";
+    private static final String INSERT = String.format("""
+                    INSERT INTO
+                    %s
+                     (timestamp,
+                     eventTimeHour,
+                     eventTime,
+                     id,
+                     fraudType ,
+                     comment,
+                     email,
+                     ip,
+                     fingerprint,
+                     bin,
+                     maskedPan,
+                     cardToken,
+                     paymentSystem,
+                     paymentTool,
+                     terminal,
+                     providerId,
+                     bankCountry,
+                     partyId,
+                     shopId,
+                     amount,
+                     currency,
+                     status,
+                     errorReason,
+                     errorCode,
+                     paymentCountry)
+                    VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?,?, ?)""",
+            EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable());
     private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;

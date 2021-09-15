@@ -17,13 +17,10 @@ import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
 @RequiredArgsConstructor
 public class WithdrawalBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
-    public static final String FIELDS = " timestamp, eventTimeHour, eventTime, " +
-            "id, " +
-            "amount, currency, " +
-            "bin, maskedPan, cardToken, paymentSystem, " +
-            "terminal, providerId, bankCountry, " +
-            "identityId, accountId, accountCurrency, " +
-            "status, errorCode, errorReason";
+    public static final String FIELDS = """
+            timestamp, eventTimeHour, eventTime, id, amount, currency, bin, maskedPan, cardToken, paymentSystem,
+            terminal, providerId, bankCountry, identityId, accountId, accountCurrency, status, errorCode,
+            errorReason""";
 
     public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 

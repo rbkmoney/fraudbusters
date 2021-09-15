@@ -50,12 +50,12 @@ public class P2PEndToEndIntegrationTest extends IntegrationTest {
     public static final String FRAUD = "fraud";
     public static final String IDENT_ID = "identId";
 
-    private static final String TEMPLATE =
-            "rule: count(\"email\", 10, 0, \"identity_id\") > 1  AND count(\"email\", 10) < 3 " +
-            "AND sum(\"email\", 10) >= 18000 " +
-            "AND count(\"card_token_from\", 10) > 1 " +
-            "AND in(countryBy(\"country_bank\"), \"RUS\") \n" +
-            " -> decline;";
+    private static final String TEMPLATE = """
+            rule: count("email", 10, 0, "identity_id") > 1  AND count("email", 10) < 3
+             AND sum("email", 10) >= 18000
+             AND count("card_token_from", 10) > 1
+             AND in(countryBy("country_bank"), "RUS")
+             -> decline;""";
     private static final String SERVICE_P2P_URL = "http://localhost:%s/fraud_p2p_inspector/v1";
 
     @ClassRule

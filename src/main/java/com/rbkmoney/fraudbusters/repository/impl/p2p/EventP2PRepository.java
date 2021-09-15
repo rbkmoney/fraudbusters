@@ -25,13 +25,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EventP2PRepository implements Repository<EventP2P>, AggregationRepository {
 
-    private static final String INSERT = "INSERT INTO fraud.events_p_to_p " +
-                                         "(timestamp, eventTime, eventTimeHour, identityId, transferId, ip, email, " +
-                                         "bin, fingerprint, amount, " +
-                                         "currency, country, bankCountry, maskedPan, bankName, cardTokenFrom, " +
-                                         "cardTokenTo, resultStatus, checkedRule, " +
-                                         "checkedTemplate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
-                                         " ?, ?, ?)";
+    private static final String INSERT = """
+                                         INSERT INTO fraud.events_p_to_p
+                                         (timestamp, eventTime, eventTimeHour, identityId, transferId, ip, email,
+                                         bin, fingerprint, amount,
+                                         currency, country, bankCountry, maskedPan, bankName, cardTokenFrom,
+                                         cardTokenTo, resultStatus, checkedRule,
+                                         checkedTemplate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                                          ?, ?, ?)""";
     private final JdbcTemplate jdbcTemplate;
     private final AggregationGeneralRepository aggregationGeneralRepository;
 

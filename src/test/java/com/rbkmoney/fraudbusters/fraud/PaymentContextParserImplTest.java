@@ -11,8 +11,7 @@ public class PaymentContextParserImplTest {
 
     @Test
     public void parse() {
-        FraudoPaymentParser.ParseContext parse = fraudContextParser.parse("rule: 3 > 2 AND 1 = 1\n" +
-                                                                          "-> accept;");
+        FraudoPaymentParser.ParseContext parse = fraudContextParser.parse("rule: 3 > 2 AND 1 = 1 -> accept;");
         Assert.assertFalse(parse.fraud_rule().isEmpty());
     }
 }

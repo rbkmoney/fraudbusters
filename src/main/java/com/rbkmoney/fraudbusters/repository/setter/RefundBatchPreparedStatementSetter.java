@@ -22,15 +22,10 @@ import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
 @RequiredArgsConstructor
 public class RefundBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
 
-    public static final String FIELDS = " timestamp, eventTimeHour, eventTime, " +
-            "id, " +
-            "email, ip, fingerprint, " +
-            "bin, maskedPan, cardToken, paymentSystem, paymentTool , " +
-            "terminal, providerId, bankCountry, " +
-            "partyId, shopId, " +
-            "amount, currency, " +
-            "status, errorCode, errorReason, paymentId, " +
-            "payerType, tokenProvider";
+    public static final String FIELDS = """
+            timestamp, eventTimeHour, eventTime, id, email, ip, fingerprint, bin, maskedPan, cardToken, paymentSystem,
+            paymentTool, terminal, providerId, bankCountry, partyId, shopId, amount, currency, status, errorCode,
+            errorReason, paymentId, payerType, tokenProvider""";
 
     public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 

@@ -18,21 +18,23 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommonQueryRepository {
 
-    private static final String QUERY = "SELECT cardToken" +
-            " FROM fraud.payment " +
-            " WHERE toDateTime(?) - INTERVAL ? YEAR < toDateTime(eventTime) and " +
-            "toDateTime(?) > toDateTime(eventTime) and status='captured' " +
-            " and providerId in (%s)" +
-            " GROUP BY cardToken, currency " +
-            " HAVING (uniq(id) > 2 and ((sum(amount) > 200000 and currency = 'RUB') " +
-            " or (sum(amount) > 3000 and (currency = 'EUR' or currency = 'USD')))) " +
-            " or (uniq(id) > 0 and (sum(amount) > 500000 and currency = 'KZT')) ";
+    private static final String QUERY = """
+            SELECT cardToken
+             FROM fraud.payment
+             WHERE toDateTime(?) - INTERVAL ? YEAR < toDateTime(eventTime)
+             and toDateTime(?) > toDateTime(eventTime) and status='captured'
+             and providerId in (%s)
+             GROUP BY cardToken, currency
+             HAVING (uniq(id) > 2 and ((sum(amount) > 200000 and currency = 'RUB')
+             or (sum(amount) > 3000 and (currency = 'EUR' or currency = 'USD'))))
+             or (uniq(id) > 0 and (sum(amount) > 500000 and currency = 'KZT'))""";
 
-    private static final String QUERY_WITHDRAWAL = "SELECT distinct cardToken" +
-            " FROM fraud.withdrawal " +
-            " WHERE toDateTime(?) - INTERVAL ? YEAR < toDateTime(eventTime) " +
-            " and toDateTime(?) > toDateTime(eventTime)  " +
-            " and status='succeeded'";
+    private static final String QUERY_WITHDRAWAL = """
+            SELECT distinct cardToken
+            FROM fraud.withdrawal
+            WHERE toDateTime(?) - INTERVAL ? YEAR < toDateTime(eventTime)
+            and toDateTime(?) > toDateTime(eventTime)
+            and status='succeeded'""";
 
     private final JdbcTemplate longQueryJdbcTemplate;
 

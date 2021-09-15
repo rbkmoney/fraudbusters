@@ -47,8 +47,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ContextConfiguration(initializers = DispatchTemplateTest.Initializer.class)
 public class DispatchTemplateTest extends IntegrationTest {
 
-    public static final String TEMPLATE = "rule: 12 >= 1\n" +
-                                          " -> accept;";
+    public static final String TEMPLATE = "rule: 12 >= 1 -> accept;";
     public static final int TIMEOUT = 20;
     @ClassRule
     public static EmbeddedKafkaRule kafka = createKafka();

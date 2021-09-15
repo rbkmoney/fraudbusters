@@ -30,60 +30,38 @@ public class DatabasePaymentFieldResolver {
         if (field == null) {
             throw new UnknownFieldException();
         }
-        switch (field) {
-            case IP:
-                return new FieldModel(EventField.ip.name(), model.getIp());
-            case EMAIL:
-                return new FieldModel(EventField.email.name(), model.getEmail());
-            case BIN:
-                return new FieldModel(EventField.bin.name(), model.getBin());
-            case FINGERPRINT:
-                return new FieldModel(EventField.fingerprint.name(), model.getFingerprint());
-            case PARTY_ID:
-                return new FieldModel(EventField.partyId.name(), model.getPartyId());
-            case SHOP_ID:
-                return new FieldModel(EventField.shopId.name(), model.getShopId());
-            case CARD_TOKEN:
-                return new FieldModel(EventField.cardToken.name(), model.getCardToken());
-            case PAN:
-                return new FieldModel(EventField.maskedPan.name(), model.getPan());
-            case MOBILE:
-                return new FieldModel(EventField.mobile.name(), model.isMobile());
-            case RECURRENT:
-                return new FieldModel(EventField.recurrent.name(), model.isRecurrent());
-            default:
-                throw new UnknownFieldException();
-        }
+        return switch (field) {
+            case IP -> new FieldModel(EventField.ip.name(), model.getIp());
+            case EMAIL -> new FieldModel(EventField.email.name(), model.getEmail());
+            case BIN -> new FieldModel(EventField.bin.name(), model.getBin());
+            case FINGERPRINT -> new FieldModel(EventField.fingerprint.name(), model.getFingerprint());
+            case PARTY_ID -> new FieldModel(EventField.partyId.name(), model.getPartyId());
+            case SHOP_ID -> new FieldModel(EventField.shopId.name(), model.getShopId());
+            case CARD_TOKEN -> new FieldModel(EventField.cardToken.name(), model.getCardToken());
+            case PAN -> new FieldModel(EventField.maskedPan.name(), model.getPan());
+            case MOBILE -> new FieldModel(EventField.mobile.name(), model.isMobile());
+            case RECURRENT -> new FieldModel(EventField.recurrent.name(), model.isRecurrent());
+            default -> throw new UnknownFieldException();
+        };
     }
 
     public String resolve(PaymentCheckedField field) {
         if (field == null) {
             throw new UnknownFieldException();
         }
-        switch (field) {
-            case IP:
-                return EventField.ip.name();
-            case EMAIL:
-                return EventField.email.name();
-            case BIN:
-                return EventField.bin.name();
-            case PAN:
-                return EventField.maskedPan.name();
-            case FINGERPRINT:
-                return EventField.fingerprint.name();
-            case PARTY_ID:
-                return EventField.partyId.name();
-            case SHOP_ID:
-                return EventField.shopId.name();
-            case CARD_TOKEN:
-                return EventField.cardToken.name();
-            case MOBILE:
-                return EventField.mobile.name();
-            case RECURRENT:
-                return EventField.recurrent.name();
-            default:
-                throw new UnknownFieldException();
-        }
+        return switch (field) {
+            case IP -> EventField.ip.name();
+            case EMAIL -> EventField.email.name();
+            case BIN -> EventField.bin.name();
+            case PAN -> EventField.maskedPan.name();
+            case FINGERPRINT -> EventField.fingerprint.name();
+            case PARTY_ID -> EventField.partyId.name();
+            case SHOP_ID -> EventField.shopId.name();
+            case CARD_TOKEN -> EventField.cardToken.name();
+            case MOBILE -> EventField.mobile.name();
+            case RECURRENT -> EventField.recurrent.name();
+            default -> throw new UnknownFieldException();
+        };
     }
 
 }
