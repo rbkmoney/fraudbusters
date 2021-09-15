@@ -69,10 +69,10 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
         String sql = String.format("""
                 select %1$s, count() as cnt
                 from %2$s
-                where timestamp >= ? "
-                and timestamp <= ? "
-                and eventTime >= ? "
-                and eventTime <= ? "
+                where timestamp >= ?
+                and timestamp <= ?
+                and eventTime >= ?
+                and eventTime <= ?
                 and %1$s = ?  and status != ?
                 group by %1$s""", fieldName, TABLE);
         List<Object> params = AggregationUtil.generateStatusParams(from, to, value, PaymentStatus.captured.name());
@@ -135,7 +135,7 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
                 and timestamp <= ?
                 and eventTime >= ?
                 and eventTime <= ?
-                and %1$s = ? and status !=
+                and %1$s = ? and status != ?
                 group by %1$s""", fieldNameBy, fieldNameCount, TABLE);
         List<Object> params = AggregationUtil.generateStatusParams(from, to, value, PaymentStatus.captured.name());
         log.debug("AggregationGeneralRepositoryImpl uniqCountOperation sql: {} params: {}", sql, params);
@@ -221,7 +221,7 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
                 and timestamp <= ?
                 and eventTime >= ?
                 and eventTime <= ?
-                "and %1$s = ? and status = ?""", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
+                and %1$s = ? and status = ?""", fieldName, EventSource.FRAUD_EVENTS_PAYMENT.getTable()));
         StringBuilder sqlGroupBy = new StringBuilder(String.format("group by %1$s", fieldName));
         StringBuilder resultSql = AggregationUtil.appendGroupingFields(fieldModels, sql, sqlGroupBy);
         List<Object> params =
