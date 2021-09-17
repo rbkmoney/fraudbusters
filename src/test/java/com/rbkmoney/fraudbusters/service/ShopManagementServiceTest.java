@@ -1,15 +1,14 @@
 package com.rbkmoney.fraudbusters.service;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.rbkmoney.damsel.fraudbusters.MerchantInfo;
 import com.rbkmoney.damsel.fraudbusters.ReferenceInfo;
 import com.rbkmoney.fraudbusters.config.RestTemplateConfig;
 import com.rbkmoney.fraudbusters.config.properties.DefaultTemplateProperties;
 import com.rbkmoney.fraudbusters.repository.impl.AggregationGeneralRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,12 +16,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringRunner.class)
+@WireMockTest(httpPort = 8089)
+@ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(classes = {ShopManagementService.class,
         AggregationGeneralRepositoryImpl.class,
@@ -31,9 +31,6 @@ import static org.mockito.Mockito.*;
         InitiatingEntitySourceService.class,
         DefaultTemplateProperties.class})
 public class ShopManagementServiceTest {
-
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(8089);
 
     @MockBean
     KafkaTemplate<String, ReferenceInfo> kafkaTemplate;

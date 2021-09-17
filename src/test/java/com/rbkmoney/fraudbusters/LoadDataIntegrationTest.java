@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters;
 
-import com.rbkmoney.clickhouse.initializer.ChInitializer;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentServiceSrv;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
@@ -11,24 +10,15 @@ import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.ClickHouseContainer;
 
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -38,19 +28,17 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import static com.rbkmoney.fraudbusters.util.BeanUtil.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @Slf4j
 @ActiveProfiles("full-prod")
-@RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
         properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true",
                 "kafka.aggr.payment.min.bytes=1"})
-@ContextConfiguration(initializers = LoadDataIntegrationTest.Initializer.class)
-public class LoadDataIntegrationTest extends IntegrationTest {
+public class LoadDataIntegrationTest extends JUnit5IntegrationTest {
 
     public static final String PAYMENT_1 = "payment_1";
     public static final String PAYMENT_2 = "payment_2";
@@ -64,12 +52,6 @@ public class LoadDataIntegrationTest extends IntegrationTest {
             "rule:TEMPLATE: count(\"card_token\", 1000, \"party_id\", \"shop_id\") > 2  -> decline;";
     private static final String TEMPLATE_CONCRETE =
             "rule:TEMPLATE_CONCRETE: count(\"card_token\", 10) > 0  -> accept;";
-
-    @ClassRule
-    public static EmbeddedKafkaRule kafka = createKafka();
-    @ClassRule
-    public static ClickHouseContainer clickHouseContainer = new ClickHouseContainer("yandex/clickhouse-server:19.17");
-
     private final String globalRef = UUID.randomUUID().toString();
 
     @Autowired
@@ -78,12 +60,7 @@ public class LoadDataIntegrationTest extends IntegrationTest {
     @LocalServerPort
     int serverPort;
 
-    @Override
-    protected String getBrokersAsString() {
-        return kafka.getEmbeddedKafka().getBrokersAsString();
-    }
-
-    @Before
+    @BeforeEach
     public void init() throws ExecutionException, InterruptedException, TException {
         produceTemplate(globalRef, TEMPLATE, kafkaTopics.getFullTemplate());
         produceReference(true, null, null, globalRef);
@@ -202,32 +179,6 @@ public class LoadDataIntegrationTest extends IntegrationTest {
             PaymentStatus processed,
             PaymentStatus processed2) throws TException, InterruptedException {
         insertWithTimeout(client, List.of(createPayment(processed), createPayment(processed2)));
-    }
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @SneakyThrows
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            log.info("clickhouse.db.url={}", clickHouseContainer.getJdbcUrl());
-            log.info("kafka.bootstrap.servers={}", kafka.getEmbeddedKafka().getBrokersAsString());
-            TestPropertyValues.of(
-                    "clickhouse.db.url=" + clickHouseContainer.getJdbcUrl(),
-                    "clickhouse.db.user=" + clickHouseContainer.getUsername(),
-                    "clickhouse.db.password=" + clickHouseContainer.getPassword(),
-                    "kafka.bootstrap.servers=" + kafka.getEmbeddedKafka().getBrokersAsString()
-            )
-                    .applyTo(configurableApplicationContext.getEnvironment());
-            ChInitializer.initAllScripts(clickHouseContainer, List.of(
-                    "sql/db_init.sql",
-                    "sql/V2__create_events_p2p.sql",
-                    "sql/V3__create_fraud_payments.sql",
-                    "sql/V4__create_payment.sql",
-                    "sql/V5__add_fields.sql",
-                    "sql/V6__add_result_fields_payment.sql",
-                    "sql/V7__add_fields.sql",
-                    "sql/V8__create_withdrawal.sql"
-            ));
-        }
     }
 
 }

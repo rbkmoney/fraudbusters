@@ -8,18 +8,20 @@ import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldReso
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudo.model.TimeWindow;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class SumAggregatorImplTest {
 
-    SumAggregatorImpl sumAggregator;
+    private SumAggregatorImpl sumAggregator;
     @Mock
     private PaymentRepository paymentRepository;
     @Mock
@@ -28,17 +30,12 @@ public class SumAggregatorImplTest {
     private AggregationRepository analyticsChargebackRepository;
     @Mock
     private DatabasePaymentFieldResolver databasePaymentFieldResolver;
-    private FieldModel modelMock = new FieldModel("name", "value");
 
-    @Before
+    private final FieldModel modelMock = new FieldModel("name", "value");
+
+    @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
-
         when(databasePaymentFieldResolver.resolve(any(), any())).thenReturn(modelMock);
-        when(paymentRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
-        when(paymentRepository.sumOperationSuccessWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
-        when(paymentRepository.sumOperationErrorWithGroupBy(any(), any(), any(), any(), any(), any()))
-                .thenReturn(1050100L);
 
         sumAggregator = new SumAggregatorImpl(
                 databasePaymentFieldResolver,
@@ -52,6 +49,9 @@ public class SumAggregatorImplTest {
     public void sum() {
         PaymentModel paymentModel = new PaymentModel();
         paymentModel.setAmount(1L);
+
+        when(paymentRepository.sumOperationByFieldWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
+
         Double some = sumAggregator.sum(
                 PaymentCheckedField.BIN,
                 paymentModel,
@@ -59,7 +59,7 @@ public class SumAggregatorImplTest {
                 null
         );
 
-        Assert.assertEquals(Double.valueOf(1050101), some);
+        assertEquals(Double.valueOf(1050101), some);
     }
 
     @Test
@@ -72,30 +72,33 @@ public class SumAggregatorImplTest {
 
         Double sum = sumAggregator.sum(PaymentCheckedField.BIN, paymentModel, timeWindowBuilder.build(), null);
 
-        Assert.assertEquals(Double.valueOf(1050101), sum);
+        assertEquals(Double.valueOf(1050101), sum);
 
         timeWindowBuilder = TimeWindow.builder().startWindowTime(1444L)
                 .endWindowTime(null);
         sum = sumAggregator.sum(PaymentCheckedField.BIN, paymentModel, timeWindowBuilder.build(), null);
 
-        Assert.assertEquals(Double.valueOf(1050101), sum);
+        assertEquals(Double.valueOf(1050101), sum);
     }
 
     @Test
     public void sumSuccess() {
+        when(paymentRepository.sumOperationSuccessWithGroupBy(any(), any(), any(), any(), any())).thenReturn(1050100L);
         Double some = sumAggregator.sumSuccess(PaymentCheckedField.BIN, new PaymentModel(),
                 TimeWindow.builder().startWindowTime(1444L).build(), null
         );
 
-        Assert.assertEquals(Double.valueOf(1050100), some);
+        assertEquals(Double.valueOf(1050100), some);
     }
 
     @Test
     public void sumError() {
+        when(paymentRepository.sumOperationErrorWithGroupBy(any(), any(), any(), any(), any(), any()))
+                .thenReturn(1050100L);
         Double some = sumAggregator.sumError(PaymentCheckedField.BIN, new PaymentModel(),
                 TimeWindow.builder().startWindowTime(1444L).build(), null, null
         );
 
-        Assert.assertEquals(Double.valueOf(1050100), some);
+        assertEquals(Double.valueOf(1050100), some);
     }
 }

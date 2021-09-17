@@ -5,11 +5,15 @@ import com.rbkmoney.fraudbusters.listener.payment.GroupListener;
 import com.rbkmoney.fraudbusters.pool.Pool;
 import com.rbkmoney.fraudbusters.pool.PoolImpl;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GroupListenerTest {
 
@@ -19,7 +23,7 @@ public class GroupListenerTest {
     private Pool<List<String>> groupPoolImpl;
     private GroupListener groupListener;
 
-    @Before
+    @BeforeEach
     public void init() {
         groupPoolImpl = new PoolImpl<>("group");
         groupListener = new GroupListener(groupPoolImpl);
@@ -29,7 +33,7 @@ public class GroupListenerTest {
     public void listenEmptyTemplateIds() {
         groupListener.listen(BeanUtil.createGroupCommand(GROUP_1, List.of()));
         List<String> strings = groupPoolImpl.get(GROUP_1);
-        Assert.assertTrue(strings.isEmpty());
+        assertTrue(strings.isEmpty());
     }
 
     @Test
@@ -45,19 +49,19 @@ public class GroupListenerTest {
         )));
 
         List<String> templateIds = groupPoolImpl.get(GROUP_1);
-        Assert.assertFalse(templateIds.isEmpty());
+        assertFalse(templateIds.isEmpty());
 
-        Assert.assertEquals(FIRST_TEMPL, templateIds.get(0));
-        Assert.assertEquals(SECOND_TEMPL, templateIds.get(1));
+        assertEquals(FIRST_TEMPL, templateIds.get(0));
+        assertEquals(SECOND_TEMPL, templateIds.get(1));
 
         //check rewrite
         groupListener.listen(BeanUtil.createGroupCommand(GROUP_1, List.of()));
         templateIds = groupPoolImpl.get(GROUP_1);
-        Assert.assertTrue(templateIds.isEmpty());
+        assertTrue(templateIds.isEmpty());
 
         //check rewrite
         groupListener.listen(BeanUtil.deleteGroupCommand(GROUP_1, List.of()));
         templateIds = groupPoolImpl.get(GROUP_1);
-        Assert.assertNull(templateIds);
+        assertNull(templateIds);
     }
 }

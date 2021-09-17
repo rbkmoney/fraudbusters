@@ -9,17 +9,23 @@ import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.model.Pair;
 import org.apache.thrift.TException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class PaymentInListFinderImplTest {
 
     public static final String PARTY_ID = "partyId";
@@ -34,9 +40,8 @@ public class PaymentInListFinderImplTest {
     @Mock
     private PaymentRepository paymentRepository;
 
-    @Before
+    @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
         listFinder = new PaymentInListFinderImpl(wbListServiceSrv, dbPaymentFieldResolver, paymentRepository);
     }
 
@@ -47,19 +52,19 @@ public class PaymentInListFinderImplTest {
         paymentModel.setPartyId(PARTY_ID);
         paymentModel.setShopId(SHOP_ID);
         Boolean isInList = listFinder.findInBlackList(List.of(new Pair<>(PaymentCheckedField.IP, VALUE)), paymentModel);
-        Assert.assertTrue(isInList);
+        assertTrue(isInList);
     }
 
     @Test
     public void findInListEmpty() throws TException {
-        Mockito.when(wbListServiceSrv.isAnyExist(any())).thenReturn(true);
         PaymentModel paymentModel = new PaymentModel();
         paymentModel.setPartyId(PARTY_ID);
         paymentModel.setShopId(SHOP_ID);
         Boolean isInList = listFinder.findInBlackList(List.of(new Pair<>(PaymentCheckedField.IP, null)), paymentModel);
-        Assert.assertFalse(isInList);
+        assertFalse(isInList);
 
         isInList = listFinder.findInBlackList(List.of(new Pair<>(PaymentCheckedField.IP, "")), paymentModel);
-        Assert.assertFalse(isInList);
+        assertFalse(isInList);
+        verify(wbListServiceSrv, times(0)).isAnyExist(anyList());
     }
 }

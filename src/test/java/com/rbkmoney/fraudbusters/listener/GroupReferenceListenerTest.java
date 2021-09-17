@@ -5,9 +5,11 @@ import com.rbkmoney.fraudbusters.pool.Pool;
 import com.rbkmoney.fraudbusters.pool.PoolImpl;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class GroupReferenceListenerTest {
 
@@ -18,7 +20,7 @@ public class GroupReferenceListenerTest {
     private Pool<String> groupReferencePoolImpl;
     private GroupReferenceListener groupReferenceListener;
 
-    @Before
+    @BeforeEach
     public void init() {
         groupReferencePoolImpl = new PoolImpl<>("group-reference");
         groupReferenceListener = new GroupReferenceListener(groupReferencePoolImpl);
@@ -28,14 +30,14 @@ public class GroupReferenceListenerTest {
     public void listen() {
         groupReferenceListener.listen(BeanUtil.createGroupReferenceCommand(PARTY, null, GROUP_REF_1));
         String ref = groupReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKeyByList(PARTY, null));
-        Assert.assertEquals(GROUP_REF_1, ref);
+        assertEquals(GROUP_REF_1, ref);
 
         groupReferenceListener.listen(BeanUtil.createGroupReferenceCommand(PARTY, SHOP_ID, GROUP_REF_1));
         ref = groupReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKeyByList(PARTY, SHOP_ID));
-        Assert.assertEquals(GROUP_REF_1, ref);
+        assertEquals(GROUP_REF_1, ref);
 
         groupReferenceListener.listen(BeanUtil.createDeleteGroupReferenceCommand(PARTY, SHOP_ID, GROUP_REF_1));
         ref = groupReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKeyByList(PARTY, SHOP_ID));
-        Assert.assertNull(ref);
+        assertNull(ref);
     }
 }
