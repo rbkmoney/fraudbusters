@@ -30,7 +30,8 @@ public class ChargebackBatchPreparedStatementSetter implements BatchPreparedStat
             partyId, shopId,
             amount, currency,
             status, category, chargebackCode, paymentId,
-            payerType, tokenProvider""";
+            payerType, tokenProvider
+            """;
 
     public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 

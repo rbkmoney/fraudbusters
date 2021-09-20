@@ -63,7 +63,8 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
               OR countRefund("card_token", 10, "party_id", "shop_id") > 0
               OR countChargeback("card_token", 10, "party_id", "shop_id") > 0
               OR sumChargeback("card_token", 10, "party_id", "shop_id") > 0
-             -> declineAndNotify;""";
+             -> declineAndNotify;
+            """;
 
     private static final String TEMPLATE_CONCRETE =
             "rule:TEMPLATE_CONCRETE:  sumSuccess(\"email\", 10) >= 29000  -> decline;";

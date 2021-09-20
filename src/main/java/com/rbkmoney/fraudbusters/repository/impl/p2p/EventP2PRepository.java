@@ -32,7 +32,8 @@ public class EventP2PRepository implements Repository<EventP2P>, AggregationRepo
                                          currency, country, bankCountry, maskedPan, bankName, cardTokenFrom,
                                          cardTokenTo, resultStatus, checkedRule,
                                          checkedTemplate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                                          ?, ?, ?)""";
+                                          ?, ?, ?)
+                                         """;
     private final JdbcTemplate jdbcTemplate;
     private final AggregationGeneralRepository aggregationGeneralRepository;
 

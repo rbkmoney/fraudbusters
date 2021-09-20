@@ -42,7 +42,8 @@ public class P2PEndToEndIntegrationTest extends JUnit5IntegrationTest {
              AND sum("email", 10) >= 18000
              AND count("card_token_from", 10) > 1
              AND in(countryBy("country_bank"), "RUS")
-             -> decline;""";
+             -> decline;
+            """;
     private static final String SERVICE_P2P_URL = "http://localhost:%s/fraud_p2p_inspector/v1";
 
     @LocalServerPort

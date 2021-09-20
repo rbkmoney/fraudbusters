@@ -16,7 +16,8 @@ public class EventBatchPreparedStatementSetter implements BatchPreparedStatement
              (timestamp, eventTimeHour, eventTime, ip, email, bin, fingerprint, shopId, partyId, resultStatus, amount,
              country, checkedRule, bankCountry, currency, invoiceId, maskedPan, bankName, cardToken,
              paymentId, checkedTemplate, payerType, tokenProvider, mobile, recurrent)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""";
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """;
 
     private final List<Event> batch;
 

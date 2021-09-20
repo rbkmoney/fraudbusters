@@ -25,7 +25,8 @@ public class RefundBatchPreparedStatementSetter implements BatchPreparedStatemen
     public static final String FIELDS = """
             timestamp, eventTimeHour, eventTime, id, email, ip, fingerprint, bin, maskedPan, cardToken, paymentSystem,
             paymentTool, terminal, providerId, bankCountry, partyId, shopId, amount, currency, status, errorCode,
-            errorReason, paymentId, payerType, tokenProvider""";
+            errorReason, paymentId, payerType, tokenProvider
+            """;
 
     public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 

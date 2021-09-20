@@ -25,7 +25,7 @@ public class GroupReferenceP2PListenerTest {
         groupReferenceP2PListener = new GroupReferenceP2PListener(groupP2PReferencePoolImpl);
     }
 
-    @Test()
+    @Test
     public void listen() {
         groupReferenceP2PListener.listen(BeanUtil.createP2PGroupReferenceCommand(IDENTITY_ID, GROUP_REF_1));
         String ref = groupP2PReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKeyByList(IDENTITY_ID));

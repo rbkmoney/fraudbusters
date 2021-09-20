@@ -20,7 +20,8 @@ public class WithdrawalBatchPreparedStatementSetter implements BatchPreparedStat
     public static final String FIELDS = """
             timestamp, eventTimeHour, eventTime, id, amount, currency, bin, maskedPan, cardToken, paymentSystem,
             terminal, providerId, bankCountry, identityId, accountId, accountCurrency, status, errorCode,
-            errorReason""";
+            errorReason
+            """;
 
     public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 

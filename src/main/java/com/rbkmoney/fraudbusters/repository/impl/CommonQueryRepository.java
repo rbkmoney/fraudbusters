@@ -7,6 +7,7 @@ import net.logstash.logback.encoder.org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -27,14 +28,16 @@ public class CommonQueryRepository {
              GROUP BY cardToken, currency
              HAVING (uniq(id) > 2 and ((sum(amount) > 200000 and currency = 'RUB')
              or (sum(amount) > 3000 and (currency = 'EUR' or currency = 'USD'))))
-             or (uniq(id) > 0 and (sum(amount) > 500000 and currency = 'KZT'))""";
+             or (uniq(id) > 0 and (sum(amount) > 500000 and currency = 'KZT'))
+            """;
 
     private static final String QUERY_WITHDRAWAL = """
             SELECT distinct cardToken
             FROM fraud.withdrawal
             WHERE toDateTime(?) - INTERVAL ? YEAR < toDateTime(eventTime)
             and toDateTime(?) > toDateTime(eventTime)
-            and status='succeeded'""";
+            and status='succeeded'
+            """;
 
     private final JdbcTemplate longQueryJdbcTemplate;
 
@@ -68,7 +71,7 @@ public class CommonQueryRepository {
                     (rs, rowNum) -> rs.getString(1)
             );
             log.info("select withdrawal card tokens result size: {}",
-                    cardTokensWithdrawal != null ? cardTokensWithdrawal.size() : null);
+                    CollectionUtils.isEmpty(cardTokensWithdrawal) ? 0 : cardTokensWithdrawal.size());
             data.addAll(cardTokensWithdrawal);
             return data.stream()
                     .distinct()

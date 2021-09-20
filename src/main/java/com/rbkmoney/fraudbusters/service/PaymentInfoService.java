@@ -22,7 +22,8 @@ public class PaymentInfoService {
                                          maskedPan, cardToken, paymentSystem, paymentTool, terminal, providerId,
                                          bankCountry, partyId, shopId, amount, currency, status, errorCode, errorReason,
                                          payerType, tokenProvider, checkedTemplate, checkedRule, resultStatus,
-                                         checkedResultsJson, mobile, recurrent""";
+                                         checkedResultsJson, mobile, recurrent
+                                         """;
 
     private final JdbcTemplate jdbcTemplate;
 

@@ -28,7 +28,7 @@ public class TemplateP2PReferenceListenerTest {
         templateP2PReferenceListener = new TemplateP2PReferenceListener(templateP2PReferencePoolImpl);
     }
 
-    @Test()
+    @Test
     public void listen() {
         templateP2PReferenceListener.listen(BeanUtil.createP2PTemplateReferenceCommand(IDENTITY_ID, GROUP_REF_1));
         String ref = templateP2PReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKeyByList(IDENTITY_ID));

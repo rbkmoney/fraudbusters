@@ -22,7 +22,8 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
                                         status, errorCode, errorReason,
                                         payerType, tokenProvider,
                                         checkedTemplate, checkedRule, resultStatus, checkedResultsJson, mobile,
-                                        recurrent""";
+                                        recurrent
+                                        """;
 
     public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
