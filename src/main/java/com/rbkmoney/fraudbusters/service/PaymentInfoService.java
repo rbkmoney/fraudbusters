@@ -17,17 +17,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentInfoService {
 
-    private static final String FIELDS = "timestamp, eventTimeHour, eventTime, " +
-                                         "id, " +
-                                         "email, ip, fingerprint, " +
-                                         "bin, maskedPan, cardToken, paymentSystem, paymentTool, " +
-                                         "terminal, providerId, bankCountry, " +
-                                         "partyId, shopId, " +
-                                         "amount, currency, " +
-                                         "status, errorCode, errorReason, " +
-                                         "payerType, tokenProvider, " +
-                                         "checkedTemplate, checkedRule, resultStatus, checkedResultsJson, mobile, " +
-                                         "recurrent";
+    private static final String FIELDS = """
+                                         timestamp, eventTimeHour, eventTime, id, email, ip, fingerprint, bin,
+                                         maskedPan, cardToken, paymentSystem, paymentTool, terminal, providerId,
+                                         bankCountry, partyId, shopId, amount, currency, status, errorCode, errorReason,
+                                         payerType, tokenProvider, checkedTemplate, checkedRule, resultStatus,
+                                         checkedResultsJson, mobile, recurrent
+                                         """;
 
     private final JdbcTemplate jdbcTemplate;
 

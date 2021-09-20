@@ -1,31 +1,33 @@
 package com.rbkmoney.fraudbusters.util;
 
 import com.rbkmoney.fraudbusters.exception.UnknownReferenceException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ReferenceKeyGeneratorTest {
 
     @Test
     public void generateTemplateKey() {
         String key = ReferenceKeyGenerator.generateTemplateKey("partyId", "shopId");
-        Assert.assertEquals("partyId_shopId", key);
+        assertEquals("partyId_shopId", key);
 
         key = ReferenceKeyGenerator.generateTemplateKey("partyId", null);
-        Assert.assertEquals("partyId", key);
+        assertEquals("partyId", key);
 
         key = ReferenceKeyGenerator.generateTemplateKey(null, "shopId");
-        Assert.assertEquals("DEFAULT", key);
+        assertEquals("DEFAULT", key);
     }
 
-    @Test(expected = UnknownReferenceException.class)
+    @Test
     public void testGenerateTemplateKey() {
         String key = ReferenceKeyGenerator.generateTemplateKeyByList("partyId", "shopId");
-        Assert.assertEquals("partyId_shopId", key);
+        assertEquals("partyId_shopId", key);
 
         key = ReferenceKeyGenerator.generateTemplateKeyByList("partyId", null);
-        Assert.assertEquals("partyId", key);
+        assertEquals("partyId", key);
 
-        key = ReferenceKeyGenerator.generateTemplateKeyByList();
+        assertThrows(UnknownReferenceException.class, ReferenceKeyGenerator::generateTemplateKeyByList);
     }
 }

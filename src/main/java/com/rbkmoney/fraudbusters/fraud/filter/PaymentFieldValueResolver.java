@@ -11,32 +11,20 @@ public class PaymentFieldValueResolver {
 
     public Optional<String> resolve(String fieldName, CheckedPayment checkedPayment) {
         PaymentCheckedField byValue = PaymentCheckedField.valueOf(fieldName);
-        switch (byValue) {
-            case IP:
-                return Optional.of(checkedPayment.getIp());
-            case BIN:
-                return Optional.of(checkedPayment.getBin());
-            case CARD_TOKEN:
-                return Optional.of(checkedPayment.getCardToken());
-            case PARTY_ID:
-                return Optional.of(checkedPayment.getPartyId());
-            case EMAIL:
-                return Optional.of(checkedPayment.getEmail());
-            case PAN:
-                return Optional.of(checkedPayment.getMaskedPan());
-            case FINGERPRINT:
-                return Optional.of(checkedPayment.getFingerprint());
-            case SHOP_ID:
-                return Optional.of(checkedPayment.getShopId());
-            case COUNTRY_BANK:
-                return Optional.of(checkedPayment.getBankCountry());
-            case CURRENCY:
-                return Optional.of(checkedPayment.getCurrency());
-            case COUNTRY_IP:
-                return Optional.of(checkedPayment.getPaymentCountry());
-            default:
-                return Optional.empty();
-        }
+        return switch (byValue) {
+            case IP -> Optional.of(checkedPayment.getIp());
+            case BIN -> Optional.of(checkedPayment.getBin());
+            case CARD_TOKEN -> Optional.of(checkedPayment.getCardToken());
+            case PARTY_ID -> Optional.of(checkedPayment.getPartyId());
+            case EMAIL -> Optional.of(checkedPayment.getEmail());
+            case PAN -> Optional.of(checkedPayment.getMaskedPan());
+            case FINGERPRINT -> Optional.of(checkedPayment.getFingerprint());
+            case SHOP_ID -> Optional.of(checkedPayment.getShopId());
+            case COUNTRY_BANK -> Optional.of(checkedPayment.getBankCountry());
+            case CURRENCY -> Optional.of(checkedPayment.getCurrency());
+            case COUNTRY_IP -> Optional.of(checkedPayment.getPaymentCountry());
+            default -> Optional.empty();
+        };
     }
 
 }

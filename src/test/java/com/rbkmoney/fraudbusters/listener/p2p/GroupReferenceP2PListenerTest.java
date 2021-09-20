@@ -5,9 +5,11 @@ import com.rbkmoney.fraudbusters.pool.Pool;
 import com.rbkmoney.fraudbusters.pool.PoolImpl;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GroupReferenceP2PListenerTest {
 
@@ -17,20 +19,25 @@ public class GroupReferenceP2PListenerTest {
     private Pool<String> groupP2PReferencePoolImpl;
     private GroupReferenceP2PListener groupReferenceP2PListener;
 
-    @Before
+    @BeforeEach
     public void init() {
         groupP2PReferencePoolImpl = new PoolImpl<>("p2p-reference");
         groupReferenceP2PListener = new GroupReferenceP2PListener(groupP2PReferencePoolImpl);
     }
 
-    @Test(expected = UnknownReferenceException.class)
+    @Test
     public void listen() {
         groupReferenceP2PListener.listen(BeanUtil.createP2PGroupReferenceCommand(IDENTITY_ID, GROUP_REF_1));
         String ref = groupP2PReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKeyByList(IDENTITY_ID));
-        Assert.assertEquals(GROUP_REF_1, ref);
 
-        groupReferenceP2PListener.listen(BeanUtil.createP2PGroupReferenceCommand(null, GROUP_REF_1));
+        assertEquals(GROUP_REF_1, ref);
+
+        assertThrows(
+                UnknownReferenceException.class,
+                () -> groupReferenceP2PListener.listen(BeanUtil.createP2PGroupReferenceCommand(null, GROUP_REF_1))
+        );
+
         ref = groupP2PReferencePoolImpl.get(ReferenceKeyGenerator.generateTemplateKeyByList(IDENTITY_ID));
-        Assert.assertEquals(GROUP_REF_1, ref);
+        assertEquals(GROUP_REF_1, ref);
     }
 }

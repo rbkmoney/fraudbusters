@@ -53,16 +53,18 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
     public static final String PROCESSED = "processed";
     public static final String FAILED = "failed";
 
-    private static final String TEMPLATE =
-            "rule:TEMPLATE: count(\"email\", 10, 0, \"party_id\", \"shop_id\") > 1  AND count(\"email\", 10) < 3 " +
-                    "AND sum(\"email\", 10, \"party_id\", \"shop_id\") >= 18000 " +
-                    "AND countSuccess(\"card_token\", 10, \"party_id\", \"shop_id\") > 1 " +
-                    "AND in(countryBy(\"country_bank\"), \"RUS\") " +
-                    "OR sumRefund(\"card_token\", 10, \"party_id\", \"shop_id\") > 0 " +
-                    "OR countRefund(\"card_token\", 10, \"party_id\", \"shop_id\") > 0 " +
-                    "OR countChargeback(\"card_token\", 10, \"party_id\", \"shop_id\") > 0 " +
-                    "OR sumChargeback(\"card_token\", 10, \"party_id\", \"shop_id\") > 0 \n" +
-                    " -> declineAndNotify;";
+    private static final String TEMPLATE = """
+            rule:TEMPLATE: count("email", 10, 0, "party_id", "shop_id") > 1
+              AND count("email", 10) < 3
+              AND sum("email", 10, "party_id", "shop_id") >= 18000
+              AND countSuccess("card_token", 10, "party_id", "shop_id") > 1
+              AND in(countryBy("country_bank"), "RUS")
+              OR sumRefund("card_token", 10, "party_id", "shop_id") > 0
+              OR countRefund("card_token", 10, "party_id", "shop_id") > 0
+              OR countChargeback("card_token", 10, "party_id", "shop_id") > 0
+              OR sumChargeback("card_token", 10, "party_id", "shop_id") > 0
+             -> declineAndNotify;
+            """;
 
     private static final String TEMPLATE_CONCRETE =
             "rule:TEMPLATE_CONCRETE:  sumSuccess(\"email\", 10) >= 29000  -> decline;";

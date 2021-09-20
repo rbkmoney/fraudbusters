@@ -16,14 +16,9 @@ public class AbstractGroupCommandListenerExecutor {
     protected void execCommand(Command command, Pool<List<String>> pool) {
         Group group = command.getCommandBody().getGroup();
         switch (command.command_type) {
-            case CREATE:
-                createGroup(group, pool);
-                return;
-            case DELETE:
-                pool.remove(group.getGroupId());
-                return;
-            default:
-                log.error("Unknown command: {}", command);
+            case CREATE -> createGroup(group, pool);
+            case DELETE -> pool.remove(group.getGroupId());
+            default -> log.error("Unknown command: {}", command);
         }
     }
 

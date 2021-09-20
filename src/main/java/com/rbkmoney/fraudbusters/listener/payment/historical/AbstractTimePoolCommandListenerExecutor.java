@@ -22,14 +22,9 @@ public class AbstractTimePoolCommandListenerExecutor {
             HistoricalPool<T> pool,
             Supplier<T> supplier) {
         switch (command.command_type) {
-            case CREATE:
-                pool.add(key, time, supplier.get());
-                return;
-            case DELETE:
-                pool.add(key, time, null);
-                return;
-            default:
-                log.error("Unknown command: {}", command);
+            case CREATE -> pool.add(key, time, supplier.get());
+            case DELETE -> pool.add(key, time, null);
+            default -> log.error("Unknown command: {}", command);
         }
     }
 
@@ -41,14 +36,9 @@ public class AbstractTimePoolCommandListenerExecutor {
             Function<T, R> function,
             T param) {
         switch (command.command_type) {
-            case CREATE:
-                pool.add(key, time, function.apply(param));
-                return;
-            case DELETE:
-                pool.add(key, time, null);
-                return;
-            default:
-                log.error("Unknown command: {}", command);
+            case CREATE -> pool.add(key, time, function.apply(param));
+            case DELETE -> pool.add(key, time, null);
+            default -> log.error("Unknown command: {}", command);
         }
     }
 

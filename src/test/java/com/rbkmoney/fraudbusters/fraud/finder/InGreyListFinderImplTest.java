@@ -12,19 +12,24 @@ import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.model.Pair;
 import org.apache.thrift.TException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class InGreyListFinderImplTest {
 
     private static final String PARTY_ID = "partyId";
@@ -38,9 +43,8 @@ public class InGreyListFinderImplTest {
     @Mock
     private PaymentRepository analyticRepository;
 
-    @Before
+    @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
         inGreyListFinder =
                 new PaymentInListFinderImpl(wbListServiceSrv, new DatabasePaymentFieldResolver(), analyticRepository);
     }
@@ -92,7 +96,8 @@ public class InGreyListFinderImplTest {
                         .setTimeToLive(now.plusSeconds(10L).toString())
                         .setStartCountTime(now.toString())));
         when(wbListServiceSrv.getRowInfo(any())).thenReturn(result);
-        when(analyticRepository.countOperationByField(any(), any(), any(), any())).thenReturn(4);
+        when(analyticRepository.countOperationByFieldWithGroupBy(anyString(), any(), anyLong(), anyLong(), anyList()))
+                .thenReturn(4);
         PaymentModel paymentModel = new PaymentModel();
         paymentModel.setPartyId(PARTY_ID);
         paymentModel.setShopId(SHOP_ID);

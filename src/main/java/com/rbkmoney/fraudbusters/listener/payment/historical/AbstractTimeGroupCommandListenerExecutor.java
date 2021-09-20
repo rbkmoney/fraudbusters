@@ -18,14 +18,9 @@ public class AbstractTimeGroupCommandListenerExecutor {
         Group group = command.getCommandBody().getGroup();
         Long timestamp = TimestampUtil.parseInstantFromString(command.getCommandTime()).toEpochMilli();
         switch (command.command_type) {
-            case CREATE:
-                createGroup(group, timestamp, pool);
-                return;
-            case DELETE:
-                pool.add(group.getGroupId(), timestamp, null);
-                return;
-            default:
-                log.error("Unknown command: {}", command);
+            case CREATE -> createGroup(group, timestamp, pool);
+            case DELETE -> pool.add(group.getGroupId(), timestamp, null);
+            default -> log.error("Unknown command: {}", command);
         }
     }
 
