@@ -4,7 +4,7 @@ import com.rbkmoney.fraudbusters.config.service.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.converter.ScoresResultToEventConverter;
 import com.rbkmoney.fraudbusters.domain.ScoresResult;
 import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
-import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
+import com.rbkmoney.fraudbusters.repository.clickhouse.impl.p2p.EventP2PRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

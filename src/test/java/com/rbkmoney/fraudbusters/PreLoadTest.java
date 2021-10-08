@@ -3,7 +3,7 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
-import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
+import com.rbkmoney.fraudbusters.repository.clickhouse.impl.FraudResultRepository;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,6 @@ import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-
 
 @Slf4j
 @ActiveProfiles("full-prod")

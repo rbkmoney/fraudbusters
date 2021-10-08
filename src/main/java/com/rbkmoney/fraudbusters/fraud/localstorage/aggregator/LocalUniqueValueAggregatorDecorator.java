@@ -5,7 +5,7 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.localstorage.LocalResultStorageRepository;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.fraud.payment.aggregator.UniqueValueAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.UniqueValueAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;

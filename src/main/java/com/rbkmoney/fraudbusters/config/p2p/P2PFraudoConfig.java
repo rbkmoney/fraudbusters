@@ -15,7 +15,7 @@ import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
-import com.rbkmoney.fraudbusters.repository.impl.p2p.EventP2PRepository;
+import com.rbkmoney.fraudbusters.repository.clickhouse.impl.p2p.EventP2PRepository;
 import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.SumAggregator;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;

@@ -3,7 +3,7 @@ package com.rbkmoney.fraudbusters.fraud.aggragator;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.fraud.payment.aggregator.SumAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.repository.AggregationRepository;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;

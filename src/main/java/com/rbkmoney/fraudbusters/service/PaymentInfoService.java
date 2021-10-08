@@ -3,7 +3,7 @@ package com.rbkmoney.fraudbusters.service;
 import com.rbkmoney.fraudbusters.constant.EventSource;
 import com.rbkmoney.fraudbusters.constant.PaymentStatus;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
-import com.rbkmoney.fraudbusters.repository.extractor.CheckedPaymentExtractor;
+import com.rbkmoney.fraudbusters.repository.clickhouse.extractor.CheckedPaymentExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;

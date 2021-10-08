@@ -13,12 +13,14 @@ import com.rbkmoney.fraudbusters.config.properties.KafkaTopics;
 import com.rbkmoney.fraudbusters.extension.ClickHouseContainerExtension;
 import com.rbkmoney.fraudbusters.extension.KafkaContainerExtension;
 import com.rbkmoney.fraudbusters.extension.config.KafkaTopicsConfig;
+import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphPaymentEventListener;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.service.ShopManagementService;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
+import io.dgraph.DgraphClient;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -76,6 +78,10 @@ public class JUnit5IntegrationTest {
     WbListServiceSrv.Iface wbListServiceSrv;
     @MockBean
     private ShopManagementService shopManagementService;
+    @MockBean
+    private DgraphClient dgraphClient;
+    @MockBean
+    private DgraphPaymentEventListener dgraphPaymentEventListener;
 
     @BeforeEach
     void setUp() {

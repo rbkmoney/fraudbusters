@@ -27,12 +27,15 @@
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
         <fraudbusters-proto.version>1.96-81934f5</fraudbusters-proto.version>
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
+        <dgraph4j.version>21.03.1</dgraph4j.version>
+        <velocity.version>2.2</velocity.version>
 
         <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
         <sonar.issue.ignore.multicriteria.e1.ruleKey>squid:S2095</sonar.issue.ignore.multicriteria.e1.ruleKey>
         <sonar.issue.ignore.multicriteria.e1.resourceKey>
             **/*StreamFactoryImpl.java
         </sonar.issue.ignore.multicriteria.e1.resourceKey>
+        <checkstyle.config.suppressions.path>./src/main/resources/checkstyle/checkstyle-suppressions.xml</checkstyle.config.suppressions.path>
     </properties>
     <dependencies>
         <!--spring-->
@@ -180,6 +183,26 @@
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+            <version>${velocity.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dgraph</groupId>
+            <artifactId>dgraph4j</artifactId>
+            <version>${dgraph4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Test libs -->

@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.fraudbusters.config.properties.DefaultTemplateProperties;
-import com.rbkmoney.fraudbusters.repository.impl.FraudResultRepository;
+import com.rbkmoney.fraudbusters.repository.clickhouse.impl.FraudResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
