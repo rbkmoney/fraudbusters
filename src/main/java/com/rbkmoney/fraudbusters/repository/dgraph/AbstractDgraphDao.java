@@ -32,8 +32,9 @@ public abstract class AbstractDgraphDao {
     }
 
     public boolean insertNqsToDgraph(String nqs, String query) {
-        Transaction transaction = dgraphClient.newTransaction();
+        Transaction transaction = null;
         try {
+            transaction = dgraphClient.newTransaction();
             log.trace("InsertJsonToDgraph will save data (nqs: {})", nqs);
             DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
                     .setSetNquads(ByteString.copyFromUtf8(nqs))
@@ -57,7 +58,9 @@ public abstract class AbstractDgraphDao {
             throw new DgraphException(String.format("Received exception from dgraph while the service " +
                     "was saving data (nqs: %s)", nqs), ex);
         } finally {
-            transaction.discard();
+            if (transaction != null) {
+                transaction.discard();
+            }
         }
     }
 

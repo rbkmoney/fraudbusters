@@ -55,12 +55,15 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
 
         dgraphPayment.setCardToken(convertToken(payment));
         ClientInfo clientInfo = payment.getClientInfo();
-        dgraphPayment.setFingerprint(clientInfo.getFingerprint() == null ? null : convertFingerprint(payment));
-        dgraphPayment.setContactEmail(clientInfo.getEmail() == null ? null : convertEmail(payment));
+        if (clientInfo != null) {
+            dgraphPayment.setFingerprint(clientInfo.getFingerprint() == null ? null : convertFingerprint(payment));
+            dgraphPayment.setContactEmail(clientInfo.getEmail() == null ? null : convertEmail(payment));
+            dgraphPayment.setDgraphIp(clientInfo.getIp() == null ? null : convertIp(payment));
+        }
+
         dgraphPayment.setDgraphBin(paymentTool.isSetBankCard() ? convertBin(payment) : null);
         dgraphPayment.setPartyShop(convertPartyShop(payment));
         dgraphPayment.setCountry(providerInfo.getCountry() == null ? null : convertCountry(payment));
-        dgraphPayment.setDgraphIp(clientInfo == null ? null : convertIp(payment));
         return dgraphPayment;
     }
 
