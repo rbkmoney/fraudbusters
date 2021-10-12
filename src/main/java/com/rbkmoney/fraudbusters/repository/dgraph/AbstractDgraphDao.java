@@ -5,7 +5,6 @@ import com.rbkmoney.fraudbusters.exception.DgraphException;
 import io.dgraph.DgraphClient;
 import io.dgraph.DgraphProto;
 import io.dgraph.Transaction;
-import io.dgraph.TxnConflictException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.support.RetryTemplate;
@@ -35,14 +34,8 @@ public abstract class AbstractDgraphDao {
             final DgraphProto.Response response = transaction.doRequest(req);
             log.debug("InsertJsonToDgraph received response (nqs: {}): {}", nqs, response);
             return true;
-        } catch (TxnConflictException ex) {
-            log.warn("Received TxnConflictException while the service add new data)", ex);
-            throw ex;
         } catch (RuntimeException ex) {
-            if (ex.getMessage().contains("TxnConflictException")) {
-                log.warn("Received inner TxnConflictException while the service add new data", ex);
-                throw ex;
-            }
+            log.warn("Received a dgraph exception while the service add new data)", ex);
             throw new DgraphException(String.format("Received exception from dgraph while the service " +
                     "was saving data (nqs: %s)", nqs), ex);
         }
