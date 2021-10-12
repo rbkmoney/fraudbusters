@@ -70,6 +70,12 @@ kafka:
       withdrawal: withdrawal
     fraud:
       payment: fraud_payment
+  dgraph:
+    topics:
+      payment:
+        name: payment_event
+        concurrency: 1
+        enabled: true
   ssl:
     enable: false
     keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12

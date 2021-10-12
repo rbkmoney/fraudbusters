@@ -1,10 +1,12 @@
 package com.rbkmoney.fraudbusters.config.service;
 
 import com.rbkmoney.damsel.fraudbusters.Command;
+import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.fraudbusters.config.properties.KafkaSslProperties;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.service.ConsumerGroupIdService;
 import com.rbkmoney.fraudbusters.util.SslKafkaUtils;
+import com.rbkmoney.kafka.common.exception.handler.SeekToCurrentWithSleepBatchErrorHandler;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.LoggingErrorHandler;
 import org.springframework.retry.RetryPolicy;
 import org.springframework.retry.backoff.BackOffPolicy;
@@ -46,6 +49,8 @@ public class ListenersConfigurationService {
     private String bootstrapServers;
     @Value("${kafka.listen.result.concurrency}")
     private int listenResultConcurrency;
+    @Value("${kafka.dgraph.topics.payment.concurrency}")
+    private int dgraphPaymentConcurrency;
 
     public Map<String, Object> createDefaultProperties(String value) {
         final Map<String, Object> props = new HashMap<>();
@@ -110,10 +115,25 @@ public class ListenersConfigurationService {
         return createFactoryWithProps(deserializer, props);
     }
 
+    public ConcurrentKafkaListenerContainerFactory<String, Payment> createDgraphFactory(
+            Deserializer<Payment> deserializer,
+            String groupId,
+            Integer fetchMinBytes) {
+        String consumerGroup = consumerGroupIdService.generateGroupId(groupId);
+        final Map<String, Object> props = createDefaultProperties(consumerGroup);
+        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, fetchMinBytes);
+        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, MAX_WAIT_FETCH_MS);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        var factory = createFactoryWithProps(deserializer, props);
+        factory.setBatchErrorHandler(new SeekToCurrentWithSleepBatchErrorHandler());
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.setConcurrency(dgraphPaymentConcurrency);
+        return factory;
+    }
+
     public <T> ConcurrentKafkaListenerContainerFactory<String, T> createFactoryWithProps(
             Deserializer<T> deserializer,
             Map<String, Object> props) {
-
         ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         DefaultKafkaConsumerFactory<String, T> consumerFactory = new DefaultKafkaConsumerFactory<>(

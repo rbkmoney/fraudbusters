@@ -17,7 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.RetryCallback;
+import org.springframework.retry.RetryContext;
 import org.springframework.retry.backoff.FixedBackOffPolicy;
+import org.springframework.retry.listener.RetryListenerSupport;
 import org.springframework.retry.support.RetryTemplate;
 
 import java.util.Collections;
@@ -49,6 +52,7 @@ public class DgraphConfig {
         FixedBackOffPolicy fixedBackOffPolicy = new FixedBackOffPolicy();
         fixedBackOffPolicy.setBackOffPeriod(10L);
         retryTemplate.setBackOffPolicy(fixedBackOffPolicy);
+        retryTemplate.registerListener(new RegisterJobFailListener());
 
         return retryTemplate;
     }
@@ -89,6 +93,17 @@ public class DgraphConfig {
             stub = MetadataUtils.attachHeaders(stub, metadata);
         }
         return stub;
+    }
+
+    private static final class RegisterJobFailListener extends RetryListenerSupport {
+
+        @Override
+        public <T, E extends Throwable> void onError(RetryContext context,
+                                                     RetryCallback<T, E> callback,
+                                                     Throwable throwable) {
+            log.warn("Register dgraph transaction failed event. Retry count: {}",
+                    context.getRetryCount(), context.getLastThrowable());
+        }
     }
 
 }

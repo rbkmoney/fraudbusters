@@ -68,7 +68,6 @@ public class PaymentEventListener {
     }
 
     private CheckedPayment mapAndCheckResults(Payment payment) {
-        log.error("ND > {}", payment.getId());
         CheckedPayment checkedPayment = paymentToCheckedPaymentConverter.convert(payment);
         if (isEnabledFullCheck && PaymentStatus.processed.name().equals(checkedPayment.getPaymentStatus())) {
             List<CheckedResultModel> listResults =
