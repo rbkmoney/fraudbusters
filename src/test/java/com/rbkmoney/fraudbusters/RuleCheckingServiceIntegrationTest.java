@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createPaymentModel;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createPaymentModel;
 import static com.rbkmoney.fraudbusters.util.BeanUtil.PARTY_ID;
 import static com.rbkmoney.fraudbusters.util.BeanUtil.SHOP_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;

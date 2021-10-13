@@ -16,17 +16,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Component
-@ConditionalOnProperty(value = "kafka.dgraph.topics.payment.enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class DgraphPaymentEventListener {
 

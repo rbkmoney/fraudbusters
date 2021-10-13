@@ -4,6 +4,7 @@ import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.factory.TestObjectsFactory;
 import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.PaymentRepositoryImpl;

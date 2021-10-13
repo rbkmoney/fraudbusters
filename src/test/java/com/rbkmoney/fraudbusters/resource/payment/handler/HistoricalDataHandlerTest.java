@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.resource.payment.handler;
 
 import com.rbkmoney.damsel.fraudbusters.*;
-import com.rbkmoney.fraudbusters.TestObjectsFactory;
+import com.rbkmoney.fraudbusters.factory.TestObjectsFactory;
 import com.rbkmoney.fraudbusters.constant.PaymentToolType;
 import com.rbkmoney.fraudbusters.converter.*;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
@@ -34,13 +34,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createCascadingEmulationRuleApplyRequest;
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createCascadingTemplateDto;
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createCheckedResultModel;
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createEmulationRuleApplyRequest;
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createHistoricalTransactionCheck;
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createPayment;
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createPaymentModel;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createCascadingEmulationRuleApplyRequest;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createCascadingTemplateDto;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createCheckedResultModel;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createEmulationRuleApplyRequest;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createHistoricalTransactionCheck;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createPayment;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createPaymentModel;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;

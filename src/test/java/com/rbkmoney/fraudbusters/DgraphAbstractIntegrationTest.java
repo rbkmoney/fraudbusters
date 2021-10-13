@@ -43,6 +43,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
         classes = FraudBustersApplication.class,
         properties = {
                 "kafka.listen.result.concurrency=1",
+                "dgraph.service.enabled=true",
                 "kafka.dgraph.topics.payment.enabled=true",
                 "dgraph.port=9080",
                 "dgraph.withAuthHeader=false"

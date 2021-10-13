@@ -4,7 +4,7 @@ import com.rbkmoney.damsel.fraudbusters.Filter;
 import com.rbkmoney.damsel.fraudbusters.Page;
 import com.rbkmoney.damsel.fraudbusters.Sort;
 import com.rbkmoney.damsel.fraudbusters.SortOrder;
-import com.rbkmoney.fraudbusters.TestObjectsFactory;
+import com.rbkmoney.fraudbusters.factory.TestObjectsFactory;
 import com.rbkmoney.fraudbusters.constant.PaymentField;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import org.junit.jupiter.api.Test;

@@ -5,6 +5,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.rbkmoney.fraudbusters.converter.PaymentToDgraphPaymentConverter;
+import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
+import com.rbkmoney.fraudbusters.domain.dgraph.DgraphPayment;
+import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphPaymentEventListener;
+import com.rbkmoney.fraudbusters.repository.Repository;
+import com.rbkmoney.fraudbusters.stream.impl.FullTemplateVisitorImpl;
 import com.rbkmoney.kafka.common.retry.ConfigurableRetryPolicy;
 import io.dgraph.DgraphClient;
 import io.dgraph.DgraphGrpc;
@@ -15,6 +21,7 @@ import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.RetryCallback;
@@ -29,6 +36,7 @@ import static com.rbkmoney.fraudbusters.constant.SchemaConstants.SCHEMA;
 
 @Slf4j
 @Configuration
+@ConditionalOnProperty(value = "dgraph.service.enabled", havingValue = "true")
 public class DgraphConfig {
 
     @Value("${dgraph.maxAttempts}")
@@ -77,6 +85,24 @@ public class DgraphConfig {
                         .build()
         );
         return dgraphClient;
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "kafka.dgraph.topics.payment.enabled", havingValue = "true")
+    public DgraphPaymentEventListener dgraphPaymentEventListener(
+            Repository<DgraphPayment> dgraphPaymentRepository,
+            FullTemplateVisitorImpl fullTemplateVisitor,
+            PaymentToPaymentModelConverter paymentToPaymentModelConverter,
+            PaymentToDgraphPaymentConverter paymentToDgraphPaymentConverter,
+            ObjectMapper objectMapper
+    ) {
+        return new DgraphPaymentEventListener(
+                dgraphPaymentRepository,
+                fullTemplateVisitor,
+                paymentToPaymentModelConverter,
+                paymentToDgraphPaymentConverter,
+                objectMapper
+        );
     }
 
     private DgraphGrpc.DgraphStub createStub(String host, int port, boolean withAuthHeader) {

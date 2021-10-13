@@ -75,7 +75,7 @@ kafka:
       payment:
         name: payment_event
         concurrency: 1
-        enabled: true
+        enabled: false
   ssl:
     enable: false
     keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12
@@ -102,6 +102,8 @@ dgraph:
   port: 9080
   withAuthHeader: false
   maxAttempts: -1
+  service:
+    enabled: false
 
 geo.ip.service.url: "localhost:29092/v1/columbus"
 

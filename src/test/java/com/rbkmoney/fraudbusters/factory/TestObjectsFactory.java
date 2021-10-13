@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters;
+package com.rbkmoney.fraudbusters.factory;
 
 import com.rbkmoney.damsel.base.TimestampInterval;
 import com.rbkmoney.damsel.base.TimestampIntervalBound;

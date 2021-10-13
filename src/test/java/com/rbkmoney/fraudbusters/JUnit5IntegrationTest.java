@@ -13,14 +13,12 @@ import com.rbkmoney.fraudbusters.config.properties.KafkaTopics;
 import com.rbkmoney.fraudbusters.extension.ClickHouseContainerExtension;
 import com.rbkmoney.fraudbusters.extension.KafkaContainerExtension;
 import com.rbkmoney.fraudbusters.extension.config.KafkaTopicsConfig;
-import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphPaymentEventListener;
 import com.rbkmoney.fraudbusters.serde.CommandDeserializer;
 import com.rbkmoney.fraudbusters.service.ShopManagementService;
 import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
-import io.dgraph.DgraphClient;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -61,6 +59,7 @@ import static org.mockito.ArgumentMatchers.any;
         ClickHouseContainerExtension.class
 })
 public class JUnit5IntegrationTest {
+
     protected static final long TIMEOUT = 1000L;
 
     @Value("${kafka.topic.event.sink.initial}")
@@ -78,10 +77,6 @@ public class JUnit5IntegrationTest {
     WbListServiceSrv.Iface wbListServiceSrv;
     @MockBean
     private ShopManagementService shopManagementService;
-    @MockBean
-    private DgraphClient dgraphClient;
-    @MockBean
-    private DgraphPaymentEventListener dgraphPaymentEventListener;
 
     @BeforeEach
     void setUp() {

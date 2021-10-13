@@ -28,9 +28,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createCascadingTemplateDto;
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createCheckedResultModel;
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createPaymentModel;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createCascadingTemplateDto;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createCheckedResultModel;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createPaymentModel;
 import static com.rbkmoney.fraudbusters.util.BeanUtil.PARTY_ID;
 import static com.rbkmoney.fraudbusters.util.BeanUtil.SHOP_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;

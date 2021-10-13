@@ -6,6 +6,7 @@ import com.rbkmoney.fraudbusters.service.TemplateService;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import io.dgraph.DgraphClient;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Slf4j
 @Component
+@Lazy
 public class DgraphPaymentRepository extends AbstractDgraphDao implements Repository<DgraphPayment> {
 
     private final TemplateService templateService;
