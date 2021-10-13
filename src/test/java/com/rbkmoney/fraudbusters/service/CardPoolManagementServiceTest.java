@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.fraudbusters.config.ClickhouseConfig;
 import com.rbkmoney.fraudbusters.fraud.pool.CardTokenPoolImpl;
-import com.rbkmoney.fraudbusters.repository.impl.CommonQueryRepository;
+import com.rbkmoney.fraudbusters.repository.clickhouse.impl.CommonQueryRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

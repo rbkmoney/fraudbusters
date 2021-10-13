@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.damsel.fraudbusters.Refund;
-import com.rbkmoney.fraudbusters.TestObjectsFactory;
+import com.rbkmoney.fraudbusters.factory.TestObjectsFactory;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.Event;
 import com.rbkmoney.fraudbusters.domain.FraudPaymentRow;

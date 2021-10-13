@@ -70,6 +70,12 @@ kafka:
       withdrawal: withdrawal
     fraud:
       payment: fraud_payment
+  dgraph:
+    topics:
+      payment:
+        name: payment_event
+        concurrency: 1
+        enabled: false
   ssl:
     enable: false
     keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12
@@ -91,6 +97,13 @@ clickhouse.db:
   distributed-connections-pool-size: 50
   max-distributed-connections: 50
 
+dgraph:
+  host: localhost
+  port: 9080
+  withAuthHeader: false
+  maxAttempts: -1
+  service:
+    enabled: false
 
 geo.ip.service.url: "localhost:29092/v1/columbus"
 

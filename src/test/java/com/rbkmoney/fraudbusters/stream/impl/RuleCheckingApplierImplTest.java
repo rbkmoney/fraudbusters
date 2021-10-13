@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createCheckedResultModel;
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createPaymentModel;
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createResultModel;
-import static com.rbkmoney.fraudbusters.TestObjectsFactory.createRuleResult;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createCheckedResultModel;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createPaymentModel;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createResultModel;
+import static com.rbkmoney.fraudbusters.factory.TestObjectsFactory.createRuleResult;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;

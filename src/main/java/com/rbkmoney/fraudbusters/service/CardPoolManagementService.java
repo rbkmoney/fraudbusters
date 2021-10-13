@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.fraudbusters.exception.ReadDataException;
 import com.rbkmoney.fraudbusters.fraud.pool.CardTokenPool;
-import com.rbkmoney.fraudbusters.repository.impl.CommonQueryRepository;
+import com.rbkmoney.fraudbusters.repository.clickhouse.impl.CommonQueryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;

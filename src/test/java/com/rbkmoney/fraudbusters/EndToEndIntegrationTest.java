@@ -4,10 +4,11 @@ import com.rbkmoney.damsel.domain.RiskScore;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.proxy_inspector.Context;
 import com.rbkmoney.damsel.proxy_inspector.InspectorProxySrv;
+import com.rbkmoney.fraudbusters.factory.TestObjectsFactory;
 import com.rbkmoney.fraudbusters.pool.HistoricalPool;
-import com.rbkmoney.fraudbusters.repository.impl.ChargebackRepository;
-import com.rbkmoney.fraudbusters.repository.impl.PaymentRepositoryImpl;
-import com.rbkmoney.fraudbusters.repository.impl.RefundRepository;
+import com.rbkmoney.fraudbusters.repository.clickhouse.impl.ChargebackRepository;
+import com.rbkmoney.fraudbusters.repository.clickhouse.impl.PaymentRepositoryImpl;
+import com.rbkmoney.fraudbusters.repository.clickhouse.impl.RefundRepository;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import com.rbkmoney.woody.thrift.impl.http.THSpawnClientBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-
 
 @Slf4j
 @ActiveProfiles("full-prod")

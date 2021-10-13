@@ -59,6 +59,7 @@ import static org.mockito.ArgumentMatchers.any;
         ClickHouseContainerExtension.class
 })
 public class JUnit5IntegrationTest {
+
     protected static final long TIMEOUT = 1000L;
 
     @Value("${kafka.topic.event.sink.initial}")
