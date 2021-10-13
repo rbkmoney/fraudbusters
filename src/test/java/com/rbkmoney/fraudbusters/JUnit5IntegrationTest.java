@@ -3,7 +3,6 @@ package com.rbkmoney.fraudbusters;
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.damsel.fraudbusters.CommandBody;
 import com.rbkmoney.damsel.fraudbusters.CommandType;
-import com.rbkmoney.damsel.fraudbusters.P2PReference;
 import com.rbkmoney.damsel.fraudbusters.PriorityId;
 import com.rbkmoney.damsel.fraudbusters.Template;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
@@ -145,27 +144,6 @@ public class JUnit5IntegrationTest {
             String key = ReferenceKeyGenerator.generateTemplateKey(value);
             ProducerRecord<String, Command> producerRecord =
                     new ProducerRecord<>(kafkaTopics.getFullReference(), key, command);
-            producer.send(producerRecord).get();
-        }
-    }
-
-    void produceP2PReference(boolean isGlobal, String identityId, String idTemplate)
-            throws InterruptedException, ExecutionException {
-        try (Producer<String, Command> producer = createProducer()) {
-            Command command = new Command();
-            command.setCommandType(CommandType.CREATE);
-            P2PReference value = new P2PReference();
-            value.setTemplateId(idTemplate);
-            value.setIdentityId(identityId);
-            value.setIsGlobal(isGlobal);
-
-            command.setCommandBody(CommandBody.p2p_reference(value));
-            command.setCommandTime(LocalDateTime.now().toString());
-
-            String key = ReferenceKeyGenerator.generateP2PTemplateKey(value);
-
-            ProducerRecord<String, Command> producerRecord =
-                    new ProducerRecord<>(kafkaTopics.getP2pReference(), key, command);
             producer.send(producerRecord).get();
         }
     }

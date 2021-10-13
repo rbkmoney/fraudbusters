@@ -21,9 +21,4 @@ public class KafkaTopics {
     private String fullGroupList;
     private String fullGroupReference;
 
-    private String p2pTemplate;
-    private String p2pReference;
-    private String p2pGroupList;
-    private String p2pGroupReference;
-
 }

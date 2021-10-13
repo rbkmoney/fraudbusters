@@ -1,27 +1,23 @@
 package com.rbkmoney.fraudbusters.config.payment;
 
-import com.rbkmoney.fraudbusters.fraud.constant.P2PCheckedField;
+import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.localstorage.LocalResultStorageRepository;
 import com.rbkmoney.fraudbusters.fraud.localstorage.aggregator.LocalCountAggregatorDecorator;
 import com.rbkmoney.fraudbusters.fraud.localstorage.aggregator.LocalSumAggregatorDecorator;
 import com.rbkmoney.fraudbusters.fraud.localstorage.aggregator.LocalUniqueValueAggregatorDecorator;
-import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.fraud.p2p.aggregator.CountP2PAggregatorImpl;
-import com.rbkmoney.fraudbusters.fraud.p2p.resolver.DbP2pFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.CountAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.UniqueValueAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.PaymentModelFieldResolver;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.RefundRepository;
-import com.rbkmoney.fraudbusters.repository.clickhouse.impl.p2p.EventP2PRepository;
-import com.rbkmoney.fraudo.aggregator.CountAggregator;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
 import com.rbkmoney.fraudo.finder.InListFinder;
 import com.rbkmoney.fraudo.payment.aggregator.CountPaymentAggregator;
@@ -56,13 +52,6 @@ public class PaymentFraudoConfig {
     }
 
     @Bean
-    public CountAggregator<P2PModel, P2PCheckedField> countP2PAggregator(
-            EventP2PRepository eventP2PRepository,
-            DbP2pFieldResolver dbP2pFieldResolver) {
-        return new CountP2PAggregatorImpl(eventP2PRepository, dbP2pFieldResolver);
-    }
-
-    @Bean
     public SumPaymentAggregator<PaymentModel, PaymentCheckedField> sumAggregator(
             PaymentRepository fraudResultRepository,
             RefundRepository refundRepository,
@@ -92,6 +81,14 @@ public class PaymentFraudoConfig {
     @Bean
     public FieldResolver<PaymentModel, PaymentCheckedField> paymentModelFieldResolver() {
         return new PaymentModelFieldResolver();
+    }
+
+    @Bean
+    public InListFinder<PaymentModel, PaymentCheckedField> paymentInListFinder(
+            WbListServiceSrv.Iface wbListServiceSrv,
+            PaymentRepository fraudResultRepository,
+            DatabasePaymentFieldResolver databasePaymentFieldResolver) {
+        return new PaymentInListFinderImpl(wbListServiceSrv, databasePaymentFieldResolver, fraudResultRepository);
     }
 
     @Bean
