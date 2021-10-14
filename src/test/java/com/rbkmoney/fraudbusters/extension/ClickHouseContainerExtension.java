@@ -20,7 +20,6 @@ public class ClickHouseContainerExtension implements BeforeAllCallback {
         CLICKHOUSE_CONTAINER.start();
         ChInitializer.initAllScripts(CLICKHOUSE_CONTAINER, List.of(
                 "sql/db_init.sql",
-                "sql/V2__create_events_p2p.sql",
                 "sql/V3__create_fraud_payments.sql",
                 "sql/V4__create_payment.sql",
                 "sql/V5__add_fields.sql",

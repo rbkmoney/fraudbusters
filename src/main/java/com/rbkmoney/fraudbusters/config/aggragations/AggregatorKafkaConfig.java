@@ -5,8 +5,6 @@ import com.rbkmoney.fraudbusters.config.service.KafkaTemplateConfigurationServic
 import com.rbkmoney.fraudbusters.config.service.ListenersConfigurationService;
 import com.rbkmoney.fraudbusters.constant.GroupPostfix;
 import com.rbkmoney.fraudbusters.domain.FraudResult;
-import com.rbkmoney.fraudbusters.domain.ScoresResult;
-import com.rbkmoney.fraudbusters.fraud.model.P2PModel;
 import com.rbkmoney.fraudbusters.serde.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,11 +70,6 @@ public class AggregatorKafkaConfig {
                 new ChargebackDeserializer(),
                 GroupPostfix.RESULT_AGGREGATOR
         );
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, ScoresResult<P2PModel>> kafkaP2PResultListenerContainerFactory() {
-        return listenersConfigurationService.createFactory(new P2PResultDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
     }
 
     @Bean

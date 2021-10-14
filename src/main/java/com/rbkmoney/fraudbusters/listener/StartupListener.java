@@ -3,10 +3,6 @@ package com.rbkmoney.fraudbusters.listener;
 import com.rbkmoney.damsel.fraudbusters.Command;
 import com.rbkmoney.fraudbusters.config.properties.KafkaTopics;
 import com.rbkmoney.fraudbusters.exception.StartException;
-import com.rbkmoney.fraudbusters.listener.p2p.GroupP2PListener;
-import com.rbkmoney.fraudbusters.listener.p2p.GroupReferenceP2PListener;
-import com.rbkmoney.fraudbusters.listener.p2p.TemplateP2PListener;
-import com.rbkmoney.fraudbusters.listener.p2p.TemplateP2PReferenceListener;
 import com.rbkmoney.fraudbusters.listener.payment.GroupListener;
 import com.rbkmoney.fraudbusters.listener.payment.GroupReferenceListener;
 import com.rbkmoney.fraudbusters.listener.payment.TemplateListener;
@@ -39,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    private static final int COUNT_PRELOAD_TASKS = 8;
+    private static final int COUNT_PRELOAD_TASKS = 4;
 
     private final StreamManager streamManager;
 
@@ -63,18 +59,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private final GroupReferenceListener timeGroupReferenceListener;
     private final TemplateReferenceListener timeTemplateReferenceListener;
 
-    private final ConsumerFactory<String, Command> templateP2PListenerFactory;
-    private final ConsumerFactory<String, Command> groupP2PListenerFactory;
-    private final ConsumerFactory<String, Command> referenceP2PListenerFactory;
-    private final ConsumerFactory<String, Command> groupReferenceP2PListenerFactory;
-
-    private final TemplateP2PListener templateP2PListener;
-    private final GroupP2PListener groupP2PListener;
-    private final GroupReferenceP2PListener groupReferenceP2PListener;
-    private final TemplateP2PReferenceListener templateP2PReferenceListener;
-
     private final Pool<ParserRuleContext> templatePoolImpl;
-    private final Pool<ParserRuleContext> templateP2PPoolImpl;
 
     private final PreloadListener<String, Command> preloadListener = new PreloadListenerImpl<>();
     private final KafkaTopics kafkaTopics;
@@ -148,26 +133,6 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
                             groupReferenceListenerFactory,
                             kafkaTopics.getGroupReference(),
                             groupReferenceListener
-                    ),
-
-                    () -> waitPreLoad(
-                            latch,
-                            templateP2PListenerFactory,
-                            kafkaTopics.getP2pTemplate(),
-                            templateP2PListener
-                    ),
-                    () -> waitPreLoad(
-                            latch,
-                            referenceP2PListenerFactory,
-                            kafkaTopics.getP2pReference(),
-                            templateP2PReferenceListener
-                    ),
-                    () -> waitPreLoad(latch, groupP2PListenerFactory, kafkaTopics.getP2pGroupList(), groupP2PListener),
-                    () -> waitPreLoad(
-                            latch,
-                            groupReferenceP2PListenerFactory,
-                            kafkaTopics.getP2pGroupReference(),
-                            groupReferenceP2PListener
                     )
                     )
             );
@@ -185,11 +150,6 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
                     "StartupListener load pool payment template size: {} templates: {}",
                     templatePoolImpl.size(),
                     templatePoolImpl
-            );
-            log.info(
-                    "StartupListener load pool p2p template size: {} templates: {}",
-                    templateP2PPoolImpl.size(),
-                    templateP2PPoolImpl
             );
         } catch (InterruptedException e) {
             log.error("StartupListener onApplicationEvent e: ", e);

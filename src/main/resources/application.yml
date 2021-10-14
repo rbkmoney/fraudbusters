@@ -55,11 +55,6 @@ kafka:
     full-reference: full_template_reference
     full-group-list: full_group_list
     full-group-reference: full_group_reference
-    p2p-result: p2p_result
-    p2p-template: template_p2p
-    p2p-reference: template_p2p_reference
-    p2p-group-list: group_p2p_list
-    p2p-group-reference: group_p2p_reference
     unknown-initiating-entity: unknown_initiating_entity
     event.sink:
       initial: event_sink

@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.util;
 
-import com.rbkmoney.damsel.fraudbusters.P2PReference;
 import com.rbkmoney.damsel.fraudbusters.TemplateReference;
 import com.rbkmoney.fraudbusters.constant.TemplateLevel;
 import com.rbkmoney.fraudbusters.exception.UnknownReferenceException;
@@ -25,13 +24,6 @@ public class ReferenceKeyGenerator {
             return partyId + SEPARATOR + shopId;
         }
         return TemplateLevel.DEFAULT.name();
-    }
-
-    public static String generateP2PTemplateKey(P2PReference reference) {
-        if (reference.is_global) {
-            return TemplateLevel.GLOBAL.name();
-        }
-        return generateTemplateKeyByList(reference.identity_id);
     }
 
     public static String generateTemplateKeyByList(String... ids) {

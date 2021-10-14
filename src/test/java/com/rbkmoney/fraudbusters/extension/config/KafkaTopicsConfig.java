@@ -35,11 +35,6 @@ public class KafkaTopicsConfig {
     }
 
     @Bean
-    public NewTopic p2pResultTopic() {
-        return createTopic("p2p_result");
-    }
-
-    @Bean
     public NewTopic fraudPaymentTopic() {
         return createTopic("fraud_payment");
     }
@@ -65,58 +60,38 @@ public class KafkaTopicsConfig {
     }
 
     @Bean
-    public NewTopic referenceTopic() {
+    public NewTopic fullTemplateTopic() {
         return createTopic("full_template");
     }
 
     @Bean
-    public NewTopic groupListTopic() {
-        return createTopic("template_p2p");
-    }
-
-    @Bean
-    public NewTopic groupReferenceTopic() {
+    public NewTopic templateReferenceTopic() {
         return createTopic("template_reference");
     }
 
     @Bean
-    public NewTopic fullTemplateTopic() {
+    public NewTopic fullTemplateReferenceTopic() {
         return createTopic("full_template_reference");
     }
 
     @Bean
-    public NewTopic fullReferenceTopic() {
-        return createTopic("template_p2p_reference");
-    }
-
-    @Bean
-    public NewTopic fullGroupListTopic() {
+    public NewTopic groupListTopic() {
         return createTopic("group_list");
     }
 
     @Bean
-    public NewTopic fullGroupReferenceTopic() {
+    public NewTopic fullGroupListTopic() {
         return createTopic("full_group_list");
     }
 
     @Bean
-    public NewTopic p2pTemplateTopic() {
-        return createTopic("group_p2p_list");
-    }
-
-    @Bean
-    public NewTopic p2pReferenceTopic() {
+    public NewTopic groupReferenceTopic() {
         return createTopic("group_reference");
     }
 
     @Bean
-    public NewTopic p2pGroupListTopic() {
+    public NewTopic fullGroupReferenceListTopic() {
         return createTopic("full_group_reference");
-    }
-
-    @Bean
-    public NewTopic p2pGroupReferenceTopic() {
-        return createTopic("group_p2p_reference");
     }
 
     private NewTopic createTopic(String name) {
