@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.rbkmoney</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>2.0.8</version>
+        <version>2.0.9</version>
     </parent>
 
     <name>fraudbusters</name>
@@ -25,7 +25,7 @@
         <fraudo.version>0.0.22</fraudo.version>
         <wb.list.proto.version>1.33-554d59c</wb.list.proto.version>
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
-        <fraudbusters-proto.version>1.96-81934f5</fraudbusters-proto.version>
+        <fraudbusters-proto.version>1.97-28a6a95</fraudbusters-proto.version>
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
         <dgraph4j.version>21.03.1</dgraph4j.version>
         <velocity.version>2.2</velocity.version>
