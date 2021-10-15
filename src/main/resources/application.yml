@@ -1,7 +1,9 @@
 server.port: @server.port@
 management:
   security:
-    flag: false
+    enabled: false
+  server:
+    port: @management.port@
   metrics:
     export:
       statsd:
@@ -18,7 +20,15 @@ management:
       getSumWindowed: true
       getCount: true
       getCountWindowed: true
-
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
 spring:
   application:
     name: @name@
