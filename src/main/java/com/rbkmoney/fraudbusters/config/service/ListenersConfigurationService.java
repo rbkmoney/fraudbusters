@@ -115,8 +115,8 @@ public class ListenersConfigurationService {
         return createFactoryWithProps(deserializer, props);
     }
 
-    public ConcurrentKafkaListenerContainerFactory<String, Payment> createDgraphFactory(
-            Deserializer<Payment> deserializer,
+    public <T> ConcurrentKafkaListenerContainerFactory<String, T> createDgraphFactory(
+            Deserializer<T> deserializer,
             String groupId,
             Integer fetchMinBytes) {
         String consumerGroup = consumerGroupIdService.generateGroupId(groupId);
@@ -124,7 +124,7 @@ public class ListenersConfigurationService {
         props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, fetchMinBytes);
         props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, MAX_WAIT_FETCH_MS);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        var factory = createFactoryWithProps(deserializer, props);
+        final ConcurrentKafkaListenerContainerFactory<String, T> factory = createFactoryWithProps(deserializer, props);
         factory.setBatchErrorHandler(new SeekToCurrentWithSleepBatchErrorHandler());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setConcurrency(dgraphPaymentConcurrency);

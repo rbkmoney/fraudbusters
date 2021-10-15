@@ -81,6 +81,15 @@ public class AggregatorKafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, FraudPayment> kafkaDrgaphFraudPaymentListenerContainerFactory() {
+        return listenersConfigurationService.createDgraphFactory(
+                new FraudPaymentDeserializer(),
+                "dgraph-fraud-payments",
+                fetchMinBytes
+        );
+    }
+
+    @Bean
     public KafkaTemplate<String, Payment> paymentKafkaTemplate() {
         return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaTemplateConfigurationService.producerThriftConfigs()));
     }

@@ -1,23 +1,41 @@
-package com.rbkmoney.fraudbusters;
+package com.rbkmoney.fraudbusters.dgraph;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
+import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
+import com.rbkmoney.fraudbusters.FraudBustersApplication;
+import com.rbkmoney.fraudbusters.dgraph.model.Aggregates;
+import com.rbkmoney.fraudbusters.dgraph.model.TestQuery;
+import com.rbkmoney.fraudbusters.exception.DgraphException;
 import com.rbkmoney.fraudbusters.extension.KafkaContainerExtension;
 import com.rbkmoney.fraudbusters.extension.config.KafkaTopicsConfig;
-import com.rbkmoney.fraudbusters.serde.PaymentDeserializer;
+import com.rbkmoney.fraudbusters.listener.events.clickhouse.FraudPaymentListener;
+import com.rbkmoney.fraudbusters.repository.clickhouse.impl.PaymentRepositoryImpl;
+import com.rbkmoney.fraudbusters.service.CardPoolManagementService;
+import com.rbkmoney.fraudbusters.service.ShopManagementService;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
+import io.dgraph.DgraphClient;
+import io.dgraph.DgraphProto;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.thrift.TBase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.rnorth.ducttape.unreliables.Unreliables;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -28,8 +46,10 @@ import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -45,11 +65,36 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
                 "kafka.listen.result.concurrency=1",
                 "dgraph.service.enabled=true",
                 "kafka.dgraph.topics.payment.enabled=true",
+                "kafka.dgraph.topics.fraud_payment.enabled=true",
                 "dgraph.port=9080",
                 "dgraph.withAuthHeader=false"
         })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class DgraphAbstractIntegrationTest {
+
+    @Autowired
+    private ObjectMapper dgraphObjectMapper;
+
+    @Autowired
+    private DgraphClient dgraphClient;
+
+    @MockBean
+    private GeoIpServiceSrv.Iface geoIpServiceSrv;
+
+    @MockBean
+    private WbListServiceSrv.Iface wbListServiceSrv;
+
+    @MockBean
+    private ShopManagementService shopManagementService;
+
+    @MockBean
+    private CardPoolManagementService cardPoolManagementService;
+
+    @MockBean
+    private PaymentRepositoryImpl paymentRepository;
+
+    @MockBean
+    private FraudPaymentListener fraudPaymentListener;
 
     private static GenericContainer dgraphServer;
     private static volatile boolean isDgraphStarted;
@@ -93,10 +138,59 @@ public abstract class DgraphAbstractIntegrationTest {
         log.info("Dgraph server was created (host:{}, ip: {}, containerIp: {}, ports: {})", testHostname,
                 dgraphServer.getIpAddress(), dgraphServer.getContainerIpAddress(), dgraphServer.getExposedPorts());
         Thread.sleep(5000);
-
     }
 
-    public Producer<String, Payment> createPaymentProducer() {
+    protected Aggregates getAggregates(String query) {
+        DgraphProto.Response response = processDgraphQuery(query);
+        String responseJson = response.getJson().toStringUtf8();
+        log.debug("Received json with aggregates (query: {}, vars: {}, period: {}): {}",
+                query, responseJson);
+        TestQuery testQuery = convertToObject(responseJson, TestQuery.class);
+        return testQuery == null || testQuery.getAggregates() == null || testQuery.getAggregates().isEmpty()
+                ? new Aggregates() : testQuery.getAggregates().get(0);
+    }
+
+    protected <T> T convertToObject(String json, Class<T> clazz) {
+        try {
+            return dgraphObjectMapper.readValue(json, clazz);
+        } catch (JsonProcessingException ex) {
+            throw new RuntimeException("Received an exception when method was converting json to object", ex);
+        }
+    }
+
+    protected DgraphProto.Response processDgraphQuery(String query) {
+        try {
+            return dgraphClient.newTransaction().query(query);
+        } catch (RuntimeException ex) {
+            throw new DgraphException(String.format("Received exception from dgraph while the service " +
+                    "process ro query with args (query: %s)", query), ex);
+        }
+    }
+
+    public int getCountOfObjects(String objectName) {
+        String query = String.format("""
+                query all() {
+                    aggregates(func: type(%s)) {
+                        count(uid)
+                    }
+                }
+                """, objectName);
+
+        return getAggregates(query).getCount();
+    }
+
+    <T extends TBase> Producer<String, T> createPaymentProducer() {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaContainerExtension.KAFKA.getBootstrapServers());
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, new ThriftSerializer<T>().getClass());
+        props.put(ProducerConfig.RETRIES_CONFIG, 3);
+        props.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
+        return new KafkaProducer<>(props);
+    }
+
+    public Producer<String, Payment> createPaymentProducer2() {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaContainerExtension.KAFKA.getBootstrapServers());
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));
@@ -107,13 +201,23 @@ public abstract class DgraphAbstractIntegrationTest {
         return new KafkaProducer<>(props);
     }
 
-    public Consumer<String, Payment> createConsumer() {
+    <T> Consumer<String, T> createConsumer(Class valueDeserializerClazz) {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaContainerExtension.KAFKA.getBootstrapServers());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, PaymentDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializerClazz);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return new KafkaConsumer<>(props);
+    }
+
+    protected void waitingTopic(String topicName, Class valueDeserializerClazz) {
+        try (Consumer<String, Object> consumer = createConsumer(valueDeserializerClazz)) {
+            consumer.subscribe(List.of(topicName));
+            Unreliables.retryUntilTrue(240, TimeUnit.SECONDS, () -> {
+                ConsumerRecords<String, Object> records = consumer.poll(Duration.ofSeconds(1L));
+                return !records.isEmpty();
+            });
+        }
     }
 }

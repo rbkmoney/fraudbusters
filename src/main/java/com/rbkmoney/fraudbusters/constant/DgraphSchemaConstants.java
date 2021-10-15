@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SchemaConstants {
+public final class DgraphSchemaConstants {
 
     public static final String SCHEMA = """ 
                 payments: [uid] @count .
@@ -53,6 +53,7 @@ public final class SchemaConstants {
                 checkedResultsJson: string .
                 partyShop: uid .
                 country: uid .
+                fraudPayment: uid .
                 
                 type Payment {
                     paymentId
@@ -83,6 +84,7 @@ public final class SchemaConstants {
                     partyShop: PartyShop
                     bin: Bin
                     country: Country
+                    fraudPayment: FraudPayment
                 }
                 
                 fingerprintData: string @index(hash) @upsert .
@@ -142,6 +144,18 @@ public final class SchemaConstants {
                     payments: Payment
                     tokens: Token
                     emails: Email
+                }
+                
+                fraudType: string .
+                comment: string .
+                sourcePayment: uid .
+                
+                type FraudPayment {
+                    paymentId 
+                    createdAt
+                    fraudType
+                    comment
+                    sourcePayment
                 }
                 
             """;

@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.data;
+package com.rbkmoney.fraudbusters.dgraph.data;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -178,5 +178,26 @@ public final class VelocityTestData {
             uid(sourcePaymentUid) <cardToken> uid(sourceTokenUid) .
             uid(sourcePaymentUid) <partyShop> uid(sourceShopUid) .
             uid(sourcePaymentUid) <bin> uid(sourceBinUid) .
+            """;
+
+    public static final String TEST_FRAUD_PAYMENT_UPSERT_QUERY = """
+            query all() {
+                getFraudPaymentUid(func: type(FraudPayment)) @filter(eq(paymentId, "pay-1")) {
+                    sourceFraudPaymentUid as uid
+                }
+                        
+                getPaymentUid(func: type(Payment)) @filter(eq(paymentId, "pay-1")) {
+                    sourcePaymentUid as uid
+                }
+            }
+            """;
+
+    public static final String TEST_INSERT_FRAUD_PAYMENT_BLOCK = """
+            uid(sourceFraudPaymentUid) <dgraph.type> "FraudPayment" .
+            uid(sourceFraudPaymentUid) <paymentId> "pay-1" .
+            uid(sourceFraudPaymentUid) <createdAt> "2021-10-05T18:00:00" .
+            uid(sourceFraudPaymentUid) <fraudType> "simple fraud" .
+            uid(sourceFraudPaymentUid) <comment> "some comment" .
+            uid(sourceFraudPaymentUid) <sourcePayment> uid(sourcePaymentUid) .
             """;
 }

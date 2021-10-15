@@ -5,9 +5,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import com.rbkmoney.fraudbusters.converter.PaymentToDgraphPaymentConverter;
 import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
+import com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphPayment;
+import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphFraudPaymentListener;
 import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphPaymentEventListener;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.stream.impl.FullTemplateVisitorImpl;
@@ -24,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.backoff.FixedBackOffPolicy;
@@ -32,7 +36,7 @@ import org.springframework.retry.support.RetryTemplate;
 
 import java.util.Collections;
 
-import static com.rbkmoney.fraudbusters.constant.SchemaConstants.SCHEMA;
+import static com.rbkmoney.fraudbusters.constant.DgraphSchemaConstants.SCHEMA;
 
 @Slf4j
 @Configuration
@@ -103,6 +107,15 @@ public class DgraphConfig {
                 paymentToDgraphPaymentConverter,
                 objectMapper
         );
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "kafka.dgraph.topics.fraud_payment.enabled", havingValue = "true")
+    public DgraphFraudPaymentListener dgraphFraudPaymentListener(
+            Repository<DgraphFraudPayment> repository,
+            Converter<FraudPayment, DgraphFraudPayment> fraudPaymentToDgraphFraudPaymentConverter
+    ) {
+        return new DgraphFraudPaymentListener(repository, fraudPaymentToDgraphFraudPaymentConverter);
     }
 
     private DgraphGrpc.DgraphStub createStub(String host, int port, boolean withAuthHeader) {

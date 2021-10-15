@@ -1,14 +1,13 @@
-package com.rbkmoney.fraudbusters;
+package com.rbkmoney.fraudbusters.dgraph;
 
 import com.rbkmoney.fraudbusters.config.dgraph.TemplateConfig;
-import com.rbkmoney.fraudbusters.data.VelocityTestData;
+import com.rbkmoney.fraudbusters.dgraph.data.VelocityTestData;
 import com.rbkmoney.fraudbusters.service.TemplateService;
 import com.rbkmoney.fraudbusters.service.TemplateServiceImpl;
 import org.apache.velocity.app.VelocityEngine;
 import org.junit.jupiter.api.Test;
 
-import static com.rbkmoney.fraudbusters.factory.TestDgraphObjectFactory.createFullTestDgraphPayment;
-import static com.rbkmoney.fraudbusters.factory.TestDgraphObjectFactory.createSmallTestDgraphPayment;
+import static com.rbkmoney.fraudbusters.factory.TestDgraphObjectFactory.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -30,7 +29,7 @@ public class VelocityTemplateTest {
     }
 
     @Test
-    public void generatePaymentIpsertTest() {
+    public void generatePaymentInsertTest() {
         String firstInsertBlock = templateService.buildInsertPaymentNqsBlock(createSmallTestDgraphPayment());
         assertNotNull(firstInsertBlock);
         assertEquals(VelocityTestData.TEST_INSERT_PAYMENT_SHORT_BLOCK, firstInsertBlock);
@@ -38,6 +37,20 @@ public class VelocityTemplateTest {
         String secondInsertBlock = templateService.buildInsertPaymentNqsBlock(createFullTestDgraphPayment());
         assertNotNull(secondInsertBlock);
         assertEquals(VelocityTestData.TEST_INSERT_FULL_PAYMENT_BLOCK, secondInsertBlock);
+    }
+
+    @Test
+    public void generateFraudPaymentUpsertQueryTemplateTest() {
+        String query = templateService.buildUpsetFraudPaymentQuery(createTestFraudDgraphPayment());
+        assertNotNull(query);
+        assertEquals(VelocityTestData.TEST_FRAUD_PAYMENT_UPSERT_QUERY, query);
+    }
+
+    @Test
+    public void generateInsertFraudPaymentTemplateTest() {
+        String insertBlock = templateService.buildInsertFraudPaymentNqsBlock(createTestFraudDgraphPayment());
+        assertNotNull(insertBlock);
+        assertEquals(VelocityTestData.TEST_INSERT_FRAUD_PAYMENT_BLOCK, insertBlock);
     }
 
 }

@@ -81,6 +81,10 @@ kafka:
         name: payment_event
         concurrency: 1
         enabled: false
+      fraud_payment:
+        name: fraud_payment
+        concurrency: 1
+        enabled: false
   ssl:
     enable: false
     keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12

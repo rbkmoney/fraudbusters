@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants;
+import com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphPayment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +20,9 @@ public class TemplateServiceImpl implements TemplateService {
     private final VelocityEngine velocityEngine;
 
     private static final String INSERT_PAYMENT_TO_DGRAPH = "vm/insert_payment_to_dgraph.vm";
-
     private static final String UPSERT_GLOBAL_PAYMENT_DATA_QUERY = "vm/upsert_global_payment_data_query.vm";
+    private static final String INSERT_FRAUD_PAYMENT_TO_DGRAPH = "vm/insert_fraud_payment_to_dgraph.vm";
+    private static final String UPSERT_FRAUD_PAYMENT_DATA_QUERY = "vm/upsert_fraud_payment_data_query.vm";
 
     @Override
     public String buildInsertPaymentNqsBlock(DgraphPayment dgraphPayment) {
@@ -33,15 +35,38 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
+    public String buildInsertFraudPaymentNqsBlock(DgraphFraudPayment dgraphFraudPayment) {
+        return buildTemplate(
+                velocityEngine.getTemplate(INSERT_FRAUD_PAYMENT_TO_DGRAPH),
+                createInsertFraudPaymentContext(dgraphFraudPayment)
+        );
+    }
+
+    @Override
+    public String buildUpsetFraudPaymentQuery(DgraphFraudPayment dgraphFraudPayment) {
+        return buildTemplate(
+                velocityEngine.getTemplate(UPSERT_FRAUD_PAYMENT_DATA_QUERY),
+                createInsertFraudPaymentContext(dgraphFraudPayment)
+        );
+    }
+
+    @Override
     public String buildTemplate(Template template, VelocityContext context) {
         StringWriter writer = new StringWriter();
         template.merge(context, writer);
         return writer.toString();
     }
 
-    private VelocityContext createDefaultPaymentInsertContext(DgraphPayment dgraphPayment) {
+    private VelocityContext createInsertPaymentContext(DgraphPayment dgraphPayment) {
         VelocityContext context = new VelocityContext();
         context.put("payment", dgraphPayment);
+        context.put("constants", new DgraphPaymentUpsertConstants());
+        return context;
+    }
+
+    private VelocityContext createInsertFraudPaymentContext(DgraphFraudPayment fraudPayment) {
+        VelocityContext context = new VelocityContext();
+        context.put("payment", fraudPayment);
         context.put("constants", new DgraphPaymentUpsertConstants());
         return context;
     }
@@ -49,7 +74,7 @@ public class TemplateServiceImpl implements TemplateService {
     private String buildDefaultPaymentTemplate(DgraphPayment dgraphPayment, String template) {
         return buildTemplate(
                 velocityEngine.getTemplate(template),
-                createDefaultPaymentInsertContext(dgraphPayment)
+                createInsertPaymentContext(dgraphPayment)
         );
     }
 

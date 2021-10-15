@@ -13,5 +13,6 @@ public final class DgraphPaymentUpsertConstants {
     public final String ipUid = "sourceIpUid";
     public final String binUid = "sourceBinUid";
     public final String paymentUid = "sourcePaymentUid";
+    public final String fraudPaymentUid = "sourceFraudPaymentUid";
 
 }
