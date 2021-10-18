@@ -365,4 +365,175 @@ public final class VelocityTestData {
             uid(sourcePaymentUid) <paymentId> "TestPayId" .
             uid(sourcePaymentUid) <refunds> uid(sourceRefundUid) .
             """;
+
+    public static final String TEST_SMALL_CHARGEBACK_UPSERT_QUERY = """
+            query all() {
+                getTokenUid(func: type(Token)) @filter(eq(tokenId, "token")) {
+                    sourceTokenUid as uid
+                }
+                        
+                getShopUid(func: type(PartyShop)) @filter(eq(partyId, "Party") and eq(shopId, "Shop")) {
+                    sourceShopUid as uid
+                }
+                        
+                getBinUid(func: type(Bin)) @filter(eq(cardBin, "000000")) {
+                    sourceBinUid as uid
+                }
+                        
+                getPaymentUid(func: type(Payment)) @filter(eq(paymentId, "TestPayId")) {
+                    sourcePaymentUid as uid
+                }
+                        
+                getChargebackUid(func: type(Chargeback)) @filter(eq(paymentId, "TestPayId") and eq(chargebackId, "TestChargebackIdId")) {
+                    sourceChargebackUid as uid
+                }
+            }
+            """;
+
+    public static final String TEST_FULL_CHARGEBACK_UPSERT_QUERY = """
+            query all() {
+                getTokenUid(func: type(Token)) @filter(eq(tokenId, "token")) {
+                    sourceTokenUid as uid
+                }
+                        
+                getShopUid(func: type(PartyShop)) @filter(eq(partyId, "Party") and eq(shopId, "Shop")) {
+                    sourceShopUid as uid
+                }
+                        
+                getBinUid(func: type(Bin)) @filter(eq(cardBin, "000000")) {
+                    sourceBinUid as uid
+                }
+                        
+                getEmailUid(func: type(Email)) @filter(eq(userEmail, "1@1.ru")) {
+                    sourceEmailUid as uid
+                }
+                        
+                getFingerUid(func: type(Fingerprint)) @filter(eq(fingerprintData, "fData")) {
+                    sourceFingerUid as uid
+                }
+                        
+                getIpUid(func: type(IP)) @filter(eq(ipAddress, "127.0.0.1")) {
+                    sourceIpUid as uid
+                }
+                        
+                getPaymentUid(func: type(Payment)) @filter(eq(paymentId, "TestPayId")) {
+                    sourcePaymentUid as uid
+                }
+                        
+                getChargebackUid(func: type(Chargeback)) @filter(eq(paymentId, "TestPayId") and eq(chargebackId, "TestChargebackIdId")) {
+                    sourceChargebackUid as uid
+                }
+            }
+            """;
+
+    public static final String TEST_INSERT_SMALL_CHARGEBACK_BLOCK = """
+            uid(sourceTokenUid) <dgraph.type> "Token" .
+            uid(sourceTokenUid) <tokenId> "token" .
+            uid(sourceTokenUid) <bin> uid(sourceBinUid) .
+            uid(sourceTokenUid) <maskedPan> "maskedPan" .
+            uid(sourceTokenUid) <lastActTime> "2021-10-05T18:00:00" .
+            uid(sourceTokenUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+                        
+            uid(sourceShopUid) <dgraph.type> "PartyShop" .
+            uid(sourceShopUid) <partyId> "Party" .
+            uid(sourceShopUid) <shopId> "Shop" .
+            uid(sourceShopUid) <chargebacks> uid(sourceChargebackUid) .
+            uid(sourceShopUid) <tokens> uid(sourceTokenUid) .
+                        
+            uid(sourceBinUid) <dgraph.type> "Bin" .
+            uid(sourceBinUid) <cardBin> "000000" .
+            uid(sourceBinUid) <chargebacks> uid(sourceChargebackUid) .
+            uid(sourceBinUid) <tokens> uid(sourceTokenUid) .
+                        
+            uid(sourceChargebackUid) <dgraph.type> "Chargeback" .
+            uid(sourceChargebackUid) <paymentId> "TestPayId" .
+            uid(sourceChargebackUid) <chargebackId> "TestChargebackIdId" .
+            uid(sourceChargebackUid) <partyId> "Party" .
+            uid(sourceChargebackUid) <shopId> "Shop" .
+            uid(sourceChargebackUid) <createdAt> "2021-10-05T18:00:00" .
+            uid(sourceChargebackUid) <amount> "1000" .
+            uid(sourceChargebackUid) <currency> "RUB" .
+            uid(sourceChargebackUid) <status> "successful" .
+            uid(sourceChargebackUid) <status> "successful" .
+            uid(sourceChargebackUid) <category> "category" .
+            uid(sourceChargebackUid) <code> "code404" .
+            uid(sourceChargebackUid) <payerType> "paid" .
+                        
+            uid(sourceChargebackUid) <cardToken> uid(sourceTokenUid) .
+            uid(sourceChargebackUid) <partyShop> uid(sourceShopUid) .
+            uid(sourceChargebackUid) <bin> uid(sourceBinUid) .
+                        
+            uid(sourcePaymentUid) <dgraph.type> "Payment" .
+            uid(sourcePaymentUid) <paymentId> "TestPayId" .
+            uid(sourcePaymentUid) <chargebacks> uid(sourceChargebackUid) .
+            """;
+
+    public static final String TEST_INSERT_FULL_CHARGEBACK_BLOCK = """
+            uid(sourceTokenUid) <dgraph.type> "Token" .
+            uid(sourceTokenUid) <tokenId> "token" .
+            uid(sourceTokenUid) <bin> uid(sourceBinUid) .
+            uid(sourceTokenUid) <maskedPan> "maskedPan" .
+            uid(sourceTokenUid) <lastActTime> "2021-10-05T18:00:00" .
+            uid(sourceTokenUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+                        
+            uid(sourceShopUid) <dgraph.type> "PartyShop" .
+            uid(sourceShopUid) <partyId> "Party" .
+            uid(sourceShopUid) <shopId> "Shop" .
+            uid(sourceShopUid) <chargebacks> uid(sourceChargebackUid) .
+            uid(sourceShopUid) <tokens> uid(sourceTokenUid) .
+                        
+            uid(sourceBinUid) <dgraph.type> "Bin" .
+            uid(sourceBinUid) <cardBin> "000000" .
+            uid(sourceBinUid) <chargebacks> uid(sourceChargebackUid) .
+            uid(sourceBinUid) <tokens> uid(sourceTokenUid) .
+                        
+            uid(sourceFingerUid) <dgraph.type> "Fingerprint" .
+            uid(sourceFingerUid) <fingerprintData> "fData" .
+            uid(sourceFingerUid) <lastActTime> "2021-10-05T18:00:00" .
+            uid(sourceFingerUid) <chargebacks> uid(sourceChargebackUid) .
+            uid(sourceFingerUid) <tokens> uid(sourceTokenUid) .
+            uid(sourceTokenUid) <fingerprints> uid(sourceFingerUid) .
+            uid(sourceChargebackUid) <fingerprint> uid(sourceFingerUid) .
+            uid(sourceFingerUid) <emails> uid(sourceEmailUid) .
+                        
+            uid(sourceEmailUid) <dgraph.type> "Email" .
+            uid(sourceEmailUid) <userEmail> "1@1.ru" .
+            uid(sourceEmailUid) <lastActTime> "2021-10-05T18:00:00" .
+            uid(sourceEmailUid) <chargebacks> uid(sourceChargebackUid) .
+            uid(sourceEmailUid) <tokens> uid(sourceTokenUid) .
+            uid(sourceBinUid) <emails> uid(sourceEmailUid) .
+            uid(sourceShopUid) <emails> uid(sourceEmailUid) .
+            uid(sourceTokenUid) <emails> uid(sourceEmailUid) .
+            uid(sourceChargebackUid) <contactEmail> uid(sourceEmailUid) .
+            uid(sourceEmailUid) <fingerprints> uid(sourceFingerUid) .
+                        
+            uid(sourceIpUid) <dgraph.type> "IP" .
+            uid(sourceIpUid) <ipAddress> "127.0.0.1" .
+            uid(sourceIpUid) <chargebacks> uid(sourceChargebackUid) .
+            uid(sourceIpUid) <tokens> uid(sourceTokenUid) .
+            uid(sourceChargebackUid) <chagebackIp> uid(sourceIpUid) .
+            uid(sourceIpUid) <emails> uid(sourceEmailUid) .
+                        
+            uid(sourceChargebackUid) <dgraph.type> "Chargeback" .
+            uid(sourceChargebackUid) <paymentId> "TestPayId" .
+            uid(sourceChargebackUid) <chargebackId> "TestChargebackIdId" .
+            uid(sourceChargebackUid) <partyId> "Party" .
+            uid(sourceChargebackUid) <shopId> "Shop" .
+            uid(sourceChargebackUid) <createdAt> "2021-10-05T18:00:00" .
+            uid(sourceChargebackUid) <amount> "1000" .
+            uid(sourceChargebackUid) <currency> "RUB" .
+            uid(sourceChargebackUid) <status> "successful" .
+            uid(sourceChargebackUid) <status> "successful" .
+            uid(sourceChargebackUid) <category> "category" .
+            uid(sourceChargebackUid) <code> "code404" .
+            uid(sourceChargebackUid) <payerType> "paid" .
+                        
+            uid(sourceChargebackUid) <cardToken> uid(sourceTokenUid) .
+            uid(sourceChargebackUid) <partyShop> uid(sourceShopUid) .
+            uid(sourceChargebackUid) <bin> uid(sourceBinUid) .
+                        
+            uid(sourcePaymentUid) <dgraph.type> "Payment" .
+            uid(sourcePaymentUid) <paymentId> "TestPayId" .
+            uid(sourcePaymentUid) <chargebacks> uid(sourceChargebackUid) .
+            """;
 }

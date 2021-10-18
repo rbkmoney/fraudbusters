@@ -89,6 +89,10 @@ kafka:
         name: refund_event
         concurrency: 1
         enabled: false
+      chargeback:
+        name: chargeback_event
+        concurrency: 1
+        enabled: false
   ssl:
     enable: false
     keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12

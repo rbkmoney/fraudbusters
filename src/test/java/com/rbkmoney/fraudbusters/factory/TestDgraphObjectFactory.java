@@ -159,6 +159,39 @@ public final class TestDgraphObjectFactory {
         return dgraphRefund;
     }
 
+    public static DgraphChargeback createSmallTestDgraphChargeback() {
+        return createTestDgraphChargeback(false, false, false);
+    }
+
+    public static DgraphChargeback createFullTestDgraphChargeback() {
+        return createTestDgraphChargeback(true, true, true);
+    }
+
+    public static DgraphChargeback createTestDgraphChargeback(boolean ipExists,
+                                                      boolean fingerprintExists,
+                                                      boolean emailExists) {
+        DgraphChargeback dgraphChargeback = new DgraphChargeback();
+        dgraphChargeback.setChargebackId("TestChargebackIdId");
+        dgraphChargeback.setPaymentId("TestPayId");
+        dgraphChargeback.setPartyId("Party");
+        dgraphChargeback.setShopId("Shop");
+        dgraphChargeback.setPartyShop(createTestDgraphPartyShop("Party", "Shop"));
+        dgraphChargeback.setCreatedAt("2021-10-05T18:00:00");
+        dgraphChargeback.setAmount(1000L);
+        dgraphChargeback.setCurrency("RUB");
+        dgraphChargeback.setStatus("successful");
+        dgraphChargeback.setPayerType("paid");
+        dgraphChargeback.setCategory("category");
+        dgraphChargeback.setCode("code404");
+        dgraphChargeback.setPayment(createTestDgraphPaymentLink("TestPayId"));
+        dgraphChargeback.setCardToken(createTestDgraphToken("token", "maskedPan"));
+        dgraphChargeback.setBin(createTestDgraphBin());
+        dgraphChargeback.setFingerprint(fingerprintExists ? createTestDgraphFingerprint() : null);
+        dgraphChargeback.setChargebackIp(ipExists ? createTestDgraphIp() : null);
+        dgraphChargeback.setEmail(emailExists ? createTestDgraphEmail() : null);
+        return dgraphChargeback;
+    }
+
     private static DgraphPartyShop createTestDgraphPartyShop(String partyId, String shopId) {
         DgraphPartyShop partyShop = new DgraphPartyShop();
         partyShop.setPartyId(partyId);
@@ -250,6 +283,50 @@ public final class TestDgraphObjectFactory {
                         .setIp(properties.getIp())
         );
         return refund;
+    }
+
+    public static Chargeback generateChargeback(OperationProperties properties, int idx) {
+        Chargeback chargeback = new Chargeback();
+        chargeback.setId("Chargeback-" + idx);
+        chargeback.setPaymentId(properties.getPaymentId());
+        ReferenceInfo referenceInfo = new ReferenceInfo();
+        referenceInfo.setMerchantInfo(
+                new MerchantInfo()
+                        .setPartyId(properties.getPartyId())
+                        .setShopId(properties.getShopId())
+        );
+        chargeback.setReferenceInfo(referenceInfo);
+        chargeback.setEventTime(Instant.now().toString());
+        chargeback.setCost(
+                new Cash()
+                        .setAmount(1000L)
+                        .setCurrency(new CurrencyRef().setSymbolicCode("RUB"))
+        );
+        chargeback.setStatus(ChargebackStatus.accepted);
+        chargeback.setPayerType(PayerType.customer);
+        chargeback.setPaymentTool(PaymentTool.bank_card(
+                new BankCard()
+                        .setToken(properties.getTokenId())
+                        .setBin(properties.getBin())
+                        .setLastDigits("0000")
+                        .setPaymentToken(new BankCardTokenServiceRef().setId("PT-111"))
+                        .setPaymentSystem(new PaymentSystemRef().setId("PS-111"))
+        ));
+        chargeback.setProviderInfo(
+                new ProviderInfo()
+                        .setProviderId("Provider-1")
+                        .setTerminalId("Terminal-001")
+                        .setCountry(properties.getCountry())
+        );
+        chargeback.setCategory(ChargebackCategory.fraud);
+        chargeback.setChargebackCode("code404");
+        chargeback.setClientInfo(
+                new ClientInfo()
+                        .setEmail(properties.getEmail())
+                        .setFingerprint(properties.getFingerprint())
+                        .setIp(properties.getIp())
+        );
+        return chargeback;
     }
 
 }

@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters.dgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.FraudBustersApplication;
@@ -11,6 +10,7 @@ import com.rbkmoney.fraudbusters.dgraph.model.TestQuery;
 import com.rbkmoney.fraudbusters.exception.DgraphException;
 import com.rbkmoney.fraudbusters.extension.KafkaContainerExtension;
 import com.rbkmoney.fraudbusters.extension.config.KafkaTopicsConfig;
+import com.rbkmoney.fraudbusters.listener.events.clickhouse.ChargebackEventListener;
 import com.rbkmoney.fraudbusters.listener.events.clickhouse.FraudPaymentListener;
 import com.rbkmoney.fraudbusters.listener.events.clickhouse.RefundEventListener;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.PaymentRepositoryImpl;
@@ -68,6 +68,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
                 "kafka.dgraph.topics.payment.enabled=true",
                 "kafka.dgraph.topics.refund.enabled=true",
                 "kafka.dgraph.topics.fraud_payment.enabled=true",
+                "kafka.dgraph.topics.chargeback.enabled=true",
                 "dgraph.port=9080",
                 "dgraph.withAuthHeader=false"
         })
@@ -100,6 +101,9 @@ public abstract class DgraphAbstractIntegrationTest {
 
     @MockBean
     private RefundEventListener refundEventListener;
+
+    @MockBean
+    private ChargebackEventListener chargebackEventListener;
 
     private static GenericContainer dgraphServer;
     private static volatile boolean isDgraphStarted;
@@ -190,17 +194,6 @@ public abstract class DgraphAbstractIntegrationTest {
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, new ThriftSerializer<T>().getClass());
-        props.put(ProducerConfig.RETRIES_CONFIG, 3);
-        props.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
-        return new KafkaProducer<>(props);
-    }
-
-    public Producer<String, Payment> createPaymentProducer2() {
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaContainerExtension.KAFKA.getBootstrapServers());
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, new ThriftSerializer<Payment>().getClass());
         props.put(ProducerConfig.RETRIES_CONFIG, 3);
         props.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
         return new KafkaProducer<>(props);

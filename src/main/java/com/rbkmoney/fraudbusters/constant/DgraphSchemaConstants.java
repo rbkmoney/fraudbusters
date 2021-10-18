@@ -17,6 +17,7 @@ public final class DgraphSchemaConstants {
                 paymentSystem: string .
                 bin: uid .
                 refunds: [uid] .
+                chargebacks: [uid] .
                 
                 type Token {
                     tokenId
@@ -27,6 +28,7 @@ public final class DgraphSchemaConstants {
                     emails: Email
                     fingerprints: Fingerprint
                     refunds: Refund
+                    chargebacks: Chargeback
                 }
                 
                 paymentId: string @index(hash) @upsert .
@@ -89,6 +91,7 @@ public final class DgraphSchemaConstants {
                     country: Country
                     fraudPayment: FraudPayment
                     refunds: Refund
+                    chargebacks: Chargeback
                     paymentIp: IP
                 }
                 
@@ -101,6 +104,7 @@ public final class DgraphSchemaConstants {
                     tokens: Token
                     payments: Payment
                     refunds: Refund
+                    chargebacks: Chargeback
                 }
                 
                 userEmail: string @index(hash) @upsert .
@@ -112,6 +116,7 @@ public final class DgraphSchemaConstants {
                     tokens: Token
                     payments: Payment
                     refunds: Refund
+                    chargebacks: Chargeback
                 }
                 
                 type PartyShop {
@@ -121,6 +126,7 @@ public final class DgraphSchemaConstants {
                     tokens: Token
                     emails: Email
                     refunds: Refund
+                    chargebacks: Chargeback
                 }
                 
                 countryName: string @index(hash) @upsert .
@@ -144,6 +150,7 @@ public final class DgraphSchemaConstants {
                     emails: Email
                     countries: Country
                     refunds: Refund
+                    chargebacks: Chargeback
                 }
                          
                 cardBin: string @index(hash) @upsert .
@@ -154,6 +161,7 @@ public final class DgraphSchemaConstants {
                     tokens: Token
                     emails: Email
                     refunds: Refund
+                    chargebacks: Chargeback
                 }
                 
                 fraudType: string .
@@ -189,6 +197,31 @@ public final class DgraphSchemaConstants {
                     contactEmail: Email
                     partyShop: PartyShop
                     refundIp: IP
+                }
+                
+                chargebackId: string @index(hash) @upsert .
+                chargebackIp: uid .
+                category: string .
+                code: string .
+                
+                type Chargeback {
+                    chargebackId
+                    paymentId
+                    partyId
+                    shopId
+                    createdAt
+                    amount
+                    currency
+                    status
+                    category
+                    code
+                    payerType
+                    sourcePayment: Payment
+                    cardToken: Token
+                    fingerprint: Fingerprint
+                    contactEmail: Email
+                    partyShop: PartyShop
+                    chargebackIp: IP
                 }
                 
             """;

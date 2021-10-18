@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants;
+import com.rbkmoney.fraudbusters.domain.dgraph.DgraphChargeback;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphPayment;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphRefund;
@@ -26,6 +27,8 @@ public class TemplateServiceImpl implements TemplateService {
     private static final String UPSERT_FRAUD_PAYMENT_DATA_QUERY = "vm/fraud_payment/upsert_fraud_payment_data_query.vm";
     private static final String INSERT_REFUND_TO_DGRAPH = "vm/refund/insert_refund_to_dgraph.vm";
     private static final String UPSERT_REFUND_DATA_QUERY = "vm/refund/upsert_global_refund_data_query.vm";
+    private static final String INSERT_CHARGEBACK_TO_DGRAPH = "vm/chargeback/insert_chargeback_to_dgraph.vm";
+    private static final String UPSERT_CHARGEBACK_DATA_QUERY = "vm/chargeback/upsert_chargeback_data_query.vm";
 
     @Override
     public String buildInsertPaymentNqsBlock(DgraphPayment dgraphPayment) {
@@ -70,6 +73,22 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
+    public String buildInsertChargebackNqsBlock(DgraphChargeback dgraphChargeback) {
+        return buildTemplate(
+                velocityEngine.getTemplate(INSERT_CHARGEBACK_TO_DGRAPH),
+                createInsertChargebackContext(dgraphChargeback)
+        );
+    }
+
+    @Override
+    public String buildUpsetChargebackQuery(DgraphChargeback dgraphChargeback) {
+        return buildTemplate(
+                velocityEngine.getTemplate(UPSERT_CHARGEBACK_DATA_QUERY),
+                createInsertChargebackContext(dgraphChargeback)
+        );
+    }
+
+    @Override
     public String buildTemplate(Template template, VelocityContext context) {
         StringWriter writer = new StringWriter();
         template.merge(context, writer);
@@ -93,6 +112,13 @@ public class TemplateServiceImpl implements TemplateService {
     private VelocityContext createInsertRefundContext(DgraphRefund dgraphRefund) {
         VelocityContext context = new VelocityContext();
         context.put("refund", dgraphRefund);
+        context.put("constants", new DgraphPaymentUpsertConstants());
+        return context;
+    }
+
+    private VelocityContext createInsertChargebackContext(DgraphChargeback dgraphChargeback) {
+        VelocityContext context = new VelocityContext();
+        context.put("chargeback", dgraphChargeback);
         context.put("constants", new DgraphPaymentUpsertConstants());
         return context;
     }

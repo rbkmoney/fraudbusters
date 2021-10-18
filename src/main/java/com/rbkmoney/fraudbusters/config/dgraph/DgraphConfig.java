@@ -5,13 +5,16 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.fraudbusters.converter.PaymentToDgraphPaymentConverter;
 import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
+import com.rbkmoney.fraudbusters.domain.dgraph.DgraphChargeback;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphPayment;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphRefund;
+import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphChargebackEventListener;
 import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphFraudPaymentListener;
 import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphPaymentEventListener;
 import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphRefundEventListener;
@@ -119,6 +122,15 @@ public class DgraphConfig {
             Converter<FraudPayment, DgraphFraudPayment> fraudPaymentToDgraphFraudPaymentConverter
     ) {
         return new DgraphFraudPaymentListener(repository, fraudPaymentToDgraphFraudPaymentConverter);
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "kafka.dgraph.topics.chargeback.enabled", havingValue = "true")
+    public DgraphChargebackEventListener dgraphChargebackEventListener(
+            Repository<DgraphChargeback> repository,
+            Converter<Chargeback, DgraphChargeback> fraudPaymentToDgraphFraudPaymentConverter
+    ) {
+        return new DgraphChargebackEventListener(repository, fraudPaymentToDgraphFraudPaymentConverter);
     }
 
     @Bean

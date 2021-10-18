@@ -61,6 +61,29 @@ public class VelocityTemplateTest {
         assertEquals(VelocityTestData.TEST_INSERT_FULL_REFUND_BLOCK, secondQuery);
     }
 
+
+    @Test
+    public void generateChargebackUpsertQueryTemplateTest() {
+        String firstQuery = templateService.buildUpsetChargebackQuery(createSmallTestDgraphChargeback());
+        assertNotNull(firstQuery);
+        assertEquals(VelocityTestData.TEST_SMALL_CHARGEBACK_UPSERT_QUERY, firstQuery);
+
+        String secondQuery = templateService.buildUpsetChargebackQuery(createFullTestDgraphChargeback());
+        assertNotNull(secondQuery);
+        assertEquals(VelocityTestData.TEST_FULL_CHARGEBACK_UPSERT_QUERY, secondQuery);
+    }
+
+    @Test
+    public void generateInsertChargebackTemplateTest() {
+        String firstQuery = templateService.buildInsertChargebackNqsBlock(createSmallTestDgraphChargeback());
+        assertNotNull(firstQuery);
+        assertEquals(VelocityTestData.TEST_INSERT_SMALL_CHARGEBACK_BLOCK, firstQuery);
+
+        String secondQuery = templateService.buildInsertChargebackNqsBlock(createFullTestDgraphChargeback());
+        assertNotNull(secondQuery);
+        assertEquals(VelocityTestData.TEST_INSERT_FULL_CHARGEBACK_BLOCK, secondQuery);
+    }
+
     @Test
     public void generateFraudPaymentUpsertQueryTemplateTest() {
         String query = templateService.buildUpsetFraudPaymentQuery(createTestFraudDgraphPayment());
