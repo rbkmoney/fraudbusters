@@ -6,12 +6,15 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
+import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.fraudbusters.converter.PaymentToDgraphPaymentConverter;
 import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphPayment;
+import com.rbkmoney.fraudbusters.domain.dgraph.DgraphRefund;
 import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphFraudPaymentListener;
 import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphPaymentEventListener;
+import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphRefundEventListener;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.stream.impl.FullTemplateVisitorImpl;
 import com.rbkmoney.kafka.common.retry.ConfigurableRetryPolicy;
@@ -116,6 +119,15 @@ public class DgraphConfig {
             Converter<FraudPayment, DgraphFraudPayment> fraudPaymentToDgraphFraudPaymentConverter
     ) {
         return new DgraphFraudPaymentListener(repository, fraudPaymentToDgraphFraudPaymentConverter);
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "kafka.dgraph.topics.refund.enabled", havingValue = "true")
+    public DgraphRefundEventListener dgraphRefundEventListener(
+            Repository<DgraphRefund> repository,
+            Converter<Refund, DgraphRefund> fraudPaymentToDgraphFraudPaymentConverter
+    ) {
+        return new DgraphRefundEventListener(repository, fraudPaymentToDgraphFraudPaymentConverter);
     }
 
     private DgraphGrpc.DgraphStub createStub(String host, int port, boolean withAuthHeader) {

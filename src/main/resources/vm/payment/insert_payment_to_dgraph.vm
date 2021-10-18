@@ -5,9 +5,9 @@
 #set ($fingerprint = $!payment.fingerprint)
 #set ($contactEmail = $!payment.contactEmail)
 #set ($partyShop = $!payment.partyShop)
-#set ($bin = $!payment.dgraphBin)
+#set ($bin = $!payment.bin)
 #set ($country = $!payment.country)
-#set ($ip = $!payment.dgraphIp)
+#set ($ip = $!payment.paymentIp)
 uid($constants.tokenUid) <dgraph.type> "$!cardToken.type" .
 uid($constants.tokenUid) <tokenId> "$!cardToken.tokenId" .
 uid($constants.tokenUid) <bin> uid($constants.binUid) .
@@ -73,7 +73,7 @@ uid($constants.ipUid) <dgraph.type> "$!ip.type" .
 uid($constants.ipUid) <ipAddress> "$!ip.ip" .
 uid($constants.ipUid) <payments> uid($constants.paymentUid) .
 uid($constants.ipUid) <tokens> uid($constants.tokenUid) .
-uid($constants.paymentUid) <ip> uid($constants.ipUid) .
+uid($constants.paymentUid) <paymentIp> uid($constants.ipUid) .
 #if ($contactEmail)
 uid($constants.ipUid) <emails> uid($constants.emailUid) .
 #end

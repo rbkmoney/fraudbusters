@@ -65,6 +65,15 @@ public class AggregatorKafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Refund> kafkaDgraphRefundResultListenerContainerFactory() {
+        return listenersConfigurationService.createDgraphFactory(
+                new RefundDeserializer(),
+                "dgraph-refunds",
+                fetchMinBytes
+        );
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Chargeback> kafkaChargebackResultListenerContainerFactory() {
         return listenersConfigurationService.createFactory(
                 new ChargebackDeserializer(),

@@ -154,7 +154,7 @@ public final class VelocityTestData {
             uid(sourceIpUid) <ipAddress> "127.0.0.1" .
             uid(sourceIpUid) <payments> uid(sourcePaymentUid) .
             uid(sourceIpUid) <tokens> uid(sourceTokenUid) .
-            uid(sourcePaymentUid) <ip> uid(sourceIpUid) .
+            uid(sourcePaymentUid) <paymentIp> uid(sourceIpUid) .
             uid(sourceIpUid) <emails> uid(sourceEmailUid) .
             uid(sourceIpUid) <countries> uid(sourceCountryUid) .
                         
@@ -199,5 +199,170 @@ public final class VelocityTestData {
             uid(sourceFraudPaymentUid) <fraudType> "simple fraud" .
             uid(sourceFraudPaymentUid) <comment> "some comment" .
             uid(sourceFraudPaymentUid) <sourcePayment> uid(sourcePaymentUid) .
+            """;
+
+    public static final String TEST_SMALL_REFUND_UPSERT_QUERY = """
+            query all() {
+                getTokenUid(func: type(Token)) @filter(eq(tokenId, "token")) {
+                    sourceTokenUid as uid
+                }
+                        
+                getShopUid(func: type(PartyShop)) @filter(eq(partyId, "Party") and eq(shopId, "Shop")) {
+                    sourceShopUid as uid
+                }
+                        
+                getBinUid(func: type(Bin)) @filter(eq(cardBin, "000000")) {
+                    sourceBinUid as uid
+                }
+                        
+                getPaymentUid(func: type(Payment)) @filter(eq(paymentId, "TestPayId")) {
+                    sourcePaymentUid as uid
+                }
+                        
+                getRefundUid(func: type(Refund)) @filter(eq(paymentId, "TestPayId") and eq(refundId, "TestRefId")) {
+                    sourceRefundUid as uid
+                }
+            }
+            """;
+
+    public static final String TEST_FULL_REFUND_UPSERT_QUERY = """
+            query all() {
+                getTokenUid(func: type(Token)) @filter(eq(tokenId, "token")) {
+                    sourceTokenUid as uid
+                }
+                        
+                getShopUid(func: type(PartyShop)) @filter(eq(partyId, "Party") and eq(shopId, "Shop")) {
+                    sourceShopUid as uid
+                }
+                        
+                getBinUid(func: type(Bin)) @filter(eq(cardBin, "000000")) {
+                    sourceBinUid as uid
+                }
+                        
+                getEmailUid(func: type(Email)) @filter(eq(userEmail, "1@1.ru")) {
+                    sourceEmailUid as uid
+                }
+                        
+                getFingerUid(func: type(Fingerprint)) @filter(eq(fingerprintData, "fData")) {
+                    sourceFingerUid as uid
+                }
+                        
+                getIpUid(func: type(IP)) @filter(eq(ipAddress, "127.0.0.1")) {
+                    sourceIpUid as uid
+                }
+                        
+                getPaymentUid(func: type(Payment)) @filter(eq(paymentId, "TestPayId")) {
+                    sourcePaymentUid as uid
+                }
+                        
+                getRefundUid(func: type(Refund)) @filter(eq(paymentId, "TestPayId") and eq(refundId, "TestRefId")) {
+                    sourceRefundUid as uid
+                }
+            }
+            """;
+
+    public static final String TEST_INSERT_SMALL_REFUND_BLOCK = """
+            uid(sourceTokenUid) <dgraph.type> "Token" .
+            uid(sourceTokenUid) <tokenId> "token" .
+            uid(sourceTokenUid) <bin> uid(sourceBinUid) .
+            uid(sourceTokenUid) <maskedPan> "maskedPan" .
+            uid(sourceTokenUid) <lastActTime> "2021-10-05T18:00:00" .
+            uid(sourceTokenUid) <refunds> uid(sourceRefundUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+                        
+            uid(sourceShopUid) <dgraph.type> "PartyShop" .
+            uid(sourceShopUid) <partyId> "Party" .
+            uid(sourceShopUid) <shopId> "Shop" .
+            uid(sourceShopUid) <refunds> uid(sourceRefundUid) .
+            uid(sourceShopUid) <tokens> uid(sourceTokenUid) .
+                        
+            uid(sourceBinUid) <dgraph.type> "Bin" .
+            uid(sourceBinUid) <cardBin> "000000" .
+            uid(sourceBinUid) <refunds> uid(sourceRefundUid) .
+            uid(sourceBinUid) <tokens> uid(sourceTokenUid) .
+                        
+            uid(sourceRefundUid) <dgraph.type> "Refund" .
+            uid(sourceRefundUid) <paymentId> "TestPayId" .
+            uid(sourceRefundUid) <refundId> "TestRefId" .
+            uid(sourceRefundUid) <partyId> "Party" .
+            uid(sourceRefundUid) <shopId> "Shop" .
+            uid(sourceRefundUid) <createdAt> "2021-10-05T18:00:00" .
+            uid(sourceRefundUid) <amount> "1000" .
+            uid(sourceRefundUid) <currency> "RUB" .
+            uid(sourceRefundUid) <status> "successful" .
+            uid(sourceRefundUid) <payerType> "paid" .
+                        
+            uid(sourceRefundUid) <cardToken> uid(sourceTokenUid) .
+            uid(sourceRefundUid) <partyShop> uid(sourceShopUid) .
+            uid(sourceRefundUid) <bin> uid(sourceBinUid) .
+                        
+            uid(sourcePaymentUid) <dgraph.type> "Payment" .
+            uid(sourcePaymentUid) <paymentId> "TestPayId" .
+            uid(sourcePaymentUid) <refunds> uid(sourceRefundUid) .
+            """;
+
+    public static final String TEST_INSERT_FULL_REFUND_BLOCK = """
+            uid(sourceTokenUid) <dgraph.type> "Token" .
+            uid(sourceTokenUid) <tokenId> "token" .
+            uid(sourceTokenUid) <bin> uid(sourceBinUid) .
+            uid(sourceTokenUid) <maskedPan> "maskedPan" .
+            uid(sourceTokenUid) <lastActTime> "2021-10-05T18:00:00" .
+            uid(sourceTokenUid) <refunds> uid(sourceRefundUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+                        
+            uid(sourceShopUid) <dgraph.type> "PartyShop" .
+            uid(sourceShopUid) <partyId> "Party" .
+            uid(sourceShopUid) <shopId> "Shop" .
+            uid(sourceShopUid) <refunds> uid(sourceRefundUid) .
+            uid(sourceShopUid) <tokens> uid(sourceTokenUid) .
+                        
+            uid(sourceBinUid) <dgraph.type> "Bin" .
+            uid(sourceBinUid) <cardBin> "000000" .
+            uid(sourceBinUid) <refunds> uid(sourceRefundUid) .
+            uid(sourceBinUid) <tokens> uid(sourceTokenUid) .
+                        
+            uid(sourceFingerUid) <dgraph.type> "Fingerprint" .
+            uid(sourceFingerUid) <fingerprintData> "fData" .
+            uid(sourceFingerUid) <lastActTime> "2021-10-05T18:00:00" .
+            uid(sourceFingerUid) <refunds> uid(sourceRefundUid) .
+            uid(sourceFingerUid) <tokens> uid(sourceTokenUid) .
+            uid(sourceTokenUid) <fingerprints> uid(sourceFingerUid) .
+            uid(sourceRefundUid) <fingerprint> uid(sourceFingerUid) .
+            uid(sourceFingerUid) <emails> uid(sourceEmailUid) .
+                        
+            uid(sourceEmailUid) <dgraph.type> "Email" .
+            uid(sourceEmailUid) <userEmail> "1@1.ru" .
+            uid(sourceEmailUid) <lastActTime> "2021-10-05T18:00:00" .
+            uid(sourceEmailUid) <refunds> uid(sourceRefundUid) .
+            uid(sourceEmailUid) <tokens> uid(sourceTokenUid) .
+            uid(sourceBinUid) <emails> uid(sourceEmailUid) .
+            uid(sourceShopUid) <emails> uid(sourceEmailUid) .
+            uid(sourceTokenUid) <emails> uid(sourceEmailUid) .
+            uid(sourceRefundUid) <contactEmail> uid(sourceEmailUid) .
+            uid(sourceEmailUid) <fingerprints> uid(sourceFingerUid) .
+                        
+            uid(sourceIpUid) <dgraph.type> "IP" .
+            uid(sourceIpUid) <ipAddress> "127.0.0.1" .
+            uid(sourceIpUid) <refunds> uid(sourceRefundUid) .
+            uid(sourceIpUid) <tokens> uid(sourceTokenUid) .
+            uid(sourceRefundUid) <refundIp> uid(sourceIpUid) .
+            uid(sourceIpUid) <emails> uid(sourceEmailUid) .
+                        
+            uid(sourceRefundUid) <dgraph.type> "Refund" .
+            uid(sourceRefundUid) <paymentId> "TestPayId" .
+            uid(sourceRefundUid) <refundId> "TestRefId" .
+            uid(sourceRefundUid) <partyId> "Party" .
+            uid(sourceRefundUid) <shopId> "Shop" .
+            uid(sourceRefundUid) <createdAt> "2021-10-05T18:00:00" .
+            uid(sourceRefundUid) <amount> "1000" .
+            uid(sourceRefundUid) <currency> "RUB" .
+            uid(sourceRefundUid) <status> "successful" .
+            uid(sourceRefundUid) <payerType> "paid" .
+                        
+            uid(sourceRefundUid) <cardToken> uid(sourceTokenUid) .
+            uid(sourceRefundUid) <partyShop> uid(sourceShopUid) .
+            uid(sourceRefundUid) <bin> uid(sourceBinUid) .
+                        
+            uid(sourcePaymentUid) <dgraph.type> "Payment" .
+            uid(sourcePaymentUid) <paymentId> "TestPayId" .
+            uid(sourcePaymentUid) <refunds> uid(sourceRefundUid) .
             """;
 }

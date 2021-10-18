@@ -16,6 +16,7 @@ public final class DgraphSchemaConstants {
                 maskedPan: string .
                 paymentSystem: string .
                 bin: uid .
+                refunds: [uid] .
                 
                 type Token {
                     tokenId
@@ -25,6 +26,7 @@ public final class DgraphSchemaConstants {
                     payments: Payment
                     emails: Email
                     fingerprints: Fingerprint
+                    refunds: Refund
                 }
                 
                 paymentId: string @index(hash) @upsert .
@@ -54,6 +56,7 @@ public final class DgraphSchemaConstants {
                 partyShop: uid .
                 country: uid .
                 fraudPayment: uid .
+                paymentIp: uid .
                 
                 type Payment {
                     paymentId
@@ -85,6 +88,8 @@ public final class DgraphSchemaConstants {
                     bin: Bin
                     country: Country
                     fraudPayment: FraudPayment
+                    refunds: Refund
+                    paymentIp: IP
                 }
                 
                 fingerprintData: string @index(hash) @upsert .
@@ -95,6 +100,7 @@ public final class DgraphSchemaConstants {
                     emails: Email
                     tokens: Token
                     payments: Payment
+                    refunds: Refund
                 }
                 
                 userEmail: string @index(hash) @upsert .
@@ -105,6 +111,7 @@ public final class DgraphSchemaConstants {
                     fingerprints: Fingerprint
                     tokens: Token
                     payments: Payment
+                    refunds: Refund
                 }
                 
                 type PartyShop {
@@ -113,6 +120,7 @@ public final class DgraphSchemaConstants {
                     payments: Payment
                     tokens: Token
                     emails: Email
+                    refunds: Refund
                 }
                 
                 countryName: string @index(hash) @upsert .
@@ -135,6 +143,7 @@ public final class DgraphSchemaConstants {
                     tokens: Token
                     emails: Email
                     countries: Country
+                    refunds: Refund
                 }
                          
                 cardBin: string @index(hash) @upsert .
@@ -144,6 +153,7 @@ public final class DgraphSchemaConstants {
                     payments: Payment
                     tokens: Token
                     emails: Email
+                    refunds: Refund
                 }
                 
                 fraudType: string .
@@ -151,11 +161,34 @@ public final class DgraphSchemaConstants {
                 sourcePayment: uid .
                 
                 type FraudPayment {
-                    paymentId 
+                    paymentId
                     createdAt
                     fraudType
                     comment
-                    sourcePayment
+                    sourcePayment: Payment
+                }
+                
+                refundId: string @index(hash) @upsert .
+                refundIp: uid .
+                
+                type Refund {
+                    refundId
+                    paymentId
+                    partyId
+                    shopId
+                    createdAt
+                    amount
+                    currency
+                    status
+                    payerType
+                    errorCode
+                    errorReason
+                    sourcePayment: Payment
+                    cardToken: Token
+                    fingerprint: Fingerprint
+                    contactEmail: Email
+                    partyShop: PartyShop
+                    refundIp: IP
                 }
                 
             """;

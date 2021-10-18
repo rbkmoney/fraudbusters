@@ -40,6 +40,28 @@ public class VelocityTemplateTest {
     }
 
     @Test
+    public void generateRefundUpsertQueryTemplateTest() {
+        String firstQuery = templateService.buildUpsetRefundQuery(createSmallTestDgraphRefund());
+        assertNotNull(firstQuery);
+        assertEquals(VelocityTestData.TEST_SMALL_REFUND_UPSERT_QUERY, firstQuery);
+
+        String secondQuery = templateService.buildUpsetRefundQuery(createFullTestDgraphRefund());
+        assertNotNull(secondQuery);
+        assertEquals(VelocityTestData.TEST_FULL_REFUND_UPSERT_QUERY, secondQuery);
+    }
+
+    @Test
+    public void generateInsertRefundTemplateTest() {
+        String firstQuery = templateService.buildInsertRefundNqsBlock(createSmallTestDgraphRefund());
+        assertNotNull(firstQuery);
+        assertEquals(VelocityTestData.TEST_INSERT_SMALL_REFUND_BLOCK, firstQuery);
+
+        String secondQuery = templateService.buildInsertRefundNqsBlock(createFullTestDgraphRefund());
+        assertNotNull(secondQuery);
+        assertEquals(VelocityTestData.TEST_INSERT_FULL_REFUND_BLOCK, secondQuery);
+    }
+
+    @Test
     public void generateFraudPaymentUpsertQueryTemplateTest() {
         String query = templateService.buildUpsetFraudPaymentQuery(createTestFraudDgraphPayment());
         assertNotNull(query);

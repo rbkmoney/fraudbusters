@@ -16,7 +16,7 @@ import static com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue.UNKNOWN;
 
 @Component
 @RequiredArgsConstructor
-public class PaymentToDgraphPaymentConverter implements Converter<Payment, DgraphPayment>  {
+public class PaymentToDgraphPaymentConverter implements Converter<Payment, DgraphPayment> {
 
     private final PaymentTypeByContextResolver paymentTypeByContextResolver;
 
@@ -58,10 +58,10 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
         if (clientInfo != null) {
             dgraphPayment.setFingerprint(clientInfo.getFingerprint() == null ? null : convertFingerprint(payment));
             dgraphPayment.setContactEmail(clientInfo.getEmail() == null ? null : convertEmail(payment));
-            dgraphPayment.setDgraphIp(clientInfo.getIp() == null ? null : convertIp(payment));
+            dgraphPayment.setPaymentIp(clientInfo.getIp() == null ? null : convertIp(payment));
         }
 
-        dgraphPayment.setDgraphBin(paymentTool.isSetBankCard() ? convertBin(payment) : null);
+        dgraphPayment.setBin(paymentTool.isSetBankCard() ? convertBin(payment) : null);
         dgraphPayment.setPartyShop(convertPartyShop(payment));
         dgraphPayment.setCountry(providerInfo.getCountry() == null ? null : convertCountry(payment));
         return dgraphPayment;

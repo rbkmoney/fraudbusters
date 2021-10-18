@@ -7,9 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class PaymentProperties {
+public class OperationProperties {
 
     private String tokenId;
+    private String paymentId;
+    private String refundId;
     private String email;
     private String fingerprint;
     private String partyId;

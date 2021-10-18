@@ -12,6 +12,7 @@ import com.rbkmoney.fraudbusters.exception.DgraphException;
 import com.rbkmoney.fraudbusters.extension.KafkaContainerExtension;
 import com.rbkmoney.fraudbusters.extension.config.KafkaTopicsConfig;
 import com.rbkmoney.fraudbusters.listener.events.clickhouse.FraudPaymentListener;
+import com.rbkmoney.fraudbusters.listener.events.clickhouse.RefundEventListener;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.PaymentRepositoryImpl;
 import com.rbkmoney.fraudbusters.service.CardPoolManagementService;
 import com.rbkmoney.fraudbusters.service.ShopManagementService;
@@ -65,6 +66,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
                 "kafka.listen.result.concurrency=1",
                 "dgraph.service.enabled=true",
                 "kafka.dgraph.topics.payment.enabled=true",
+                "kafka.dgraph.topics.refund.enabled=true",
                 "kafka.dgraph.topics.fraud_payment.enabled=true",
                 "dgraph.port=9080",
                 "dgraph.withAuthHeader=false"
@@ -95,6 +97,9 @@ public abstract class DgraphAbstractIntegrationTest {
 
     @MockBean
     private FraudPaymentListener fraudPaymentListener;
+
+    @MockBean
+    private RefundEventListener refundEventListener;
 
     private static GenericContainer dgraphServer;
     private static volatile boolean isDgraphStarted;
