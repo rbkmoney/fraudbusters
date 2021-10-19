@@ -8,16 +8,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
 import com.rbkmoney.damsel.fraudbusters.Refund;
+import com.rbkmoney.damsel.fraudbusters.Withdrawal;
 import com.rbkmoney.fraudbusters.converter.PaymentToDgraphPaymentConverter;
 import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphChargeback;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphPayment;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphRefund;
-import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphChargebackEventListener;
-import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphFraudPaymentListener;
-import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphPaymentEventListener;
-import com.rbkmoney.fraudbusters.listener.events.dgraph.DgraphRefundEventListener;
+import com.rbkmoney.fraudbusters.domain.dgraph.*;
+import com.rbkmoney.fraudbusters.listener.events.dgraph.*;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.stream.impl.FullTemplateVisitorImpl;
 import com.rbkmoney.kafka.common.retry.ConfigurableRetryPolicy;
@@ -128,18 +123,27 @@ public class DgraphConfig {
     @ConditionalOnProperty(value = "kafka.dgraph.topics.chargeback.enabled", havingValue = "true")
     public DgraphChargebackEventListener dgraphChargebackEventListener(
             Repository<DgraphChargeback> repository,
-            Converter<Chargeback, DgraphChargeback> fraudPaymentToDgraphFraudPaymentConverter
+            Converter<Chargeback, DgraphChargeback> converter
     ) {
-        return new DgraphChargebackEventListener(repository, fraudPaymentToDgraphFraudPaymentConverter);
+        return new DgraphChargebackEventListener(repository, converter);
     }
 
     @Bean
     @ConditionalOnProperty(value = "kafka.dgraph.topics.refund.enabled", havingValue = "true")
     public DgraphRefundEventListener dgraphRefundEventListener(
             Repository<DgraphRefund> repository,
-            Converter<Refund, DgraphRefund> fraudPaymentToDgraphFraudPaymentConverter
+            Converter<Refund, DgraphRefund> converter
     ) {
-        return new DgraphRefundEventListener(repository, fraudPaymentToDgraphFraudPaymentConverter);
+        return new DgraphRefundEventListener(repository, converter);
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "kafka.dgraph.topics.withdrawal.enabled", havingValue = "true")
+    public DgraphWithdrawalEventListener dgraphWithdrawalEventListener(
+            Repository<DgraphWithdrawal> repository,
+            Converter<Withdrawal, DgraphWithdrawal> converter
+    ) {
+        return new DgraphWithdrawalEventListener(repository, converter);
     }
 
     private DgraphGrpc.DgraphStub createStub(String host, int port, boolean withAuthHeader) {

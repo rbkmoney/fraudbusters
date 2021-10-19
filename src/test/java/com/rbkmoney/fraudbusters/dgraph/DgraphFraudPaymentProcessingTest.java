@@ -8,7 +8,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class DgraphFraudPaymentProcessingTest extends DgraphAbstractIntegrationT
 
     void producePayments(String topicName, List<FraudPayment> payments)
             throws InterruptedException, ExecutionException {
-        try (Producer<String, FraudPayment> producer = createPaymentProducer()) {
+        try (Producer<String, FraudPayment> producer = createProducer()) {
             for (FraudPayment payment : payments) {
                 ProducerRecord<String, FraudPayment> producerRecord =
                         new ProducerRecord<>(topicName, payment.getId(), payment);

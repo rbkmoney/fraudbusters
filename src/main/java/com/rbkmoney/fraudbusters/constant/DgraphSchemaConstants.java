@@ -18,12 +18,24 @@ public final class DgraphSchemaConstants {
                 bin: uid .
                 refunds: [uid] .
                 chargebacks: [uid] .
+                tokenizationMethod: string .
+                paymentSystem: string .
+                issuerCountry: string .
+                bankName: string .
+                cardholderName: string .
+                category: string .
                 
                 type Token {
                     tokenId
                     maskedPan
-                    bin
+                    tokenizationMethod
+                    paymentSystem
+                    issuerCountry
+                    bankName
+                    cardholderName
+                    category
                     lastActTime
+                    bin: Bin
                     payments: Payment
                     emails: Email
                     fingerprints: Fingerprint
@@ -222,6 +234,40 @@ public final class DgraphSchemaConstants {
                     contactEmail: Email
                     partyShop: PartyShop
                     chargebackIp: IP
+                }
+                
+                withdrawalId: string @index(hash) @upsert .
+                terminalId: string .
+                accountId: string .
+                accountIdentity: string .
+                accountCurrency: string .
+                destinationResource: string .
+                digitalWalletId: string .
+                digitalWalletDataProvider: string .
+                cryptoWalletId: string .
+                cryptoWalletCurrency: string .
+                
+                type Withdrawal {
+                    withdrawalId
+                    createdAt
+                    amount
+                    currency
+                    status
+                    providerId
+                    terminalId
+                    accountId
+                    accountIdentity
+                    accountCurrency
+                    errorCode
+                    errorReason
+                    destinationResource
+                    digitalWalletId
+                    digitalWalletDataProvider
+                    cryptoWalletId
+                    cryptoWalletCurrency
+                    country: Country
+                    bin: Bin
+                    cardToken: Token
                 }
                 
             """;

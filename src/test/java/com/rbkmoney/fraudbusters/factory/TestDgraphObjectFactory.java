@@ -3,12 +3,16 @@ package com.rbkmoney.fraudbusters.factory;
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.fraudbusters.ClientInfo;
+import com.rbkmoney.damsel.fraudbusters.CryptoWallet;
+import com.rbkmoney.damsel.fraudbusters.DigitalWallet;
+import com.rbkmoney.damsel.fraudbusters.Error;
 import com.rbkmoney.fraudbusters.domain.dgraph.*;
 import com.rbkmoney.fraudbusters.factory.properties.OperationProperties;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TestDgraphObjectFactory {
@@ -168,8 +172,8 @@ public final class TestDgraphObjectFactory {
     }
 
     public static DgraphChargeback createTestDgraphChargeback(boolean ipExists,
-                                                      boolean fingerprintExists,
-                                                      boolean emailExists) {
+                                                              boolean fingerprintExists,
+                                                              boolean emailExists) {
         DgraphChargeback dgraphChargeback = new DgraphChargeback();
         dgraphChargeback.setChargebackId("TestChargebackIdId");
         dgraphChargeback.setPaymentId("TestPayId");
@@ -327,6 +331,110 @@ public final class TestDgraphObjectFactory {
                         .setIp(properties.getIp())
         );
         return chargeback;
+    }
+
+    public static DgraphWithdrawal createTestSmallDgraphWithdrawal() {
+        return createTestDgraphWithdrawal(
+                false,
+                false,
+                Resource.crypto_wallet(new CryptoWallet().setId("CID").setCurrency("ETH"))
+        );
+    }
+
+    public static DgraphWithdrawal createTestFullDgraphWithdrawal() {
+        return createTestDgraphWithdrawal(
+                true,
+                true,
+                Resource.bank_card(generateTestBankCard("token1"))
+        );
+    }
+
+    private static DgraphWithdrawal createTestDgraphWithdrawal(boolean accountExists,
+                                                               boolean errorExists,
+                                                               Resource resource) {
+        DgraphWithdrawal dgraphWithdrawal = new DgraphWithdrawal();
+        dgraphWithdrawal.setWithdrawalId("Wid-1");
+        dgraphWithdrawal.setCreatedAt("2021-10-05T18:00:00");
+        dgraphWithdrawal.setAmount(1000L);
+        dgraphWithdrawal.setCurrency("RUB");
+        dgraphWithdrawal.setStatus("status-1");
+        dgraphWithdrawal.setProviderId("123");
+        dgraphWithdrawal.setTerminalId("345");
+        dgraphWithdrawal.setCountry(createTestDgraphCountry());
+        if (accountExists) {
+            dgraphWithdrawal.setAccountId("AccId");
+            dgraphWithdrawal.setAccountIdentity("Iddy");
+            dgraphWithdrawal.setAccountCurrency("BSD");
+        }
+        if (errorExists) {
+            dgraphWithdrawal.setErrorReason("reason");
+            dgraphWithdrawal.setErrorCode("code");
+        }
+        dgraphWithdrawal.setDestinationResource(resource.getSetField().getFieldName());
+        if (resource.isSetCryptoWallet()) {
+            dgraphWithdrawal.setCryptoWalletId("CID-1");
+            dgraphWithdrawal.setCryptoWalletCurrency("ETH");
+        } else if (resource.isSetDigitalWallet()) {
+            dgraphWithdrawal.setDigitalWalletId("DGT-1");
+            dgraphWithdrawal.setDigitalWalletDataProvider("P-1");
+        } else if (resource.isSetBankCard()) {
+            dgraphWithdrawal.setBin(createTestDgraphBin());
+            dgraphWithdrawal.setCardToken(createTestDgraphToken("tokenID", "MaskedPAN"));
+        }
+        return dgraphWithdrawal;
+    }
+
+    public static Withdrawal generateWithdrawal(int idx,
+                                                Resource destinationResource) {
+        Withdrawal withdrawal = new Withdrawal();
+        withdrawal.setId("WID-" + idx + "-" + Instant.now().toEpochMilli());
+        withdrawal.setEventTime(LocalDateTime.now().toString());
+        withdrawal.setDestinationResource(destinationResource);
+        withdrawal.setCost(new Cash().setAmount(1000L).setCurrency(new CurrencyRef().setSymbolicCode("RUB")));
+        withdrawal.setStatus(WithdrawalStatus.succeeded);
+        withdrawal.setAccount(
+                new Account()
+                        .setId("AID-1")
+                        .setCurrency(new CurrencyRef().setSymbolicCode("RUB"))
+                        .setIdentity("IDX_P_1"));
+        withdrawal.setError(
+                new Error()
+                        .setErrorCode("CODE-1")
+                        .setErrorReason("Reason-2")
+        );
+        withdrawal.setProviderInfo(
+                new ProviderInfo()
+                        .setTerminalId("term001")
+                        .setProviderId("prov001")
+                        .setCountry("Russia")
+        );
+        return withdrawal;
+    }
+
+    public static DigitalWallet generateTestDigitalWallet(String id, String provider) {
+        return new DigitalWallet()
+                .setId(id)
+                .setDigitalDataProvider(provider);
+    }
+
+    public static CryptoWallet generateTestCryptoWallet(String id, String currency) {
+        return new CryptoWallet()
+                .setId(id)
+                .setCurrency(currency);
+    }
+
+    public static BankCard generateTestBankCard(String tokenId) {
+        return new BankCard()
+                .setToken(tokenId)
+                .setPaymentSystem(new PaymentSystemRef().setId("123"))
+                .setBin("000111")
+                .setLastDigits("0000")
+                .setPaymentToken(new BankCardTokenServiceRef().setId("321"))
+                .setTokenizationMethod(TokenizationMethod.dpan)
+                .setIssuerCountry(CountryCode.RUS)
+                .setBankName("BaBank")
+                .setCardholderName("IVAN IV")
+                .setCategory("CTGR");
     }
 
 }

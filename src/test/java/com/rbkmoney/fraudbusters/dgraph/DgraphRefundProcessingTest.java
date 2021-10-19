@@ -122,7 +122,7 @@ public class DgraphRefundProcessingTest extends DgraphAbstractIntegrationTest {
 
     void producePayments(String topicName, List<Refund> refunds)
             throws InterruptedException, ExecutionException {
-        try (Producer<String, Refund> producer = createPaymentProducer()) {
+        try (Producer<String, Refund> producer = createProducer()) {
             for (Refund refund : refunds) {
                 ProducerRecord<String, Refund> producerRecord =
                         new ProducerRecord<>(topicName, refund.getId(), refund);

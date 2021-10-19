@@ -85,6 +85,28 @@ public class VelocityTemplateTest {
     }
 
     @Test
+    public void generateWithdrawalUpsertQueryTemplateTest() {
+        String firstQuery = templateService.buildUpsetWithdrawalQuery(createTestSmallDgraphWithdrawal());
+        assertNotNull(firstQuery);
+        assertEquals(VelocityTestData.TEST_SMALL_WITHDRAWAL_UPSERT_QUERY, firstQuery);
+
+        String secondQuery = templateService.buildUpsetWithdrawalQuery(createTestFullDgraphWithdrawal());
+        assertNotNull(secondQuery);
+        assertEquals(VelocityTestData.TEST_FULL_WITHDRAWAL_UPSERT_QUERY, secondQuery);
+    }
+
+    @Test
+    public void generateInsertWithdrawalTemplateTest() {
+        String firstQuery = templateService.buildInsertWithdrawalNqsBlock(createTestSmallDgraphWithdrawal());
+        assertNotNull(firstQuery);
+        assertEquals(VelocityTestData.TEST_INSERT_SMALL_WITHDRAWAL_BLOCK, firstQuery);
+
+        String secondQuery = templateService.buildInsertWithdrawalNqsBlock(createTestFullDgraphWithdrawal());
+        assertNotNull(secondQuery);
+        assertEquals(VelocityTestData.TEST_INSERT_FULL_WITHDRAWAL_BLOCK, secondQuery);
+    }
+
+    @Test
     public void generateFraudPaymentUpsertQueryTemplateTest() {
         String query = templateService.buildUpsetFraudPaymentQuery(createTestFraudDgraphPayment());
         assertNotNull(query);

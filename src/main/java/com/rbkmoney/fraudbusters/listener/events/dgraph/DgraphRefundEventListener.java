@@ -24,7 +24,7 @@ public class DgraphRefundEventListener {
             containerFactory = "kafkaDgraphRefundResultListenerContainerFactory")
     public void listen(List<ConsumerRecord<String, Refund>> records,
                        Acknowledgment ack) throws InterruptedException {
-        final ConsumerRecord<String, Refund> firstRecord = records.stream()
+        ConsumerRecord<String, Refund> firstRecord = records.stream()
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("First fraud payment in a batch was not found!"));
         log.info("DgraphRefundEventListener listen result size: {} partition: {} offset: {}",

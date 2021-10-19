@@ -536,4 +536,91 @@ public final class VelocityTestData {
             uid(sourcePaymentUid) <paymentId> "TestPayId" .
             uid(sourcePaymentUid) <chargebacks> uid(sourceChargebackUid) .
             """;
+
+    public static final String TEST_SMALL_WITHDRAWAL_UPSERT_QUERY = """
+            query all() {
+                
+                getCountryUid(func: type(Country)) @filter(eq(countryName, "Russia")) {
+                    sourceCountryUid as uid
+                }
+                
+                getWithdrawalUid(func: type(Withdrawal)) @filter(eq(withdrawalId, "Wid-1")) {
+                    sourceWithdrawalUid as uid
+                }
+            }
+            """;
+
+    public static final String TEST_FULL_WITHDRAWAL_UPSERT_QUERY = """
+            query all() {
+                        
+                getBinUid(func: type(Bin)) @filter(eq(cardBin, "000000")) {
+                    sourceBinUid as uid
+                }
+                        
+                getTokenUid(func: type(Token)) @filter(eq(tokenId, "tokenID")) {
+                    sourceTokenUid as uid
+                }
+                        
+                getCountryUid(func: type(Country)) @filter(eq(countryName, "Russia")) {
+                    sourceCountryUid as uid
+                }
+                        
+                getWithdrawalUid(func: type(Withdrawal)) @filter(eq(withdrawalId, "Wid-1")) {
+                    sourceWithdrawalUid as uid
+                }
+            }
+            """;
+
+    public static final String TEST_INSERT_SMALL_WITHDRAWAL_BLOCK = """
+            uid(sourceWithdrawalUid) <dgraph.type> "Withdrawal" .
+            uid(sourceWithdrawalUid) <withdrawalId> "Wid-1" .
+            uid(sourceWithdrawalUid) <createdAt> "2021-10-05T18:00:00" .
+            uid(sourceWithdrawalUid) <amount> "1000" .
+            uid(sourceWithdrawalUid) <currency> "RUB" .
+            uid(sourceWithdrawalUid) <status> "status-1" .
+            uid(sourceWithdrawalUid) <providerId> "123" .
+            uid(sourceWithdrawalUid) <terminalId> "345" .
+            uid(sourceWithdrawalUid) <destinationResource> "crypto_wallet" .
+            uid(sourceWithdrawalUid) <cryptoWalletId> "CID-1" .
+            uid(sourceWithdrawalUid) <cryptoWalletCurrency> "ETH" .
+                        
+            uid(sourceCountryUid) <dgraph.type> "Country" .
+            uid(sourceCountryUid) <countryName> "Russia" .
+            uid(sourceWithdrawalUid) <country> uid(sourceCountryUid) .
+            
+            """;
+
+    public static final String TEST_INSERT_FULL_WITHDRAWAL_BLOCK = """
+            uid(sourceWithdrawalUid) <dgraph.type> "Withdrawal" .
+            uid(sourceWithdrawalUid) <withdrawalId> "Wid-1" .
+            uid(sourceWithdrawalUid) <createdAt> "2021-10-05T18:00:00" .
+            uid(sourceWithdrawalUid) <amount> "1000" .
+            uid(sourceWithdrawalUid) <currency> "RUB" .
+            uid(sourceWithdrawalUid) <status> "status-1" .
+            uid(sourceWithdrawalUid) <providerId> "123" .
+            uid(sourceWithdrawalUid) <terminalId> "345" .
+            uid(sourceWithdrawalUid) <accountId> "AccId" .
+            uid(sourceWithdrawalUid) <accountIdentity> "Iddy" .
+            uid(sourceWithdrawalUid) <accountCurrency> "BSD" .
+            uid(sourceWithdrawalUid) <errorCode> "code" .
+            uid(sourceWithdrawalUid) <errorReason> "reason" .
+            uid(sourceWithdrawalUid) <destinationResource> "bank_card" .
+                        
+            uid(sourceTokenUid) <dgraph.type> "Token" .
+            uid(sourceTokenUid) <tokenId> "tokenID" .
+            uid(sourceTokenUid) <bin> uid(sourceBinUid) .
+            uid(sourceTokenUid) <maskedPan> "MaskedPAN" .
+            uid(sourceTokenUid) <lastActTime> "2021-10-05T18:00:00" .
+            uid(sourceWithdrawalUid) <cardToken> uid(sourceTokenUid) .
+                        
+            uid(sourceBinUid) <dgraph.type> "Bin" .
+            uid(sourceBinUid) <cardBin> "000000" .
+            uid(sourceBinUid) <tokens> uid(sourceTokenUid) .
+            uid(sourceWithdrawalUid) <bin> uid(sourceBinUid) .
+                        
+            uid(sourceCountryUid) <dgraph.type> "Country" .
+            uid(sourceCountryUid) <countryName> "Russia" .
+            uid(sourceWithdrawalUid) <country> uid(sourceCountryUid) .
+            
+            """;
 }

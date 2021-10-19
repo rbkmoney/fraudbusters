@@ -114,7 +114,7 @@ public class DgraphPaymentProcessingTest extends DgraphAbstractIntegrationTest {
 
     void producePayments(String topicName, List<Payment> payments)
             throws InterruptedException, ExecutionException {
-        try (Producer<String, Payment> producer = createPaymentProducer()) {
+        try (Producer<String, Payment> producer = createProducer()) {
             for (Payment payment : payments) {
                 ProducerRecord<String, Payment> producerRecord =
                         new ProducerRecord<>(topicName, payment.getId(), payment);

@@ -18,6 +18,12 @@ public class DgraphToken {
     private String uid;
     private String tokenId;
     private String maskedPan;
+    private String tokenizationMethod;
+    private String paymentSystem;
+    private String issuerCountry;
+    private String bankName;
+    private String cardholderName;
+    private String category;
     private String lastActTime;
     private List<DgraphPayment> payments;
     private List<DgraphEmail> emails;

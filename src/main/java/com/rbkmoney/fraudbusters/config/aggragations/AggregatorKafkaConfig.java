@@ -60,6 +60,15 @@ public class AggregatorKafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Withdrawal> kafkaDgraphWithdrawalResultListenerContainerFactory() {
+        return listenersConfigurationService.createDgraphFactory(
+                new WithdrawalDeserializer(),
+                "dgraph-payments",
+                fetchMinBytes
+        );
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Refund> kafkaRefundResultListenerContainerFactory() {
         return listenersConfigurationService.createFactory(new RefundDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
     }

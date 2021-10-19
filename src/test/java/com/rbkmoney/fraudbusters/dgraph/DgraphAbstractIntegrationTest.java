@@ -13,6 +13,7 @@ import com.rbkmoney.fraudbusters.extension.config.KafkaTopicsConfig;
 import com.rbkmoney.fraudbusters.listener.events.clickhouse.ChargebackEventListener;
 import com.rbkmoney.fraudbusters.listener.events.clickhouse.FraudPaymentListener;
 import com.rbkmoney.fraudbusters.listener.events.clickhouse.RefundEventListener;
+import com.rbkmoney.fraudbusters.listener.events.clickhouse.WithdrawalEventListener;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.PaymentRepositoryImpl;
 import com.rbkmoney.fraudbusters.service.CardPoolManagementService;
 import com.rbkmoney.fraudbusters.service.ShopManagementService;
@@ -69,6 +70,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
                 "kafka.dgraph.topics.refund.enabled=true",
                 "kafka.dgraph.topics.fraud_payment.enabled=true",
                 "kafka.dgraph.topics.chargeback.enabled=true",
+                "kafka.dgraph.topics.withdrawal.enabled=true",
                 "dgraph.port=9080",
                 "dgraph.withAuthHeader=false"
         })
@@ -104,6 +106,9 @@ public abstract class DgraphAbstractIntegrationTest {
 
     @MockBean
     private ChargebackEventListener chargebackEventListener;
+
+    @MockBean
+    private WithdrawalEventListener withdrawalEventListener;
 
     private static GenericContainer dgraphServer;
     private static volatile boolean isDgraphStarted;
@@ -188,7 +193,7 @@ public abstract class DgraphAbstractIntegrationTest {
         return getAggregates(query).getCount();
     }
 
-    <T extends TBase> Producer<String, T> createPaymentProducer() {
+    <T extends TBase> Producer<String, T> createProducer() {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaContainerExtension.KAFKA.getBootstrapServers());
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));

@@ -1,9 +1,6 @@
 package com.rbkmoney.fraudbusters.service;
 
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphChargeback;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphPayment;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphRefund;
+import com.rbkmoney.fraudbusters.domain.dgraph.*;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 
@@ -24,6 +21,10 @@ public interface TemplateService {
     String buildInsertChargebackNqsBlock(DgraphChargeback dgraphChargeback);
 
     String buildUpsetChargebackQuery(DgraphChargeback dgraphChargeback);
+
+    String buildInsertWithdrawalNqsBlock(DgraphWithdrawal dgraphWithdrawal);
+
+    String buildUpsetWithdrawalQuery(DgraphWithdrawal dgraphWithdrawal);
 
     String buildTemplate(Template template, VelocityContext context);
 

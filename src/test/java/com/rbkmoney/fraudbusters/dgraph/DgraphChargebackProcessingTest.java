@@ -122,7 +122,7 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
 
     void producePayments(String topicName, List<Chargeback> chargebacks)
             throws InterruptedException, ExecutionException {
-        try (Producer<String, Chargeback> producer = createPaymentProducer()) {
+        try (Producer<String, Chargeback> producer = createProducer()) {
             for (Chargeback chargeback : chargebacks) {
                 ProducerRecord<String, Chargeback> producerRecord =
                         new ProducerRecord<>(topicName, chargeback.getId(), chargeback);
