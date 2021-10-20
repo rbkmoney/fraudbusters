@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static com.rbkmoney.fraudbusters.factory.TestDgraphObjectFactory.generateChargeback;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @ActiveProfiles("full-prod")
@@ -38,30 +37,26 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
                 .build();
         producePayments(KAFKA_CHARGEBACK_TOPIC, generateChargebacks(5, operationProperties));
         waitingTopic(KAFKA_CHARGEBACK_TOPIC, ChargebackDeserializer.class);
-
-        Thread.sleep(15000L);
-        assertEquals(1, getCountOfObjects("Token"));
-        assertEquals(1, getCountOfObjects("Payment"));
-        assertEquals(5, getCountOfObjects("Chargeback"));
-        assertEquals(1, getCountOfObjects("Email"));
-        assertEquals(1, getCountOfObjects("Fingerprint"));
-        assertEquals(1, getCountOfObjects("IP"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("PartyShop"));
-        assertEquals(0, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 1);
+        checkCountOfObjects("Payment", 1);
+        checkCountOfObjects("Chargeback", 5);
+        checkCountOfObjects("Email", 1);
+        checkCountOfObjects("Fingerprint", 1);
+        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("PartyShop", 1);
+        checkCountOfObjects("Country", 0);
 
         producePayments(KAFKA_CHARGEBACK_TOPIC, generateChargebacks(3, operationProperties));
-        Thread.sleep(15000L);
-
-        assertEquals(1, getCountOfObjects("Token"));
-        assertEquals(1, getCountOfObjects("Payment"));
-        assertEquals(5, getCountOfObjects("Chargeback"));
-        assertEquals(1, getCountOfObjects("Email"));
-        assertEquals(1, getCountOfObjects("Fingerprint"));
-        assertEquals(1, getCountOfObjects("IP"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("PartyShop"));
-        assertEquals(0, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 1);
+        checkCountOfObjects("Payment", 1);
+        checkCountOfObjects("Chargeback", 5);
+        checkCountOfObjects("Email", 1);
+        checkCountOfObjects("Fingerprint", 1);
+        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("PartyShop", 1);
+        checkCountOfObjects("Country", 0);
 
         OperationProperties secondOperationProperties = OperationProperties.builder()
                 .tokenId("token2")
@@ -75,17 +70,15 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
                 .paymentId("Payment-" + Instant.now().toEpochMilli())
                 .build();
         producePayments(KAFKA_CHARGEBACK_TOPIC, generateChargebacks(6, secondOperationProperties));
-        Thread.sleep(15000L);
-
-        assertEquals(2, getCountOfObjects("Token"));
-        assertEquals(2, getCountOfObjects("Payment"));
-        assertEquals(11, getCountOfObjects("Chargeback"));
-        assertEquals(2, getCountOfObjects("Email"));
-        assertEquals(1, getCountOfObjects("Fingerprint"));
-        assertEquals(1, getCountOfObjects("IP"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(2, getCountOfObjects("PartyShop"));
-        assertEquals(0, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 2);
+        checkCountOfObjects("Payment", 2);
+        checkCountOfObjects("Chargeback", 11);
+        checkCountOfObjects("Email", 2);
+        checkCountOfObjects("Fingerprint", 1);
+        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("PartyShop", 2);
+        checkCountOfObjects("Country", 0);
 
         OperationProperties thirdOperationProperties = OperationProperties.builder()
                 .tokenId("token3")
@@ -99,17 +92,15 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
                 .paymentId("Payment-" + Instant.now().toEpochMilli())
                 .build();
         producePayments(KAFKA_CHARGEBACK_TOPIC, generateChargebacks(10, thirdOperationProperties));
-        Thread.sleep(15000L);
-
-        assertEquals(3, getCountOfObjects("Token"));
-        assertEquals(3, getCountOfObjects("Payment"));
-        assertEquals(21, getCountOfObjects("Chargeback"));
-        assertEquals(3, getCountOfObjects("Email"));
-        assertEquals(2, getCountOfObjects("Fingerprint"));
-        assertEquals(2, getCountOfObjects("IP"));
-        assertEquals(2, getCountOfObjects("Bin"));
-        assertEquals(3, getCountOfObjects("PartyShop"));
-        assertEquals(0, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 3);
+        checkCountOfObjects("Payment", 3);
+        checkCountOfObjects("Chargeback", 21);
+        checkCountOfObjects("Email", 3);
+        checkCountOfObjects("Fingerprint", 2);
+        checkCountOfObjects("IP", 2);
+        checkCountOfObjects("Bin", 2);
+        checkCountOfObjects("PartyShop", 3);
+        checkCountOfObjects("Country", 0);
     }
 
     private List<Chargeback> generateChargebacks(int count, OperationProperties properties) {

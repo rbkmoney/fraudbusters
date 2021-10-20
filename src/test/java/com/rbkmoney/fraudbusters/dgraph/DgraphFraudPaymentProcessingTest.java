@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static com.rbkmoney.fraudbusters.factory.TestDgraphObjectFactory.createTestFraudPayment;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @ActiveProfiles("full-prod")
@@ -29,23 +28,18 @@ public class DgraphFraudPaymentProcessingTest extends DgraphAbstractIntegrationT
         List<FraudPayment> fraudPayments = generatePayments(5);
         producePayments(KAFKA_PAYMENT_TOPIC, fraudPayments);
         waitingTopic(KAFKA_PAYMENT_TOPIC, FraudPaymentDeserializer.class);
-
-        Thread.sleep(15000L);
-        assertEquals(5, getCountOfObjects("FraudPayment"));
+        checkCountOfObjects("FraudPayment", 5);
 
         producePayments(KAFKA_PAYMENT_TOPIC, fraudPayments);
-        Thread.sleep(15000L);
-        assertEquals(5, getCountOfObjects("FraudPayment"));
+        checkCountOfObjects("FraudPayment", 5);
 
         producePayments(KAFKA_PAYMENT_TOPIC, generatePayments(5));
-        Thread.sleep(15000L);
-        assertEquals(10, getCountOfObjects("FraudPayment"));
+        checkCountOfObjects("FraudPayment", 10);
     }
 
     private List<FraudPayment> generatePayments(int count) {
         List<FraudPayment> payments = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-
             String createdAt = LocalDateTime.now().format(FORMATTER);
             payments.add(createTestFraudPayment("pay-" + createdAt + "-" + i, createdAt));
         }

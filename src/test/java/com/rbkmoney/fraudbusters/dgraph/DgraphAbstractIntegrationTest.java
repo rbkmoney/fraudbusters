@@ -32,6 +32,8 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.thrift.TBase;
+import org.awaitility.Awaitility;
+import org.awaitility.Durations;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.rnorth.ducttape.unreliables.Unreliables;
@@ -223,4 +225,12 @@ public abstract class DgraphAbstractIntegrationTest {
             });
         }
     }
+
+    public void checkCountOfObjects(String type, int count) {
+        Awaitility.await()
+                .atMost(60, TimeUnit.SECONDS)
+                .pollDelay(Durations.ONE_SECOND)
+                .until(() -> getCountOfObjects(type) == count);
+    }
+
 }

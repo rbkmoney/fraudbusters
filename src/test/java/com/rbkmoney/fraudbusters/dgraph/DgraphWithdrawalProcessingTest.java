@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static com.rbkmoney.fraudbusters.factory.TestDgraphObjectFactory.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @ActiveProfiles("full-prod")
@@ -28,55 +27,46 @@ public class DgraphWithdrawalProcessingTest extends DgraphAbstractIntegrationTes
                 Resource.crypto_wallet(generateTestCryptoWallet("qwe123", "wet"));
         produceWithdrawals(KAFKA_WITHDRAWAL_TOPIC, generateWithdrawals(5, firstCryptoResource));
         waitingTopic(KAFKA_WITHDRAWAL_TOPIC, WithdrawalDeserializer.class);
-
-        Thread.sleep(15000L);
-        assertEquals(0, getCountOfObjects("Token"));
-        assertEquals(5, getCountOfObjects("Withdrawal"));
-        assertEquals(0, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("Country"));
-
+        checkCountOfObjects("Withdrawal", 5);
+        checkCountOfObjects("Token", 0);
+        checkCountOfObjects("Bin", 0);
+        checkCountOfObjects("Country", 1);
 
         produceWithdrawals(KAFKA_WITHDRAWAL_TOPIC, generateWithdrawals(5, firstCryptoResource));
-        Thread.sleep(15000L);
-        assertEquals(0, getCountOfObjects("Token"));
-        assertEquals(10, getCountOfObjects("Withdrawal"));
-        assertEquals(0, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("Country"));
-
+        checkCountOfObjects("Withdrawal", 10);
+        checkCountOfObjects("Token", 0);
+        checkCountOfObjects("Bin", 0);
+        checkCountOfObjects("Country", 1);
 
         Resource firstDigitalResource =
                 Resource.digital_wallet(generateTestDigitalWallet("qwe123", "prov-1"));
         produceWithdrawals(KAFKA_WITHDRAWAL_TOPIC, generateWithdrawals(3, firstDigitalResource));
-        Thread.sleep(15000L);
-        assertEquals(0, getCountOfObjects("Token"));
-        assertEquals(13, getCountOfObjects("Withdrawal"));
-        assertEquals(0, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("Country"));
+        checkCountOfObjects("Withdrawal", 13);
+        checkCountOfObjects("Token", 0);
+        checkCountOfObjects("Bin", 0);
+        checkCountOfObjects("Country", 1);
 
         Resource firstBankResource =
                 Resource.bank_card(generateTestBankCard("token-1"));
         produceWithdrawals(KAFKA_WITHDRAWAL_TOPIC, generateWithdrawals(3, firstBankResource));
-        Thread.sleep(15000L);
-        assertEquals(1, getCountOfObjects("Token"));
-        assertEquals(16, getCountOfObjects("Withdrawal"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("Country"));
+        checkCountOfObjects("Withdrawal", 16);
+        checkCountOfObjects("Token", 1);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("Country", 1);
 
         produceWithdrawals(KAFKA_WITHDRAWAL_TOPIC, generateWithdrawals(3, firstBankResource));
-        Thread.sleep(15000L);
-        assertEquals(1, getCountOfObjects("Token"));
-        assertEquals(19, getCountOfObjects("Withdrawal"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("Country"));
+        checkCountOfObjects("Withdrawal", 19);
+        checkCountOfObjects("Token", 1);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("Country", 1);
 
         Resource secondBankResource =
                 Resource.bank_card(generateTestBankCard("token-2"));
         produceWithdrawals(KAFKA_WITHDRAWAL_TOPIC, generateWithdrawals(3, secondBankResource));
-        Thread.sleep(15000L);
-        assertEquals(2, getCountOfObjects("Token"));
-        assertEquals(22, getCountOfObjects("Withdrawal"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("Country"));
+        checkCountOfObjects("Withdrawal", 22);
+        checkCountOfObjects("Token", 2);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("Country", 1);
     }
 
     private List<Withdrawal> generateWithdrawals(int count, Resource destinationResource) {

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static com.rbkmoney.fraudbusters.factory.TestDgraphObjectFactory.generatePayment;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @ActiveProfiles("full-prod")
@@ -36,28 +35,24 @@ public class DgraphPaymentProcessingTest extends DgraphAbstractIntegrationTest {
                  .build();
         producePayments(KAFKA_PAYMENT_TOPIC, generatePayments(5, operationProperties));
         waitingTopic(KAFKA_PAYMENT_TOPIC, PaymentDeserializer.class);
-
-        Thread.sleep(15000L);
-        assertEquals(1, getCountOfObjects("Token"));
-        assertEquals(5, getCountOfObjects("Payment"));
-        assertEquals(1, getCountOfObjects("Email"));
-        assertEquals(1, getCountOfObjects("Fingerprint"));
-        assertEquals(1, getCountOfObjects("IP"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("PartyShop"));
-        assertEquals(1, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 1);
+        checkCountOfObjects("Payment", 5);
+        checkCountOfObjects("Email", 1);
+        checkCountOfObjects("Fingerprint", 1);
+        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("PartyShop", 1);
+        checkCountOfObjects("Country", 1);
 
         producePayments(KAFKA_PAYMENT_TOPIC, generatePayments(3, operationProperties));
-        Thread.sleep(15000L);
-
-        assertEquals(1, getCountOfObjects("Token"));
-        assertEquals(8, getCountOfObjects("Payment"));
-        assertEquals(1, getCountOfObjects("Email"));
-        assertEquals(1, getCountOfObjects("Fingerprint"));
-        assertEquals(1, getCountOfObjects("IP"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("PartyShop"));
-        assertEquals(1, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 1);
+        checkCountOfObjects("Payment", 8);
+        checkCountOfObjects("Email", 1);
+        checkCountOfObjects("Fingerprint", 1);
+        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("PartyShop", 1);
+        checkCountOfObjects("Country", 1);
 
         OperationProperties secondOperationProperties = OperationProperties.builder()
                 .tokenId("token2")
@@ -70,16 +65,14 @@ public class DgraphPaymentProcessingTest extends DgraphAbstractIntegrationTest {
                 .country("Russia")
                 .build();
         producePayments(KAFKA_PAYMENT_TOPIC, generatePayments(6, secondOperationProperties));
-        Thread.sleep(15000L);
-
-        assertEquals(2, getCountOfObjects("Token"));
-        assertEquals(14, getCountOfObjects("Payment"));
-        assertEquals(2, getCountOfObjects("Email"));
-        assertEquals(1, getCountOfObjects("Fingerprint"));
-        assertEquals(1, getCountOfObjects("IP"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(2, getCountOfObjects("PartyShop"));
-        assertEquals(1, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 2);
+        checkCountOfObjects("Payment", 14);
+        checkCountOfObjects("Email", 2);
+        checkCountOfObjects("Fingerprint", 1);
+        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("PartyShop", 2);
+        checkCountOfObjects("Country", 1);
 
         OperationProperties thirdOperationProperties = OperationProperties.builder()
                 .tokenId("token3")
@@ -92,16 +85,14 @@ public class DgraphPaymentProcessingTest extends DgraphAbstractIntegrationTest {
                 .country("BeloRussia")
                 .build();
         producePayments(KAFKA_PAYMENT_TOPIC, generatePayments(10, thirdOperationProperties));
-        Thread.sleep(15000L);
-
-        assertEquals(3, getCountOfObjects("Token"));
-        assertEquals(24, getCountOfObjects("Payment"));
-        assertEquals(3, getCountOfObjects("Email"));
-        assertEquals(2, getCountOfObjects("Fingerprint"));
-        assertEquals(2, getCountOfObjects("IP"));
-        assertEquals(2, getCountOfObjects("Bin"));
-        assertEquals(3, getCountOfObjects("PartyShop"));
-        assertEquals(2, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 3);
+        checkCountOfObjects("Payment", 24);
+        checkCountOfObjects("Email", 3);
+        checkCountOfObjects("Fingerprint", 2);
+        checkCountOfObjects("IP", 2);
+        checkCountOfObjects("Bin", 2);
+        checkCountOfObjects("PartyShop", 3);
+        checkCountOfObjects("Country", 2);
     }
 
     private List<Payment> generatePayments(int count, OperationProperties properties) {

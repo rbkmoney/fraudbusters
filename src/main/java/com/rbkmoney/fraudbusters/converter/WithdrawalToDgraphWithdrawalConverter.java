@@ -23,7 +23,7 @@ public class WithdrawalToDgraphWithdrawalConverter implements Converter<Withdraw
     public DgraphWithdrawal convert(Withdrawal withdrawal) {
         DgraphWithdrawal dgraphWithdrawal = new DgraphWithdrawal();
         dgraphWithdrawal.setWithdrawalId(withdrawal.getId());
-        final String withdrawalEventTime = withdrawal.getEventTime();
+        String withdrawalEventTime = withdrawal.getEventTime();
         dgraphWithdrawal.setCreatedAt(withdrawalEventTime);
         dgraphWithdrawal.setAmount(withdrawal.getCost().getAmount());
         dgraphWithdrawal.setCurrency(withdrawal.getCost().getCurrency().getSymbolicCode());

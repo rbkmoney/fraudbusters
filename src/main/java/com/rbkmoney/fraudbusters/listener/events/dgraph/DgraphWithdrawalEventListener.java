@@ -31,8 +31,7 @@ public class DgraphWithdrawalEventListener {
                 records.size(), firstRecord.partition(), firstRecord.offset());
         log.debug("Listen withdrawals: {}", records);
         for (ConsumerRecord<String, Withdrawal> record : records) {
-            Withdrawal refund = record.value();
-            repository.insert(converter.convert(refund));
+            repository.insert(converter.convert(record.value()));
         }
         ack.acknowledge();
     }

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static com.rbkmoney.fraudbusters.factory.TestDgraphObjectFactory.generateRefund;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @ActiveProfiles("full-prod")
@@ -36,32 +35,29 @@ public class DgraphRefundProcessingTest extends DgraphAbstractIntegrationTest {
                 .country("Russia")
                 .paymentId("Payment-" + Instant.now().toEpochMilli())
                 .build();
+
         producePayments(KAFKA_REFUND_TOPIC, generateRefunds(5, operationProperties));
         waitingTopic(KAFKA_REFUND_TOPIC, RefundDeserializer.class);
-
-        Thread.sleep(15000L);
-        assertEquals(1, getCountOfObjects("Token"));
-        assertEquals(1, getCountOfObjects("Payment"));
-        assertEquals(5, getCountOfObjects("Refund"));
-        assertEquals(1, getCountOfObjects("Email"));
-        assertEquals(1, getCountOfObjects("Fingerprint"));
-        assertEquals(1, getCountOfObjects("IP"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("PartyShop"));
-        assertEquals(0, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 1);
+        checkCountOfObjects("Payment", 1);
+        checkCountOfObjects("Refund", 5);
+        checkCountOfObjects("Email", 1);
+        checkCountOfObjects("Fingerprint", 1);
+        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("PartyShop", 1);
+        checkCountOfObjects("Country", 0);
 
         producePayments(KAFKA_REFUND_TOPIC, generateRefunds(3, operationProperties));
-        Thread.sleep(15000L);
-
-        assertEquals(1, getCountOfObjects("Token"));
-        assertEquals(1, getCountOfObjects("Payment"));
-        assertEquals(5, getCountOfObjects("Refund"));
-        assertEquals(1, getCountOfObjects("Email"));
-        assertEquals(1, getCountOfObjects("Fingerprint"));
-        assertEquals(1, getCountOfObjects("IP"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(1, getCountOfObjects("PartyShop"));
-        assertEquals(0, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 1);
+        checkCountOfObjects("Payment", 1);
+        checkCountOfObjects("Refund", 5);
+        checkCountOfObjects("Email", 1);
+        checkCountOfObjects("Fingerprint", 1);
+        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("PartyShop", 1);
+        checkCountOfObjects("Country", 0);
 
         OperationProperties secondOperationProperties = OperationProperties.builder()
                 .tokenId("token2")
@@ -75,17 +71,15 @@ public class DgraphRefundProcessingTest extends DgraphAbstractIntegrationTest {
                 .paymentId("Payment-" + Instant.now().toEpochMilli())
                 .build();
         producePayments(KAFKA_REFUND_TOPIC, generateRefunds(6, secondOperationProperties));
-        Thread.sleep(15000L);
-
-        assertEquals(2, getCountOfObjects("Token"));
-        assertEquals(2, getCountOfObjects("Payment"));
-        assertEquals(11, getCountOfObjects("Refund"));
-        assertEquals(2, getCountOfObjects("Email"));
-        assertEquals(1, getCountOfObjects("Fingerprint"));
-        assertEquals(1, getCountOfObjects("IP"));
-        assertEquals(1, getCountOfObjects("Bin"));
-        assertEquals(2, getCountOfObjects("PartyShop"));
-        assertEquals(0, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 2);
+        checkCountOfObjects("Payment", 2);
+        checkCountOfObjects("Refund", 11);
+        checkCountOfObjects("Email", 2);
+        checkCountOfObjects("Fingerprint", 1);
+        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Bin", 1);
+        checkCountOfObjects("PartyShop", 2);
+        checkCountOfObjects("Country", 0);
 
         OperationProperties thirdOperationProperties = OperationProperties.builder()
                 .tokenId("token3")
@@ -99,25 +93,23 @@ public class DgraphRefundProcessingTest extends DgraphAbstractIntegrationTest {
                 .paymentId("Payment-" + Instant.now().toEpochMilli())
                 .build();
         producePayments(KAFKA_REFUND_TOPIC, generateRefunds(10, thirdOperationProperties));
-        Thread.sleep(15000L);
-
-        assertEquals(3, getCountOfObjects("Token"));
-        assertEquals(3, getCountOfObjects("Payment"));
-        assertEquals(21, getCountOfObjects("Refund"));
-        assertEquals(3, getCountOfObjects("Email"));
-        assertEquals(2, getCountOfObjects("Fingerprint"));
-        assertEquals(2, getCountOfObjects("IP"));
-        assertEquals(2, getCountOfObjects("Bin"));
-        assertEquals(3, getCountOfObjects("PartyShop"));
-        assertEquals(0, getCountOfObjects("Country"));
+        checkCountOfObjects("Token", 3);
+        checkCountOfObjects("Payment", 3);
+        checkCountOfObjects("Refund", 21);
+        checkCountOfObjects("Email", 3);
+        checkCountOfObjects("Fingerprint", 2);
+        checkCountOfObjects("IP", 2);
+        checkCountOfObjects("Bin", 2);
+        checkCountOfObjects("PartyShop", 3);
+        checkCountOfObjects("Country", 0);
     }
 
     private List<Refund> generateRefunds(int count, OperationProperties properties) {
-        List<Refund> payments = new ArrayList<>();
+        List<Refund> refunds = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            payments.add(generateRefund(properties, i));
+            refunds.add(generateRefund(properties, i));
         }
-        return payments;
+        return refunds;
     }
 
     void producePayments(String topicName, List<Refund> refunds)
