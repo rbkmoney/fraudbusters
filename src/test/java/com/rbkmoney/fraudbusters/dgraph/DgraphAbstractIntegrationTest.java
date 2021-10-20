@@ -226,7 +226,7 @@ public abstract class DgraphAbstractIntegrationTest {
         }
     }
 
-    public void checkCountOfObjects(String type, int count) {
+    protected void checkCountOfObjects(String type, int count) {
         Awaitility.await()
                 .atMost(60, TimeUnit.SECONDS)
                 .pollDelay(Durations.ONE_SECOND)
