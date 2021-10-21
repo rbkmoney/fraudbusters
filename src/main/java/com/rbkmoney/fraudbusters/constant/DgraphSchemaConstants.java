@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SchemaConstants {
+public final class DgraphSchemaConstants {
 
     public static final String SCHEMA = """ 
                 payments: [uid] @count .
@@ -16,15 +16,31 @@ public final class SchemaConstants {
                 maskedPan: string .
                 paymentSystem: string .
                 bin: uid .
+                refunds: [uid] .
+                chargebacks: [uid] .
+                tokenizationMethod: string .
+                paymentSystem: string .
+                issuerCountry: string .
+                bankName: string .
+                cardholderName: string .
+                category: string .
                 
                 type Token {
                     tokenId
                     maskedPan
-                    bin
+                    tokenizationMethod
+                    paymentSystem
+                    issuerCountry
+                    bankName
+                    cardholderName
+                    category
                     lastActTime
+                    bin: Bin
                     payments: Payment
                     emails: Email
                     fingerprints: Fingerprint
+                    refunds: Refund
+                    chargebacks: Chargeback
                 }
                 
                 paymentId: string @index(hash) @upsert .
@@ -53,6 +69,8 @@ public final class SchemaConstants {
                 checkedResultsJson: string .
                 partyShop: uid .
                 country: uid .
+                fraudPayment: uid .
+                paymentIp: uid .
                 
                 type Payment {
                     paymentId
@@ -83,6 +101,10 @@ public final class SchemaConstants {
                     partyShop: PartyShop
                     bin: Bin
                     country: Country
+                    fraudPayment: FraudPayment
+                    refunds: Refund
+                    chargebacks: Chargeback
+                    paymentIp: IP
                 }
                 
                 fingerprintData: string @index(hash) @upsert .
@@ -93,6 +115,8 @@ public final class SchemaConstants {
                     emails: Email
                     tokens: Token
                     payments: Payment
+                    refunds: Refund
+                    chargebacks: Chargeback
                 }
                 
                 userEmail: string @index(hash) @upsert .
@@ -103,6 +127,8 @@ public final class SchemaConstants {
                     fingerprints: Fingerprint
                     tokens: Token
                     payments: Payment
+                    refunds: Refund
+                    chargebacks: Chargeback
                 }
                 
                 type PartyShop {
@@ -111,6 +137,8 @@ public final class SchemaConstants {
                     payments: Payment
                     tokens: Token
                     emails: Email
+                    refunds: Refund
+                    chargebacks: Chargeback
                 }
                 
                 countryName: string @index(hash) @upsert .
@@ -133,6 +161,8 @@ public final class SchemaConstants {
                     tokens: Token
                     emails: Email
                     countries: Country
+                    refunds: Refund
+                    chargebacks: Chargeback
                 }
                          
                 cardBin: string @index(hash) @upsert .
@@ -142,6 +172,102 @@ public final class SchemaConstants {
                     payments: Payment
                     tokens: Token
                     emails: Email
+                    refunds: Refund
+                    chargebacks: Chargeback
+                }
+                
+                fraudType: string .
+                comment: string .
+                sourcePayment: uid .
+                
+                type FraudPayment {
+                    paymentId
+                    createdAt
+                    fraudType
+                    comment
+                    sourcePayment: Payment
+                }
+                
+                refundId: string @index(hash) @upsert .
+                refundIp: uid .
+                
+                type Refund {
+                    refundId
+                    paymentId
+                    partyId
+                    shopId
+                    createdAt
+                    amount
+                    currency
+                    status
+                    payerType
+                    errorCode
+                    errorReason
+                    sourcePayment: Payment
+                    cardToken: Token
+                    fingerprint: Fingerprint
+                    contactEmail: Email
+                    partyShop: PartyShop
+                    refundIp: IP
+                }
+                
+                chargebackId: string @index(hash) @upsert .
+                chargebackIp: uid .
+                category: string .
+                code: string .
+                
+                type Chargeback {
+                    chargebackId
+                    paymentId
+                    partyId
+                    shopId
+                    createdAt
+                    amount
+                    currency
+                    status
+                    category
+                    code
+                    payerType
+                    sourcePayment: Payment
+                    cardToken: Token
+                    fingerprint: Fingerprint
+                    contactEmail: Email
+                    partyShop: PartyShop
+                    chargebackIp: IP
+                }
+                
+                withdrawalId: string @index(hash) @upsert .
+                terminalId: string .
+                accountId: string .
+                accountIdentity: string .
+                accountCurrency: string .
+                destinationResource: string .
+                digitalWalletId: string .
+                digitalWalletDataProvider: string .
+                cryptoWalletId: string .
+                cryptoWalletCurrency: string .
+                
+                type Withdrawal {
+                    withdrawalId
+                    createdAt
+                    amount
+                    currency
+                    status
+                    providerId
+                    terminalId
+                    accountId
+                    accountIdentity
+                    accountCurrency
+                    errorCode
+                    errorReason
+                    destinationResource
+                    digitalWalletId
+                    digitalWalletDataProvider
+                    cryptoWalletId
+                    cryptoWalletCurrency
+                    country: Country
+                    bin: Bin
+                    cardToken: Token
                 }
                 
             """;

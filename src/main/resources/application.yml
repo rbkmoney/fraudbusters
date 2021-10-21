@@ -81,6 +81,22 @@ kafka:
         name: payment_event
         concurrency: 1
         enabled: false
+      fraud_payment:
+        name: fraud_payment
+        concurrency: 1
+        enabled: false
+      refund:
+        name: refund_event
+        concurrency: 1
+        enabled: false
+      chargeback:
+        name: chargeback_event
+        concurrency: 1
+        enabled: false
+      withdrawal:
+        name: withdrawal
+        concurrency: 1
+        enabled: false
   ssl:
     enable: false
     keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12

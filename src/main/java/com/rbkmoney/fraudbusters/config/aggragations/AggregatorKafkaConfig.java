@@ -60,8 +60,26 @@ public class AggregatorKafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Withdrawal> kafkaDgraphWithdrawalResultListenerContainerFactory() {
+        return listenersConfigurationService.createDgraphFactory(
+                new WithdrawalDeserializer(),
+                "dgraph-payments",
+                fetchMinBytes
+        );
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Refund> kafkaRefundResultListenerContainerFactory() {
         return listenersConfigurationService.createFactory(new RefundDeserializer(), GroupPostfix.RESULT_AGGREGATOR);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Refund> kafkaDgraphRefundResultListenerContainerFactory() {
+        return listenersConfigurationService.createDgraphFactory(
+                new RefundDeserializer(),
+                "dgraph-refunds",
+                fetchMinBytes
+        );
     }
 
     @Bean
@@ -73,10 +91,28 @@ public class AggregatorKafkaConfig {
     }
 
     @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Chargeback> kafkaDgraphChargebackResultListenerContainerFactory() {
+        return listenersConfigurationService.createDgraphFactory(
+                new ChargebackDeserializer(),
+                "dgraph-chargebacks",
+                fetchMinBytes
+        );
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FraudPayment> kafkaFraudPaymentListenerContainerFactory() {
         return listenersConfigurationService.createFactory(
                 new FraudPaymentDeserializer(),
                 GroupPostfix.RESULT_AGGREGATOR
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, FraudPayment> kafkaDrgaphFraudPaymentListenerContainerFactory() {
+        return listenersConfigurationService.createDgraphFactory(
+                new FraudPaymentDeserializer(),
+                "dgraph-fraud-payments",
+                fetchMinBytes
         );
     }
 

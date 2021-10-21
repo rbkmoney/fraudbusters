@@ -1,0 +1,91 @@
+## @vtlvariable name="refund" type="com.rbkmoney.fraudbusters.domain.dgraph.DgraphRefund"
+## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
+#set ($paymentId = $!refund.paymentId)
+#set ($cardToken = $!refund.cardToken)
+#set ($fingerprint = $!refund.fingerprint)
+#set ($contactEmail = $!refund.email)
+#set ($partyShop = $!refund.partyShop)
+#set ($ip = $!refund.refundIp)
+#set ($bin = $!refund.bin)
+#set ($payment = $!refund.payment)
+uid($constants.tokenUid) <dgraph.type> "$!cardToken.type" .
+uid($constants.tokenUid) <tokenId> "$!cardToken.tokenId" .
+uid($constants.tokenUid) <bin> uid($constants.binUid) .
+uid($constants.tokenUid) <maskedPan> "$!cardToken.maskedPan" .
+uid($constants.tokenUid) <lastActTime> "$!refund.createdAt" .
+uid($constants.tokenUid) <refunds> uid($constants.refundUid) (createdAt = $!refund.createdAt, status = "$!refund.status") .
+
+uid($constants.shopUid) <dgraph.type> "$!partyShop.type" .
+uid($constants.shopUid) <partyId> "$!partyShop.partyId" .
+uid($constants.shopUid) <shopId> "$!partyShop.shopId" .
+uid($constants.shopUid) <refunds> uid($constants.refundUid) .
+uid($constants.shopUid) <tokens> uid($constants.tokenUid) .
+
+uid($constants.binUid) <dgraph.type> "$!bin.type" .
+uid($constants.binUid) <cardBin> "$!bin.bin" .
+uid($constants.binUid) <refunds> uid($constants.refundUid) .
+uid($constants.binUid) <tokens> uid($constants.tokenUid) .
+
+#if ($fingerprint)
+uid($constants.fingerUid) <dgraph.type> "$!fingerprint.type" .
+uid($constants.fingerUid) <fingerprintData> "$!fingerprint.fingerprintData" .
+uid($constants.fingerUid) <lastActTime> "$!refund.createdAt" .
+uid($constants.fingerUid) <refunds> uid($constants.refundUid) .
+uid($constants.fingerUid) <tokens> uid($constants.tokenUid) .
+uid($constants.tokenUid) <fingerprints> uid($constants.fingerUid) .
+uid($constants.refundUid) <fingerprint> uid($constants.fingerUid) .
+#if ($contactEmail)
+uid($constants.fingerUid) <emails> uid($constants.emailUid) .
+#end
+
+#end
+#if ($contactEmail)
+uid($constants.emailUid) <dgraph.type> "$!contactEmail.type" .
+uid($constants.emailUid) <userEmail> "$!contactEmail.userEmail" .
+uid($constants.emailUid) <lastActTime> "$!refund.createdAt" .
+uid($constants.emailUid) <refunds> uid($constants.refundUid) .
+uid($constants.emailUid) <tokens> uid($constants.tokenUid) .
+uid($constants.binUid) <emails> uid($constants.emailUid) .
+uid($constants.shopUid) <emails> uid($constants.emailUid) .
+uid($constants.tokenUid) <emails> uid($constants.emailUid) .
+uid($constants.refundUid) <contactEmail> uid($constants.emailUid) .
+#if ($fingerprint)
+uid($constants.emailUid) <fingerprints> uid($constants.fingerUid) .
+#end
+
+#end
+#if ($ip)
+uid($constants.ipUid) <dgraph.type> "$!ip.type" .
+uid($constants.ipUid) <ipAddress> "$!ip.ip" .
+uid($constants.ipUid) <refunds> uid($constants.refundUid) .
+uid($constants.ipUid) <tokens> uid($constants.tokenUid) .
+uid($constants.refundUid) <refundIp> uid($constants.ipUid) .
+#if ($contactEmail)
+uid($constants.ipUid) <emails> uid($constants.emailUid) .
+#end
+
+#end
+uid($constants.refundUid) <dgraph.type> "$!refund.type" .
+uid($constants.refundUid) <paymentId> "$!refund.paymentId" .
+uid($constants.refundUid) <refundId> "$!refund.refundId" .
+uid($constants.refundUid) <partyId> "$!refund.partyId" .
+uid($constants.refundUid) <shopId> "$!refund.shopId" .
+uid($constants.refundUid) <createdAt> "$!refund.createdAt" .
+uid($constants.refundUid) <amount> "$!refund.amount" .
+uid($constants.refundUid) <currency> "$!refund.currency" .
+uid($constants.refundUid) <status> "$!refund.status" .
+uid($constants.refundUid) <payerType> "$!refund.payerType" .
+
+#if ($refund.errorReason)
+uid($constants.refundUid) <errorReason> "$!refund.errorReason" .
+#end
+#if ($refund.errorReason)
+uid($constants.refundUid) <errorCode> "$!refund.errorCode" .
+#end
+uid($constants.refundUid) <cardToken> uid($constants.tokenUid) .
+uid($constants.refundUid) <partyShop> uid($constants.shopUid) .
+uid($constants.refundUid) <bin> uid($constants.binUid) .
+
+uid($constants.paymentUid) <dgraph.type> "$!payment.type" .
+uid($constants.paymentUid) <paymentId> "$!payment.paymentId" .
+uid($constants.paymentUid) <refunds> uid($constants.refundUid) .

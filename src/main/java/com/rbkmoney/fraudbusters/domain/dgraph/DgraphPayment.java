@@ -41,10 +41,11 @@ public class DgraphPayment {
     private String checkedResultsJson;
 
     private DgraphCountry country;
-    private DgraphIp dgraphIp;
-    private DgraphBin dgraphBin;
+    private DgraphIp paymentIp;
+    private DgraphBin bin;
     private DgraphToken cardToken;
     private DgraphFingerprint fingerprint;
     private DgraphEmail contactEmail;
+    private DgraphFraudPayment fraudPayment;
 
 }

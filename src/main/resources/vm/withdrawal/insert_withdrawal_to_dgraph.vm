@@ -1,0 +1,74 @@
+## @vtlvariable name="withdrawal" type="com.rbkmoney.fraudbusters.domain.dgraph.DgraphWithdrawal"
+## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
+#set ($cardToken = $!withdrawal.cardToken)
+#set ($bin = $!withdrawal.bin)
+#set ($country = $!withdrawal.country)
+uid($constants.withdrawalUid) <dgraph.type> "$!withdrawal.type" .
+uid($constants.withdrawalUid) <withdrawalId> "$!withdrawal.withdrawalId" .
+uid($constants.withdrawalUid) <createdAt> "$!withdrawal.createdAt" .
+uid($constants.withdrawalUid) <amount> "$!withdrawal.amount" .
+uid($constants.withdrawalUid) <currency> "$!withdrawal.currency" .
+uid($constants.withdrawalUid) <status> "$!withdrawal.status" .
+uid($constants.withdrawalUid) <providerId> "$!withdrawal.providerId" .
+uid($constants.withdrawalUid) <terminalId> "$!withdrawal.terminalId" .
+#if ($withdrawal.accountId)
+uid($constants.withdrawalUid) <accountId> "$!withdrawal.accountId" .
+uid($constants.withdrawalUid) <accountIdentity> "$!withdrawal.accountIdentity" .
+uid($constants.withdrawalUid) <accountCurrency> "$!withdrawal.accountCurrency" .
+#end
+#if ($withdrawal.errorCode)
+uid($constants.withdrawalUid) <errorCode> "$!withdrawal.errorCode" .
+#end
+#if ($withdrawal.errorReason)
+uid($constants.withdrawalUid) <errorReason> "$!withdrawal.errorReason" .
+#end
+uid($constants.withdrawalUid) <destinationResource> "$!withdrawal.destinationResource" .
+#if ($withdrawal.digitalWalletId)
+uid($constants.withdrawalUid) <digitalWalletId> "$!withdrawal.digitalWalletId" .
+uid($constants.withdrawalUid) <digitalWalletDataProvider> "$!withdrawal.digitalWalletDataProvider" .
+#end
+#if ($withdrawal.cryptoWalletId)
+uid($constants.withdrawalUid) <cryptoWalletId> "$!withdrawal.cryptoWalletId" .
+uid($constants.withdrawalUid) <cryptoWalletCurrency> "$!withdrawal.cryptoWalletCurrency" .
+#end
+
+#if ($cardToken)
+uid($constants.tokenUid) <dgraph.type> "$!cardToken.type" .
+uid($constants.tokenUid) <tokenId> "$!cardToken.tokenId" .
+uid($constants.tokenUid) <bin> uid($constants.binUid) .
+uid($constants.tokenUid) <maskedPan> "$!cardToken.maskedPan" .
+#if($cardToken.tokenizationMethod)
+uid($constants.tokenUid) <tokenizationMethod> "$!cardToken.tokenizationMethod" .
+#end
+#if($cardToken.paymentSystem)
+uid($constants.tokenUid) <paymentSystem> "$!cardToken.paymentSystem" .
+#end
+#if($cardToken.issuerCountry)
+uid($constants.tokenUid) <issuerCountry> "$!cardToken.issuerCountry" .
+#end
+#if($cardToken.bankName)
+uid($constants.tokenUid) <bankName> "$!cardToken.bankName" .
+#end
+#if($cardToken.cardholderName)
+uid($constants.tokenUid) <cardholderName> "$!cardToken.cardholderName" .
+#end
+#if($cardToken.category)
+uid($constants.tokenUid) <category> "$!cardToken.category" .
+#end
+uid($constants.tokenUid) <lastActTime> "$!withdrawal.createdAt" .
+uid($constants.withdrawalUid) <cardToken> uid($constants.tokenUid) .
+
+#end
+#if ($bin)
+uid($constants.binUid) <dgraph.type> "$!bin.type" .
+uid($constants.binUid) <cardBin> "$!bin.bin" .
+uid($constants.binUid) <tokens> uid($constants.tokenUid) .
+uid($constants.withdrawalUid) <bin> uid($constants.binUid) .
+
+#end
+#if ($country)
+uid($constants.countryUid) <dgraph.type> "$!country.type" .
+uid($constants.countryUid) <countryName> "$!country.countryName" .
+uid($constants.withdrawalUid) <country> uid($constants.countryUid) .
+
+#end
