@@ -21,10 +21,10 @@ public class DgraphRefund {
     private String errorCode;
     private String errorReason;
     private DgraphPartyShop partyShop;
-    private DgraphPayment payment;
+    private DgraphPayment sourcePayment;
     private DgraphToken cardToken;
     private DgraphFingerprint fingerprint;
-    private DgraphIp refundIp;
-    private DgraphEmail email;
+    private DgraphIp operationIp;
+    private DgraphEmail contactEmail;
     private DgraphBin bin;
 }

@@ -37,7 +37,7 @@ public class ChargebackToDgraphChargebackConverter implements Converter<Chargeba
             dgraphChargeback.setEmail(clientInfo.getEmail() == null ? null : convertEmail(chargeback));
             dgraphChargeback.setFingerprint(
                     clientInfo.getFingerprint() == null ? null : convertFingerprint(chargeback));
-            dgraphChargeback.setChargebackIp(clientInfo.getIp() == null ? null : convertIp(chargeback));
+            dgraphChargeback.setOperationIp(clientInfo.getIp() == null ? null : convertIp(chargeback));
         }
         PaymentTool paymentTool = chargeback.getPaymentTool();
         dgraphChargeback.setBin(paymentTool.isSetBankCard() ? convertBin(chargeback) : null);

@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.service;
 
 import com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants;
 import com.rbkmoney.fraudbusters.domain.dgraph.*;
+import com.rbkmoney.fraudbusters.fraud.model.DgraphAggregationQueryModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.Template;
@@ -18,16 +19,24 @@ public class TemplateServiceImpl implements TemplateService {
 
     private final VelocityEngine velocityEngine;
 
-    private static final String INSERT_PAYMENT_TO_DGRAPH = "vm/payment/insert_payment_to_dgraph.vm";
-    private static final String UPSERT_GLOBAL_PAYMENT_DATA_QUERY = "vm/payment/upsert_global_payment_data_query.vm";
-    private static final String INSERT_FRAUD_PAYMENT_TO_DGRAPH = "vm/fraud_payment/insert_fraud_payment_to_dgraph.vm";
-    private static final String UPSERT_FRAUD_PAYMENT_DATA_QUERY = "vm/fraud_payment/upsert_fraud_payment_data_query.vm";
-    private static final String INSERT_REFUND_TO_DGRAPH = "vm/refund/insert_refund_to_dgraph.vm";
-    private static final String UPSERT_REFUND_DATA_QUERY = "vm/refund/upsert_global_refund_data_query.vm";
-    private static final String INSERT_CHARGEBACK_TO_DGRAPH = "vm/chargeback/insert_chargeback_to_dgraph.vm";
-    private static final String UPSERT_CHARGEBACK_DATA_QUERY = "vm/chargeback/upsert_chargeback_data_query.vm";
-    private static final String INSERT_WITHDRAWAL_TO_DGRAPH = "vm/withdrawal/insert_withdrawal_to_dgraph.vm";
-    private static final String UPSERT_WITHDRAWAL_DATA_QUERY = "vm/withdrawal/upsert_withdrawal_data_query.vm";
+    private static final String INSERT_PAYMENT_TO_DGRAPH = "vm/insert/payment/insert_payment_to_dgraph.vm";
+    private static final String UPSERT_GLOBAL_PAYMENT_DATA_QUERY = "vm/insert/payment/upsert_payment_data_query.vm";
+    private static final String INSERT_REFUND_TO_DGRAPH = "vm/insert/refund/insert_refund_to_dgraph.vm";
+    private static final String UPSERT_REFUND_DATA_QUERY = "vm/insert/refund/upsert_global_refund_data_query.vm";
+    private static final String INSERT_CHARGEBACK_TO_DGRAPH = "vm/insert/chargeback/insert_chargeback_to_dgraph.vm";
+    private static final String UPSERT_CHARGEBACK_DATA_QUERY = "vm/insert/chargeback/upsert_chargeback_data_query.vm";
+    private static final String INSERT_WITHDRAWAL_TO_DGRAPH = "vm/insert/withdrawal/insert_withdrawal_to_dgraph.vm";
+    private static final String UPSERT_WITHDRAWAL_DATA_QUERY = "vm/insert/withdrawal/upsert_withdrawal_data_query.vm";
+    private static final String INSERT_FRAUD_PAYMENT_TO_DGRAPH =
+            "vm/insert/fraud_payment/insert_fraud_payment_to_dgraph.vm";
+    private static final String UPSERT_FRAUD_PAYMENT_DATA_QUERY =
+            "vm/insert/fraud_payment/upsert_fraud_payment_data_query.vm";
+    private static final String PREPARE_COUNT_QUERY = "vm/aggregate/count/prepare_count_query.vm";
+    private static final String PREPARE_ROOT_COUNT_QUERY = "vm/aggregate/count/prepare_root_count_query.vm";
+    private static final String PREPARE_SUM_QUERY = "vm/aggregate/sum/prepare_sum_query.vm";
+    private static final String PREPARE_ROOT_SUM_QUERY = "vm/aggregate/sum/prepare_root_sum_query.vm";
+    private static final String PREPARE_UNIQUE_QUERY = "vm/aggregate/sum/prepare_sum_query.vm";
+    private static final String PREPARE_ROOT_UNIQUE_QUERY = "vm/aggregate/sum/prepare_root_sum_query.vm";
 
     @Override
     public String buildInsertPaymentNqsBlock(DgraphPayment dgraphPayment) {
@@ -104,10 +113,64 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
+    public String buildCountQuery(DgraphAggregationQueryModel queryModel) {
+        return buildTemplate(
+                velocityEngine.getTemplate(PREPARE_COUNT_QUERY),
+                createPreparePaymentsCountContext(queryModel)
+        );
+    }
+
+    @Override
+    public String buildRootCountQuery(DgraphAggregationQueryModel queryModel) {
+        return buildTemplate(
+                velocityEngine.getTemplate(PREPARE_ROOT_COUNT_QUERY),
+                createPreparePaymentsCountContext(queryModel)
+        );
+    }
+
+    @Override
+    public String buildSumQuery(DgraphAggregationQueryModel queryModel) {
+        return buildTemplate(
+                velocityEngine.getTemplate(PREPARE_SUM_QUERY),
+                createPreparePaymentsCountContext(queryModel)
+        );
+    }
+
+    @Override
+    public String buildRootSumQuery(DgraphAggregationQueryModel queryModel) {
+        return buildTemplate(
+                velocityEngine.getTemplate(PREPARE_ROOT_SUM_QUERY),
+                createPreparePaymentsCountContext(queryModel)
+        );
+    }
+
+    @Override
+    public String buildUniqueQuery(DgraphAggregationQueryModel queryModel) {
+        return buildTemplate(
+                velocityEngine.getTemplate(PREPARE_UNIQUE_QUERY),
+                createPreparePaymentsCountContext(queryModel)
+        );
+    }
+
+    @Override
+    public String buildRootUniqueQuery(DgraphAggregationQueryModel queryModel) {
+        return buildTemplate(
+                velocityEngine.getTemplate(PREPARE_ROOT_UNIQUE_QUERY),
+                createPreparePaymentsCountContext(queryModel)
+        );
+    }
+
+    @Override
     public String buildTemplate(Template template, VelocityContext context) {
         StringWriter writer = new StringWriter();
         template.merge(context, writer);
         return writer.toString();
+    }
+
+    private VelocityContext createPreparePaymentsCountContext(DgraphAggregationQueryModel aggregationQueryModel) {
+        VelocityContext context = new VelocityContext();
+        context.put("queryModel", aggregationQueryModel);
+        return context;
     }
 
     private VelocityContext createInsertPaymentContext(DgraphPayment dgraphPayment) {

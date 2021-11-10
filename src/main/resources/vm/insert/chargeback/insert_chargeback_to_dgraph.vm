@@ -1,0 +1,88 @@
+## @vtlvariable name="chargeback" type="com.rbkmoney.fraudbusters.domain.dgraph.DgraphChargeback"
+## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
+#set ($paymentId = $!chargeback.paymentId)
+#set ($cardToken = $!chargeback.cardToken)
+#set ($fingerprint = $!chargeback.fingerprint)
+#set ($contactEmail = $!chargeback.email)
+#set ($partyShop = $!chargeback.partyShop)
+#set ($ip = $!chargeback.operationIp)
+#set ($bin = $!chargeback.bin)
+#set ($payment = $!chargeback.payment)
+uid($constants.tokenUid) <dgraph.type> "$!cardToken.type" .
+uid($constants.tokenUid) <tokenId> "$!cardToken.tokenId" .
+uid($constants.tokenUid) <bin> uid($constants.binUid) .
+uid($constants.tokenUid) <maskedPan> "$!cardToken.maskedPan" .
+uid($constants.tokenUid) <lastActTime> "$!chargeback.createdAt" .
+uid($constants.tokenUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
+
+uid($constants.shopUid) <dgraph.type> "$!partyShop.type" .
+uid($constants.shopUid) <partyId> "$!partyShop.partyId" .
+uid($constants.shopUid) <shopId> "$!partyShop.shopId" .
+uid($constants.shopUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
+uid($constants.shopUid) <tokens> uid($constants.tokenUid) .
+
+uid($constants.binUid) <dgraph.type> "$!bin.type" .
+uid($constants.binUid) <cardBin> "$!bin.bin" .
+uid($constants.binUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
+uid($constants.binUid) <tokens> uid($constants.tokenUid) .
+
+#if ($fingerprint)
+uid($constants.fingerUid) <dgraph.type> "$!fingerprint.type" .
+uid($constants.fingerUid) <fingerprintData> "$!fingerprint.fingerprintData" .
+uid($constants.fingerUid) <lastActTime> "$!chargeback.createdAt" .
+uid($constants.fingerUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
+uid($constants.fingerUid) <tokens> uid($constants.tokenUid) .
+uid($constants.tokenUid) <fingerprints> uid($constants.fingerUid) .
+uid($constants.chargebackUid) <fingerprint> uid($constants.fingerUid) .
+#if ($contactEmail)
+uid($constants.fingerUid) <emails> uid($constants.emailUid) .
+#end
+
+#end
+#if ($contactEmail)
+uid($constants.emailUid) <dgraph.type> "$!contactEmail.type" .
+uid($constants.emailUid) <userEmail> "$!contactEmail.userEmail" .
+uid($constants.emailUid) <lastActTime> "$!chargeback.createdAt" .
+uid($constants.emailUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
+uid($constants.emailUid) <tokens> uid($constants.tokenUid) .
+uid($constants.binUid) <emails> uid($constants.emailUid) .
+uid($constants.shopUid) <emails> uid($constants.emailUid) .
+uid($constants.tokenUid) <emails> uid($constants.emailUid) .
+uid($constants.chargebackUid) <contactEmail> uid($constants.emailUid) .
+#if ($fingerprint)
+uid($constants.emailUid) <fingerprints> uid($constants.fingerUid) .
+#end
+
+#end
+#if ($ip)
+uid($constants.ipUid) <dgraph.type> "$!ip.type" .
+uid($constants.ipUid) <ipAddress> "$!ip.ip" .
+uid($constants.ipUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
+uid($constants.ipUid) <tokens> uid($constants.tokenUid) .
+uid($constants.chargebackUid) <operationIp> uid($constants.ipUid) .
+#if ($contactEmail)
+uid($constants.ipUid) <emails> uid($constants.emailUid) .
+#end
+
+#end
+uid($constants.chargebackUid) <dgraph.type> "$!chargeback.type" .
+uid($constants.chargebackUid) <paymentId> "$!chargeback.paymentId" .
+uid($constants.chargebackUid) <chargebackId> "$!chargeback.chargebackId" .
+uid($constants.chargebackUid) <partyId> "$!chargeback.partyId" .
+uid($constants.chargebackUid) <shopId> "$!chargeback.shopId" .
+uid($constants.chargebackUid) <createdAt> "$!chargeback.createdAt" .
+uid($constants.chargebackUid) <amount> "$!chargeback.amount" .
+uid($constants.chargebackUid) <currency> "$!chargeback.currency" .
+uid($constants.chargebackUid) <status> "$!chargeback.status" .
+uid($constants.chargebackUid) <status> "$!chargeback.status" .
+uid($constants.chargebackUid) <category> "$!chargeback.category" .
+uid($constants.chargebackUid) <code> "$!chargeback.code" .
+uid($constants.chargebackUid) <payerType> "$!chargeback.payerType" .
+
+uid($constants.chargebackUid) <cardToken> uid($constants.tokenUid) .
+uid($constants.chargebackUid) <partyShop> uid($constants.shopUid) .
+uid($constants.chargebackUid) <bin> uid($constants.binUid) .
+
+uid($constants.paymentUid) <dgraph.type> "$!payment.type" .
+uid($constants.paymentUid) <paymentId> "$!payment.paymentId" .
+uid($constants.paymentUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .

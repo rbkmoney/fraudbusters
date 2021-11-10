@@ -58,7 +58,7 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
         if (clientInfo != null) {
             dgraphPayment.setFingerprint(clientInfo.getFingerprint() == null ? null : convertFingerprint(payment));
             dgraphPayment.setContactEmail(clientInfo.getEmail() == null ? null : convertEmail(payment));
-            dgraphPayment.setPaymentIp(clientInfo.getIp() == null ? null : convertIp(payment));
+            dgraphPayment.setOperationIp(clientInfo.getIp() == null ? null : convertIp(payment));
         }
 
         dgraphPayment.setBin(paymentTool.isSetBankCard() ? convertBin(payment) : null);

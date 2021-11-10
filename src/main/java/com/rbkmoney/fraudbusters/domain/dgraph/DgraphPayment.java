@@ -41,7 +41,7 @@ public class DgraphPayment {
     private String checkedResultsJson;
 
     private DgraphCountry country;
-    private DgraphIp paymentIp;
+    private DgraphIp operationIp;
     private DgraphBin bin;
     private DgraphToken cardToken;
     private DgraphFingerprint fingerprint;

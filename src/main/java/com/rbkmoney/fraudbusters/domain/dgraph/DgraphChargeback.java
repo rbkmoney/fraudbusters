@@ -24,7 +24,7 @@ public class DgraphChargeback {
     private DgraphPayment payment;
     private DgraphToken cardToken;
     private DgraphFingerprint fingerprint;
-    private DgraphIp chargebackIp;
+    private DgraphIp operationIp;
     private DgraphEmail email;
     private DgraphBin bin;
 

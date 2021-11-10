@@ -2,10 +2,10 @@ package com.rbkmoney.fraudbusters.config.payment;
 
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
-import com.rbkmoney.fraudbusters.fraud.localstorage.LocalResultStorageRepository;
-import com.rbkmoney.fraudbusters.fraud.localstorage.aggregator.LocalCountAggregatorDecorator;
-import com.rbkmoney.fraudbusters.fraud.localstorage.aggregator.LocalSumAggregatorDecorator;
-import com.rbkmoney.fraudbusters.fraud.localstorage.aggregator.LocalUniqueValueAggregatorDecorator;
+import com.rbkmoney.fraudbusters.fraud.localstorage.clickhouse.LocalResultStorageRepository;
+import com.rbkmoney.fraudbusters.fraud.localstorage.clickhouse.aggregator.LocalCountAggregatorDecorator;
+import com.rbkmoney.fraudbusters.fraud.localstorage.clickhouse.aggregator.LocalSumAggregatorDecorator;
+import com.rbkmoney.fraudbusters.fraud.localstorage.clickhouse.aggregator.LocalUniqueValueAggregatorDecorator;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.CountAggregatorImpl;

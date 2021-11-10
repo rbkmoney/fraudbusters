@@ -1,0 +1,41 @@
+## @vtlvariable name="chargeback" type="com.rbkmoney.fraudbusters.domain.dgraph.DgraphChargeback"
+## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
+query all() {
+    getTokenUid(func: type(Token)) @filter(eq(tokenId, "$chargeback.cardToken.tokenId")) {
+        $constants.tokenUid as uid
+    }
+
+    getShopUid(func: type(PartyShop)) @filter(eq(partyId, "$chargeback.partyShop.partyId") and eq(shopId, "$chargeback.partyShop.shopId")) {
+        $constants.shopUid as uid
+    }
+
+    getBinUid(func: type(Bin)) @filter(eq(cardBin, "$chargeback.bin.bin")) {
+        $constants.binUid as uid
+    }
+
+#if($chargeback.email)
+    getEmailUid(func: type(Email)) @filter(eq(userEmail, "$chargeback.email.userEmail")) {
+        $constants.emailUid as uid
+    }
+
+#end
+#if($chargeback.fingerprint)
+    getFingerUid(func: type(Fingerprint)) @filter(eq(fingerprintData, "$chargeback.fingerprint.fingerprintData")) {
+        $constants.fingerUid as uid
+    }
+
+#end
+#if($chargeback.operationIp)
+    getIpUid(func: type(IP)) @filter(eq(ipAddress, "$chargeback.operationIp.ip")) {
+        $constants.ipUid as uid
+    }
+
+#end
+    getPaymentUid(func: type(Payment)) @filter(eq(paymentId, "$chargeback.paymentId")) {
+        $constants.paymentUid as uid
+    }
+
+    getChargebackUid(func: type(Chargeback)) @filter(eq(paymentId, "$chargeback.paymentId") and eq(chargebackId, "$chargeback.chargebackId")) {
+        $constants.chargebackUid as uid
+    }
+}

@@ -70,7 +70,7 @@ public final class DgraphSchemaConstants {
                 partyShop: uid .
                 country: uid .
                 fraudPayment: uid .
-                paymentIp: uid .
+                operationIp: uid .
                 
                 type Payment {
                     paymentId
@@ -104,7 +104,7 @@ public final class DgraphSchemaConstants {
                     fraudPayment: FraudPayment
                     refunds: Refund
                     chargebacks: Chargeback
-                    paymentIp: IP
+                    operationIp: IP
                 }
                 
                 fingerprintData: string @index(hash) @upsert .
@@ -189,7 +189,6 @@ public final class DgraphSchemaConstants {
                 }
                 
                 refundId: string @index(hash) @upsert .
-                refundIp: uid .
                 
                 type Refund {
                     refundId
@@ -203,16 +202,16 @@ public final class DgraphSchemaConstants {
                     payerType
                     errorCode
                     errorReason
+                    bin: Bin
                     sourcePayment: Payment
                     cardToken: Token
                     fingerprint: Fingerprint
                     contactEmail: Email
                     partyShop: PartyShop
-                    refundIp: IP
+                    operationIp: IP
                 }
                 
                 chargebackId: string @index(hash) @upsert .
-                chargebackIp: uid .
                 category: string .
                 code: string .
                 
@@ -228,12 +227,13 @@ public final class DgraphSchemaConstants {
                     category
                     code
                     payerType
+                    bin: Bin
                     sourcePayment: Payment
                     cardToken: Token
                     fingerprint: Fingerprint
                     contactEmail: Email
                     partyShop: PartyShop
-                    chargebackIp: IP
+                    operationIp: IP
                 }
                 
                 withdrawalId: string @index(hash) @upsert .

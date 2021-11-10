@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbkmoney.damsel.geo_ip.GeoIpServiceSrv;
 import com.rbkmoney.damsel.wb_list.WbListServiceSrv;
 import com.rbkmoney.fraudbusters.FraudBustersApplication;
-import com.rbkmoney.fraudbusters.dgraph.model.Aggregates;
-import com.rbkmoney.fraudbusters.dgraph.model.TestQuery;
+import com.rbkmoney.fraudbusters.dgraph.insert.model.Aggregates;
+import com.rbkmoney.fraudbusters.dgraph.insert.model.TestQuery;
 import com.rbkmoney.fraudbusters.exception.DgraphException;
 import com.rbkmoney.fraudbusters.extension.KafkaContainerExtension;
 import com.rbkmoney.fraudbusters.extension.config.KafkaTopicsConfig;
@@ -83,7 +83,7 @@ public abstract class DgraphAbstractIntegrationTest {
     private ObjectMapper dgraphObjectMapper;
 
     @Autowired
-    private DgraphClient dgraphClient;
+    protected DgraphClient dgraphClient;
 
     @MockBean
     private GeoIpServiceSrv.Iface geoIpServiceSrv;
@@ -157,13 +157,17 @@ public abstract class DgraphAbstractIntegrationTest {
     }
 
     protected Aggregates getAggregates(String query) {
-        DgraphProto.Response response = processDgraphQuery(query);
-        String responseJson = response.getJson().toStringUtf8();
-        log.debug("Received json with aggregates (query: {}, vars: {}, period: {}): {}",
-                query, responseJson);
+        String responseJson = processQuery(query);
+        //log.debug("Received json with aggregates (query: {}, vars: {}, period: {}): {}",
+        //        query, responseJson);
         TestQuery testQuery = convertToObject(responseJson, TestQuery.class);
         return testQuery == null || testQuery.getAggregates() == null || testQuery.getAggregates().isEmpty()
                 ? new Aggregates() : testQuery.getAggregates().get(0);
+    }
+
+    protected String processQuery(String query) {
+        DgraphProto.Response response = processDgraphQuery(query);
+        return response.getJson().toStringUtf8();
     }
 
     protected <T> T convertToObject(String json, Class<T> clazz) {
@@ -195,7 +199,7 @@ public abstract class DgraphAbstractIntegrationTest {
         return getAggregates(query).getCount();
     }
 
-    <T extends TBase> Producer<String, T> createProducer() {
+    public <T extends TBase> Producer<String, T> createProducer() {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaContainerExtension.KAFKA.getBootstrapServers());
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KeyGenerator.generateKey("client_id_"));

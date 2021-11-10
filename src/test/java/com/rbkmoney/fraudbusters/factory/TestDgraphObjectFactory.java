@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TestDgraphObjectFactory {
@@ -59,7 +60,7 @@ public final class TestDgraphObjectFactory {
         dgraphPayment.setCardToken(createTestDgraphToken("token-1", "pan-1"));
 
         dgraphPayment.setCountry(countryExists ? createTestDgraphCountry() : null);
-        dgraphPayment.setPaymentIp(ipExists ? createTestDgraphIp() : null);
+        dgraphPayment.setOperationIp(ipExists ? createTestDgraphIp() : null);
         dgraphPayment.setFingerprint(fingerprintExists ? createTestDgraphFingerprint() : null);
         dgraphPayment.setContactEmail(emailExists ? createTestDgraphEmail() : null);
         return dgraphPayment;
@@ -75,7 +76,8 @@ public final class TestDgraphObjectFactory {
                         .setShopId(properties.getShopId())
         );
         payment.setReferenceInfo(referenceInfo);
-        payment.setEventTime(Instant.now().toString());
+        payment.setEventTime(properties.isEventTimeDispersion()
+                ? Instant.now().minus(idx, ChronoUnit.MINUTES).toString() : Instant.now().toString());
         payment.setCost(
                 new Cash()
                         .setAmount(1000L)
@@ -154,12 +156,12 @@ public final class TestDgraphObjectFactory {
         dgraphRefund.setPayerType("paid");
         dgraphRefund.setErrorCode(null);
         dgraphRefund.setErrorReason(null);
-        dgraphRefund.setPayment(createTestDgraphPaymentLink("TestPayId"));
+        dgraphRefund.setSourcePayment(createTestDgraphPaymentLink("TestPayId"));
         dgraphRefund.setCardToken(createTestDgraphToken("token", "maskedPan"));
         dgraphRefund.setBin(createTestDgraphBin());
         dgraphRefund.setFingerprint(fingerprintExists ? createTestDgraphFingerprint() : null);
-        dgraphRefund.setRefundIp(ipExists ? createTestDgraphIp() : null);
-        dgraphRefund.setEmail(emailExists ? createTestDgraphEmail() : null);
+        dgraphRefund.setOperationIp(ipExists ? createTestDgraphIp() : null);
+        dgraphRefund.setContactEmail(emailExists ? createTestDgraphEmail() : null);
         return dgraphRefund;
     }
 
@@ -191,7 +193,7 @@ public final class TestDgraphObjectFactory {
         dgraphChargeback.setCardToken(createTestDgraphToken("token", "maskedPan"));
         dgraphChargeback.setBin(createTestDgraphBin());
         dgraphChargeback.setFingerprint(fingerprintExists ? createTestDgraphFingerprint() : null);
-        dgraphChargeback.setChargebackIp(ipExists ? createTestDgraphIp() : null);
+        dgraphChargeback.setOperationIp(ipExists ? createTestDgraphIp() : null);
         dgraphChargeback.setEmail(emailExists ? createTestDgraphEmail() : null);
         return dgraphChargeback;
     }

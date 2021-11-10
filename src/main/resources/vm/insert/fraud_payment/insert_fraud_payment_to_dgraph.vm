@@ -1,0 +1,12 @@
+## @vtlvariable name="payment" type="com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment"
+## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
+uid($constants.fraudPaymentUid) <dgraph.type> "$!payment.type" .
+uid($constants.fraudPaymentUid) <paymentId> "$!payment.paymentId" .
+uid($constants.fraudPaymentUid) <createdAt> "$!payment.createdAt" .
+uid($constants.fraudPaymentUid) <fraudType> "$!payment.fraudType" .
+uid($constants.fraudPaymentUid) <comment> "$!payment.comment" .
+uid($constants.fraudPaymentUid) <sourcePayment> uid($constants.paymentUid) .
+
+uid($constants.paymentUid) <dgraph.type> "Payment" .
+uid($constants.paymentUid) <paymentId> "$!payment.paymentId" .
+uid($constants.paymentUid) <fraudPayment> uid($constants.fraudPaymentUid) .

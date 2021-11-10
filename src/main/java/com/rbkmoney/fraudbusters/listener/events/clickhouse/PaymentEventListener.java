@@ -9,7 +9,7 @@ import com.rbkmoney.fraudbusters.converter.PaymentToCheckedPaymentConverter;
 import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import com.rbkmoney.fraudbusters.domain.CheckedResultModel;
-import com.rbkmoney.fraudbusters.fraud.localstorage.LocalResultStorage;
+import com.rbkmoney.fraudbusters.fraud.localstorage.clickhouse.LocalResultStorage;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.stream.impl.FullTemplateVisitorImpl;
 import lombok.RequiredArgsConstructor;

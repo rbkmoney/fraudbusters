@@ -64,6 +64,7 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
         return namedParameterJdbcTemplate.query(query, params, checkedPaymentMapper);
     }
 
+
     @Override
     public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
         String sql = String.format("""
@@ -146,6 +147,8 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
     public Integer uniqCountOperationWithGroupBy(
             String fieldNameBy, Object value, String fieldNameCount, Long from, Long to,
             List<FieldModel> fieldModels) {
+        // например, количество уникальных бинов для токена
+        // или количество уникальных email'ов у фингерпринта за период
         StringBuilder sql = new StringBuilder(String.format("""
                 select %1$s, uniq(%2$s) as cnt
                 from %3$s

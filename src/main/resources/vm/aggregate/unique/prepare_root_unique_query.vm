@@ -1,0 +1,13 @@
+## @vtlvariable name="queryModel" type="com.rbkmoney.fraudbusters.fraud.model.DgraphAggregationQueryModel"
+query all() {
+    var(func: type($queryModel.rootType)) $queryModel.rootFilter {
+        #foreach ($innerCondition in $queryModel.innerTypesFilters)
+        $innerCondition
+        #end
+    }
+
+    aggregates(func: uid(objectUid)) {
+        count: count(uid)
+    }
+
+}

@@ -1,9 +1,9 @@
-server.port: @server.port@
+server.port: '@server.port@'
 management:
   security:
     enabled: false
   server:
-    port: @management.port@
+    port: '@management.port@'
   metrics:
     export:
       statsd:
@@ -31,7 +31,7 @@ management:
         include: health,info,prometheus
 spring:
   application:
-    name: @name@
+    name: '@name@'
   output:
     ansi:
       enabled: always

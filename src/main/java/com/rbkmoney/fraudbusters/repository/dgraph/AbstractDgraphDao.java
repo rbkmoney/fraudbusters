@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.support.RetryTemplate;
 
+import java.util.Map;
+
 @Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractDgraphDao {
@@ -38,6 +40,15 @@ public abstract class AbstractDgraphDao {
             log.warn("Received a dgraph exception while the service add new data)", ex);
             throw new DgraphException(String.format("Received exception from dgraph while the service " +
                     "was saving data (nqs: %s)", nqs), ex);
+        }
+    }
+
+    protected DgraphProto.Response processDgraphQuery(String query) {
+        try {
+            return dgraphClient.newTransaction().query(query);
+        } catch (RuntimeException ex) {
+            throw new DgraphException(String.format("Received exception from dgraph while the service " +
+                    "process query with args (query: %s)", query), ex);
         }
     }
 

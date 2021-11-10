@@ -19,5 +19,6 @@ public class OperationProperties {
     private String country;
     private String bin;
     private String ip;
+    private boolean eventTimeDispersion;
 
 }

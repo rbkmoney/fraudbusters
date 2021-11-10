@@ -30,13 +30,13 @@ public class RefundToDgraphRefundConverter implements Converter<Refund, DgraphRe
         }
         dgraphRefund.setPartyShop(convertPartyShop(refund));
         dgraphRefund.setCardToken(convertToken(refund));
-        dgraphRefund.setPayment(convertPayment(refund));
+        dgraphRefund.setSourcePayment(convertPayment(refund));
 
         ClientInfo clientInfo = refund.getClientInfo();
         if (clientInfo != null) {
-            dgraphRefund.setEmail(clientInfo.getEmail() == null ? null : convertEmail(refund));
+            dgraphRefund.setContactEmail(clientInfo.getEmail() == null ? null : convertEmail(refund));
             dgraphRefund.setFingerprint(clientInfo.getFingerprint() == null ? null : convertFingerprint(refund));
-            dgraphRefund.setRefundIp(clientInfo.getIp() == null ? null : convertIp(refund));
+            dgraphRefund.setOperationIp(clientInfo.getIp() == null ? null : convertIp(refund));
         }
         PaymentTool paymentTool = refund.getPaymentTool();
         dgraphRefund.setBin(paymentTool.isSetBankCard() ? convertBin(refund) : null);
