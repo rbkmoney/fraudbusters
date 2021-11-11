@@ -130,6 +130,10 @@ geo.ip.service.url: "localhost:29092/v1/columbus"
 
 wb.list.service.url: "localhost:29092/v1/wb_list"
 
+trusted.tokens:
+  url: "localhost:29092/v1/trusted_tokens"
+  timeout: 10000
+
 default.template:
   enable: true
   countToCheckDays: 1000

@@ -131,6 +131,7 @@ public class BeanUtil {
         paymentModel.setBin(BIN);
         paymentModel.setAmount(AMOUNT_FIRST);
         paymentModel.setBinCountryCode(BIN_COUNTRY_CODE);
+        paymentModel.setCardToken(TOKEN);
         return paymentModel;
     }
 
