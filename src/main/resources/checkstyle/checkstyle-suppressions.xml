@@ -6,4 +6,8 @@
 
 <suppressions>
     <suppress checks="LineLength" files="VelocityTestData.java"/>
+    <suppress checks="LineLength" files="DgraphRefundCountQueryBuilderServiceTestData.java"/>
+    <suppress checks="LineLength" files="DgraphPaymentsSumQueryBuilderServiceTestData.java"/>
+    <suppress checks="LineLength" files="DgraphRefundsSumQueryBuilderServiceTestData.java"/>
+    <suppress checks="LineLength" files="DgraphPaymentCountQueryBuilderServiceTestData.java"/>
 </suppressions>

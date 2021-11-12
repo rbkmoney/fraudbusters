@@ -5,10 +5,16 @@ query all() {
         $constants.tokenUid as uid
     }
 
-    getShopUid(func: type(PartyShop)) @filter(eq(partyId, "$chargeback.partyShop.partyId") and eq(shopId, "$chargeback.partyShop.shopId")) {
+    getPartyUid(func: type(Party)) @filter(eq(partyId, "$chargeback.party.partyId")) {
+        $constants.partyUid as uid
+    }
+
+#if($chargeback.shop)
+    getShopUid(func: type(Shop)) @filter(eq(shopId, "$chargeback.shop.shopId")) {
         $constants.shopUid as uid
     }
 
+#end
     getBinUid(func: type(Bin)) @filter(eq(cardBin, "$chargeback.bin.bin")) {
         $constants.binUid as uid
     }

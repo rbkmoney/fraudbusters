@@ -37,6 +37,8 @@ public interface TemplateService {
 
     String buildUniqueQuery(DgraphAggregationQueryModel aggregationQueryModel);
 
+    String buildEqualFiledsUniqueQuery(DgraphAggregationQueryModel aggregationQueryModel);
+
     String buildRootUniqueQuery(DgraphAggregationQueryModel aggregationQueryModel);
 
     String buildTemplate(Template template, VelocityContext context);

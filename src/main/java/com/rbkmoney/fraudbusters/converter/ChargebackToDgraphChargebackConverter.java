@@ -23,12 +23,8 @@ public class ChargebackToDgraphChargebackConverter implements Converter<Chargeba
         dgraphChargeback.setCurrency(chargeback.getCost().getCurrency().getSymbolicCode());
         dgraphChargeback.setStatus(chargeback.getStatus().name());
         dgraphChargeback.setPayerType(chargeback.getPayerType() == null ? null : chargeback.getPayerType().name());
-        MerchantInfo merchantInfo = chargeback.getReferenceInfo().getMerchantInfo();
-        if (merchantInfo != null) {
-            dgraphChargeback.setPartyId(merchantInfo.getPartyId());
-            dgraphChargeback.setShopId(merchantInfo.getShopId());
-        }
-        dgraphChargeback.setPartyShop(convertPartyShop(chargeback));
+        dgraphChargeback.setParty(convertParty(chargeback));
+        dgraphChargeback.setShop(convertShop(chargeback));
         dgraphChargeback.setCardToken(convertToken(chargeback));
         dgraphChargeback.setPayment(convertPayment(chargeback));
 
@@ -67,13 +63,20 @@ public class ChargebackToDgraphChargebackConverter implements Converter<Chargeba
         return dgraphFingerprint;
     }
 
-    private DgraphPartyShop convertPartyShop(Chargeback chargeback) {
-        DgraphPartyShop partyShop = new DgraphPartyShop();
+    private DgraphParty convertParty(Chargeback chargeback) {
+        DgraphParty party = new DgraphParty();
         ReferenceInfo referenceInfo = chargeback.getReferenceInfo();
         MerchantInfo merchantInfo = chargeback.getReferenceInfo().getMerchantInfo();
-        partyShop.setPartyId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getPartyId() : UNKNOWN);
-        partyShop.setShopId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getShopId() : UNKNOWN);
-        return partyShop;
+        party.setPartyId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getPartyId() : UNKNOWN);
+        return party;
+    }
+
+    private DgraphShop convertShop(Chargeback chargeback) {
+        DgraphShop shop = new DgraphShop();
+        ReferenceInfo referenceInfo = chargeback.getReferenceInfo();
+        MerchantInfo merchantInfo = chargeback.getReferenceInfo().getMerchantInfo();
+        shop.setShopId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getShopId() : UNKNOWN);
+        return shop;
     }
 
     private DgraphIp convertIp(Chargeback chargeback) {

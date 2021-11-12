@@ -85,7 +85,7 @@ public class DgraphAggregationQueryBuilderService {
                                  Instant endWindowTime,
                                  String status) {
         DgraphAggregationQueryModel queryModel = prepareAggregationQueryModel(
-                rootEntity,
+                onField,
                 DgraphEntity.PAYMENT,
                 dgraphEntityMap,
                 paymentModel,
@@ -93,12 +93,15 @@ public class DgraphAggregationQueryBuilderService {
                 endWindowTime,
                 status
         );
-        queryModel.setInnerTypesFilters(
-                createInnerConditions(rootEntity, DgraphEntity.PAYMENT, dgraphEntityMap, paymentModel, onField)
-        );
+//        queryModel.setInnerTypesFilters(
+//                createInnerConditions(rootEntity, DgraphEntity.PAYMENT, dgraphEntityMap, paymentModel, onField)
+//        );
+        if (rootEntity == onField) {
+            return templateService.buildEqualFiledsUniqueQuery(queryModel);
+        }
         return queryModel.isRootModel()
-                ? templateService.buildRootSumQuery(queryModel)
-                : templateService.buildSumQuery(queryModel);
+                ? templateService.buildRootUniqueQuery(queryModel)
+                : templateService.buildUniqueQuery(queryModel);
     }
 
     public DgraphAggregationQueryModel prepareAggregationQueryModel(
@@ -142,14 +145,6 @@ public class DgraphAggregationQueryBuilderService {
                                               DgraphEntity targetEntity,
                                               Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntityMap,
                                               PaymentModel paymentModel) {
-        return createInnerConditions(rootDgraphEntity, targetEntity, dgraphEntityMap, paymentModel, null);
-    }
-
-    private Set<String> createInnerConditions(DgraphEntity rootDgraphEntity,
-                                              DgraphEntity targetEntity,
-                                              Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntityMap,
-                                              PaymentModel paymentModel,
-                                              DgraphEntity onField) {
         Set<String> innerFilters = new TreeSet<>();
         for (DgraphEntity dgraphEntity : dgraphEntityMap.keySet()) {
             if (dgraphEntity == rootDgraphEntity || dgraphEntity == targetEntity) {
@@ -163,12 +158,12 @@ public class DgraphAggregationQueryBuilderService {
 
             String condition = paymentCheckedFields.stream()
                     .sorted()
-                    .map(checkedField -> dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(checkedField, paymentModel))
+                    .map(checkedField ->
+                            dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(
+                                    checkedField, paymentModel))
                     .collect(Collectors.joining(" and "));
-            String filter = String.format(dgraphQueryConditionResolver.resolvePaymentFilterByDgraphEntity(dgraphEntity), condition);
-            if (onField == dgraphEntity) {
-                filter += " { objectUid as uid }";
-            }
+            String filter = String.format(
+                    dgraphQueryConditionResolver.resolvePaymentFilterByDgraphEntity(dgraphEntity), condition);
             innerFilters.add(filter);
         }
         return innerFilters;
@@ -181,7 +176,8 @@ public class DgraphAggregationQueryBuilderService {
         return paymentCheckedFields == null || paymentCheckedFields.isEmpty()
                 ? Strings.EMPTY : paymentCheckedFields.stream()
                 .sorted()
-                .map(checkedField -> dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(checkedField, paymentModel))
+                .map(checkedField ->
+                        dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(checkedField, paymentModel))
                 .collect(Collectors.joining(" and "));
     }
 

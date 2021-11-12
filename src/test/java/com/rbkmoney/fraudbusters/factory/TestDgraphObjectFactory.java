@@ -34,9 +34,8 @@ public final class TestDgraphObjectFactory {
         dgraphPayment.setPaymentId("TestPayment");
         String partyId = "partyId-1";
         String shopId = "shopId-1";
-        dgraphPayment.setPartyId(partyId);
-        dgraphPayment.setShopId(shopId);
-        dgraphPayment.setPartyShop(createTestDgraphPartyShop(partyId, shopId));
+        dgraphPayment.setParty(createTestDgraphParty(partyId));
+        dgraphPayment.setShop(createTestDgraphShop(shopId));
 
         dgraphPayment.setCreatedAt("2021-10-05T18:00:00");
         dgraphPayment.setAmount(1000L);
@@ -88,7 +87,7 @@ public final class TestDgraphObjectFactory {
                 new BankCard()
                         .setToken(properties.getTokenId())
                         .setBin(properties.getBin())
-                        .setLastDigits("0000")
+                        .setLastDigits(properties.getMaskedPan())
                         .setPaymentToken(new BankCardTokenServiceRef().setId("PT-111"))
                         .setPaymentSystem(new PaymentSystemRef().setId("PS-111"))
         ));
@@ -146,9 +145,8 @@ public final class TestDgraphObjectFactory {
         DgraphRefund dgraphRefund = new DgraphRefund();
         dgraphRefund.setRefundId("TestRefId");
         dgraphRefund.setPaymentId("TestPayId");
-        dgraphRefund.setPartyId("Party");
-        dgraphRefund.setShopId("Shop");
-        dgraphRefund.setPartyShop(createTestDgraphPartyShop("Party", "Shop"));
+        dgraphRefund.setParty(createTestDgraphParty("Party"));
+        dgraphRefund.setShop(createTestDgraphShop("Shop"));
         dgraphRefund.setCreatedAt("2021-10-05T18:00:00");
         dgraphRefund.setAmount(1000L);
         dgraphRefund.setCurrency("RUB");
@@ -179,9 +177,8 @@ public final class TestDgraphObjectFactory {
         DgraphChargeback dgraphChargeback = new DgraphChargeback();
         dgraphChargeback.setChargebackId("TestChargebackIdId");
         dgraphChargeback.setPaymentId("TestPayId");
-        dgraphChargeback.setPartyId("Party");
-        dgraphChargeback.setShopId("Shop");
-        dgraphChargeback.setPartyShop(createTestDgraphPartyShop("Party", "Shop"));
+        dgraphChargeback.setParty(createTestDgraphParty("Party"));
+        dgraphChargeback.setShop(createTestDgraphShop("Shop"));
         dgraphChargeback.setCreatedAt("2021-10-05T18:00:00");
         dgraphChargeback.setAmount(1000L);
         dgraphChargeback.setCurrency("RUB");
@@ -198,11 +195,16 @@ public final class TestDgraphObjectFactory {
         return dgraphChargeback;
     }
 
-    private static DgraphPartyShop createTestDgraphPartyShop(String partyId, String shopId) {
-        DgraphPartyShop partyShop = new DgraphPartyShop();
-        partyShop.setPartyId(partyId);
-        partyShop.setShopId(shopId);
-        return partyShop;
+    private static DgraphParty createTestDgraphParty(String partyId) {
+        DgraphParty dgraphParty = new DgraphParty();
+        dgraphParty.setPartyId(partyId);
+        return dgraphParty;
+    }
+
+    private static DgraphShop createTestDgraphShop(String shopId) {
+        DgraphShop dgraphShop = new DgraphShop();
+        dgraphShop.setShopId(shopId);
+        return dgraphShop;
     }
 
     private static DgraphBin createTestDgraphBin() {

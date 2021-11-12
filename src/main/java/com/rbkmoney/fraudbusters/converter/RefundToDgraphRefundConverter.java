@@ -23,12 +23,8 @@ public class RefundToDgraphRefundConverter implements Converter<Refund, DgraphRe
         dgraphRefund.setCurrency(refund.getCost().getCurrency().getSymbolicCode());
         dgraphRefund.setStatus(refund.getStatus().name());
         dgraphRefund.setPayerType(refund.getPayerType() == null ? null : refund.getPayerType().name());
-        MerchantInfo merchantInfo = refund.getReferenceInfo().getMerchantInfo();
-        if (merchantInfo != null) {
-            dgraphRefund.setPartyId(merchantInfo.getPartyId());
-            dgraphRefund.setShopId(merchantInfo.getShopId());
-        }
-        dgraphRefund.setPartyShop(convertPartyShop(refund));
+        dgraphRefund.setParty(convertParty(refund));
+        dgraphRefund.setShop(convertShop(refund));
         dgraphRefund.setCardToken(convertToken(refund));
         dgraphRefund.setSourcePayment(convertPayment(refund));
 
@@ -66,13 +62,20 @@ public class RefundToDgraphRefundConverter implements Converter<Refund, DgraphRe
         return dgraphFingerprint;
     }
 
-    private DgraphPartyShop convertPartyShop(Refund refund) {
-        DgraphPartyShop partyShop = new DgraphPartyShop();
+    private DgraphParty convertParty(Refund refund) {
+        DgraphParty partyShop = new DgraphParty();
         ReferenceInfo referenceInfo = refund.getReferenceInfo();
         MerchantInfo merchantInfo = refund.getReferenceInfo().getMerchantInfo();
         partyShop.setPartyId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getPartyId() : UNKNOWN);
-        partyShop.setShopId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getShopId() : UNKNOWN);
         return partyShop;
+    }
+
+    private DgraphShop convertShop(Refund refund) {
+        DgraphShop shop = new DgraphShop();
+        ReferenceInfo referenceInfo = refund.getReferenceInfo();
+        MerchantInfo merchantInfo = refund.getReferenceInfo().getMerchantInfo();
+        shop.setShopId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getShopId() : UNKNOWN);
+        return shop;
     }
 
     private DgraphIp convertIp(Refund refund) {

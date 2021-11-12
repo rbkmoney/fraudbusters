@@ -25,9 +25,10 @@ public class DgraphEntityResolverTest {
         var dgraphEntitySetMap =
                 dgraphEntityResolver.resolvePaymentCheckedFieldsToMap(fields);
         assertNotNull(dgraphEntitySetMap);
-        assertEquals(3, dgraphEntitySetMap.keySet().size());
+        assertEquals(4, dgraphEntitySetMap.keySet().size());
         assertEquals(1, dgraphEntitySetMap.get(DgraphEntity.BIN).size());
-        assertEquals(2, dgraphEntitySetMap.get(DgraphEntity.PARTY_SHOP).size());
+        assertEquals(1, dgraphEntitySetMap.get(DgraphEntity.SHOP).size());
+        assertEquals(1, dgraphEntitySetMap.get(DgraphEntity.PARTY).size());
         assertEquals(1, dgraphEntitySetMap.get(DgraphEntity.TOKEN).size());
     }
 

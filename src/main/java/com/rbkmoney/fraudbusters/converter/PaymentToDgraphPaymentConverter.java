@@ -27,8 +27,6 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
 
         ReferenceInfo referenceInfo = payment.getReferenceInfo();
         MerchantInfo merchantInfo = payment.getReferenceInfo().getMerchantInfo();
-        dgraphPayment.setPartyId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getPartyId() : UNKNOWN);
-        dgraphPayment.setShopId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getShopId() : UNKNOWN);
         dgraphPayment.setCreatedAt(payment.getEventTime());
         dgraphPayment.setAmount(payment.getCost().getAmount());
         dgraphPayment.setCurrency(payment.getCost().getCurrency().getSymbolicCode());
@@ -62,7 +60,8 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
         }
 
         dgraphPayment.setBin(paymentTool.isSetBankCard() ? convertBin(payment) : null);
-        dgraphPayment.setPartyShop(convertPartyShop(payment));
+        dgraphPayment.setParty(convertParty(payment));
+        dgraphPayment.setShop(convertShop(payment));
         dgraphPayment.setCountry(providerInfo.getCountry() == null ? null : convertCountry(payment));
         return dgraphPayment;
     }
@@ -103,13 +102,20 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
         return dgraphCountry;
     }
 
-    private DgraphPartyShop convertPartyShop(Payment payment) {
-        DgraphPartyShop partyShop = new DgraphPartyShop();
+    private DgraphParty convertParty(Payment payment) {
+        DgraphParty party = new DgraphParty();
         ReferenceInfo referenceInfo = payment.getReferenceInfo();
         MerchantInfo merchantInfo = payment.getReferenceInfo().getMerchantInfo();
-        partyShop.setPartyId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getPartyId() : UNKNOWN);
-        partyShop.setShopId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getShopId() : UNKNOWN);
-        return partyShop;
+        party.setPartyId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getPartyId() : UNKNOWN);
+        return party;
+    }
+
+    private DgraphShop convertShop(Payment payment) {
+        DgraphShop shop = new DgraphShop();
+        ReferenceInfo referenceInfo = payment.getReferenceInfo();
+        MerchantInfo merchantInfo = payment.getReferenceInfo().getMerchantInfo();
+        shop.setShopId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getShopId() : UNKNOWN);
+        return shop;
     }
 
     private DgraphIp convertIp(Payment payment) {

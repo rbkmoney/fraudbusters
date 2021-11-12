@@ -278,8 +278,8 @@ public class DgraphRefundSumQueryBuilderServiceTest {
     @Test
     public void getRefundsSumQueryByShopIdRootWithMinimalDataTest() {
         String query = getRefundsSumQuery(
-                DgraphEntity.PARTY_SHOP,
-                Map.of(DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.SHOP_ID))
+                DgraphEntity.SHOP,
+                Map.of(DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID))
         );
         assertNotNull(query);
         assertEquals(REFUNDS_SUM_QUERY_BY_SHOP_ID_ROOT_WITH_MINIMAL_DATASET, query);
@@ -288,7 +288,7 @@ public class DgraphRefundSumQueryBuilderServiceTest {
     @Test
     public void getRefundsSumQueryByShopIdRootWithUsualDatasetTest() {
         String query = getRefundsSumQuery(
-                DgraphEntity.PARTY_SHOP,
+                DgraphEntity.SHOP,
                 createTestUsualDgraphEntityMap(DgraphEntity.BIN, PaymentCheckedField.BIN)
         );
         assertNotNull(query);
@@ -297,7 +297,7 @@ public class DgraphRefundSumQueryBuilderServiceTest {
 
     @Test
     public void getRefundsSumQueryByShopIdRootWithFullDatasetTest() {
-        String query = getRefundsSumQuery(DgraphEntity.PARTY_SHOP, createTestFullDgraphEntityMap());
+        String query = getRefundsSumQuery(DgraphEntity.SHOP, createTestFullDgraphEntityMap());
         assertNotNull(query);
         assertEquals(REFUNDS_SUM_QUERY_BY_SHOP_ID_ROOT_WITH_FULL_DATASET, query);
     }
@@ -305,8 +305,8 @@ public class DgraphRefundSumQueryBuilderServiceTest {
     @Test
     public void getRefundsSumQueryByPartyIdRootWithMinimalDataTest() {
         String query = getRefundsSumQuery(
-                DgraphEntity.PARTY_SHOP,
-                Map.of(DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.PARTY_ID))
+                DgraphEntity.PARTY,
+                Map.of(DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID))
         );
         assertNotNull(query);
         assertEquals(REFUNDS_SUM_QUERY_BY_PARTY_ID_ROOT_WITH_MINIMAL_DATASET, query);
@@ -315,9 +315,9 @@ public class DgraphRefundSumQueryBuilderServiceTest {
     @Test
     public void getRefundsSumQueryByPartyIdRootWithUsualDatasetTest() {
         String query = getRefundsSumQuery(
-                DgraphEntity.PARTY_SHOP,
+                DgraphEntity.PARTY,
                 Map.of(
-                        DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.PARTY_ID),
+                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID),
                         DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN)
                 )
         );
@@ -327,7 +327,7 @@ public class DgraphRefundSumQueryBuilderServiceTest {
 
     @Test
     public void getRefundsSumQueryByPartyIdRootWithFullDatasetTest() {
-        String query = getRefundsSumQuery(DgraphEntity.PARTY_SHOP, createTestFullDgraphEntityMap());
+        String query = getRefundsSumQuery(DgraphEntity.PARTY, createTestFullDgraphEntityMap());
         assertNotNull(query);
         assertEquals(REFUNDS_SUM_QUERY_BY_PARTY_ID_ROOT_WITH_FULL_DATASET, query);
     }

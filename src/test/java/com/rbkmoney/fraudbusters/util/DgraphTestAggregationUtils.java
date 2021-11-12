@@ -27,7 +27,8 @@ public final class DgraphTestAggregationUtils {
     ) {
         return Map.of(
                 dgraphEntity, Set.of(paymentCheckedField),
-                DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.PARTY_ID, PaymentCheckedField.SHOP_ID)
+                DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID),
+                DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID)
         );
     }
 
@@ -35,7 +36,8 @@ public final class DgraphTestAggregationUtils {
         Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntitySetMap = new HashMap<>();
         dgraphEntitySetMap.put(DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN));
         dgraphEntitySetMap.put(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN, PaymentCheckedField.PAN));
-        dgraphEntitySetMap.put(DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.PARTY_ID, PaymentCheckedField.SHOP_ID));
+        dgraphEntitySetMap.put(DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID));
+        dgraphEntitySetMap.put(DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID));
         dgraphEntitySetMap.put(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.COUNTRY_BANK,
                 PaymentCheckedField.MOBILE, PaymentCheckedField.RECURRENT));
         dgraphEntitySetMap.put(DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL));

@@ -8,6 +8,7 @@ public final class DgraphPaymentUpsertConstants {
     public final String tokenUid = "sourceTokenUid";
     public final String emailUid = "sourceEmailUid";
     public final String fingerUid = "sourceFingerUid";
+    public final String partyUid = "sourcePartyUid";
     public final String shopUid = "sourceShopUid";
     public final String countryUid = "sourceCountryUid";
     public final String ipUid = "sourceIpUid";

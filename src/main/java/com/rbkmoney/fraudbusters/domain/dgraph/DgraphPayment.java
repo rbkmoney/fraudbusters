@@ -17,9 +17,6 @@ public class DgraphPayment {
 
     private String uid;
     private String paymentId;
-    private DgraphPartyShop partyShop;
-    private String partyId;
-    private String shopId;
     private String createdAt;
     private Long amount;
     private String currency;
@@ -40,6 +37,8 @@ public class DgraphPayment {
     private String resultStatus;
     private String checkedResultsJson;
 
+    private DgraphParty party;
+    private DgraphShop shop;
     private DgraphCountry country;
     private DgraphIp operationIp;
     private DgraphBin bin;

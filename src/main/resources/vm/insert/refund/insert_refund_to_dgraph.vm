@@ -4,7 +4,8 @@
 #set ($cardToken = $!refund.cardToken)
 #set ($fingerprint = $!refund.fingerprint)
 #set ($contactEmail = $!refund.contactEmail)
-#set ($partyShop = $!refund.partyShop)
+#set ($party = $!refund.party)
+#set ($shop = $!refund.shop)
 #set ($ip = $!refund.operationIp)
 #set ($bin = $!refund.bin)
 #set ($payment = $!refund.sourcePayment)
@@ -15,11 +16,21 @@ uid($constants.tokenUid) <maskedPan> "$!cardToken.maskedPan" .
 uid($constants.tokenUid) <lastActTime> "$!refund.createdAt" .
 uid($constants.tokenUid) <refunds> uid($constants.refundUid) (createdAt = $!refund.createdAt, status = "$!refund.status") .
 
-uid($constants.shopUid) <dgraph.type> "$!partyShop.type" .
-uid($constants.shopUid) <partyId> "$!partyShop.partyId" .
-uid($constants.shopUid) <shopId> "$!partyShop.shopId" .
+uid($constants.partyUid) <dgraph.type> "$!party.type" .
+uid($constants.partyUid) <partyId> "$!party.partyId" .
+uid($constants.partyUid) <lastActTime> "$!refund.createdAt" .
+uid($constants.partyUid) <refunds> uid($constants.refundUid) (createdAt = $!refund.createdAt, status = "$!refund.status") .
+uid($constants.partyUid) <tokens> uid($constants.tokenUid) .
+
+#if($shop)
+uid($constants.shopUid) <dgraph.type> "$!shop.type" .
+uid($constants.shopUid) <shopId> "$!shop.shopId" .
+uid($constants.shopUid) <lastActTime> "$!refund.createdAt" .
 uid($constants.shopUid) <refunds> uid($constants.refundUid) (createdAt = $!refund.createdAt, status = "$!refund.status") .
 uid($constants.shopUid) <tokens> uid($constants.tokenUid) .
+uid($constants.shopUid) <party> uid($constants.partyUid) .
+uid($constants.partyUid) <shops> uid($constants.shopUid) .
+#end
 
 uid($constants.binUid) <dgraph.type> "$!bin.type" .
 uid($constants.binUid) <cardBin> "$!bin.bin" .
@@ -46,7 +57,10 @@ uid($constants.emailUid) <lastActTime> "$!refund.createdAt" .
 uid($constants.emailUid) <refunds> uid($constants.refundUid) (createdAt = $!refund.createdAt, status = "$!refund.status") .
 uid($constants.emailUid) <tokens> uid($constants.tokenUid) .
 uid($constants.binUid) <emails> uid($constants.emailUid) .
+uid($constants.partyUid) <emails> uid($constants.emailUid) .
+#if ($shop)
 uid($constants.shopUid) <emails> uid($constants.emailUid) .
+#end
 uid($constants.tokenUid) <emails> uid($constants.emailUid) .
 uid($constants.refundUid) <contactEmail> uid($constants.emailUid) .
 #if ($fingerprint)
@@ -83,7 +97,10 @@ uid($constants.refundUid) <errorReason> "$!refund.errorReason" .
 uid($constants.refundUid) <errorCode> "$!refund.errorCode" .
 #end
 uid($constants.refundUid) <cardToken> uid($constants.tokenUid) .
-uid($constants.refundUid) <partyShop> uid($constants.shopUid) .
+uid($constants.refundUid) <party> uid($constants.partyUid) .
+#if ($shop)
+uid($constants.refundUid) <shop> uid($constants.shopUid) .
+#end
 uid($constants.refundUid) <bin> uid($constants.binUid) .
 
 uid($constants.paymentUid) <dgraph.type> "$!payment.type" .

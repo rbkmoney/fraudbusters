@@ -199,8 +199,8 @@ public class DgraphPaymentSumQueryBuilderServiceTest {
     @Test
     public void getPaymentsCountQueryByShopIdRootWithMinimalDatasetTest() {
         String query = getPaymentsSumQuery(
-                DgraphEntity.PARTY_SHOP,
-                Map.of(DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.SHOP_ID))
+                DgraphEntity.SHOP,
+                Map.of(DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID))
         );
         assertNotNull(query);
         assertEquals(PAYMENTS_SUM_QUERY_BY_SHOP_ID_ROOT_WITH_MINIMAL_DATASET, query);
@@ -209,7 +209,7 @@ public class DgraphPaymentSumQueryBuilderServiceTest {
     @Test
     public void getPaymentsCountQueryByShopIdRootWithUsualDatasetTest() {
         String query = getPaymentsSumQuery(
-                DgraphEntity.PARTY_SHOP,
+                DgraphEntity.SHOP,
                 Map.of(DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN))
         );
         assertNotNull(query);
@@ -219,8 +219,8 @@ public class DgraphPaymentSumQueryBuilderServiceTest {
     @Test
     public void getPaymentsCountQueryByShopIdRootWithFullDatasetTest() {
         var dgraphMap = createTestFullDgraphEntityMap();
-        dgraphMap.put(DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.SHOP_ID));
-        String query = getPaymentsSumQuery(DgraphEntity.PARTY_SHOP, dgraphMap);
+        dgraphMap.put(DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID));
+        String query = getPaymentsSumQuery(DgraphEntity.SHOP, dgraphMap);
         assertNotNull(query);
         assertEquals(PAYMENTS_SUM_QUERY_BY_SHOP_ID_ROOT_WITH_FULL_DATASET, query);
     }
@@ -228,8 +228,8 @@ public class DgraphPaymentSumQueryBuilderServiceTest {
     @Test
     public void getPaymentsCountQueryByPartyIdRootWithMinimalDatasetTest() {
         String query = getPaymentsSumQuery(
-                DgraphEntity.PARTY_SHOP,
-                Map.of(DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.PARTY_ID))
+                DgraphEntity.PARTY,
+                Map.of(DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID))
         );
         assertNotNull(query);
         assertEquals(PAYMENTS_SUM_QUERY_BY_PARTY_ID_ROOT_WITH_MINIMAL_DATASET, query);
@@ -238,10 +238,10 @@ public class DgraphPaymentSumQueryBuilderServiceTest {
     @Test
     public void getPaymentsCountQueryByPartyIdRootWithUsualDatasetTest() {
         String query = getPaymentsSumQuery(
-                DgraphEntity.PARTY_SHOP,
+                DgraphEntity.PARTY,
                 Map.of(
                         DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN),
-                        DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.PARTY_ID)
+                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID)
                 )
         );
         assertNotNull(query);
@@ -250,7 +250,7 @@ public class DgraphPaymentSumQueryBuilderServiceTest {
 
     @Test
     public void getPaymentsCountQueryByPartyIdRootWithFullDatasetTest() {
-        String query = getPaymentsSumQuery(DgraphEntity.PARTY_SHOP, createTestFullDgraphEntityMap());
+        String query = getPaymentsSumQuery(DgraphEntity.PARTY, createTestFullDgraphEntityMap());
         assertNotNull(query);
         assertEquals(PAYMENTS_SUM_QUERY_BY_PARTY_ID_ROOT_WITH_FULL_DATASET, query);
     }

@@ -4,7 +4,8 @@
 #set ($cardToken = $!chargeback.cardToken)
 #set ($fingerprint = $!chargeback.fingerprint)
 #set ($contactEmail = $!chargeback.email)
-#set ($partyShop = $!chargeback.partyShop)
+#set ($party = $!chargeback.party)
+#set ($shop = $!chargeback.shop)
 #set ($ip = $!chargeback.operationIp)
 #set ($bin = $!chargeback.bin)
 #set ($payment = $!chargeback.payment)
@@ -15,12 +16,22 @@ uid($constants.tokenUid) <maskedPan> "$!cardToken.maskedPan" .
 uid($constants.tokenUid) <lastActTime> "$!chargeback.createdAt" .
 uid($constants.tokenUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
 
-uid($constants.shopUid) <dgraph.type> "$!partyShop.type" .
-uid($constants.shopUid) <partyId> "$!partyShop.partyId" .
-uid($constants.shopUid) <shopId> "$!partyShop.shopId" .
+uid($constants.partyUid) <dgraph.type> "$!party.type" .
+uid($constants.partyUid) <partyId> "$!party.partyId" .
+uid($constants.partyUid) <lastActTime> "$!chargeback.createdAt" .
+uid($constants.partyUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
+uid($constants.partyUid) <tokens> uid($constants.tokenUid) .
+
+#if ($shop)
+uid($constants.shopUid) <dgraph.type> "$!shop.type" .
+uid($constants.shopUid) <lastActTime> "$!chargeback.createdAt" .
+uid($constants.shopUid) <shopId> "$!shop.shopId" .
 uid($constants.shopUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
 uid($constants.shopUid) <tokens> uid($constants.tokenUid) .
+uid($constants.shopUid) <party> uid($constants.partyUid) .
+uid($constants.partyUid) <shops> uid($constants.shopUid) .
 
+#end
 uid($constants.binUid) <dgraph.type> "$!bin.type" .
 uid($constants.binUid) <cardBin> "$!bin.bin" .
 uid($constants.binUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
@@ -46,7 +57,10 @@ uid($constants.emailUid) <lastActTime> "$!chargeback.createdAt" .
 uid($constants.emailUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
 uid($constants.emailUid) <tokens> uid($constants.tokenUid) .
 uid($constants.binUid) <emails> uid($constants.emailUid) .
+uid($constants.partyUid) <emails> uid($constants.emailUid) .
+#if ($shop)
 uid($constants.shopUid) <emails> uid($constants.emailUid) .
+#end
 uid($constants.tokenUid) <emails> uid($constants.emailUid) .
 uid($constants.chargebackUid) <contactEmail> uid($constants.emailUid) .
 #if ($fingerprint)
@@ -80,7 +94,10 @@ uid($constants.chargebackUid) <code> "$!chargeback.code" .
 uid($constants.chargebackUid) <payerType> "$!chargeback.payerType" .
 
 uid($constants.chargebackUid) <cardToken> uid($constants.tokenUid) .
-uid($constants.chargebackUid) <partyShop> uid($constants.shopUid) .
+uid($constants.chargebackUid) <party> uid($constants.partyUid) .
+#if ($shop)
+uid($constants.chargebackUid) <shop> uid($constants.shopUid) .
+#end
 uid($constants.chargebackUid) <bin> uid($constants.binUid) .
 
 uid($constants.paymentUid) <dgraph.type> "$!payment.type" .

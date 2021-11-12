@@ -10,6 +10,7 @@ import lombok.Setter;
 public class OperationProperties {
 
     private String tokenId;
+    private String maskedPan;
     private String paymentId;
     private String refundId;
     private String email;

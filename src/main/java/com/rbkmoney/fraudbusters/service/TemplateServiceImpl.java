@@ -35,8 +35,10 @@ public class TemplateServiceImpl implements TemplateService {
     private static final String PREPARE_ROOT_COUNT_QUERY = "vm/aggregate/count/prepare_root_count_query.vm";
     private static final String PREPARE_SUM_QUERY = "vm/aggregate/sum/prepare_sum_query.vm";
     private static final String PREPARE_ROOT_SUM_QUERY = "vm/aggregate/sum/prepare_root_sum_query.vm";
-    private static final String PREPARE_UNIQUE_QUERY = "vm/aggregate/sum/prepare_sum_query.vm";
-    private static final String PREPARE_ROOT_UNIQUE_QUERY = "vm/aggregate/sum/prepare_root_sum_query.vm";
+    private static final String PREPARE_UNIQUE_QUERY = "vm/aggregate/unique/prepare_unique_query.vm";
+    private static final String PREPARE_ROOT_UNIQUE_QUERY = "vm/aggregate/unique/prepare_root_unique_query.vm";
+    private static final String PREPARE_EQUAL_FIELDS_UNIQUE_QUERY =
+            "vm/aggregate/unique/prepare_equal_fields_unique_query.vm";
 
     @Override
     public String buildInsertPaymentNqsBlock(DgraphPayment dgraphPayment) {
@@ -148,6 +150,14 @@ public class TemplateServiceImpl implements TemplateService {
     public String buildUniqueQuery(DgraphAggregationQueryModel queryModel) {
         return buildTemplate(
                 velocityEngine.getTemplate(PREPARE_UNIQUE_QUERY),
+                createPreparePaymentsCountContext(queryModel)
+        );
+    }
+
+    @Override
+    public String buildEqualFiledsUniqueQuery(DgraphAggregationQueryModel queryModel) {
+        return buildTemplate(
+                velocityEngine.getTemplate(PREPARE_EQUAL_FIELDS_UNIQUE_QUERY),
                 createPreparePaymentsCountContext(queryModel)
         );
     }

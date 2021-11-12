@@ -10,16 +10,17 @@ import java.util.List;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
-public class DgraphPartyShop {
+public class DgraphParty {
 
     @JsonProperty("dgraph.type")
-    private final String type = "PartyShop";
+    private final String type = "Party";
 
     private String uid;
     private String partyId;
-    private String shopId;
+    private String lastActTime;
     private List<DgraphEmail> emails;
     private List<DgraphToken> tokens;
     private List<DgraphPayment> payments;
+    private List<DgraphShop> shops;
 
 }

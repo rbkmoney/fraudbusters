@@ -11,8 +11,6 @@ public class DgraphChargeback {
 
     private String chargebackId;
     private String paymentId;
-    private String partyId;
-    private String shopId;
     private String createdAt;
     private long amount;
     private String currency;
@@ -20,7 +18,9 @@ public class DgraphChargeback {
     private String category;
     private String code;
     private String payerType;
-    private DgraphPartyShop partyShop;
+
+    private DgraphParty party;
+    private DgraphShop shop;
     private DgraphPayment payment;
     private DgraphToken cardToken;
     private DgraphFingerprint fingerprint;

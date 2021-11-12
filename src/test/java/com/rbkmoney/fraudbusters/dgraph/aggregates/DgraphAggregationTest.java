@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static com.rbkmoney.fraudbusters.factory.TestDgraphObjectFactory.generatePayment;
+import static com.rbkmoney.fraudbusters.util.DgraphTestAggregationUtils.createTestPaymentModel;
 import static com.rbkmoney.fraudbusters.util.DgraphTestAggregationUtils.createTestTimeWindow;
 
 @Slf4j
@@ -81,9 +82,12 @@ public class DgraphAggregationTest extends DgraphAbstractIntegrationTest {
         Instant endWindowTime = timestamp.minusMillis(timeWindow.getEndWindowTime());
 
         DgraphEntity dgraphEntity = dgraphEntityResolver.resolvePaymentCheckedField(checkedField);
+        //TODO: подумать нужно ли так делать
         Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntityMap =
-                dgraphEntityResolver.resolvePaymentCheckedFieldsToMap(checkedField, list); //TODO: подумать нужно ли так делать
-        return getPaymentsCount(dgraphEntity, dgraphEntityMap, paymentModel, startWindowTime, endWindowTime, "captured");
+                dgraphEntityResolver.resolvePaymentCheckedFieldsToMap(checkedField, list);
+        return getPaymentsCount(
+                dgraphEntity, dgraphEntityMap, paymentModel, startWindowTime, endWindowTime, "captured"
+        );
     }
 
     private Integer getPaymentsCount(DgraphEntity rootEntity,
@@ -102,7 +106,11 @@ public class DgraphAggregationTest extends DgraphAbstractIntegrationTest {
                         ? Strings.EMPTY : String.format("@filter(%s)", rootCondition))
                 .targetType(basicType.getFieldName())
                 .targetFaset(createTargetFacet(startWindowTime, endWindowTime, "captured"))
-                .targetFilter(createTargetFilterCondition(DgraphTargetAggregationType.PAYMENT, dgraphEntityMap, paymentModel))
+                .targetFilter(createTargetFilterCondition(
+                        DgraphTargetAggregationType.PAYMENT,
+                        dgraphEntityMap,
+                        paymentModel)
+                )
                 .innerTypesFilters(innerConditions)
                 .build();
         String getCountPaymentsQuery = buildTemplate(
@@ -127,9 +135,11 @@ public class DgraphAggregationTest extends DgraphAbstractIntegrationTest {
                 continue;
             }
             String condition = paymentCheckedFields.stream()
-                    .map(checkedField -> dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(checkedField, paymentModel))
+                    .map(checkedField -> dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(
+                            checkedField, paymentModel))
                     .collect(Collectors.joining(" and "));
-            innerConditions.add(String.format(dgraphQueryConditionResolver.resolvePaymentFilterByDgraphEntity(dgraphEntity), condition));
+            innerConditions.add(String.format(
+                    dgraphQueryConditionResolver.resolvePaymentFilterByDgraphEntity(dgraphEntity), condition));
         }
         return innerConditions;
     }
@@ -140,7 +150,8 @@ public class DgraphAggregationTest extends DgraphAbstractIntegrationTest {
         Set<PaymentCheckedField> paymentCheckedFields = dgraphEntityMap.get(rootDgraphEntity);
         return paymentCheckedFields == null || paymentCheckedFields.isEmpty()
                 ? Strings.EMPTY : paymentCheckedFields.stream()
-                .map(checkedField -> dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(checkedField, paymentModel))
+                .map(checkedField ->
+                        dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(checkedField, paymentModel))
                 .collect(Collectors.joining(" and "));
     }
 
@@ -171,33 +182,37 @@ public class DgraphAggregationTest extends DgraphAbstractIntegrationTest {
 
 
     private void prepareGraphDb() throws Exception {
+        PaymentModel paymentModel = createTestPaymentModel();
         OperationProperties operationProperties = OperationProperties.builder()
-                .tokenId("token1")
-                .email("email1")
-                .fingerprint("finger1")
-                .partyId("party1")
-                .shopId("party1shop1")
-                .bin("bin1")
-                .ip("ip1")
-                .country("Russia")
+                .tokenId(paymentModel.getCardToken())
+                .maskedPan(paymentModel.getPan())
+                .email(paymentModel.getEmail())
+                .fingerprint(paymentModel.getFingerprint())
+                .partyId(paymentModel.getPartyId())
+                .shopId(paymentModel.getShopId())
+                .bin(paymentModel.getBin())
+                .ip(paymentModel.getIp())
+                .country(paymentModel.getBinCountryCode())
                 .eventTimeDispersion(true)
                 .build();
         producePayments(KAFKA_PAYMENT_TOPIC, generatePayments(5, operationProperties));
         waitingTopic(KAFKA_PAYMENT_TOPIC, PaymentDeserializer.class);
 
-        operationProperties.setShopId("party1shop2");
+        operationProperties.setShopId(paymentModel.getShopId() + "-2");
         producePayments(KAFKA_PAYMENT_TOPIC, generatePayments(5, operationProperties));
 
-        operationProperties.setBin("bin2");
+        operationProperties.setBin(paymentModel.getBin() + "-2");
+        operationProperties.setIp(paymentModel.getIp() + "-2");
         producePayments(KAFKA_PAYMENT_TOPIC, generatePayments(5, operationProperties));
 
-        operationProperties.setTokenId("token2");
-        operationProperties.setShopId("party2shop1");
+        operationProperties.setTokenId(paymentModel.getCardToken() + "-2");
+        operationProperties.setShopId(paymentModel.getShopId() + "-3");
         producePayments(KAFKA_PAYMENT_TOPIC, generatePayments(7, operationProperties));
 
         long currentTimeMillis = System.currentTimeMillis();
         while (getCountOfObjects("Payment") < 17
-                || System.currentTimeMillis() - currentTimeMillis < 10_000L) ;
+                || System.currentTimeMillis() - currentTimeMillis < 10_000L) {
+        }
     }
 
     private List<Payment> generatePayments(int count, OperationProperties properties) {

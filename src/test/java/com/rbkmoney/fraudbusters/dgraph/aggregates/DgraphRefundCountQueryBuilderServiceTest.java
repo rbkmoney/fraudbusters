@@ -278,8 +278,8 @@ public class DgraphRefundCountQueryBuilderServiceTest {
     @Test
     public void getRefundsCountQueryByShopIdRootWithMinimalDataTest() {
         String query = getRefundsCountQuery(
-                DgraphEntity.PARTY_SHOP,
-                Map.of(DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.SHOP_ID))
+                DgraphEntity.SHOP,
+                Map.of(DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID))
         );
         assertNotNull(query);
         assertEquals(REFUNDS_COUNT_QUERY_BY_SHOP_ID_ROOT_WITH_MINIMAL_DATA, query);
@@ -288,7 +288,7 @@ public class DgraphRefundCountQueryBuilderServiceTest {
     @Test
     public void getRefundsCountQueryByShopIdRootWithUsualDatasetTest() {
         String query = getRefundsCountQuery(
-                DgraphEntity.PARTY_SHOP,
+                DgraphEntity.SHOP,
                 createTestUsualDgraphEntityMap(DgraphEntity.BIN, PaymentCheckedField.BIN)
         );
         assertNotNull(query);
@@ -297,7 +297,7 @@ public class DgraphRefundCountQueryBuilderServiceTest {
 
     @Test
     public void getRefundsCountQueryByShopIdRootWithFullDatasetTest() {
-        String query = getRefundsCountQuery(DgraphEntity.PARTY_SHOP, createTestFullDgraphEntityMap());
+        String query = getRefundsCountQuery(DgraphEntity.SHOP, createTestFullDgraphEntityMap());
         assertNotNull(query);
         assertEquals(REFUNDS_COUNT_QUERY_BY_SHOP_ID_ROOT_WITH_FULL_DATASET, query);
     }
@@ -305,8 +305,8 @@ public class DgraphRefundCountQueryBuilderServiceTest {
     @Test
     public void getRefundsCountQueryByPartyIdRootWithMinimalDataTest() {
         String query = getRefundsCountQuery(
-                DgraphEntity.PARTY_SHOP,
-                Map.of(DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.PARTY_ID))
+                DgraphEntity.PARTY,
+                Map.of(DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID))
         );
         assertNotNull(query);
         assertEquals(REFUNDS_COUNT_QUERY_BY_PARTY_ID_ROOT_WITH_MINIMAL_DATA, query);
@@ -315,9 +315,9 @@ public class DgraphRefundCountQueryBuilderServiceTest {
     @Test
     public void getRefundsCountQueryByPartyIdRootWithUsualDatasetTest() {
         String query = getRefundsCountQuery(
-                DgraphEntity.PARTY_SHOP,
+                DgraphEntity.PARTY,
                 Map.of(
-                        DgraphEntity.PARTY_SHOP, Set.of(PaymentCheckedField.PARTY_ID),
+                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID),
                         DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN)
                 )
         );
@@ -327,7 +327,7 @@ public class DgraphRefundCountQueryBuilderServiceTest {
 
     @Test
     public void getRefundsCountQueryByPartyIdRootWithFullDatasetTest() {
-        String query = getRefundsCountQuery(DgraphEntity.PARTY_SHOP, createTestFullDgraphEntityMap());
+        String query = getRefundsCountQuery(DgraphEntity.PARTY, createTestFullDgraphEntityMap());
         assertNotNull(query);
         assertEquals(REFUNDS_COUNT_QUERY_BY_PARTY_ID_ROOT_WITH_FULL_DATASET, query);
     }

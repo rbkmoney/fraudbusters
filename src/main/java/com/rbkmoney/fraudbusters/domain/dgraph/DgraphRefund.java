@@ -11,8 +11,6 @@ public class DgraphRefund {
 
     private String refundId;
     private String paymentId;
-    private String partyId;
-    private String shopId;
     private String createdAt;
     private long amount;
     private String currency;
@@ -20,7 +18,9 @@ public class DgraphRefund {
     private String payerType;
     private String errorCode;
     private String errorReason;
-    private DgraphPartyShop partyShop;
+
+    private DgraphParty party;
+    private DgraphShop shop;
     private DgraphPayment sourcePayment;
     private DgraphToken cardToken;
     private DgraphFingerprint fingerprint;

@@ -4,7 +4,8 @@
 #set ($cardToken = $!payment.cardToken)
 #set ($fingerprint = $!payment.fingerprint)
 #set ($contactEmail = $!payment.contactEmail)
-#set ($partyShop = $!payment.partyShop)
+#set ($party = $!payment.party)
+#set ($shop = $!payment.shop)
 #set ($bin = $!payment.bin)
 #set ($country = $!payment.country)
 #set ($ip = $!payment.operationIp)
@@ -15,11 +16,21 @@ uid($constants.tokenUid) <maskedPan> "$!cardToken.maskedPan" .
 uid($constants.tokenUid) <lastActTime> "$!payment.createdAt" .
 uid($constants.tokenUid) <payments> uid($constants.paymentUid) (createdAt = $!payment.createdAt, status = "$!payment.status") .
 
-uid($constants.shopUid) <dgraph.type> "$!partyShop.type" .
-uid($constants.shopUid) <partyId> "$!partyShop.partyId" .
-uid($constants.shopUid) <shopId> "$!partyShop.shopId" .
+uid($constants.partyUid) <dgraph.type> "$!party.type" .
+uid($constants.partyUid) <partyId> "$!party.partyId" .
+uid($constants.partyUid) <lastActTime> "$!payment.createdAt" .
+uid($constants.partyUid) <payments> uid($constants.paymentUid) (createdAt = $!payment.createdAt, status = "$!payment.status") .
+uid($constants.partyUid) <tokens> uid($constants.tokenUid) .
+
+#if($shop)
+uid($constants.shopUid) <dgraph.type> "$!shop.type" .
+uid($constants.shopUid) <shopId> "$!shop.shopId" .
+uid($constants.shopUid) <lastActTime> "$!payment.createdAt" .
 uid($constants.shopUid) <payments> uid($constants.paymentUid) (createdAt = $!payment.createdAt, status = "$!payment.status") .
 uid($constants.shopUid) <tokens> uid($constants.tokenUid) .
+uid($constants.shopUid) <party> uid($constants.partyUid) .
+uid($constants.partyUid) <shops> uid($constants.shopUid) .
+#end
 
 uid($constants.binUid) <dgraph.type> "$!bin.type" .
 uid($constants.binUid) <cardBin> "$!bin.bin" .
@@ -46,7 +57,10 @@ uid($constants.emailUid) <lastActTime> "$!payment.createdAt" .
 uid($constants.emailUid) <payments> uid($constants.paymentUid) (createdAt = $!payment.createdAt, status = "$!payment.status") .
 uid($constants.emailUid) <tokens> uid($constants.tokenUid) .
 uid($constants.binUid) <emails> uid($constants.emailUid) .
+uid($constants.partyUid) <emails> uid($constants.emailUid) .
+#if($shop)
 uid($constants.shopUid) <emails> uid($constants.emailUid) .
+#end
 uid($constants.tokenUid) <emails> uid($constants.emailUid) .
 uid($constants.paymentUid) <contactEmail> uid($constants.emailUid) .
 #if ($fingerprint)
@@ -118,5 +132,8 @@ uid($constants.paymentUid) <resultStatus> "$!payment.resultStatus" .
 uid($constants.paymentUid) <checkedResultsJson> "$!payment.checkedResultsJson" .
 #end
 uid($constants.paymentUid) <cardToken> uid($constants.tokenUid) .
-uid($constants.paymentUid) <partyShop> uid($constants.shopUid) .
+uid($constants.paymentUid) <party> uid($constants.partyUid) .
+#if ($shop)
+uid($constants.paymentUid) <shop> uid($constants.shopUid) .
+#end
 uid($constants.paymentUid) <bin> uid($constants.binUid) .

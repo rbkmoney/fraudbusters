@@ -47,7 +47,8 @@ public class DgraphEntityResolver {
         }
         return switch (field) {
             case CARD_TOKEN, PAN -> DgraphEntity.TOKEN;
-            case PARTY_ID, SHOP_ID -> DgraphEntity.PARTY_SHOP;
+            case PARTY_ID -> DgraphEntity.PARTY;
+            case SHOP_ID -> DgraphEntity.SHOP;
             case FINGERPRINT -> DgraphEntity.FINGERPRINT;
             case EMAIL -> DgraphEntity.EMAIL;
             case IP, COUNTRY_IP -> DgraphEntity.IP;

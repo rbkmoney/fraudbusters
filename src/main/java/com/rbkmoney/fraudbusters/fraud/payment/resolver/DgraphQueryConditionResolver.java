@@ -16,7 +16,8 @@ public class DgraphQueryConditionResolver {
             case EMAIL -> "contactEmail @filter(%s)";
             case FINGERPRINT -> "fingerprint @filter(%s)";
             case IP -> "operationIp @filter(%s)";
-            case PARTY_SHOP -> "partyShop @filter(%s)";
+            case PARTY -> "party @filter(%s)";
+            case SHOP -> "shop @filter(%s)";
             case COUNTRY -> "country @filter(%s)";
             case FRAUD_PAYMENT -> "fraudPayment @filter(%s)";
             case PAYMENT -> "sourcePayment @filter(%s)";
@@ -29,7 +30,8 @@ public class DgraphQueryConditionResolver {
         return switch (paymentCheckedField) {
             case BIN -> String.format("eq(cardBin, \"%s\")", paymentModel.getBin());
             case EMAIL -> String.format("eq(userEmail, \"%s\")", paymentModel.getEmail());
-            case IP, COUNTRY_IP -> String.format("eq(ipAddress, \"%s\")", paymentModel.getIp()); //TODO: look at country IP
+            //TODO: look at country IP
+            case IP, COUNTRY_IP -> String.format("eq(ipAddress, \"%s\")", paymentModel.getIp());
             case FINGERPRINT -> String.format("eq(fingerprintData, \"%s\")", paymentModel.getFingerprint());
             case CARD_TOKEN -> String.format("eq(tokenId, \"%s\")", paymentModel.getCardToken());
             case PARTY_ID -> String.format("eq(partyId, \"%s\")", paymentModel.getPartyId());
