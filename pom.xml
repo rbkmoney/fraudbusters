@@ -24,7 +24,7 @@
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <fraudo.version>0.1.0</fraudo.version>
-        <trusted.tokens.proto.version>1.3-c0d09bb</trusted.tokens.proto.version>
+        <trusted.tokens.proto.version>1.4-0b2a8d8</trusted.tokens.proto.version>
         <wb.list.proto.version>1.33-554d59c</wb.list.proto.version>
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
         <fraudbusters-proto.version>1.97-28a6a95</fraudbusters-proto.version>
