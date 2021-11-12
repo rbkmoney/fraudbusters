@@ -18,6 +18,7 @@ import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.fraudbusters.util.ReferenceKeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
+import com.rbkmoney.trusted.tokens.TrustedTokensSrv;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -74,6 +75,8 @@ public class JUnit5IntegrationTest {
     GeoIpServiceSrv.Iface geoIpServiceSrv;
     @MockBean
     WbListServiceSrv.Iface wbListServiceSrv;
+    @MockBean
+    TrustedTokensSrv.Iface trustedTokensSrv;
     @MockBean
     private ShopManagementService shopManagementService;
 

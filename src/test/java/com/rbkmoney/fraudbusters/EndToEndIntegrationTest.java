@@ -9,6 +9,7 @@ import com.rbkmoney.fraudbusters.pool.HistoricalPool;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.PaymentRepositoryImpl;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.RefundRepository;
+import com.rbkmoney.trusted.tokens.ConditionTemplate;
 import com.rbkmoney.woody.thrift.impl.http.THClientBuilder;
 import com.rbkmoney.woody.thrift.impl.http.THSpawnClientBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @Slf4j
@@ -72,8 +74,20 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
             "rule:GROUP_DECLINE:  1 >= 0  -> decline;";
     private static final String GROUP_NORMAL =
             "rule:GROUP_NORMAL:  1 < 0  -> decline;";
-    private static final String TEMPLATE_CONCRETE_SHOP =
-            "rule:TEMPLATE_CONCRETE_SHOP:  sum(\"email\", 10) >= 18000 and not isTrusted()  -> accept;";
+    private static final String TEMPLATE_CONCRETE_SHOP = """
+            rule:TEMPLATE_CONCRETE_SHOP:  sum("email", 10) >= 18000
+             AND isTrusted(
+                paymentsConditions(
+                    condition("RUB",1,1000,10),
+                    condition("EUR",2,20)
+                ),
+                withdrawalsConditions(
+                    condition("USD",0,3000,3),
+                    condition("CAD",2,4)
+                )
+             )
+             -> accept;";
+            """;
     private static final String P_ID = "test";
     private static final String GROUP_P_ID = "group_1";
 
@@ -127,7 +141,7 @@ public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
                 .setPriority(1L)), kafkaTopics.getFullGroupList());
         produceGroupReference(GROUP_P_ID, null, GROUP_ID);
         Mockito.when(geoIpServiceSrv.getLocationIsoCode(any())).thenReturn("RUS");
-
+        Mockito.when(trustedTokensSrv.isTokenTrusted(anyString(), any(ConditionTemplate.class))).thenReturn(true);
     }
 
     @Test

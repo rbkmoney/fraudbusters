@@ -18,6 +18,12 @@ import com.rbkmoney.fraudbusters.util.BeanUtil;
 import com.rbkmoney.fraudo.constant.ResultStatus;
 import com.rbkmoney.fraudo.model.ResultModel;
 import com.rbkmoney.fraudo.model.RuleResult;
+import com.rbkmoney.fraudo.model.TrustCondition;
+import com.rbkmoney.trusted.tokens.Condition;
+import com.rbkmoney.trusted.tokens.ConditionTemplate;
+import com.rbkmoney.trusted.tokens.PaymentsConditions;
+import com.rbkmoney.trusted.tokens.WithdrawalsConditions;
+import com.rbkmoney.trusted.tokens.YearsOffset;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -465,4 +471,42 @@ public abstract class TestObjectsFactory {
                         )
                 );
     }
+
+    public static TrustCondition createTrustCondition(Integer transactionSum) {
+        return TrustCondition.builder()
+                .transactionsCurrency("RUB")
+                .transactionsCount(positiveInt())
+                .transactionsYearsOffset(1)
+                .transactionsSum(transactionSum)
+                .build();
+    }
+
+    public static Condition createCondition() {
+        return new Condition()
+                .setCurrencySymbolicCode("RUB")
+                .setCount(positiveInt())
+                .setYearsOffset(YearsOffset.current_with_last_years);
+    }
+
+    public static Condition createCondition(Integer sum) {
+        return new Condition()
+                .setCurrencySymbolicCode("RUB")
+                .setCount(positiveInt())
+                .setYearsOffset(YearsOffset.current_with_last_years)
+                .setSum(sum);
+    }
+
+    public static ConditionTemplate createConditionTemplate() {
+        return new ConditionTemplate()
+                .setPaymentsConditions(new PaymentsConditions()
+                        .setConditions(List.of(createCondition(positiveInt()), createCondition())))
+                .setWithdrawalsConditions(new WithdrawalsConditions()
+                        .setConditions(List.of(createCondition(positiveInt()), createCondition()))
+                );
+    }
+
+    public static int positiveInt() {
+        return ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE);
+    }
+
 }

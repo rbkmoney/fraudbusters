@@ -19,6 +19,7 @@ import com.rbkmoney.fraudbusters.service.CardPoolManagementService;
 import com.rbkmoney.fraudbusters.service.ShopManagementService;
 import com.rbkmoney.fraudbusters.util.KeyGenerator;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
+import com.rbkmoney.trusted.tokens.TrustedTokensSrv;
 import io.dgraph.DgraphClient;
 import io.dgraph.DgraphProto;
 import lombok.extern.slf4j.Slf4j;
@@ -90,6 +91,9 @@ public abstract class DgraphAbstractIntegrationTest {
 
     @MockBean
     private WbListServiceSrv.Iface wbListServiceSrv;
+
+    @MockBean
+    private TrustedTokensSrv.Iface trustedTokensSrv;
 
     @MockBean
     private ShopManagementService shopManagementService;
