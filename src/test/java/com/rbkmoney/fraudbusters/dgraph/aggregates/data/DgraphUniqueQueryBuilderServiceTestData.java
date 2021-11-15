@@ -397,81 +397,401 @@ public class DgraphUniqueQueryBuilderServiceTestData {
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_EMAIL_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        contactEmail @filter(eq(userEmail, "test@test.ru"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_IP_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        operationIp @filter(eq(ipAddress, "localhost"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_FINGERPRINT_TEST_QUERY = """
+            query all() {
+                        
+              aggregates(func: type(Fingerprint)) @filter(eq(fingerprintData, "finger001")) {
+                  count: count(uid)
+              }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_COUNTRY_BANK_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        country @filter(eq(countryName, "Russia"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_COUNTRY_IP_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        operationIp @filter(eq(ipAddress, "localhost"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_BIN_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        bin @filter(eq(cardBin, "000000"))
+                        cardToken @filter(eq(tokenId, "token001"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_PAN_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_CURRENCY_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        currency @filter(eq(currencyCode, "RUB"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_SHOP_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        shop @filter(eq(shopId, "shop1"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_PARTY_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        party @filter(eq(partyId, "party1"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_MOBILE_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured")) @filter(eq(mobile, false)) @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_RECURRENT_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured")) @filter(eq(recurrent, true)) @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_FINGERPRINTS_BY_CARD_TOKEN_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Fingerprint))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        contactEmail @filter(eq(userEmail, "test@test.ru"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_EMAIL_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        contactEmail @filter(eq(userEmail, "test@test.ru"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_IP_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        operationIp @filter(eq(ipAddress, "localhost"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_FINGERPRINT_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        fingerprint @filter(eq(fingerprintData, "finger001"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_COUNTRY_BANK_TEST_QUERY = """
+            query all() {
+                        
+              aggregates(func: type(Country))  {
+                  count: count(uid)
+              }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_COUNTRY_IP_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        operationIp @filter(eq(ipAddress, "localhost"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_BIN_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        bin @filter(eq(cardBin, "000000"))
+                        cardToken @filter(eq(tokenId, "token001"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_PAN_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        bin @filter(eq(cardBin, "000000"))
+                        cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_CURRENCY_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
+                        currency @filter(eq(currencyCode, "RUB"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_SHOP_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        shop @filter(eq(shopId, "shop1"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_PARTY_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                        party @filter(eq(partyId, "party1"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_MOBILE_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured")) @filter(eq(mobile, false)) @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_RECURRENT_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured")) @filter(eq(recurrent, true)) @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_BANKS_BY_CARD_TOKEN_TEST_QUERY = """
+            query all() {
+                predicates as var(func: type(Country))  @cascade {
+                    payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured")) @filter(eq(recurrent, true)) @cascade @normalize {
+                        cardToken @filter(eq(tokenId, "token001"))
+                    }
+                }
+                        
+                aggregates(func: uid(predicates)) {
+                    count: count(uid)
+                }
+                        
+            }
             """;
 
     public static final String UNIQUE_COUNTRY_IPS_BY_EMAIL_TEST_QUERY = """
