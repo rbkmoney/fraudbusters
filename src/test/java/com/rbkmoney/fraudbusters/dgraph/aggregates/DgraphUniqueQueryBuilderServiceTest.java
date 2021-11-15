@@ -44,12 +44,9 @@ public class DgraphUniqueQueryBuilderServiceTest {
     @Test
     public void getUniqueEmailsByIpQueryTest() {
         String query = getUniqueQuery(
-                DgraphEntity.EMAIL,
                 DgraphEntity.IP,
-                Map.of(
-                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL),
-                        DgraphEntity.IP, Set.of(PaymentCheckedField.IP)
-                )
+                DgraphEntity.EMAIL,
+                Map.of(DgraphEntity.IP, Set.of(PaymentCheckedField.IP))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_EMAILS_BY_IP_TEST_QUERY, query);
@@ -58,12 +55,9 @@ public class DgraphUniqueQueryBuilderServiceTest {
     @Test
     public void getUniqueEmailsByFingerprintQueryTest() {
         String query = getUniqueQuery(
-                DgraphEntity.EMAIL,
                 DgraphEntity.FINGERPRINT,
-                Map.of(
-                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL),
-                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
-                )
+                DgraphEntity.EMAIL,
+                Map.of(DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_EMAILS_BY_FINGERPRINT_TEST_QUERY, query);
@@ -72,12 +66,9 @@ public class DgraphUniqueQueryBuilderServiceTest {
     @Test
     public void getUniqueEmailsByCountryBankQueryTest() {
         String query = getUniqueQuery(
-                DgraphEntity.EMAIL,
                 DgraphEntity.COUNTRY,
-                Map.of(
-                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL),
-                        DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK)
-                )
+                DgraphEntity.EMAIL,
+                Map.of(DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_EMAILS_BY_COUNTRY_BANK_TEST_QUERY, query);
@@ -86,10 +77,9 @@ public class DgraphUniqueQueryBuilderServiceTest {
     @Test
     public void getUniqueEmailsByCountryIpQueryTest() {
         String query = getUniqueQuery(
-                DgraphEntity.EMAIL,
                 DgraphEntity.IP,
+                DgraphEntity.EMAIL,
                 Map.of(
-                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL),
                         DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP)
                 )
         );
@@ -100,10 +90,9 @@ public class DgraphUniqueQueryBuilderServiceTest {
     @Test
     public void getUniqueEmailsByBinQueryTest() {
         String query = getUniqueQuery(
-                DgraphEntity.EMAIL,
                 DgraphEntity.BIN,
+                DgraphEntity.EMAIL,
                 Map.of(
-                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL),
                         DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT),
                         DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN)
                 )
@@ -115,10 +104,9 @@ public class DgraphUniqueQueryBuilderServiceTest {
     @Test
     public void getUniqueEmailsByPanQueryTest() {
         String query = getUniqueQuery(
-                DgraphEntity.EMAIL,
                 DgraphEntity.TOKEN,
+                DgraphEntity.EMAIL,
                 Map.of(
-                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL),
                         DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT),
                         DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
                 )
@@ -130,12 +118,11 @@ public class DgraphUniqueQueryBuilderServiceTest {
     @Test
     public void getUniqueEmailsByCurrencyQueryTest() {
         String query = getUniqueQuery(
+                DgraphEntity.CURRENCY,
                 DgraphEntity.EMAIL,
-                DgraphEntity.PAYMENT,
                 Map.of(
-                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL),
-                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT),
-                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY),
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
                 )
         );
         assertNotNull(query);
@@ -144,22 +131,58 @@ public class DgraphUniqueQueryBuilderServiceTest {
 
     @Test
     public void getUniqueEmailsByShopQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.SHOP,
+                DgraphEntity.EMAIL,
+                Map.of(
+                        DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID),
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_EMAILS_BY_SHOP_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueEmailsByPartyQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.PARTY,
+                DgraphEntity.EMAIL,
+                Map.of(
+                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID),
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_EMAILS_BY_PARTY_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueEmailsByMobileQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.EMAIL,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE),
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_EMAILS_BY_MOBILE_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueEmailsByRecurrentQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.EMAIL,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT),
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_EMAILS_BY_RECURRENT_TEST_QUERY, query);
     }
 
     @Test

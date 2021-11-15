@@ -12,13 +12,13 @@ public class DgraphWithdrawal {
     private String withdrawalId;
     private String createdAt;
     private long amount;
-    private String currency;
+    private DgraphCurrency currency;
     private String status;
     private String providerId;
     private String terminalId;
     private String accountId;
     private String accountIdentity;
-    private String accountCurrency;
+    private DgraphCurrency accountCurrency;
     private String errorCode;
     private String errorReason;
 
@@ -26,7 +26,7 @@ public class DgraphWithdrawal {
     private String digitalWalletId;
     private String digitalWalletDataProvider;
     private String cryptoWalletId;
-    private String cryptoWalletCurrency;
+    private DgraphCurrency cryptoWalletCurrency;
 
     private DgraphCountry country;
     private DgraphBin bin;

@@ -2,6 +2,22 @@
 ## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
 query all() {
 
+    getCurrencyUid(func: type(Currency)) @filter(eq(currencyCode, "$withdrawal.currency.currencyCode")) {
+        $constants.currencyUid as uid
+    }
+
+#if ($withdrawal.accountCurrency)
+    getAccountCurrencyUid(func: type(Currency)) @filter(eq(currencyCode, "$withdrawal.accountCurrency.currencyCode")) {
+        $constants.accountCurrencyUid as uid
+    }
+
+#end
+#if ($withdrawal.cryptoWalletCurrency)
+    getCryptoCurrencyUid(func: type(Currency)) @filter(eq(currencyCode, "$withdrawal.cryptoWalletCurrency.currencyCode")) {
+        $constants.cryptoCurrencyUid as uid
+    }
+
+#end
 #if($withdrawal.bin)
     getBinUid(func: type(Bin)) @filter(eq(cardBin, "$withdrawal.bin.bin")) {
         $constants.binUid as uid

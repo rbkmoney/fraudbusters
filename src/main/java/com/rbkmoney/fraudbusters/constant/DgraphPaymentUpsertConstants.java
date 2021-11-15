@@ -6,6 +6,7 @@ import lombok.Getter;
 public final class DgraphPaymentUpsertConstants {
 
     public final String tokenUid = "sourceTokenUid";
+    public final String currencyUid = "sourceCurrencyUid";
     public final String emailUid = "sourceEmailUid";
     public final String fingerUid = "sourceFingerUid";
     public final String partyUid = "sourcePartyUid";
@@ -18,5 +19,7 @@ public final class DgraphPaymentUpsertConstants {
     public final String fraudPaymentUid = "sourceFraudPaymentUid";
     public final String chargebackUid = "sourceChargebackUid";
     public final String withdrawalUid = "sourceWithdrawalUid";
+    public final String accountCurrencyUid = "sourceAccountCurrencyUid";
+    public final String cryptoCurrencyUid = "sourceCryptoCurrencyUid";
 
 }

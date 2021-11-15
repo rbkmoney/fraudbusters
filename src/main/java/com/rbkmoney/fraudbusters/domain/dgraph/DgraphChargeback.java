@@ -13,7 +13,7 @@ public class DgraphChargeback {
     private String paymentId;
     private String createdAt;
     private long amount;
-    private String currency;
+    private DgraphCurrency currency;
     private String status;
     private String category;
     private String code;

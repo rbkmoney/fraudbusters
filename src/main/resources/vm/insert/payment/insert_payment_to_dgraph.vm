@@ -32,6 +32,10 @@ uid($constants.shopUid) <party> uid($constants.partyUid) .
 uid($constants.partyUid) <shops> uid($constants.shopUid) .
 #end
 
+uid($constants.currencyUid) <dgraph.type> "Currency" .
+uid($constants.currencyUid) <currencyCode> "$!payment.currency.currencyCode" .
+uid($constants.currencyUid) <payments> uid($constants.paymentUid) (createdAt = $!payment.createdAt, status = "$!payment.status") .
+
 uid($constants.binUid) <dgraph.type> "$!bin.type" .
 uid($constants.binUid) <cardBin> "$!bin.bin" .
 uid($constants.binUid) <payments> uid($constants.paymentUid) (createdAt = $!payment.createdAt, status = "$!payment.status") .
@@ -98,17 +102,14 @@ uid($constants.ipUid) <countries> uid($constants.countryUid) .
 #end
 uid($constants.paymentUid) <dgraph.type> "$!payment.type" .
 uid($constants.paymentUid) <paymentId> "$!payment.paymentId" .
-uid($constants.paymentUid) <partyId> "$!payment.partyId" .
-uid($constants.paymentUid) <shopId> "$!payment.shopId" .
 uid($constants.paymentUid) <createdAt> "$!payment.createdAt" .
 uid($constants.paymentUid) <amount> "$!payment.amount" .
-uid($constants.paymentUid) <currency> "$!payment.currency" .
+uid($constants.paymentUid) <currency> uid($constants.currencyUid) .
 uid($constants.paymentUid) <status> "$!payment.status" .
 
 uid($constants.paymentUid) <paymentTool> "$!payment.paymentTool" .
 uid($constants.paymentUid) <terminal> "$!payment.terminal" .
 uid($constants.paymentUid) <providerId> "$!payment.providerId" .
-uid($constants.paymentUid) <bankCountry> "$!payment.bankCountry" .
 uid($constants.paymentUid) <payerType> "$!payment.payerType" .
 uid($constants.paymentUid) <tokenProvider> "$!payment.tokenProvider" .
 uid($constants.paymentUid) <mobile> "$!payment.mobile" .

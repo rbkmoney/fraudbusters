@@ -1,11 +1,11 @@
 package com.rbkmoney.fraudbusters.factory;
 
 import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.fraudbusters.ClientInfo;
 import com.rbkmoney.damsel.fraudbusters.CryptoWallet;
 import com.rbkmoney.damsel.fraudbusters.DigitalWallet;
 import com.rbkmoney.damsel.fraudbusters.Error;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.domain.dgraph.*;
 import com.rbkmoney.fraudbusters.factory.properties.OperationProperties;
 import lombok.AccessLevel;
@@ -39,12 +39,11 @@ public final class TestDgraphObjectFactory {
 
         dgraphPayment.setCreatedAt("2021-10-05T18:00:00");
         dgraphPayment.setAmount(1000L);
-        dgraphPayment.setCurrency("RUB");
+        dgraphPayment.setCurrency(createDefaultDgraphCurrency());
         dgraphPayment.setStatus("captured");
         dgraphPayment.setPaymentTool("tool");
         dgraphPayment.setTerminal("10001");
         dgraphPayment.setProviderId("21");
-        dgraphPayment.setBankCountry("Russia");
         dgraphPayment.setPayerType("type-1");
         dgraphPayment.setTokenProvider("provider-1");
         dgraphPayment.setMobile(false);
@@ -149,7 +148,7 @@ public final class TestDgraphObjectFactory {
         dgraphRefund.setShop(createTestDgraphShop("Shop"));
         dgraphRefund.setCreatedAt("2021-10-05T18:00:00");
         dgraphRefund.setAmount(1000L);
-        dgraphRefund.setCurrency("RUB");
+        dgraphRefund.setCurrency(createDefaultDgraphCurrency());
         dgraphRefund.setStatus("successful");
         dgraphRefund.setPayerType("paid");
         dgraphRefund.setErrorCode(null);
@@ -181,7 +180,7 @@ public final class TestDgraphObjectFactory {
         dgraphChargeback.setShop(createTestDgraphShop("Shop"));
         dgraphChargeback.setCreatedAt("2021-10-05T18:00:00");
         dgraphChargeback.setAmount(1000L);
-        dgraphChargeback.setCurrency("RUB");
+        dgraphChargeback.setCurrency(createDefaultDgraphCurrency());
         dgraphChargeback.setStatus("successful");
         dgraphChargeback.setPayerType("paid");
         dgraphChargeback.setCategory("category");
@@ -353,6 +352,16 @@ public final class TestDgraphObjectFactory {
         );
     }
 
+    private static DgraphCurrency createDefaultDgraphCurrency() {
+        return createDefaultDgraphCurrency("RUB");
+    }
+
+    private static DgraphCurrency createDefaultDgraphCurrency(String currencyCode) {
+        DgraphCurrency currency = new DgraphCurrency();
+        currency.setCurrencyCode(currencyCode);
+        return currency;
+    }
+
     private static DgraphWithdrawal createTestDgraphWithdrawal(boolean accountExists,
                                                                boolean errorExists,
                                                                Resource resource) {
@@ -360,7 +369,7 @@ public final class TestDgraphObjectFactory {
         dgraphWithdrawal.setWithdrawalId("Wid-1");
         dgraphWithdrawal.setCreatedAt("2021-10-05T18:00:00");
         dgraphWithdrawal.setAmount(1000L);
-        dgraphWithdrawal.setCurrency("RUB");
+        dgraphWithdrawal.setCurrency(createDefaultDgraphCurrency());
         dgraphWithdrawal.setStatus("status-1");
         dgraphWithdrawal.setProviderId("123");
         dgraphWithdrawal.setTerminalId("345");
@@ -368,7 +377,7 @@ public final class TestDgraphObjectFactory {
         if (accountExists) {
             dgraphWithdrawal.setAccountId("AccId");
             dgraphWithdrawal.setAccountIdentity("Iddy");
-            dgraphWithdrawal.setAccountCurrency("BSD");
+            dgraphWithdrawal.setAccountCurrency(createDefaultDgraphCurrency("BSD"));
         }
         if (errorExists) {
             dgraphWithdrawal.setErrorReason("reason");
@@ -377,7 +386,7 @@ public final class TestDgraphObjectFactory {
         dgraphWithdrawal.setDestinationResource(resource.getSetField().getFieldName());
         if (resource.isSetCryptoWallet()) {
             dgraphWithdrawal.setCryptoWalletId("CID-1");
-            dgraphWithdrawal.setCryptoWalletCurrency("ETH");
+            dgraphWithdrawal.setCryptoWalletCurrency(createDefaultDgraphCurrency("ETH"));
         } else if (resource.isSetDigitalWallet()) {
             dgraphWithdrawal.setDigitalWalletId("DGT-1");
             dgraphWithdrawal.setDigitalWalletDataProvider("P-1");

@@ -7,14 +7,12 @@ uid($constants.withdrawalUid) <dgraph.type> "$!withdrawal.type" .
 uid($constants.withdrawalUid) <withdrawalId> "$!withdrawal.withdrawalId" .
 uid($constants.withdrawalUid) <createdAt> "$!withdrawal.createdAt" .
 uid($constants.withdrawalUid) <amount> "$!withdrawal.amount" .
-uid($constants.withdrawalUid) <currency> "$!withdrawal.currency" .
 uid($constants.withdrawalUid) <status> "$!withdrawal.status" .
 uid($constants.withdrawalUid) <providerId> "$!withdrawal.providerId" .
 uid($constants.withdrawalUid) <terminalId> "$!withdrawal.terminalId" .
 #if ($withdrawal.accountId)
 uid($constants.withdrawalUid) <accountId> "$!withdrawal.accountId" .
 uid($constants.withdrawalUid) <accountIdentity> "$!withdrawal.accountIdentity" .
-uid($constants.withdrawalUid) <accountCurrency> "$!withdrawal.accountCurrency" .
 #end
 #if ($withdrawal.errorCode)
 uid($constants.withdrawalUid) <errorCode> "$!withdrawal.errorCode" .
@@ -29,9 +27,26 @@ uid($constants.withdrawalUid) <digitalWalletDataProvider> "$!withdrawal.digitalW
 #end
 #if ($withdrawal.cryptoWalletId)
 uid($constants.withdrawalUid) <cryptoWalletId> "$!withdrawal.cryptoWalletId" .
-uid($constants.withdrawalUid) <cryptoWalletCurrency> "$!withdrawal.cryptoWalletCurrency" .
 #end
 
+uid($constants.currencyUid) <dgraph.type> "$!withdrawal.currency.type" .
+uid($constants.currencyUid) <currencyCode> "$!withdrawal.currency.currencyCode" .
+uid($constants.currencyUid) <withdrawals> uid($constants.withdrawalUid) .
+
+#if ($withdrawal.accountCurrency)
+uid($constants.accountCurrencyUid) <dgraph.type> "$!withdrawal.accountCurrency.type" .
+uid($constants.accountCurrencyUid) <currencyCode> "$!withdrawal.accountCurrency.currencyCode" .
+uid($constants.accountCurrencyUid) <withdrawals> uid($constants.withdrawalUid) .
+uid($constants.withdrawalUid) <accountCurrency> uid($constants.accountCurrencyUid) .
+
+#end
+#if ($withdrawal.cryptoWalletCurrency)
+uid($constants.cryptoCurrencyUid) <dgraph.type> "$!withdrawal.cryptoWalletCurrency.type" .
+uid($constants.cryptoCurrencyUid) <currencyCode> "$!withdrawal.cryptoWalletCurrency.currencyCode" .
+uid($constants.cryptoCurrencyUid) <withdrawals> uid($constants.withdrawalUid) .
+uid($constants.withdrawalUid) <cryptoWalletCurrency> uid($constants.cryptoCurrencyUid) .
+
+#end
 #if ($cardToken)
 uid($constants.tokenUid) <dgraph.type> "$!cardToken.type" .
 uid($constants.tokenUid) <tokenId> "$!cardToken.tokenId" .

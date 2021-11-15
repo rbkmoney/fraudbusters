@@ -19,13 +19,12 @@ public class DgraphPayment {
     private String paymentId;
     private String createdAt;
     private Long amount;
-    private String currency;
+    private DgraphCurrency currency;
     private String status;
 
     private String paymentTool;
     private String terminal;
     private String providerId;
-    private String bankCountry;
     private String payerType;
     private String tokenProvider;
     private boolean mobile;

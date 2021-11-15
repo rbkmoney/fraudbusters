@@ -19,6 +19,7 @@ public class DgraphQueryConditionResolver {
             case PARTY -> "party @filter(%s)";
             case SHOP -> "shop @filter(%s)";
             case COUNTRY -> "country @filter(%s)";
+            case CURRENCY -> "currency @filter(%s)";
             case FRAUD_PAYMENT -> "fraudPayment @filter(%s)";
             case PAYMENT -> "sourcePayment @filter(%s)";
             default -> throw new UnsupportedOperationException(String.format("Unknown %s", entity));
@@ -37,8 +38,8 @@ public class DgraphQueryConditionResolver {
             case PARTY_ID -> String.format("eq(partyId, \"%s\")", paymentModel.getPartyId());
             case SHOP_ID -> String.format("eq(shopId, \"%s\")", paymentModel.getShopId());
             case PAN -> String.format("eq(maskedPan, \"%s\")", paymentModel.getPan());
-            case COUNTRY_BANK -> String.format("eq(bankCountry, \"%s\")", paymentModel.getBinCountryCode());
-            case CURRENCY -> String.format("eq(currency, \"%s\")", paymentModel.getCurrency());
+            case COUNTRY_BANK -> String.format("eq(countryName, \"%s\")", paymentModel.getBinCountryCode());
+            case CURRENCY -> String.format("eq(currencyCode, \"%s\")", paymentModel.getCurrency());
             case MOBILE -> String.format("eq(mobile, %s)", paymentModel.isMobile());
             case RECURRENT -> String.format("eq(recurrent, %s)", paymentModel.isRecurrent());
             default -> throw new UnsupportedOperationException(String.format("Unknown %s", paymentCheckedField));

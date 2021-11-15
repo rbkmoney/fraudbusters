@@ -38,8 +38,9 @@ public final class DgraphTestAggregationUtils {
         dgraphEntitySetMap.put(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN, PaymentCheckedField.PAN));
         dgraphEntitySetMap.put(DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID));
         dgraphEntitySetMap.put(DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID));
-        dgraphEntitySetMap.put(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.COUNTRY_BANK,
-                PaymentCheckedField.MOBILE, PaymentCheckedField.RECURRENT));
+        dgraphEntitySetMap.put(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE, PaymentCheckedField.RECURRENT));
+        dgraphEntitySetMap.put(DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK));
+        dgraphEntitySetMap.put(DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY));
         dgraphEntitySetMap.put(DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL));
         dgraphEntitySetMap.put(DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT));
         dgraphEntitySetMap.put(DgraphEntity.IP, Set.of(PaymentCheckedField.IP));

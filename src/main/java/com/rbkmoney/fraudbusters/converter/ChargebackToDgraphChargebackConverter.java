@@ -20,7 +20,7 @@ public class ChargebackToDgraphChargebackConverter implements Converter<Chargeba
         dgraphChargeback.setPaymentId(chargeback.getPaymentId());
         dgraphChargeback.setCreatedAt(chargeback.getEventTime());
         dgraphChargeback.setAmount(chargeback.getCost().getAmount());
-        dgraphChargeback.setCurrency(chargeback.getCost().getCurrency().getSymbolicCode());
+        dgraphChargeback.setCurrency(convertCurrency(chargeback));
         dgraphChargeback.setStatus(chargeback.getStatus().name());
         dgraphChargeback.setPayerType(chargeback.getPayerType() == null ? null : chargeback.getPayerType().name());
         dgraphChargeback.setParty(convertParty(chargeback));
@@ -38,6 +38,12 @@ public class ChargebackToDgraphChargebackConverter implements Converter<Chargeba
         PaymentTool paymentTool = chargeback.getPaymentTool();
         dgraphChargeback.setBin(paymentTool.isSetBankCard() ? convertBin(chargeback) : null);
         return dgraphChargeback;
+    }
+
+    private DgraphCurrency convertCurrency(Chargeback chargeback) {
+        DgraphCurrency currency = new DgraphCurrency();
+        currency.setCurrencyCode(chargeback.getCost().getCurrency().getSymbolicCode());
+        return currency;
     }
 
     private DgraphToken convertToken(Chargeback chargeback) {

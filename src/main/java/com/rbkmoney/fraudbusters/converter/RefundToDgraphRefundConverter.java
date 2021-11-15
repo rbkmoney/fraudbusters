@@ -1,7 +1,10 @@
 package com.rbkmoney.fraudbusters.converter;
 
 import com.rbkmoney.damsel.domain.PaymentTool;
-import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.damsel.fraudbusters.ClientInfo;
+import com.rbkmoney.damsel.fraudbusters.MerchantInfo;
+import com.rbkmoney.damsel.fraudbusters.ReferenceInfo;
+import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.fraudbusters.domain.dgraph.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
@@ -20,7 +23,7 @@ public class RefundToDgraphRefundConverter implements Converter<Refund, DgraphRe
         dgraphRefund.setPaymentId(refund.getPaymentId());
         dgraphRefund.setCreatedAt(refund.getEventTime());
         dgraphRefund.setAmount(refund.getCost().getAmount());
-        dgraphRefund.setCurrency(refund.getCost().getCurrency().getSymbolicCode());
+        dgraphRefund.setCurrency(convertCurrency(refund));
         dgraphRefund.setStatus(refund.getStatus().name());
         dgraphRefund.setPayerType(refund.getPayerType() == null ? null : refund.getPayerType().name());
         dgraphRefund.setParty(convertParty(refund));
@@ -37,6 +40,12 @@ public class RefundToDgraphRefundConverter implements Converter<Refund, DgraphRe
         PaymentTool paymentTool = refund.getPaymentTool();
         dgraphRefund.setBin(paymentTool.isSetBankCard() ? convertBin(refund) : null);
         return dgraphRefund;
+    }
+
+    private DgraphCurrency convertCurrency(Refund refund) {
+        DgraphCurrency currency = new DgraphCurrency();
+        currency.setCurrencyCode(refund.getCost().getCurrency().getSymbolicCode());
+        return currency;
     }
 
     private DgraphToken convertToken(Refund refund) {

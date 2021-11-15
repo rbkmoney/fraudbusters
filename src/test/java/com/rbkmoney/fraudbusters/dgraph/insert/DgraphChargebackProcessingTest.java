@@ -45,7 +45,8 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
         checkCountOfObjects("Fingerprint", 1);
         checkCountOfObjects("IP", 1);
         checkCountOfObjects("Bin", 1);
-        checkCountOfObjects("PartyShop", 1);
+        checkCountOfObjects("Party", 1);
+        checkCountOfObjects("Shop", 1);
         checkCountOfObjects("Country", 0);
 
         producePayments(KAFKA_CHARGEBACK_TOPIC, generateChargebacks(3, operationProperties));
@@ -56,7 +57,8 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
         checkCountOfObjects("Fingerprint", 1);
         checkCountOfObjects("IP", 1);
         checkCountOfObjects("Bin", 1);
-        checkCountOfObjects("PartyShop", 1);
+        checkCountOfObjects("Party", 1);
+        checkCountOfObjects("Shop", 1);
         checkCountOfObjects("Country", 0);
 
         OperationProperties secondOperationProperties = OperationProperties.builder()
@@ -78,7 +80,8 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
         checkCountOfObjects("Fingerprint", 1);
         checkCountOfObjects("IP", 1);
         checkCountOfObjects("Bin", 1);
-        checkCountOfObjects("PartyShop", 2);
+        checkCountOfObjects("Party", 1);
+        checkCountOfObjects("Shop", 2);
         checkCountOfObjects("Country", 0);
 
         OperationProperties thirdOperationProperties = OperationProperties.builder()
@@ -100,7 +103,8 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
         checkCountOfObjects("Fingerprint", 2);
         checkCountOfObjects("IP", 2);
         checkCountOfObjects("Bin", 2);
-        checkCountOfObjects("PartyShop", 3);
+        checkCountOfObjects("Party", 2);
+        checkCountOfObjects("Shop", 3);
         checkCountOfObjects("Country", 0);
     }
 

@@ -231,10 +231,16 @@ public abstract class DgraphAbstractIntegrationTest {
     }
 
     protected void checkCountOfObjects(String type, int count) {
-        Awaitility.await()
-                .atMost(60, TimeUnit.SECONDS)
-                .pollDelay(Durations.ONE_SECOND)
-                .until(() -> getCountOfObjects(type) == count);
+        try {
+            Awaitility.await()
+                    .atMost(60, TimeUnit.SECONDS)
+                    .pollDelay(Durations.ONE_SECOND)
+                    .until(() -> getCountOfObjects(type) == count);
+        } catch (org.awaitility.core.ConditionTimeoutException ex) {
+            String errorMessage = String.format("Received count of objects for type %s: %s (expected: %s)",
+                    type, getCountOfObjects(type), count);
+            throw new org.awaitility.core.ConditionTimeoutException(errorMessage, ex);
+        }
     }
 
 }

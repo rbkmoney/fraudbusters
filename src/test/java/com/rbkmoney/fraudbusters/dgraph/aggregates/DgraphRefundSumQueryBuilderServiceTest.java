@@ -249,8 +249,8 @@ public class DgraphRefundSumQueryBuilderServiceTest {
     @Test
     public void getRefundsSumQueryByCurrencyRootWithMinimalDataTest() {
         String query = getRefundsSumQuery(
-                DgraphEntity.REFUND,
-                Map.of(DgraphEntity.REFUND, Set.of(PaymentCheckedField.CURRENCY))
+                DgraphEntity.CURRENCY,
+                Map.of(DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY))
         );
         assertNotNull(query);
         assertEquals(REFUNDS_SUM_QUERY_BY_CURRENCY_ROOT_WITH_MINIMAL_DATASET, query);
@@ -259,8 +259,8 @@ public class DgraphRefundSumQueryBuilderServiceTest {
     @Test
     public void getRefundsSumQueryByCurrencyRootWithUsualDatasetTest() {
         String query = getRefundsSumQuery(
-                DgraphEntity.REFUND,
-                createTestUsualDgraphEntityMap(DgraphEntity.REFUND, PaymentCheckedField.CURRENCY)
+                DgraphEntity.CURRENCY,
+                createTestUsualDgraphEntityMap(DgraphEntity.CURRENCY, PaymentCheckedField.CURRENCY)
         );
         assertNotNull(query);
         assertEquals(REFUNDS_SUM_QUERY_BY_CURRENCY_ROOT_WITH_USUAL_DATASET, query);
@@ -269,8 +269,8 @@ public class DgraphRefundSumQueryBuilderServiceTest {
     @Test
     public void getRefundsSumQueryByCurrencyRootWithFullDatasetTest() {
         var dgraphEntityMap = createTestFullDgraphEntityMap();
-        dgraphEntityMap.put(DgraphEntity.REFUND, Set.of(PaymentCheckedField.CURRENCY));
-        String query = getRefundsSumQuery(DgraphEntity.REFUND, dgraphEntityMap);
+        dgraphEntityMap.put(DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY));
+        String query = getRefundsSumQuery(DgraphEntity.CURRENCY, dgraphEntityMap);
         assertNotNull(query);
         assertEquals(REFUNDS_SUM_QUERY_BY_CURRENCY_ROOT_WITH_FULL_DATASET, query);
     }

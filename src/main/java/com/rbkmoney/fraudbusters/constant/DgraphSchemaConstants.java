@@ -24,6 +24,7 @@ public final class DgraphSchemaConstants {
                 bankName: string .
                 cardholderName: string .
                 category: string .
+                withdrawals: [uid] .
                 
                 type Token {
                     tokenId
@@ -43,10 +44,20 @@ public final class DgraphSchemaConstants {
                     chargebacks: Chargeback
                 }
                 
+                currencyCode: string @index(hash) @upsert .
+                
+                type Currency {
+                    currencyCode
+                    payments: Payment
+                    refunds: Refund
+                    chargebacks: Chargeback
+                    withdrawals: Withdrawal
+                }
+                
                 paymentId: string @index(hash) @upsert .
                 createdAt: dateTime @index(day) .
                 amount: int .
-                currency: string @index(hash) .
+                currency: uid .
                 status: string @index(hash) .
                 cardToken: uid .
                 fingerprint: uid .
@@ -56,7 +67,6 @@ public final class DgraphSchemaConstants {
                 paymentTool: string .
                 terminal: string .
                 providerId: string .
-                bankCountry: string .
                 payerType: string .
                 tokenProvider: string .
                 mobile: bool .
@@ -78,13 +88,12 @@ public final class DgraphSchemaConstants {
                     paymentId
                     createdAt
                     amount
-                    currency
+                    currency : Currency
                     status
                     
                     paymentTool
                     terminal
                     providerId
-                    bankCountry
                     payerType
                     tokenProvider
                     mobile
@@ -211,7 +220,7 @@ public final class DgraphSchemaConstants {
                     paymentId
                     createdAt
                     amount
-                    currency
+                    currency : Currency
                     status
                     payerType
                     errorCode
@@ -235,7 +244,7 @@ public final class DgraphSchemaConstants {
                     paymentId
                     createdAt
                     amount
-                    currency
+                    currency : Currency
                     status
                     category
                     code
@@ -254,31 +263,31 @@ public final class DgraphSchemaConstants {
                 terminalId: string .
                 accountId: string .
                 accountIdentity: string .
-                accountCurrency: string .
+                accountCurrency: uid .
                 destinationResource: string .
                 digitalWalletId: string .
                 digitalWalletDataProvider: string .
                 cryptoWalletId: string .
-                cryptoWalletCurrency: string .
+                cryptoWalletCurrency: uid .
                 
                 type Withdrawal {
                     withdrawalId
                     createdAt
                     amount
-                    currency
+                    currency : Currency
                     status
                     providerId
                     terminalId
                     accountId
                     accountIdentity
-                    accountCurrency
+                    accountCurrency : Currency
                     errorCode
                     errorReason
                     destinationResource
                     digitalWalletId
                     digitalWalletDataProvider
                     cryptoWalletId
-                    cryptoWalletCurrency
+                    cryptoWalletCurrency : Currency
                     country: Country
                     bin: Bin
                     cardToken: Token

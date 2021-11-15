@@ -53,7 +53,9 @@ public class DgraphEntityResolver {
             case EMAIL -> DgraphEntity.EMAIL;
             case IP, COUNTRY_IP -> DgraphEntity.IP;
             case BIN -> DgraphEntity.BIN;
-            case COUNTRY_BANK, CURRENCY, RECURRENT, MOBILE -> DgraphEntity.PAYMENT;
+            case CURRENCY -> DgraphEntity.CURRENCY;
+            case COUNTRY_BANK -> DgraphEntity.COUNTRY;
+            case RECURRENT, MOBILE -> DgraphEntity.PAYMENT;
             default -> throw new UnknownFieldException();
         };
     }

@@ -3,10 +3,7 @@ package com.rbkmoney.fraudbusters.converter;
 import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.fraudbusters.Error;
 import com.rbkmoney.damsel.fraudbusters.*;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphBin;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphCountry;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphToken;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphWithdrawal;
+import com.rbkmoney.fraudbusters.domain.dgraph.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
@@ -26,7 +23,9 @@ public class WithdrawalToDgraphWithdrawalConverter implements Converter<Withdraw
         String withdrawalEventTime = withdrawal.getEventTime();
         dgraphWithdrawal.setCreatedAt(withdrawalEventTime);
         dgraphWithdrawal.setAmount(withdrawal.getCost().getAmount());
-        dgraphWithdrawal.setCurrency(withdrawal.getCost().getCurrency().getSymbolicCode());
+        dgraphWithdrawal.setCurrency(
+                createDgraphCurrency(withdrawal.getCost().getCurrency().getSymbolicCode())
+        );
         dgraphWithdrawal.setStatus(withdrawal.getStatus().name());
 
         Account account = withdrawal.getAccount();
@@ -34,7 +33,8 @@ public class WithdrawalToDgraphWithdrawalConverter implements Converter<Withdraw
             dgraphWithdrawal.setAccountId(account.getId());
             dgraphWithdrawal.setAccountIdentity(account.getIdentity());
             dgraphWithdrawal.setAccountCurrency(
-                    account.getCurrency() == null ? null : account.getCurrency().getSymbolicCode());
+                    account.getCurrency() == null
+                            ? null : createDgraphCurrency(account.getCurrency().getSymbolicCode()));
         }
         Error error = withdrawal.getError();
         if (error != null) {
@@ -64,7 +64,7 @@ public class WithdrawalToDgraphWithdrawalConverter implements Converter<Withdraw
             } else if (destinationResource.isSetCryptoWallet()) {
                 CryptoWallet cryptoWallet = destinationResource.getCryptoWallet();
                 dgraphWithdrawal.setCryptoWalletId(cryptoWallet.getId());
-                dgraphWithdrawal.setCryptoWalletCurrency(cryptoWallet.getCurrency());
+                dgraphWithdrawal.setCryptoWalletCurrency(createDgraphCurrency(cryptoWallet.getCurrency()));
             } else {
                 log.warn("Destination resource '{}' cannot be processed!",
                         destinationResource.getSetField().getFieldName());
@@ -72,6 +72,12 @@ public class WithdrawalToDgraphWithdrawalConverter implements Converter<Withdraw
         }
 
         return dgraphWithdrawal;
+    }
+
+    private DgraphCurrency createDgraphCurrency(String currency) {
+        DgraphCurrency dgraphCurrency = new DgraphCurrency();
+        dgraphCurrency.setCurrencyCode(currency);
+        return dgraphCurrency;
     }
 
     private DgraphToken convertToken(String withdrawalCreatedAt, BankCard bankCard) {

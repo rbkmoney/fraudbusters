@@ -32,6 +32,10 @@ uid($constants.shopUid) <party> uid($constants.partyUid) .
 uid($constants.partyUid) <shops> uid($constants.shopUid) .
 
 #end
+uid($constants.currencyUid) <dgraph.type> "$!chargeback.currency.type" .
+uid($constants.currencyUid) <currencyCode> "$!chargeback.currency.currencyCode" .
+uid($constants.currencyUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
+
 uid($constants.binUid) <dgraph.type> "$!bin.type" .
 uid($constants.binUid) <cardBin> "$!bin.bin" .
 uid($constants.binUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
@@ -82,11 +86,9 @@ uid($constants.ipUid) <emails> uid($constants.emailUid) .
 uid($constants.chargebackUid) <dgraph.type> "$!chargeback.type" .
 uid($constants.chargebackUid) <paymentId> "$!chargeback.paymentId" .
 uid($constants.chargebackUid) <chargebackId> "$!chargeback.chargebackId" .
-uid($constants.chargebackUid) <partyId> "$!chargeback.partyId" .
-uid($constants.chargebackUid) <shopId> "$!chargeback.shopId" .
 uid($constants.chargebackUid) <createdAt> "$!chargeback.createdAt" .
 uid($constants.chargebackUid) <amount> "$!chargeback.amount" .
-uid($constants.chargebackUid) <currency> "$!chargeback.currency" .
+uid($constants.chargebackUid) <currency> uid($constants.currencyUid) .
 uid($constants.chargebackUid) <status> "$!chargeback.status" .
 uid($constants.chargebackUid) <status> "$!chargeback.status" .
 uid($constants.chargebackUid) <category> "$!chargeback.category" .

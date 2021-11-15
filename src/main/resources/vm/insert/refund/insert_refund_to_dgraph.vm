@@ -32,6 +32,10 @@ uid($constants.shopUid) <party> uid($constants.partyUid) .
 uid($constants.partyUid) <shops> uid($constants.shopUid) .
 #end
 
+uid($constants.currencyUid) <dgraph.type> "Currency" .
+uid($constants.currencyUid) <currencyCode> "$!refund.currency" .
+uid($constants.currencyUid) <refunds> uid($constants.refundUid) (createdAt = $!refund.createdAt, status = "$!refund.status") .
+
 uid($constants.binUid) <dgraph.type> "$!bin.type" .
 uid($constants.binUid) <cardBin> "$!bin.bin" .
 uid($constants.binUid) <refunds> uid($constants.refundUid) (createdAt = $!refund.createdAt, status = "$!refund.status") .
@@ -82,11 +86,9 @@ uid($constants.ipUid) <emails> uid($constants.emailUid) .
 uid($constants.refundUid) <dgraph.type> "$!refund.type" .
 uid($constants.refundUid) <paymentId> "$!refund.paymentId" .
 uid($constants.refundUid) <refundId> "$!refund.refundId" .
-uid($constants.refundUid) <partyId> "$!refund.partyId" .
-uid($constants.refundUid) <shopId> "$!refund.shopId" .
 uid($constants.refundUid) <createdAt> "$!refund.createdAt" .
 uid($constants.refundUid) <amount> "$!refund.amount" .
-uid($constants.refundUid) <currency> "$!refund.currency" .
+uid($constants.refundUid) <currency> uid($constants.currencyUid) .
 uid($constants.refundUid) <status> "$!refund.status" .
 uid($constants.refundUid) <payerType> "$!refund.payerType" .
 

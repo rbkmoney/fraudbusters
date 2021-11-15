@@ -5,6 +5,10 @@ query all() {
         $constants.tokenUid as uid
     }
 
+    getCurrencyUid(func: type(Currency)) @filter(eq(currencyCode, "$chargeback.currency.currencyCode")) {
+        $constants.currencyUid as uid
+    }
+
     getPartyUid(func: type(Party)) @filter(eq(partyId, "$chargeback.party.partyId")) {
         $constants.partyUid as uid
     }

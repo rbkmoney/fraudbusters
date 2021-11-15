@@ -24,12 +24,9 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
     public DgraphPayment convert(Payment payment) {
         DgraphPayment dgraphPayment = new DgraphPayment();
         dgraphPayment.setPaymentId(payment.getId());
-
-        ReferenceInfo referenceInfo = payment.getReferenceInfo();
-        MerchantInfo merchantInfo = payment.getReferenceInfo().getMerchantInfo();
         dgraphPayment.setCreatedAt(payment.getEventTime());
         dgraphPayment.setAmount(payment.getCost().getAmount());
-        dgraphPayment.setCurrency(payment.getCost().getCurrency().getSymbolicCode());
+        dgraphPayment.setCurrency(convertCurrency(payment));
         dgraphPayment.setStatus(payment.getStatus().name());
 
         PaymentTool paymentTool = payment.getPaymentTool();
@@ -38,7 +35,6 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
         ProviderInfo providerInfo = payment.getProviderInfo();
         dgraphPayment.setProviderId(providerInfo.getProviderId());
         dgraphPayment.setTerminal(providerInfo.getTerminalId());
-        dgraphPayment.setBankCountry(providerInfo.getCountry());
         dgraphPayment.setPayerType(payment.isSetPayerType() ? payment.getPayerType().name() : UNKNOWN);
         dgraphPayment.setTokenProvider(paymentTool.isSetBankCard()
                 && paymentTypeByContextResolver.isMobile(paymentTool.getBankCard())
@@ -64,6 +60,12 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
         dgraphPayment.setShop(convertShop(payment));
         dgraphPayment.setCountry(providerInfo.getCountry() == null ? null : convertCountry(payment));
         return dgraphPayment;
+    }
+
+    private DgraphCurrency convertCurrency(Payment payment) {
+        DgraphCurrency currency = new DgraphCurrency();
+        currency.setCurrencyCode(payment.getCost().getCurrency().getSymbolicCode());
+        return currency;
     }
 
     private DgraphToken convertToken(Payment payment) {

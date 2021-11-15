@@ -35,11 +35,13 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
                         count : count(uid)
                         bin @filter(eq(cardBin, "000000"))
                         contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        country @filter(eq(countryName, "Russia"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         fingerprint @filter(eq(fingerprintData, "finger001"))
                         operationIp @filter(eq(ipAddress, "localhost"))
                         party @filter(eq(partyId, "party1"))
                         shop @filter(eq(shopId, "shop1"))
-                        sourcePayment @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true))
+                        sourcePayment @filter(eq(mobile, false) and eq(recurrent, true))
                     }
                 }
             }
@@ -74,11 +76,13 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
                         count : count(uid)
                         bin @filter(eq(cardBin, "000000"))
                         cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
+                        country @filter(eq(countryName, "Russia"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         fingerprint @filter(eq(fingerprintData, "finger001"))
                         operationIp @filter(eq(ipAddress, "localhost"))
                         party @filter(eq(partyId, "party1"))
                         shop @filter(eq(shopId, "shop1"))
-                        sourcePayment @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true))
+                        sourcePayment @filter(eq(mobile, false) and eq(recurrent, true))
                     }
                 }
             }
@@ -114,10 +118,12 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
                         bin @filter(eq(cardBin, "000000"))
                         cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
                         contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        country @filter(eq(countryName, "Russia"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         fingerprint @filter(eq(fingerprintData, "finger001"))
                         party @filter(eq(partyId, "party1"))
                         shop @filter(eq(shopId, "shop1"))
-                        sourcePayment @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true))
+                        sourcePayment @filter(eq(mobile, false) and eq(recurrent, true))
                     }
                 }
             }
@@ -153,10 +159,12 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
                         bin @filter(eq(cardBin, "000000"))
                         cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
                         contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        country @filter(eq(countryName, "Russia"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         operationIp @filter(eq(ipAddress, "localhost"))
                         party @filter(eq(partyId, "party1"))
                         shop @filter(eq(shopId, "shop1"))
-                        sourcePayment @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true))
+                        sourcePayment @filter(eq(mobile, false) and eq(recurrent, true))
                     }
                 }
             }
@@ -164,7 +172,7 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
 
     public static final String REFUNDS_COUNT_QUERY_BY_COUNTRY_BANK_ROOT_WITH_MINIMAL_DATA = """
             query all() {
-                aggregates(func: type(Country)) @filter(eq(bankCountry, "Russia")) @normalize {
+                aggregates(func: type(Country)) @filter(eq(countryName, "Russia")) @normalize {
                     refunds @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "successful"))  @cascade {
                         count : count(uid)
                     }
@@ -174,7 +182,7 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
 
     public static final String REFUNDS_COUNT_QUERY_BY_COUNTRY_BANK_ROOT_WITH_USUAL_DATASET = """
             query all() {
-                aggregates(func: type(Country)) @filter(eq(bankCountry, "Russia")) @normalize {
+                aggregates(func: type(Country)) @filter(eq(countryName, "Russia")) @normalize {
                     refunds @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "successful"))  @cascade {
                         count : count(uid)
                         party @filter(eq(partyId, "party1"))
@@ -186,17 +194,18 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
 
     public static final String REFUNDS_COUNT_QUERY_BY_COUNTRY_BANK_ROOT_WITH_FULL_DATASET = """
             query all() {
-                aggregates(func: type(Country))  @normalize {
+                aggregates(func: type(Country)) @filter(eq(countryName, "Russia")) @normalize {
                     refunds @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "successful"))  @cascade {
                         count : count(uid)
                         bin @filter(eq(cardBin, "000000"))
                         cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
                         contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         fingerprint @filter(eq(fingerprintData, "finger001"))
                         operationIp @filter(eq(ipAddress, "localhost"))
                         party @filter(eq(partyId, "party1"))
                         shop @filter(eq(shopId, "shop1"))
-                        sourcePayment @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true))
+                        sourcePayment @filter(eq(mobile, false) and eq(recurrent, true))
                     }
                 }
             }
@@ -232,10 +241,12 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
                         bin @filter(eq(cardBin, "000000"))
                         cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
                         contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        country @filter(eq(countryName, "Russia"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         fingerprint @filter(eq(fingerprintData, "finger001"))
                         party @filter(eq(partyId, "party1"))
                         shop @filter(eq(shopId, "shop1"))
-                        sourcePayment @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true))
+                        sourcePayment @filter(eq(mobile, false) and eq(recurrent, true))
                     }
                 }
             }
@@ -270,11 +281,13 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
                         count : count(uid)
                         cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
                         contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        country @filter(eq(countryName, "Russia"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         fingerprint @filter(eq(fingerprintData, "finger001"))
                         operationIp @filter(eq(ipAddress, "localhost"))
                         party @filter(eq(partyId, "party1"))
                         shop @filter(eq(shopId, "shop1"))
-                        sourcePayment @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true))
+                        sourcePayment @filter(eq(mobile, false) and eq(recurrent, true))
                     }
                 }
             }
@@ -309,11 +322,13 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
                         count : count(uid)
                         bin @filter(eq(cardBin, "000000"))
                         contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        country @filter(eq(countryName, "Russia"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         fingerprint @filter(eq(fingerprintData, "finger001"))
                         operationIp @filter(eq(ipAddress, "localhost"))
                         party @filter(eq(partyId, "party1"))
                         shop @filter(eq(shopId, "shop1"))
-                        sourcePayment @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true))
+                        sourcePayment @filter(eq(mobile, false) and eq(recurrent, true))
                     }
                 }
             }
@@ -321,34 +336,41 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
 
     public static final String REFUNDS_COUNT_QUERY_BY_CURRENCY_ROOT_WITH_MINIMAL_DATA = """
             query all() {
-                aggregates(func: type(Refund)) @filter(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "successful") and eq(currency, "RUB")) @normalize {
-                    count : count(uid)
+                aggregates(func: type(Currency)) @filter(eq(currencyCode, "RUB")) @normalize {
+                    refunds @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "successful"))  @cascade {
+                        count : count(uid)
+                    }
                 }
             }
             """;
 
     public static final String REFUNDS_COUNT_QUERY_BY_CURRENCY_ROOT_WITH_USUAL_DATASET = """
             query all() {
-                aggregates(func: type(Refund)) @filter(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "successful") and eq(currency, "RUB")) @normalize {
-                    count : count(uid)
-                    party @filter(eq(partyId, "party1"))
-                    shop @filter(eq(shopId, "shop1"))
+                aggregates(func: type(Currency)) @filter(eq(currencyCode, "RUB")) @normalize {
+                    refunds @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "successful"))  @cascade {
+                        count : count(uid)
+                        party @filter(eq(partyId, "party1"))
+                        shop @filter(eq(shopId, "shop1"))
+                    }
                 }
             }
             """;
 
     public static final String REFUNDS_COUNT_QUERY_BY_CURRENCY_ROOT_WITH_FULL_DATASET = """
             query all() {
-                aggregates(func: type(Refund)) @filter(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "successful") and eq(currency, "RUB")) @normalize {
-                    count : count(uid)
-                    bin @filter(eq(cardBin, "000000"))
-                    cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
-                    contactEmail @filter(eq(userEmail, "test@test.ru"))
-                    fingerprint @filter(eq(fingerprintData, "finger001"))
-                    operationIp @filter(eq(ipAddress, "localhost"))
-                    party @filter(eq(partyId, "party1"))
-                    shop @filter(eq(shopId, "shop1"))
-                    sourcePayment @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true))
+                aggregates(func: type(Currency)) @filter(eq(currencyCode, "RUB")) @normalize {
+                    refunds @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "successful"))  @cascade {
+                        count : count(uid)
+                        bin @filter(eq(cardBin, "000000"))
+                        cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
+                        contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        country @filter(eq(countryName, "Russia"))
+                        fingerprint @filter(eq(fingerprintData, "finger001"))
+                        operationIp @filter(eq(ipAddress, "localhost"))
+                        party @filter(eq(partyId, "party1"))
+                        shop @filter(eq(shopId, "shop1"))
+                        sourcePayment @filter(eq(mobile, false) and eq(recurrent, true))
+                    }
                 }
             }
             """;
@@ -383,10 +405,12 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
                         bin @filter(eq(cardBin, "000000"))
                         cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
                         contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        country @filter(eq(countryName, "Russia"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         fingerprint @filter(eq(fingerprintData, "finger001"))
                         operationIp @filter(eq(ipAddress, "localhost"))
                         party @filter(eq(partyId, "party1"))
-                        sourcePayment @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true))
+                        sourcePayment @filter(eq(mobile, false) and eq(recurrent, true))
                     }
                 }
             }
@@ -421,10 +445,12 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
                         bin @filter(eq(cardBin, "000000"))
                         cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
                         contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        country @filter(eq(countryName, "Russia"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         fingerprint @filter(eq(fingerprintData, "finger001"))
                         operationIp @filter(eq(ipAddress, "localhost"))
                         shop @filter(eq(shopId, "shop1"))
-                        sourcePayment @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true))
+                        sourcePayment @filter(eq(mobile, false) and eq(recurrent, true))
                     }
                 }
             }
@@ -454,12 +480,14 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
 
     public static final String REFUNDS_COUNT_QUERY_BY_MOBILE_ROOT_WITH_FULL_DATASET = """
             query all() {
-                aggregates(func: type(Payment)) @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true)) @normalize {
+                aggregates(func: type(Payment)) @filter(eq(mobile, false) and eq(recurrent, true)) @normalize {
                     refunds @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "successful"))  @cascade {
                         count : count(uid)
                         bin @filter(eq(cardBin, "000000"))
                         cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
                         contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        country @filter(eq(countryName, "Russia"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         fingerprint @filter(eq(fingerprintData, "finger001"))
                         operationIp @filter(eq(ipAddress, "localhost"))
                         party @filter(eq(partyId, "party1"))
@@ -493,12 +521,14 @@ public class DgraphRefundCountQueryBuilderServiceTestData {
 
     public static final String REFUNDS_COUNT_QUERY_BY_RECURRENT_ROOT_WITH_FULL_DATASET = """
             query all() {
-                aggregates(func: type(Payment)) @filter(eq(bankCountry, "Russia") and eq(mobile, false) and eq(recurrent, true)) @normalize {
+                aggregates(func: type(Payment)) @filter(eq(mobile, false) and eq(recurrent, true)) @normalize {
                     refunds @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "successful"))  @cascade {
                         count : count(uid)
                         bin @filter(eq(cardBin, "000000"))
                         cardToken @filter(eq(maskedPan, "2424") and eq(tokenId, "token001"))
                         contactEmail @filter(eq(userEmail, "test@test.ru"))
+                        country @filter(eq(countryName, "Russia"))
+                        currency @filter(eq(currencyCode, "RUB"))
                         fingerprint @filter(eq(fingerprintData, "finger001"))
                         operationIp @filter(eq(ipAddress, "localhost"))
                         party @filter(eq(partyId, "party1"))

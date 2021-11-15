@@ -170,8 +170,8 @@ public class DgraphPaymentCountQueryBuilderServiceTest {
     @Test
     public void getPaymentsCountQueryByCurrencyRootWithMinimalDatasetTest() {
         String query = getPaymentsCountQuery(
-                DgraphEntity.PAYMENT,
-                Map.of(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.CURRENCY))
+                DgraphEntity.CURRENCY,
+                Map.of(DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY))
         );
         assertNotNull(query);
         assertEquals(PAYMENTS_COUNT_QUERY_BY_CURRENCY_ROOT_WITH_MINIMAL_DATASET, query);
@@ -180,8 +180,8 @@ public class DgraphPaymentCountQueryBuilderServiceTest {
     @Test
     public void getPaymentsCountQueryByCurrencyRootWithUsualDatasetTest() {
         String query = getPaymentsCountQuery(
-                DgraphEntity.PAYMENT,
-                createTestUsualDgraphEntityMap(DgraphEntity.PAYMENT, PaymentCheckedField.CURRENCY)
+                DgraphEntity.CURRENCY,
+                createTestUsualDgraphEntityMap(DgraphEntity.CURRENCY, PaymentCheckedField.CURRENCY)
         );
         assertNotNull(query);
         assertEquals(PAYMENTS_COUNT_QUERY_BY_CURRENCY_ROOT_WITH_USUAL_DATASET, query);
@@ -190,8 +190,8 @@ public class DgraphPaymentCountQueryBuilderServiceTest {
     @Test
     public void getPaymentsCountQueryByCurrencyRootWithFullDatasetTest() {
         var dgraphMap = createTestFullDgraphEntityMap();
-        dgraphMap.put(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.CURRENCY));
-        String query = getPaymentsCountQuery(DgraphEntity.PAYMENT, dgraphMap);
+        dgraphMap.put(DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY));
+        String query = getPaymentsCountQuery(DgraphEntity.CURRENCY, dgraphMap);
         assertNotNull(query);
         assertEquals(PAYMENTS_COUNT_QUERY_BY_CURRENCY_ROOT_WITH_FULL_DATASET, query);
     }
@@ -256,8 +256,8 @@ public class DgraphPaymentCountQueryBuilderServiceTest {
     @Test
     public void getPaymentsCountQueryByCountryBankRootWithMinimalDatasetTest() {
         String query = getPaymentsCountQuery(
-                DgraphEntity.PAYMENT,
-                Map.of(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.COUNTRY_BANK))
+                DgraphEntity.COUNTRY,
+                Map.of(DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK))
         );
         assertNotNull(query);
         assertEquals(PAYMENTS_COUNT_QUERY_BY_COUNTRY_BANK_ROOT_WITH_MINIMAL_DATASET, query);
@@ -266,8 +266,8 @@ public class DgraphPaymentCountQueryBuilderServiceTest {
     @Test
     public void getPaymentsCountQueryByCountryBankRootWithUsualDatasetTest() {
         String query = getPaymentsCountQuery(
-                DgraphEntity.PAYMENT,
-                createTestUsualDgraphEntityMap(DgraphEntity.PAYMENT, PaymentCheckedField.COUNTRY_BANK)
+                DgraphEntity.COUNTRY,
+                createTestUsualDgraphEntityMap(DgraphEntity.COUNTRY, PaymentCheckedField.COUNTRY_BANK)
         );
         assertNotNull(query);
         assertEquals(PAYMENTS_COUNT_QUERY_BY_COUNTRY_BANK_ROOT_WITH_USUAL_DATASET, query);
@@ -276,8 +276,8 @@ public class DgraphPaymentCountQueryBuilderServiceTest {
     @Test
     public void getPaymentsCountQueryByCountryBankRootWithFullDatasetTest() {
         var dgraphMap = createTestFullDgraphEntityMap();
-        dgraphMap.put(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.COUNTRY_BANK));
-        String query = getPaymentsCountQuery(DgraphEntity.PAYMENT, dgraphMap);
+        dgraphMap.put(DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK));
+        String query = getPaymentsCountQuery(DgraphEntity.COUNTRY, dgraphMap);
         assertNotNull(query);
         assertEquals(PAYMENTS_COUNT_QUERY_BY_COUNTRY_BANK_ROOT_WITH_FULL_DATASET, query);
     }
