@@ -744,587 +744,1232 @@ public class DgraphUniqueQueryBuilderServiceTest {
 
     @Test
     public void getUniqueCountryIpsByEmailQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.EMAIL,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_EMAIL_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByIpQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_IP_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByFingerprintQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.FINGERPRINT,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_FINGERPRINT_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByCountryBankQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.COUNTRY,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_COUNTRY_BANK_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByCountryIpQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_COUNTRY_IP_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByBinQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.BIN,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_BIN_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByPanQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_PAN_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByCurrencyQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.CURRENCY,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_CURRENCY_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByShopQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.SHOP,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_SHOP_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByPartyQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.PARTY,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_PARTY_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByMobileQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_MOBILE_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByRecurrentQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_RECURRENT_TEST_QUERY, query);
     }
 
     @Test
     public void getUniqueCountryIpsByCardTokenQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByEmailQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByFingerprintQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByCountryBankQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByCountryIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByBinQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByPanQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByCurrencyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByShopQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByPartyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByMobileQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByRecurrentQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueBinsIpsByCardTokenQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByEmailQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByFingerprintQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByCountryBankQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByCountryIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByBinQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByPanQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByCurrencyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByShopQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByPartyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByMobileQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByRecurrentQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePansIpsByCardTokenQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByEmailQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByFingerprintQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByCountryBankQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByCountryIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByBinQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByPanQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByCurrencyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByShopQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByPartyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByMobileQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByRecurrentQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCurrensiesIpsByCardTokenQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByEmailQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByFingerprintQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByCountryBankQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByCountryIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByBinQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByPanQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByCurrencyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByShopQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByPartyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByMobileQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByRecurrentQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueShopsIpsByCardTokenQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByEmailQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByFingerprintQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByCountryBankQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByCountryIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByBinQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByPanQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByCurrencyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByShopQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByPartyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByMobileQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByRecurrentQueryTest() {
-
-    }
-
-    @Test
-    public void getUniquePartiesIpsByCardTokenQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByEmailQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByFingerprintQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByCountryBankQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByCountryIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByBinQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByPanQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByCurrencyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByShopQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByPartyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByMobileQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByRecurrentQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueMobilesIpsByCardTokenQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByEmailQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByFingerprintQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByCountryBankQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByCountryIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByBinQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByPanQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByCurrencyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByShopQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByPartyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByMobileQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByRecurrentQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueRecurrentsIpsByCardTokenQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByEmailQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByFingerprintQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByCountryBankQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByCountryIpQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByBinQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByPanQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByCurrencyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByShopQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByPartyQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByMobileQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByRecurrentQueryTest() {
-
-    }
-
-    @Test
-    public void getUniqueCardTokensIpsByCardTokenQueryTest() {
-
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.IP,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_COUNTRY_IPS_BY_CARD_TOKEN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByEmailQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.EMAIL,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_EMAIL_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.IP),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByFingerprintQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.FINGERPRINT,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_FINGERPRINT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByCountryBankQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.COUNTRY,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_COUNTRY_BANK_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByCountryIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_COUNTRY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByBinQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.BIN,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_BIN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByPanQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL),
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_PAN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByCurrencyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.CURRENCY,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_CURRENCY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByShopQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.SHOP,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_SHOP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByPartyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PARTY,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_PARTY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByMobileQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_MOBILE_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByRecurrentQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_RECURRENT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueBinsByCardTokenQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.BIN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_BINS_BY_CARD_TOKEN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByEmailQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.EMAIL,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_EMAIL_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.IP),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByFingerprintQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.FINGERPRINT,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN),
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_FINGERPRINT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByCountryBankQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.COUNTRY,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN),
+                        DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_COUNTRY_BANK_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByCountryIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN),
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_COUNTRY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByBinQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.BIN,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN),
+                        DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_BIN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByPanQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_PAN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByCurrencyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.CURRENCY,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_CURRENCY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByShopQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.SHOP,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN),
+                        DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_SHOP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByPartyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PARTY,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN),
+                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_PARTY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByMobileQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_MOBILE_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByRecurrentQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_RECURRENT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePansByCardTokenQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN, PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PANS_BY_CARD_TOKEN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByEmailQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.EMAIL,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_EMAIL_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.IP),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByFingerprintQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.FINGERPRINT,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT),
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_FINGERPRINT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByCountryBankQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.COUNTRY,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK),
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_COUNTRY_BANK_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByCountryIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP),
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_COUNTRY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByBinQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.BIN,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN),
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_BIN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByPanQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN),
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_PAN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByCurrencyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.CURRENCY,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_CURRENCY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByShopQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.SHOP,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID),
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_SHOP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByPartyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PARTY,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID),
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_PARTY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByMobileQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE),
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_MOBILE_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByRecurrentQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT),
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_RECURRENT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCurrensiesByCardTokenQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.CURRENCY,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN),
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CURRENCIES_BY_CARD_TOKEN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByEmailQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.EMAIL,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_EMAIL_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.IP)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByFingerprintQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.FINGERPRINT,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_FINGERPRINT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByCountryBankQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.COUNTRY,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_COUNTRY_BANK_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByCountryIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_COUNTRY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByBinQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.BIN,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_BIN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByPanQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_PAN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByCurrencyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.CURRENCY,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_CURRENCY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByShopQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.SHOP,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_SHOP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByPartyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PARTY,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_PARTY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByMobileQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_MOBILE_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByRecurrentQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_RECURRENT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueShopsByCardTokenQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.SHOP,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_SHOP_IDS_BY_CARD_TOKEN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByEmailQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.EMAIL,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_EMAIL_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.IP)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByFingerprintQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.FINGERPRINT,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_FINGERPRINT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByCountryBankQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.COUNTRY,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_COUNTRY_BANK_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByCountryIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_COUNTRY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByBinQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.BIN,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_BIN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByPanQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_PAN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByCurrencyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.CURRENCY,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_CURRENCY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByShopQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.SHOP,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_SHOP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByPartyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PARTY,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_PARTY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByMobileQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_MOBILE_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByRecurrentQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_RECURRENT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniquePartiesByCardTokenQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.PARTY,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_PARTY_IDS_BY_CARD_TOKEN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByEmailQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.EMAIL,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_EMAIL_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.IP)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByFingerprintQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.FINGERPRINT,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_FINGERPRINT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByCountryBankQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.COUNTRY,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_COUNTRY_BANK_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByCountryIpQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.IP,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_COUNTRY_IP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByBinQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.BIN,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_BIN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByPanQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_PAN_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByCurrencyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.CURRENCY,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_CURRENCY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByShopQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.SHOP,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_SHOP_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByPartyQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PARTY,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_PARTY_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByMobileQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_MOBILE_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByRecurrentQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.PAYMENT,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_RECURRENT_TEST_QUERY, query);
+    }
+
+    @Test
+    public void getUniqueCardTokensByCardTokenQueryTest() {
+        String query = getUniqueQuery(
+                DgraphEntity.TOKEN,
+                DgraphEntity.TOKEN,
+                Map.of(
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
+                )
+        );
+        assertNotNull(query);
+        assertEquals(UNIQUE_CARD_TOKENS_BY_CARD_TOKEN_TEST_QUERY, query);
     }
 
     private String getUniqueQuery(DgraphEntity rootEntity,
