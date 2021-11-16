@@ -2,47 +2,33 @@ package com.rbkmoney.fraudbusters.dgraph.aggregates;
 
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.fraudbusters.dgraph.DgraphAbstractIntegrationTest;
-import com.rbkmoney.fraudbusters.dgraph.insert.model.Aggregates;
 import com.rbkmoney.fraudbusters.factory.properties.OperationProperties;
-import com.rbkmoney.fraudbusters.fraud.constant.DgraphTargetAggregationType;
-import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
-import com.rbkmoney.fraudbusters.fraud.model.DgraphAggregationQueryModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphQueryConditionResolver;
 import com.rbkmoney.fraudbusters.serde.PaymentDeserializer;
-import com.rbkmoney.fraudo.model.TimeWindow;
+import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.logging.log4j.util.Strings;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.StringWriter;
-import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static com.rbkmoney.fraudbusters.factory.TestDgraphObjectFactory.generatePayment;
 import static com.rbkmoney.fraudbusters.util.DgraphTestAggregationUtils.createTestPaymentModel;
 import static com.rbkmoney.fraudbusters.util.DgraphTestAggregationUtils.createTestTimeWindow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @ActiveProfiles("full-prod")
-public class DgraphAggregationTest extends DgraphAbstractIntegrationTest {
+public class DgraphUniqueAggregatorTest extends DgraphAbstractIntegrationTest {
 
     @Autowired
-    private DgraphEntityResolver dgraphEntityResolver;
-
-    @Autowired
-    private DgraphQueryConditionResolver dgraphQueryConditionResolver;
+    private UniqueValueAggregator<PaymentModel, PaymentCheckedField> dgraphUniqueAggregator;
 
     private static final String KAFKA_PAYMENT_TOPIC = "payment_event";
 
@@ -63,39 +49,59 @@ public class DgraphAggregationTest extends DgraphAbstractIntegrationTest {
                 .build();
         prepareGraphDb(operationProperties);
 
-        PaymentModel paymentModel = new PaymentModel();
-        paymentModel.setCardToken("token1");
-        paymentModel.setPartyId("party1");
-        paymentModel.setShopId("party1shop2");
-        paymentModel.setBin("bin2");
+        testUniqCardTokensByEmail(testPaymentModel, 2);
+        testUniqCardTokensByFingerprint(testPaymentModel, 2);
+        testUniqCardTokensByShop(testPaymentModel, 1);
 
-        var countSuccess = countSuccessPayments(
-                PaymentCheckedField.CARD_TOKEN,
-                paymentModel,
-                createTestTimeWindow(),
-                List.of(PaymentCheckedField.PARTY_ID, PaymentCheckedField.SHOP_ID, PaymentCheckedField.BIN));
-
-        //getAggregates(query);
-
-        System.out.println("qwe  " + countSuccess);
+        System.out.println("qwe  ");
     }
 
-    public Integer countSuccessPayments(
-            PaymentCheckedField checkedField,
-            PaymentModel paymentModel,
-            TimeWindow timeWindow,
-            List<PaymentCheckedField> list) {
-        Instant timestamp = paymentModel.getTimestamp() != null
-                ? Instant.ofEpochMilli(paymentModel.getTimestamp())
-                : Instant.now();
-        Instant startWindowTime = timestamp.minusMillis(timeWindow.getStartWindowTime());
-        Instant endWindowTime = timestamp.minusMillis(timeWindow.getEndWindowTime());
+    private void testUniqCardTokensByEmail(PaymentModel testPaymentModel, int expectedCount) {
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setCardToken(testPaymentModel.getCardToken());
+        paymentModel.setEmail(testPaymentModel.getEmail());
 
-        DgraphEntity dgraphEntity = dgraphEntityResolver.resolvePaymentCheckedField(checkedField);
-        //TODO: подумать нужно ли так делать
-        Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntityMap =
-                dgraphEntityResolver.resolvePaymentCheckedFieldsToMap(checkedField, list);
-        return 0;
+        Integer uniqCardTokensByEmail = dgraphUniqueAggregator.countUniqueValue(
+                PaymentCheckedField.EMAIL,
+                paymentModel,
+                PaymentCheckedField.CARD_TOKEN,
+                createTestTimeWindow(),
+                new ArrayList<>()
+        );
+        assertEquals(expectedCount, uniqCardTokensByEmail,
+                "Count of unique card tokens for the email is not equal to expected");
+    }
+
+    private void testUniqCardTokensByFingerprint(PaymentModel testPaymentModel, int expectedCount) {
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setCardToken(testPaymentModel.getCardToken());
+        paymentModel.setFingerprint(testPaymentModel.getFingerprint());
+
+        Integer uniqCardTokensByFingerprint = dgraphUniqueAggregator.countUniqueValue(
+                PaymentCheckedField.FINGERPRINT,
+                paymentModel,
+                PaymentCheckedField.CARD_TOKEN,
+                createTestTimeWindow(),
+                new ArrayList<>()
+        );
+        assertEquals(expectedCount, uniqCardTokensByFingerprint,
+                "Count of unique card tokens for the fingerprint is not equal to expected");
+    }
+
+    private void testUniqCardTokensByShop(PaymentModel testPaymentModel, int expectedCount) {
+        PaymentModel paymentModel = new PaymentModel();
+        paymentModel.setCardToken(testPaymentModel.getCardToken());
+        paymentModel.setShopId(testPaymentModel.getShopId());
+
+        Integer uniqCardTokensByFingerprint = dgraphUniqueAggregator.countUniqueValue(
+                PaymentCheckedField.SHOP_ID,
+                paymentModel,
+                PaymentCheckedField.CARD_TOKEN,
+                createTestTimeWindow(),
+                new ArrayList<>()
+        );
+        assertEquals(expectedCount, uniqCardTokensByFingerprint,
+                "Count of unique card tokens for the fingerprint is not equal to expected");
     }
 
     private void prepareGraphDb(OperationProperties properties) throws Exception {
@@ -136,22 +142,6 @@ public class DgraphAggregationTest extends DgraphAbstractIntegrationTest {
                 producer.send(producerRecord).get();
             }
         }
-    }
-
-    private Aggregates getCountOfPaymentsByToken2() {
-        String query = String.format("""
-                query all() {
-                  aggregates(func: type(Token)) @filter(eq(tokenId, "token1")) @normalize {
-                     payments @cascade {
-                      count : count(uid)
-                      partyShop @filter(eq(shopId, "party1shop2"))
-                      bin @filter(eq(cardBin, "bin2"))
-                    }
-                  }
-                }
-                """);
-
-        return getAggregates(query);
     }
 
 }

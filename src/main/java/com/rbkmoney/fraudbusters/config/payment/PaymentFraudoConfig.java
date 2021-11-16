@@ -11,10 +11,14 @@ import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.CountAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.UniqueValueAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphAggregationQueryBuilderService;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphUniqueAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.PaymentModelFieldResolver;
+import com.rbkmoney.fraudbusters.repository.DgraphAggregatesRepository;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.RefundRepository;
@@ -173,7 +177,6 @@ public class PaymentFraudoConfig {
         );
     }
 
-
     @Bean
     public FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> fullPaymentRuleVisitor(
             CountPaymentAggregator<PaymentModel, PaymentCheckedField> countResultAggregator,
@@ -196,6 +199,18 @@ public class PaymentFraudoConfig {
                 new PaymentTimeWindowResolver(),
                 paymentTypeResolver,
                 customerTypeResolver
+        );
+    }
+
+    @Bean
+    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> dgraphUniqueAggregator(
+            DgraphAggregationQueryBuilderService aggregationQueryBuilderService,
+            DgraphEntityResolver dgraphEntityResolver,
+            DgraphAggregatesRepository dgraphAggregatesRepository) {
+        return new DgraphUniqueAggregatorImpl(
+                aggregationQueryBuilderService,
+                dgraphEntityResolver,
+                dgraphAggregatesRepository
         );
     }
 

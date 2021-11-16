@@ -3,7 +3,7 @@ package com.rbkmoney.fraudbusters.dgraph.aggregates;
 import com.rbkmoney.fraudbusters.config.dgraph.TemplateConfig;
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
-import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphAggregationQueryBuilderService;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphAggregationQueryBuilderServiceImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphQueryConditionResolver;
 import com.rbkmoney.fraudbusters.service.TemplateService;
@@ -23,8 +23,8 @@ public class DgraphUniqueQueryBuilderServiceTest {
 
     private TemplateService templateService = new TemplateServiceImpl(new TemplateConfig().velocityEngine());
 
-    private DgraphAggregationQueryBuilderService aggregationQueryBuilderService =
-            new DgraphAggregationQueryBuilderService(
+    private DgraphAggregationQueryBuilderServiceImpl aggregationQueryBuilderService =
+            new DgraphAggregationQueryBuilderServiceImpl(
                     new DgraphEntityResolver(),
                     new DgraphQueryConditionResolver(),
                     templateService

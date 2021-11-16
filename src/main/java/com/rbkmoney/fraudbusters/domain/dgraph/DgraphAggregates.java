@@ -6,7 +6,7 @@ import lombok.Data;
 public class DgraphAggregates {
 
     private int count;
-    private long sum;
+    private double sum;
     private DgraphMetrics metrics;
 
     public DgraphAggregates setQueryMetrics(DgraphMetrics metrics) {

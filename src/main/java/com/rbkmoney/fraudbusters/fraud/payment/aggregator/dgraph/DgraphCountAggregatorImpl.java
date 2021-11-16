@@ -20,7 +20,7 @@ public class DgraphCountAggregatorImpl implements CountPaymentAggregator<Payment
 
     private static final int CURRENT_ONE = 1;
 
-    private final DgraphAggregationQueryBuilderService dgraphAggregationQueryBuilderService;
+    private final DgraphAggregationQueryBuilderServiceImpl dgraphAggregationQueryBuilderService;
     private final DgraphEntityResolver dgraphEntityResolver;
     private final DgraphAggregatesRepository dgraphAggregatesRepository;
 
@@ -69,7 +69,7 @@ public class DgraphCountAggregatorImpl implements CountPaymentAggregator<Payment
             PaymentModel paymentModel,
             TimeWindow timeWindow,
             List<PaymentCheckedField> list) {
-        return getCount(checkedField, paymentModel, timeWindow, list, DgraphEntity.PAYMENT, "successful");
+        return getCount(checkedField, paymentModel, timeWindow, list, DgraphEntity.REFUND, "successful");
     }
 
     private Integer getCount(PaymentCheckedField checkedField,

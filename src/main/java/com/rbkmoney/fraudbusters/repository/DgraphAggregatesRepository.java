@@ -4,6 +4,6 @@ public interface DgraphAggregatesRepository {
 
     Integer getCount(String query);
 
-    Long getSum(String query);
+    Double getSum(String query);
 
 }

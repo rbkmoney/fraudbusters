@@ -25,7 +25,7 @@ public class DgraphEntityResolver {
             List<PaymentCheckedField> fields
     ) {
         if (fields == null || fields.isEmpty()) {
-            throw new UnknownFieldException();
+            return new HashMap<>();
         }
         Map<DgraphEntity, Set<PaymentCheckedField>> entityMap = new HashMap<>();
         for (PaymentCheckedField field : fields) {

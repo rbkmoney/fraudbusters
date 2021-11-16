@@ -35,7 +35,7 @@ public class DgraphAggregatesRepositoryImpl extends AbstractDgraphDao implements
     }
 
     @Override
-    public Long getSum(String query) {
+    public Double getSum(String query) {
         return getAggregates(query).getSum();
     }
 
