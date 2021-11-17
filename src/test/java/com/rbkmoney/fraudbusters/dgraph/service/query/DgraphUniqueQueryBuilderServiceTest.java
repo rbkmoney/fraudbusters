@@ -1,34 +1,19 @@
-package com.rbkmoney.fraudbusters.dgraph.aggregates;
+package com.rbkmoney.fraudbusters.dgraph.service.query;
 
-import com.rbkmoney.fraudbusters.config.dgraph.TemplateConfig;
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
-import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphAggregationQueryBuilderServiceImpl;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphQueryConditionResolver;
-import com.rbkmoney.fraudbusters.service.TemplateService;
-import com.rbkmoney.fraudbusters.service.TemplateServiceImpl;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
-import static com.rbkmoney.fraudbusters.dgraph.aggregates.data.DgraphUniqueQueryBuilderServiceTestData.*;
-import static com.rbkmoney.fraudbusters.util.DgraphTestAggregationUtils.*;
+import static com.rbkmoney.fraudbusters.dgraph.service.data.DgraphUniqueQueryBuilderServiceTestData.*;
+import static com.rbkmoney.fraudbusters.util.DgraphTestAggregationUtils.createTestPaymentModel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class DgraphUniqueQueryBuilderServiceTest {
-
-    private TemplateService templateService = new TemplateServiceImpl(new TemplateConfig().velocityEngine());
-
-    private DgraphAggregationQueryBuilderServiceImpl aggregationQueryBuilderService =
-            new DgraphAggregationQueryBuilderServiceImpl(
-                    new DgraphEntityResolver(),
-                    new DgraphQueryConditionResolver(),
-                    templateService
-            );
+public class DgraphUniqueQueryBuilderServiceTest extends AbstractDgraphQueryBuilderServiceTest {
 
     @Test
     public void getUniqueEmailsByEmailQueryTest() {
@@ -1470,9 +1455,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.EMAIL,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
-                )
+                Map.of(DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_EMAIL_TEST_QUERY, query);
@@ -1483,9 +1466,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.IP,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.IP, Set.of(PaymentCheckedField.IP)
-                )
+                Map.of(DgraphEntity.IP, Set.of(PaymentCheckedField.IP))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_IP_TEST_QUERY, query);
@@ -1496,9 +1477,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.FINGERPRINT,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
-                )
+                Map.of(DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_FINGERPRINT_TEST_QUERY, query);
@@ -1509,9 +1488,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.COUNTRY,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK)
-                )
+                Map.of(DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_COUNTRY_BANK_TEST_QUERY, query);
@@ -1522,9 +1499,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.IP,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP)
-                )
+                Map.of(DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_COUNTRY_IP_TEST_QUERY, query);
@@ -1535,9 +1510,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.BIN,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN)
-                )
+                Map.of(DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_BIN_TEST_QUERY, query);
@@ -1548,9 +1521,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.TOKEN,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
-                )
+                Map.of(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_PAN_TEST_QUERY, query);
@@ -1561,9 +1532,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.CURRENCY,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
-                )
+                Map.of(DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_CURRENCY_TEST_QUERY, query);
@@ -1574,9 +1543,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.SHOP,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID)
-                )
+                Map.of(DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_SHOP_TEST_QUERY, query);
@@ -1587,9 +1554,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.PARTY,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID)
-                )
+                Map.of(DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_PARTY_TEST_QUERY, query);
@@ -1600,9 +1565,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.PAYMENT,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE)
-                )
+                Map.of(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_MOBILE_TEST_QUERY, query);
@@ -1613,9 +1576,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.PAYMENT,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT)
-                )
+                Map.of(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_RECURRENT_TEST_QUERY, query);
@@ -1626,9 +1587,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.TOKEN,
                 DgraphEntity.SHOP,
-                Map.of(
-                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
-                )
+                Map.of(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_SHOP_IDS_BY_CARD_TOKEN_TEST_QUERY, query);
@@ -1639,9 +1598,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.EMAIL,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
-                )
+                Map.of(DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_EMAIL_TEST_QUERY, query);
@@ -1652,9 +1609,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.IP,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.IP, Set.of(PaymentCheckedField.IP)
-                )
+                Map.of(DgraphEntity.IP, Set.of(PaymentCheckedField.IP))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_IP_TEST_QUERY, query);
@@ -1665,9 +1620,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.FINGERPRINT,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
-                )
+                Map.of(DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_FINGERPRINT_TEST_QUERY, query);
@@ -1678,9 +1631,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.COUNTRY,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK)
-                )
+                Map.of(DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_COUNTRY_BANK_TEST_QUERY, query);
@@ -1691,9 +1642,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.IP,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP)
-                )
+                Map.of(DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_COUNTRY_IP_TEST_QUERY, query);
@@ -1704,9 +1653,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.BIN,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN)
-                )
+                Map.of(DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_BIN_TEST_QUERY, query);
@@ -1717,9 +1664,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.TOKEN,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
-                )
+                Map.of(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_PAN_TEST_QUERY, query);
@@ -1730,9 +1675,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.CURRENCY,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
-                )
+                Map.of(DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_CURRENCY_TEST_QUERY, query);
@@ -1743,9 +1686,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.SHOP,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID)
-                )
+                Map.of(DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_SHOP_TEST_QUERY, query);
@@ -1756,9 +1697,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.PARTY,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID)
-                )
+                Map.of(DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_PARTY_TEST_QUERY, query);
@@ -1769,9 +1708,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.PAYMENT,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE)
-                )
+                Map.of(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_MOBILE_TEST_QUERY, query);
@@ -1782,9 +1719,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.PAYMENT,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT)
-                )
+                Map.of(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_RECURRENT_TEST_QUERY, query);
@@ -1795,9 +1730,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.TOKEN,
                 DgraphEntity.PARTY,
-                Map.of(
-                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
-                )
+                Map.of(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_PARTY_IDS_BY_CARD_TOKEN_TEST_QUERY, query);
@@ -1808,9 +1741,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.EMAIL,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL)
-                )
+                Map.of(DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_EMAIL_TEST_QUERY, query);
@@ -1821,9 +1752,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.IP,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.IP, Set.of(PaymentCheckedField.IP)
-                )
+                Map.of(DgraphEntity.IP, Set.of(PaymentCheckedField.IP))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_IP_TEST_QUERY, query);
@@ -1834,9 +1763,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.FINGERPRINT,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT)
-                )
+                Map.of(DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_FINGERPRINT_TEST_QUERY, query);
@@ -1847,9 +1774,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.COUNTRY,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK)
-                )
+                Map.of(DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_COUNTRY_BANK_TEST_QUERY, query);
@@ -1860,9 +1785,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.IP,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP)
-                )
+                Map.of(DgraphEntity.IP, Set.of(PaymentCheckedField.COUNTRY_IP))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_COUNTRY_IP_TEST_QUERY, query);
@@ -1873,9 +1796,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.BIN,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN)
-                )
+                Map.of(DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_BIN_TEST_QUERY, query);
@@ -1886,9 +1807,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.TOKEN,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN)
-                )
+                Map.of(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_PAN_TEST_QUERY, query);
@@ -1899,9 +1818,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.CURRENCY,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY)
-                )
+                Map.of(DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_CURRENCY_TEST_QUERY, query);
@@ -1912,9 +1829,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.SHOP,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID)
-                )
+                Map.of(DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_SHOP_TEST_QUERY, query);
@@ -1925,9 +1840,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.PARTY,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID)
-                )
+                Map.of(DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_PARTY_TEST_QUERY, query);
@@ -1938,9 +1851,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.PAYMENT,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE)
-                )
+                Map.of(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_MOBILE_TEST_QUERY, query);
@@ -1951,9 +1862,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.PAYMENT,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT)
-                )
+                Map.of(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.RECURRENT))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_RECURRENT_TEST_QUERY, query);
@@ -1964,9 +1873,7 @@ public class DgraphUniqueQueryBuilderServiceTest {
         String query = getUniqueQuery(
                 DgraphEntity.TOKEN,
                 DgraphEntity.TOKEN,
-                Map.of(
-                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN)
-                )
+                Map.of(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_CARD_TOKENS_BY_CARD_TOKEN_TEST_QUERY, query);

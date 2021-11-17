@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.util;
 
+import com.rbkmoney.fraudbusters.factory.properties.OperationProperties;
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
@@ -16,7 +17,7 @@ public final class DgraphTestAggregationUtils {
 
     public static TimeWindow createTestTimeWindow() {
         return TimeWindow.builder()
-                .startWindowTime(300_000L)
+                .startWindowTime(600_000L)
                 .endWindowTime(0L)
                 .build();
     }
@@ -45,6 +46,36 @@ public final class DgraphTestAggregationUtils {
         dgraphEntitySetMap.put(DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT));
         dgraphEntitySetMap.put(DgraphEntity.IP, Set.of(PaymentCheckedField.IP));
         return dgraphEntitySetMap;
+    }
+
+    public static OperationProperties createDefaultOperationProperties() {
+        return OperationProperties.builder()
+                .tokenId("newToken")
+                .maskedPan("0070")
+                .email("test2@test.com")
+                .fingerprint("newFinger")
+                .partyId("newParty")
+                .shopId("newShop")
+                .bin("010101")
+                .ip("newLocalhost")
+                .country("Limonia")
+                .eventTimeDispersion(true)
+                .build();
+    }
+
+    public static OperationProperties createDefaultOperationProperties(PaymentModel paymentModel) {
+        return OperationProperties.builder()
+                .tokenId(paymentModel.getCardToken())
+                .maskedPan(paymentModel.getPan())
+                .email(paymentModel.getEmail())
+                .fingerprint(paymentModel.getFingerprint())
+                .partyId(paymentModel.getPartyId())
+                .shopId(paymentModel.getShopId())
+                .bin(paymentModel.getBin())
+                .ip(paymentModel.getIp())
+                .country(paymentModel.getBinCountryCode())
+                .eventTimeDispersion(true)
+                .build();
     }
 
     public static PaymentModel createTestPaymentModel() {

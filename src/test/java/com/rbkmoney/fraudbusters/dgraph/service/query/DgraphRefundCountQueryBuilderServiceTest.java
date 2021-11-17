@@ -1,34 +1,19 @@
-package com.rbkmoney.fraudbusters.dgraph.aggregates;
+package com.rbkmoney.fraudbusters.dgraph.service.query;
 
-import com.rbkmoney.fraudbusters.config.dgraph.TemplateConfig;
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
-import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphAggregationQueryBuilderServiceImpl;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
-import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphQueryConditionResolver;
-import com.rbkmoney.fraudbusters.service.TemplateService;
-import com.rbkmoney.fraudbusters.service.TemplateServiceImpl;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
-import static com.rbkmoney.fraudbusters.dgraph.aggregates.data.DgraphRefundCountQueryBuilderServiceTestData.*;
+import static com.rbkmoney.fraudbusters.dgraph.service.data.DgraphRefundCountQueryBuilderServiceTestData.*;
 import static com.rbkmoney.fraudbusters.util.DgraphTestAggregationUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class DgraphRefundCountQueryBuilderServiceTest {
-
-    private TemplateService templateService = new TemplateServiceImpl(new TemplateConfig().velocityEngine());
-
-    private DgraphAggregationQueryBuilderServiceImpl aggregationQueryBuilderService =
-            new DgraphAggregationQueryBuilderServiceImpl(
-                    new DgraphEntityResolver(),
-                    new DgraphQueryConditionResolver(),
-                    templateService
-            );
+public class DgraphRefundCountQueryBuilderServiceTest extends AbstractDgraphQueryBuilderServiceTest {
 
     @Test
     public void getRefundsCountQueryByTokenRootWithMinimalDataTest() {

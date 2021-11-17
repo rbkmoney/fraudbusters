@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.dgraph.aggregates;
+package com.rbkmoney.fraudbusters.dgraph.service.query;
 
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;

@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.dgraph.aggregates.data;
+package com.rbkmoney.fraudbusters.dgraph.service.data;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

@@ -4,6 +4,7 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
 import com.rbkmoney.fraudbusters.repository.DgraphAggregatesRepository;
+import com.rbkmoney.fraudbusters.util.DgraphAggregatorUtils;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class DgraphUniqueAggregatorImpl implements UniqueValueAggregator<Payment
         Instant endWindowTime = timestamp.minusMillis(timeWindow.getEndWindowTime());
 
         List<PaymentCheckedField> filters = fields == null ? new ArrayList<>() : new ArrayList<>(fields);
-        if (fields.isEmpty() || doesNotContainField(countField, fields)) {
+        if (fields.isEmpty() || DgraphAggregatorUtils.doesNotContainField(countField, fields)) {
             filters.add(countField);
         }
 
@@ -52,15 +53,6 @@ public class DgraphUniqueAggregatorImpl implements UniqueValueAggregator<Payment
                 "captured"
         );
         return dgraphAggregatesRepository.getCount(countQuery);
-    }
-
-    private boolean doesNotContainField(PaymentCheckedField countField,
-                                        List<PaymentCheckedField> fields) {
-        if (fields == null) {
-            return true;
-        }
-        return fields.stream()
-                .noneMatch(field -> field == countField);
     }
 
 }

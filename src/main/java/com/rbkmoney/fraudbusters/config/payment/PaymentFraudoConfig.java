@@ -12,6 +12,8 @@ import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.CountAggreg
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.UniqueValueAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphAggregationQueryBuilderService;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphCountAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphSumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphUniqueAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
@@ -208,6 +210,32 @@ public class PaymentFraudoConfig {
             DgraphEntityResolver dgraphEntityResolver,
             DgraphAggregatesRepository dgraphAggregatesRepository) {
         return new DgraphUniqueAggregatorImpl(
+                aggregationQueryBuilderService,
+                dgraphEntityResolver,
+                dgraphAggregatesRepository
+        );
+    }
+
+    @Bean
+    public CountPaymentAggregator<PaymentModel, PaymentCheckedField> dgraphCountAggregator(
+            DgraphAggregationQueryBuilderService aggregationQueryBuilderService,
+            DgraphEntityResolver dgraphEntityResolver,
+            DgraphAggregatesRepository dgraphAggregatesRepository
+    ) {
+        return new DgraphCountAggregatorImpl(
+                aggregationQueryBuilderService,
+                dgraphEntityResolver,
+                dgraphAggregatesRepository
+        );
+    }
+
+    @Bean
+    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> dgraphSumAggregator(
+            DgraphAggregationQueryBuilderService aggregationQueryBuilderService,
+            DgraphEntityResolver dgraphEntityResolver,
+            DgraphAggregatesRepository dgraphAggregatesRepository
+    ) {
+        return new DgraphSumAggregatorImpl(
                 aggregationQueryBuilderService,
                 dgraphEntityResolver,
                 dgraphAggregatesRepository

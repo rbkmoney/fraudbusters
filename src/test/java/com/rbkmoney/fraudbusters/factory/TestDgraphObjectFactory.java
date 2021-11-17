@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TestDgraphObjectFactory {
@@ -62,6 +64,14 @@ public final class TestDgraphObjectFactory {
         dgraphPayment.setFingerprint(fingerprintExists ? createTestDgraphFingerprint() : null);
         dgraphPayment.setContactEmail(emailExists ? createTestDgraphEmail() : null);
         return dgraphPayment;
+    }
+
+    public static List<Payment> generatePayments(int count, OperationProperties properties) {
+        List<Payment> payments = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            payments.add(generatePayment(properties, i));
+        }
+        return payments;
     }
 
     public static Payment generatePayment(OperationProperties properties, int idx) {

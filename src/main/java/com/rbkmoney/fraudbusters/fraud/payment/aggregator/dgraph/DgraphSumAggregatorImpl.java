@@ -6,19 +6,21 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
 import com.rbkmoney.fraudbusters.repository.DgraphAggregatesRepository;
+import com.rbkmoney.fraudbusters.util.DgraphAggregatorUtils;
 import com.rbkmoney.fraudo.model.TimeWindow;
 import com.rbkmoney.fraudo.payment.aggregator.SumPaymentAggregator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentModel, PaymentCheckedField> {
 
-    private final DgraphAggregationQueryBuilderServiceImpl dgraphAggregationQueryBuilderService;
+    private final DgraphAggregationQueryBuilderService dgraphAggregationQueryBuilderService;
     private final DgraphEntityResolver dgraphEntityResolver;
     private final DgraphAggregatesRepository dgraphAggregatesRepository;
 
@@ -69,7 +71,7 @@ public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentMode
     private Double getSum(PaymentCheckedField checkedField,
                              PaymentModel paymentModel,
                              TimeWindow timeWindow,
-                             List<PaymentCheckedField> list,
+                             List<PaymentCheckedField> fields,
                              DgraphEntity targetEntity,
                              String status) {
         Instant timestamp = paymentModel.getTimestamp() != null
@@ -78,10 +80,15 @@ public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentMode
         Instant startWindowTime = timestamp.minusMillis(timeWindow.getStartWindowTime());
         Instant endWindowTime = timestamp.minusMillis(timeWindow.getEndWindowTime());
 
+        List<PaymentCheckedField> filters = fields == null ? new ArrayList<>() : new ArrayList<>(fields);
+        if (fields.isEmpty() || DgraphAggregatorUtils.doesNotContainField(checkedField, fields)) {
+            filters.add(checkedField);
+        }
+
         String countQuery = dgraphAggregationQueryBuilderService.getSumQuery(
                 dgraphEntityResolver.resolvePaymentCheckedField(checkedField),
                 targetEntity,
-                dgraphEntityResolver.resolvePaymentCheckedFieldsToMap(list),
+                dgraphEntityResolver.resolvePaymentCheckedFieldsToMap(filters),
                 paymentModel,
                 startWindowTime,
                 endWindowTime,
