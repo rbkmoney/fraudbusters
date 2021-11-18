@@ -88,7 +88,7 @@ public final class DgraphSchemaConstants {
                     paymentId
                     createdAt
                     amount
-                    currency : Currency
+                    currency: Currency
                     status
                     
                     paymentTool
@@ -220,7 +220,7 @@ public final class DgraphSchemaConstants {
                     paymentId
                     createdAt
                     amount
-                    currency : Currency
+                    currency: Currency
                     status
                     payerType
                     errorCode
@@ -244,7 +244,7 @@ public final class DgraphSchemaConstants {
                     paymentId
                     createdAt
                     amount
-                    currency : Currency
+                    currency: Currency
                     status
                     category
                     code
@@ -274,20 +274,20 @@ public final class DgraphSchemaConstants {
                     withdrawalId
                     createdAt
                     amount
-                    currency : Currency
+                    currency: Currency
                     status
                     providerId
                     terminalId
                     accountId
                     accountIdentity
-                    accountCurrency : Currency
+                    accountCurrency: Currency
                     errorCode
                     errorReason
                     destinationResource
                     digitalWalletId
                     digitalWalletDataProvider
                     cryptoWalletId
-                    cryptoWalletCurrency : Currency
+                    cryptoWalletCurrency: Currency
                     country: Country
                     bin: Bin
                     cardToken: Token

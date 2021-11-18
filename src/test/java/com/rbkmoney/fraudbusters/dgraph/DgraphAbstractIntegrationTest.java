@@ -158,8 +158,7 @@ public abstract class DgraphAbstractIntegrationTest {
 
     protected Aggregates getAggregates(String query) {
         String responseJson = processQuery(query);
-        //log.debug("Received json with aggregates (query: {}, vars: {}, period: {}): {}",
-        //        query, responseJson);
+        log.debug("Received json with aggregates (query: {}): {}", query, responseJson);
         TestQuery testQuery = convertToObject(responseJson, TestQuery.class);
         return testQuery == null || testQuery.getAggregates() == null || testQuery.getAggregates().isEmpty()
                 ? new Aggregates() : testQuery.getAggregates().get(0);

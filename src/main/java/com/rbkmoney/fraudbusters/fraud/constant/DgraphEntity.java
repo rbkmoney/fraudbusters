@@ -7,22 +7,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum DgraphEntity {
 
-    TOKEN("Token", 100),
-    PAYMENT("Payment", 10),
-    FINGERPRINT("Fingerprint", 50),
-    EMAIL("Email", 60),
-    PARTY("Party", 90),
-    SHOP("Shop", 90),
-    COUNTRY("Country", 30),
-    IP("IP", 40),
-    BIN("Bin", 40),
-    CURRENCY("Currency", 40),
-    FRAUD_PAYMENT("FraudPayment", 10),
-    REFUND("Refund", 10),
-    CHARGEBACK("Chargeback", 10),
-    WITHDRAWAL("Withdrawal", 10);
+    TOKEN("Token"),
+    PAYMENT("Payment"),
+    FINGERPRINT("Fingerprint"),
+    EMAIL("Email"),
+    PARTY("Party"),
+    SHOP("Shop"),
+    COUNTRY("Country"),
+    IP("IP"),
+    BIN("Bin"),
+    CURRENCY("Currency"),
+    FRAUD_PAYMENT("FraudPayment"),
+    REFUND("Refund"),
+    CHARGEBACK("Chargeback"),
+    WITHDRAWAL("Withdrawal");
 
     private final String typeName;
-    private final int weight;
 
 }

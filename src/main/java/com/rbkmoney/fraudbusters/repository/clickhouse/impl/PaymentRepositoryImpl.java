@@ -147,8 +147,6 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
     public Integer uniqCountOperationWithGroupBy(
             String fieldNameBy, Object value, String fieldNameCount, Long from, Long to,
             List<FieldModel> fieldModels) {
-        // например, количество уникальных бинов для токена
-        // или количество уникальных email'ов у фингерпринта за период
         StringBuilder sql = new StringBuilder(String.format("""
                 select %1$s, uniq(%2$s) as cnt
                 from %3$s

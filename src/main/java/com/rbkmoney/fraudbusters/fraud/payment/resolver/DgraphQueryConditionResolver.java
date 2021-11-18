@@ -31,7 +31,6 @@ public class DgraphQueryConditionResolver {
         return switch (paymentCheckedField) {
             case BIN -> String.format("eq(cardBin, \"%s\")", paymentModel.getBin());
             case EMAIL -> String.format("eq(userEmail, \"%s\")", paymentModel.getEmail());
-            //TODO: look at country IP
             case IP, COUNTRY_IP -> String.format("eq(ipAddress, \"%s\")", paymentModel.getIp());
             case FINGERPRINT -> String.format("eq(fingerprintData, \"%s\")", paymentModel.getFingerprint());
             case CARD_TOKEN -> String.format("eq(tokenId, \"%s\")", paymentModel.getCardToken());
