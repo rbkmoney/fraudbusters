@@ -13,7 +13,7 @@ import java.util.List;
 public class DgraphAggregatorUtils {
 
     public static boolean doesNotContainField(PaymentCheckedField countField,
-                                        List<PaymentCheckedField> fields) {
+                                              List<PaymentCheckedField> fields) {
         if (fields == null) {
             return true;
         }
@@ -25,7 +25,7 @@ public class DgraphAggregatorUtils {
                                                               List<PaymentCheckedField> groupingFields) {
         List<PaymentCheckedField> filters =
                 groupingFields == null ? new ArrayList<>() : new ArrayList<>(groupingFields);
-        if (groupingFields.isEmpty() || DgraphAggregatorUtils.doesNotContainField(mainField, groupingFields)) {
+        if (filters.isEmpty() || DgraphAggregatorUtils.doesNotContainField(mainField, filters)) {
             filters.add(mainField);
         }
         return filters;

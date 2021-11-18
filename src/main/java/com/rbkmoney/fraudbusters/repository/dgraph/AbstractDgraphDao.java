@@ -44,8 +44,8 @@ public abstract class AbstractDgraphDao {
     }
 
     protected DgraphProto.Response processDgraphQuery(String query) {
-        try {
-            return dgraphClient.newTransaction().query(query);
+        try (Transaction transaction = dgraphClient.newTransaction()) {
+            return transaction.query(query);
         } catch (RuntimeException ex) {
             throw new DgraphException(String.format("Received exception from dgraph while the service " +
                     "process query with args (query: %s)", query), ex);
