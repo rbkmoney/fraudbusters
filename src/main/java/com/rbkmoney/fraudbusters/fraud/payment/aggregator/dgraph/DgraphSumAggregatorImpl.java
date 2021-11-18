@@ -6,15 +6,16 @@ import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
 import com.rbkmoney.fraudbusters.repository.DgraphAggregatesRepository;
-import com.rbkmoney.fraudbusters.util.DgraphAggregatorUtils;
 import com.rbkmoney.fraudo.model.TimeWindow;
 import com.rbkmoney.fraudo.payment.aggregator.SumPaymentAggregator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
+
+import static com.rbkmoney.fraudbusters.util.DgraphAggregatorUtils.createFiltersList;
+import static com.rbkmoney.fraudbusters.util.DgraphAggregatorUtils.getTimestamp;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -74,16 +75,10 @@ public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentMode
                              List<PaymentCheckedField> fields,
                              DgraphEntity targetEntity,
                              String status) {
-        Instant timestamp = paymentModel.getTimestamp() != null
-                ? Instant.ofEpochMilli(paymentModel.getTimestamp())
-                : Instant.now();
+        Instant timestamp = getTimestamp(paymentModel);
         Instant startWindowTime = timestamp.minusMillis(timeWindow.getStartWindowTime());
         Instant endWindowTime = timestamp.minusMillis(timeWindow.getEndWindowTime());
-
-        List<PaymentCheckedField> filters = fields == null ? new ArrayList<>() : new ArrayList<>(fields);
-        if (fields.isEmpty() || DgraphAggregatorUtils.doesNotContainField(checkedField, fields)) {
-            filters.add(checkedField);
-        }
+        List<PaymentCheckedField> filters = createFiltersList(checkedField, fields);
 
         String countQuery = dgraphAggregationQueryBuilderService.getSumQuery(
                 dgraphEntityResolver.resolvePaymentCheckedField(checkedField),

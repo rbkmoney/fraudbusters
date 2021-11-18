@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphAggregates;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphMetrics;
+import com.rbkmoney.fraudbusters.exception.DgraphException;
 import com.rbkmoney.fraudbusters.repository.DgraphAggregatesRepository;
 import io.dgraph.DgraphClient;
 import io.dgraph.DgraphProto;
@@ -42,7 +43,7 @@ public class DgraphAggregatesRepositoryImpl extends AbstractDgraphDao implements
     protected DgraphAggregates getAggregates(String query) {
         DgraphProto.Response response = processDgraphQuery(query);
         String responseJson = response.getJson().toStringUtf8();
-        log.debug("Received json with aggregates (query: {}): {}", query, responseJson);
+        log.trace("Received json with aggregates (query: {}): {}", query, responseJson);
         DgraphAggregatesDecorator dgraphAggregates = convertToObject(responseJson, DgraphAggregatesDecorator.class);
         log.debug("Received TokenResponse for query {}: {}", query, dgraphAggregates);
         DgraphAggregates aggregates = dgraphAggregates.aggregates.stream()
@@ -56,7 +57,7 @@ public class DgraphAggregatesRepositoryImpl extends AbstractDgraphDao implements
         try {
             return dgraphMapper.readValue(json, clazz);
         } catch (JsonProcessingException ex) {
-            throw new RuntimeException("exc", ex);
+            throw new DgraphException(String.format("Cannot covert json '%s' to class '%s", json, clazz), ex);
         }
     }
 
