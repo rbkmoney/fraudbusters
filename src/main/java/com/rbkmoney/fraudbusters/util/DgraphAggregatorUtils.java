@@ -23,7 +23,8 @@ public class DgraphAggregatorUtils {
 
     public static List<PaymentCheckedField> createFiltersList(PaymentCheckedField mainField,
                                                               List<PaymentCheckedField> groupingFields) {
-        List<PaymentCheckedField> filters = groupingFields == null ? new ArrayList<>() : new ArrayList<>(groupingFields);
+        List<PaymentCheckedField> filters =
+                groupingFields == null ? new ArrayList<>() : new ArrayList<>(groupingFields);
         if (groupingFields.isEmpty() || DgraphAggregatorUtils.doesNotContainField(mainField, groupingFields)) {
             filters.add(mainField);
         }
