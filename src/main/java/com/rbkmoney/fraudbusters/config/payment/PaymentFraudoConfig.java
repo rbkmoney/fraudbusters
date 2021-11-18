@@ -39,6 +39,7 @@ import com.rbkmoney.fraudo.resolver.CountryResolver;
 import com.rbkmoney.fraudo.resolver.FieldResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
 public class PaymentFraudoConfig {
@@ -205,6 +206,7 @@ public class PaymentFraudoConfig {
     }
 
     @Bean
+    @Lazy
     public UniqueValueAggregator<PaymentModel, PaymentCheckedField> dgraphUniqueAggregator(
             DgraphAggregationQueryBuilderService aggregationQueryBuilderService,
             DgraphEntityResolver dgraphEntityResolver,
@@ -217,6 +219,7 @@ public class PaymentFraudoConfig {
     }
 
     @Bean
+    @Lazy
     public CountPaymentAggregator<PaymentModel, PaymentCheckedField> dgraphCountAggregator(
             DgraphAggregationQueryBuilderService aggregationQueryBuilderService,
             DgraphEntityResolver dgraphEntityResolver,
@@ -230,6 +233,7 @@ public class PaymentFraudoConfig {
     }
 
     @Bean
+    @Lazy
     public SumPaymentAggregator<PaymentModel, PaymentCheckedField> dgraphSumAggregator(
             DgraphAggregationQueryBuilderService aggregationQueryBuilderService,
             DgraphEntityResolver dgraphEntityResolver,
