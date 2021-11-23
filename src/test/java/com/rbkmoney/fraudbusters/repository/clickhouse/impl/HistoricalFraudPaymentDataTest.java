@@ -48,7 +48,6 @@ class HistoricalFraudPaymentDataTest {
     public static ClickHouseContainer clickHouseContainer =
             new ClickHouseContainer("yandex/clickhouse-server:19.17");
 
-
     @Test
     void getFraudPaymentsByTimeSlot() {
         FilterDto filter = new FilterDto();
@@ -158,6 +157,8 @@ class HistoricalFraudPaymentDataTest {
                     "sql/V5__add_fields.sql",
                     "sql/V6__add_result_fields_payment.sql",
                     "sql/V7__add_fields.sql",
+                    "sql/V8__create_withdrawal.sql",
+                    "sql/V9__add_phone_category_card.sql",
                     "sql/data/insert_history_fraud_payments.sql"
             ));
         }

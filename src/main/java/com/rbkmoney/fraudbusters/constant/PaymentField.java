@@ -15,7 +15,7 @@ public enum PaymentField {
     FINGERPRINT("fingerprint"),
     BANK_COUNTRY("bankCountry"),
     CARD_TOKEN("cardToken"),
-    CARD_CATEGORY("category"),
+    CARD_CATEGORY("cardCategory"),
     AMOUNT("amount"),
     CURRENCY("currency"),
     ID("id"),
