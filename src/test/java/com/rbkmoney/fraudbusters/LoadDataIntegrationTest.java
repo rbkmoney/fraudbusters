@@ -38,7 +38,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
         properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true",
                 "kafka.aggr.payment.min.bytes=1"})
-public class LoadDataIntegrationTest extends JUnit5IntegrationTest {
+class LoadDataIntegrationTest extends JUnit5IntegrationTest {
 
     public static final String PAYMENT_1 = "payment_1";
     public static final String PAYMENT_2 = "payment_2";

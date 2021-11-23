@@ -13,11 +13,14 @@ public class CheckedPayment {
 
     private String id;
     private String email;
+    private String phone;
     private String ip;
     private String fingerprint;
+
     private String bin;
     private String maskedPan;
     private String cardToken;
+    private String cardCategory;
     private String paymentSystem;
     private String paymentTool;
     private String terminal;

@@ -31,7 +31,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
         properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true"})
-public class PreLoadTest extends JUnit5IntegrationTest {
+class PreLoadTest extends JUnit5IntegrationTest {
 
     private static final String TEMPLATE = "rule: 12 >= 1\n" +
                                            " -> accept;";

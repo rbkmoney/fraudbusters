@@ -29,7 +29,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = RANDOM_PORT,
         classes = FraudBustersApplication.class,
         properties = {"kafka.listen.result.concurrency=1"})
-public class FraudPaymentTest extends JUnit5IntegrationTest {
+class FraudPaymentTest extends JUnit5IntegrationTest {
 
     public static final String ID_PAYMENT = "inv";
     public static final String EMAIL = "kek@kek.ru";

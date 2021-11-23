@@ -71,8 +71,10 @@ class HistoricalDataServiceImplTest {
         assertEquals(checkedPayment.getShopId(), actualPayment.getShopId());
         assertEquals(checkedPayment.getFingerprint(), actualPayment.getFingerprint());
         assertEquals(checkedPayment.getCardToken(), actualPayment.getCardToken());
+        assertEquals(checkedPayment.getCardCategory(), actualPayment.getCardCategory());
         assertEquals(checkedPayment.getCurrency(), actualPayment.getCurrency());
         assertEquals(checkedPayment.getEmail(), actualPayment.getEmail());
+        assertEquals(checkedPayment.getPhone(), actualPayment.getPhone());
         assertEquals(checkedPayment.getBankCountry(), actualPayment.getBankCountry());
         assertEquals(checkedPayment.getId(), actualPayment.getId());
         assertEquals(checkedPayment.getIp(), actualPayment.getIp());

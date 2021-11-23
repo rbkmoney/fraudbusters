@@ -37,9 +37,11 @@ public class FraudPaymentToRowConverter implements Converter<FraudPayment, Fraud
         payment.setEmail(checkedPayment.getEmail());
         payment.setIp(checkedPayment.getIp());
         payment.setFingerprint(checkedPayment.getFingerprint());
+        payment.setPhone(checkedPayment.getPhone());
         payment.setBin(checkedPayment.getBin());
         payment.setMaskedPan(checkedPayment.getMaskedPan());
         payment.setCardToken(checkedPayment.getCardToken());
+        payment.setCardCategory(checkedPayment.getCardCategory());
         payment.setPaymentSystem(checkedPayment.getPaymentSystem());
         payment.setPaymentTool(checkedPayment.getPaymentTool());
         payment.setTerminal(checkedPayment.getTerminal());

@@ -17,9 +17,11 @@ public class CheckedPaymentMapper implements RowMapper<CheckedPayment> {
         payment.setEventTime(rs.getLong(PaymentField.EVENT_TIME.getValue()));
         payment.setId(rs.getString(PaymentField.ID.getValue()));
         payment.setEmail(rs.getString(PaymentField.EMAIL.getValue()));
+        payment.setPhone(rs.getString(PaymentField.PHONE.getValue()));
         payment.setIp(rs.getString(PaymentField.IP.getValue()));
         payment.setFingerprint(rs.getString(PaymentField.FINGERPRINT.getValue()));
         payment.setCardToken(rs.getString(PaymentField.CARD_TOKEN.getValue()));
+        payment.setCardCategory(rs.getString(PaymentField.CARD_CATEGORY.getValue()));
         payment.setBin(rs.getString(PaymentField.BIN.getValue()));
         payment.setMaskedPan(rs.getString(PaymentField.MASKED_PAN.getValue()));
         payment.setPaymentSystem(rs.getString(PaymentField.PAYMENT_SYSTEM.getValue()));
