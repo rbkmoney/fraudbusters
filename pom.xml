@@ -23,7 +23,7 @@
         <dockerfile.base.service.tag>57e26d8ee999d7b0b50248c22afc63e6f926d276</dockerfile.base.service.tag>
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <fraudo.version>0.1.0</fraudo.version>
+        <fraudo.version>0.2.0</fraudo.version>
         <trusted.tokens.proto.version>1.4-0b2a8d8</trusted.tokens.proto.version>
         <wb.list.proto.version>1.33-554d59c</wb.list.proto.version>
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
