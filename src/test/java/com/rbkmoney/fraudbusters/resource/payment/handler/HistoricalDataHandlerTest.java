@@ -118,8 +118,10 @@ class HistoricalDataHandlerTest {
         assertEquals(checkedPayment.getPaymentSystem(),
                 actualPayment.getPaymentTool().getBankCard().getPaymentSystem().getId());
         assertEquals(checkedPayment.getCardToken(), actualPayment.getPaymentTool().getBankCard().getToken());
+        assertEquals(checkedPayment.getCardCategory(), actualPayment.getPaymentTool().getBankCard().getCategory());
         assertEquals(checkedPayment.getIp(), actualPayment.getClientInfo().getIp());
         assertEquals(checkedPayment.getEmail(), actualPayment.getClientInfo().getEmail());
+        assertEquals(checkedPayment.getPhone(), actualPayment.getClientInfo().getPhone());
         assertEquals(checkedPayment.getFingerprint(), actualPayment.getClientInfo().getFingerprint());
         assertEquals(checkedPayment.getPartyId(), actualPayment.getReferenceInfo().getMerchantInfo().getPartyId());
         assertEquals(checkedPayment.getShopId(), actualPayment.getReferenceInfo().getMerchantInfo().getShopId());
@@ -403,8 +405,11 @@ class HistoricalDataHandlerTest {
                 actualFraudPaymentInfo.getPayment().getPaymentTool().getBankCard().getPaymentSystem().getId());
         assertEquals(fraudPaymentRow.getCardToken(),
                 actualFraudPaymentInfo.getPayment().getPaymentTool().getBankCard().getToken());
+        assertEquals(fraudPaymentRow.getCardCategory(),
+                actualFraudPaymentInfo.getPayment().getPaymentTool().getBankCard().getCategory());
         assertEquals(fraudPaymentRow.getIp(), actualFraudPaymentInfo.getPayment().getClientInfo().getIp());
         assertEquals(fraudPaymentRow.getEmail(), actualFraudPaymentInfo.getPayment().getClientInfo().getEmail());
+        assertEquals(fraudPaymentRow.getPhone(), actualFraudPaymentInfo.getPayment().getClientInfo().getPhone());
         assertEquals(fraudPaymentRow.getFingerprint(),
                 actualFraudPaymentInfo.getPayment().getClientInfo().getFingerprint());
         assertEquals(fraudPaymentRow.getPartyId(),

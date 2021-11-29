@@ -31,7 +31,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = RANDOM_PORT,
         classes = FraudBustersApplication.class,
         properties = "kafka.listen.result.concurrency=1")
-public class DispatchTemplateTest extends JUnit5IntegrationTest {
+class DispatchTemplateTest extends JUnit5IntegrationTest {
 
     public static final String TEMPLATE = "rule: 12 >= 1 -> accept;";
     public static final int TIMEOUT = 20;

@@ -7,7 +7,6 @@ import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.damsel.proxy_inspector.InvoicePayment;
 import com.rbkmoney.damsel.proxy_inspector.Party;
-import com.rbkmoney.damsel.proxy_inspector.PaymentInfo;
 import com.rbkmoney.damsel.proxy_inspector.Shop;
 import com.rbkmoney.damsel.proxy_inspector.*;
 import com.rbkmoney.fraudbusters.constant.ClickhouseUtilsValue;
@@ -391,6 +390,7 @@ public class BeanUtil {
                             ? bankCard.getIssuerCountry().name()
                             : ClickhouseUtilsValue.UNKNOWN);
                     payment.setCardToken(bankCard.getToken());
+                    payment.setCardCategory(bankCard.getCategory());
                 });
         PayerFieldExtractor.getClientInfo(payer)
                 .ifPresent(clientInfo -> {
@@ -400,6 +400,7 @@ public class BeanUtil {
         PayerFieldExtractor.getContactInfo(payer)
                 .ifPresent(contactInfo -> {
                     payment.setEmail(contactInfo.getEmail());
+                    payment.setPhone(contactInfo.getPhoneNumber());
                 });
         payment.setPartyId(context.getPayment().getParty().getPartyId());
         payment.setShopId(context.getPayment().getShop().getId());

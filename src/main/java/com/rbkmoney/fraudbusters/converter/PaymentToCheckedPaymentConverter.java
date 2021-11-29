@@ -36,12 +36,14 @@ public class PaymentToCheckedPaymentConverter implements Converter<Payment, Chec
 
         ClientInfo clientInfo = payment.getClientInfo();
         checkedPayment.setEmail(clientInfo.getEmail());
+        checkedPayment.setPhone(clientInfo.getPhone());
         checkedPayment.setIp(clientInfo.getIp());
         checkedPayment.setFingerprint(clientInfo.getFingerprint());
 
         PaymentTool paymentTool = payment.getPaymentTool();
         checkedPayment.setPaymentTool(TBaseUtil.unionFieldToEnum(paymentTool, PaymentToolType.class).name());
         checkedPayment.setBin(paymentTool.isSetBankCard() ? paymentTool.getBankCard().getBin() : UNKNOWN);
+        checkedPayment.setCardCategory(paymentTool.isSetBankCard() ? paymentTool.getBankCard().getCategory() : UNKNOWN);
         checkedPayment.setMaskedPan(paymentTool.isSetBankCard() ? paymentTool.getBankCard().getLastDigits() : UNKNOWN);
         checkedPayment.setCardToken(paymentTool.isSetBankCard() ? paymentTool.getBankCard().getToken() : UNKNOWN);
         checkedPayment.setPaymentSystem(paymentTool.isSetBankCard()

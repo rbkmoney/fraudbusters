@@ -27,7 +27,7 @@
         <trusted.tokens.proto.version>1.4-0b2a8d8</trusted.tokens.proto.version>
         <wb.list.proto.version>1.33-554d59c</wb.list.proto.version>
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
-        <fraudbusters-proto.version>1.97-28a6a95</fraudbusters-proto.version>
+        <fraudbusters-proto.version>1.99-2a8f6ca</fraudbusters-proto.version>
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
         <dgraph4j.version>21.03.1</dgraph4j.version>
         <velocity.version>2.2</velocity.version>

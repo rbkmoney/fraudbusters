@@ -49,7 +49,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = FraudBustersApplication.class,
         properties = {"kafka.listen.result.concurrency=1", "kafka.historical.listener.enable=true"})
-public class EndToEndIntegrationTest extends JUnit5IntegrationTest {
+class EndToEndIntegrationTest extends JUnit5IntegrationTest {
 
     public static final String CAPTURED = "captured";
     public static final String PROCESSED = "processed";

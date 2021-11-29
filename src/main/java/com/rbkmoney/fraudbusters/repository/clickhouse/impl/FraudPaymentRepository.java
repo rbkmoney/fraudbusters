@@ -36,11 +36,13 @@ public class FraudPaymentRepository implements Repository<FraudPaymentRow>, Aggr
                      fraudType ,
                      comment,
                      email,
+                     phone,
                      ip,
                      fingerprint,
                      bin,
                      maskedPan,
                      cardToken,
+                     cardCategory,
                      paymentSystem,
                      paymentTool,
                      terminal,
@@ -54,7 +56,7 @@ public class FraudPaymentRepository implements Repository<FraudPaymentRow>, Aggr
                      errorReason,
                      errorCode,
                      paymentCountry)
-                    VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?,?, ?)""",
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             EventSource.FRAUD_EVENTS_FRAUD_PAYMENT.getTable());
     private final AggregationStatusGeneralRepositoryImpl aggregationStatusGeneralRepository;
     private final JdbcTemplate jdbcTemplate;

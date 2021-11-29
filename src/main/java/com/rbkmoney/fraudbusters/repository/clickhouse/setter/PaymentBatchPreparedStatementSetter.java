@@ -14,8 +14,8 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
     public static final String FIELDS = """
                                         timestamp, eventTimeHour, eventTime,
                                         id,
-                                        email, ip, fingerprint,
-                                        bin, maskedPan, cardToken, paymentSystem, paymentTool,
+                                        email, phone, ip, fingerprint,
+                                        bin, maskedPan, cardToken, cardCategory, paymentSystem, paymentTool,
                                         terminal, providerId, bankCountry,
                                         partyId, shopId,
                                         amount, currency,
@@ -25,7 +25,7 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
                                         recurrent
                                         """;
 
-    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
+    public static final String FIELDS_MARK = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
 
     private final List<CheckedPayment> batch;
 
@@ -38,12 +38,14 @@ public class PaymentBatchPreparedStatementSetter implements BatchPreparedStateme
         ps.setLong(l++, checkedPayment.getEventTime());
         ps.setString(l++, checkedPayment.getId());
         ps.setString(l++, checkedPayment.getEmail());
+        ps.setString(l++, checkedPayment.getPhone());
         ps.setString(l++, checkedPayment.getIp());
         ps.setString(l++, checkedPayment.getFingerprint());
 
         ps.setString(l++, checkedPayment.getBin());
         ps.setString(l++, checkedPayment.getMaskedPan());
         ps.setString(l++, checkedPayment.getCardToken());
+        ps.setString(l++, checkedPayment.getCardCategory());
         ps.setString(l++, checkedPayment.getPaymentSystem());
         ps.setString(l++, checkedPayment.getPaymentTool());
 

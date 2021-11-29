@@ -153,10 +153,13 @@ class HistoricalPaymentDataTest {
                     .applyTo(configurableApplicationContext.getEnvironment());
             ChInitializer.initAllScripts(clickHouseContainer, List.of(
                     "sql/db_init.sql",
+                    "sql/V3__create_fraud_payments.sql",
                     "sql/V4__create_payment.sql",
                     "sql/V5__add_fields.sql",
                     "sql/V6__add_result_fields_payment.sql",
                     "sql/V7__add_fields.sql",
+                    "sql/V8__create_withdrawal.sql",
+                    "sql/V9__add_phone_category_card.sql",
                     "sql/data/insert_history_payments.sql"
             ));
         }

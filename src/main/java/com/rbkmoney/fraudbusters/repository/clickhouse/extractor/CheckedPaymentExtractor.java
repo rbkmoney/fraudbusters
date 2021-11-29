@@ -18,11 +18,13 @@ public class CheckedPaymentExtractor implements ResultSetExtractor<CheckedPaymen
             payment.setEventTime(rs.getLong("eventTime"));
             payment.setId(rs.getString("id"));
             payment.setEmail(rs.getString("email"));
+            payment.setPhone(rs.getString("phone"));
             payment.setIp(rs.getString("ip"));
             payment.setFingerprint(rs.getString("fingerprint"));
             payment.setBin(rs.getString("bin"));
             payment.setMaskedPan(rs.getString("maskedPan"));
             payment.setCardToken(rs.getString("cardToken"));
+            payment.setCardCategory(rs.getString("cardCategory"));
             payment.setPaymentSystem(rs.getString("paymentSystem"));
             payment.setPaymentTool(rs.getString("paymentTool"));
             payment.setTerminal(rs.getString("terminal"));

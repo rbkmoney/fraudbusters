@@ -25,6 +25,7 @@ public class CheckedPaymentToPaymentConverter implements Converter<CheckedPaymen
         bankCard.setToken(checkedPayment.getCardToken());
         bankCard.setPaymentSystem(new PaymentSystemRef().setId(checkedPayment.getPaymentSystem()));
         bankCard.setBin(checkedPayment.getBin());
+        bankCard.setCategory(checkedPayment.getCardCategory());
         bankCard.setLastDigits(checkedPayment.getMaskedPan());
         return new Payment()
                 .setId(checkedPayment.getId())
@@ -32,7 +33,8 @@ public class CheckedPaymentToPaymentConverter implements Converter<CheckedPaymen
                 .setClientInfo(new ClientInfo()
                         .setFingerprint(checkedPayment.getFingerprint())
                         .setIp(checkedPayment.getIp())
-                        .setEmail(checkedPayment.getEmail()))
+                        .setEmail(checkedPayment.getEmail())
+                        .setPhone(checkedPayment.getPhone()))
                 .setReferenceInfo(referenceInfo)
                 .setError(new Error()
                         .setErrorCode(checkedPayment.getErrorCode())
