@@ -11,7 +11,7 @@ import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.CountAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.UniqueValueAggregatorImpl;
-import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphAggregationQueryBuilderService;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.query.builder.DgraphAggregationQueryBuilderService;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphCountAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphSumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphUniqueAggregatorImpl;
@@ -208,25 +208,27 @@ public class PaymentFraudoConfig {
     @Bean
     @Lazy
     public UniqueValueAggregator<PaymentModel, PaymentCheckedField> dgraphUniqueAggregator(
-            DgraphAggregationQueryBuilderService aggregationQueryBuilderService,
+            DgraphAggregationQueryBuilderService dgraphUniqueQueryBuilderService,
             DgraphEntityResolver dgraphEntityResolver,
-            DgraphAggregatesRepository dgraphAggregatesRepository) {
+            DgraphAggregatesRepository dgraphAggregatesRepository,
+            DatabasePaymentFieldResolver databasePaymentFieldResolver) {
         return new DgraphUniqueAggregatorImpl(
-                aggregationQueryBuilderService,
+                dgraphUniqueQueryBuilderService,
                 dgraphEntityResolver,
-                dgraphAggregatesRepository
+                dgraphAggregatesRepository,
+                databasePaymentFieldResolver
         );
     }
 
     @Bean
     @Lazy
     public CountPaymentAggregator<PaymentModel, PaymentCheckedField> dgraphCountAggregator(
-            DgraphAggregationQueryBuilderService aggregationQueryBuilderService,
+            DgraphAggregationQueryBuilderService dgraphCountQueryBuilderService,
             DgraphEntityResolver dgraphEntityResolver,
             DgraphAggregatesRepository dgraphAggregatesRepository
     ) {
         return new DgraphCountAggregatorImpl(
-                aggregationQueryBuilderService,
+                dgraphCountQueryBuilderService,
                 dgraphEntityResolver,
                 dgraphAggregatesRepository
         );
@@ -235,12 +237,12 @@ public class PaymentFraudoConfig {
     @Bean
     @Lazy
     public SumPaymentAggregator<PaymentModel, PaymentCheckedField> dgraphSumAggregator(
-            DgraphAggregationQueryBuilderService aggregationQueryBuilderService,
+            DgraphAggregationQueryBuilderService dgraphSumQueryBuilderService,
             DgraphEntityResolver dgraphEntityResolver,
             DgraphAggregatesRepository dgraphAggregatesRepository
     ) {
         return new DgraphSumAggregatorImpl(
-                aggregationQueryBuilderService,
+                dgraphSumQueryBuilderService,
                 dgraphEntityResolver,
                 dgraphAggregatesRepository
         );

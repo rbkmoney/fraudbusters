@@ -19,11 +19,12 @@ public class DgraphEmail {
     private final String type = "Email";
 
     private String uid;
-    private String emailId;
     private String userEmail;
     private String lastActTime;
+    private List<DgraphPayment> payments;
+    private List<DgraphRefund> refunds;
+    private List<DgraphChargeback> chargebacks;
     private List<DgraphFingerprint> fingerprints;
     private List<DgraphToken> tokens;
-    private List<DgraphPayment> payments;
 
 }

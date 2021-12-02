@@ -7,6 +7,7 @@ import com.rbkmoney.fraudbusters.constant.RefundStatus;
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.query.builder.DgraphAggregationQueryBuilderService;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
 import com.rbkmoney.fraudbusters.repository.DgraphAggregatesRepository;
 import com.rbkmoney.fraudo.model.TimeWindow;
@@ -24,7 +25,7 @@ import static com.rbkmoney.fraudbusters.util.DgraphAggregatorUtils.getTimestamp;
 @RequiredArgsConstructor
 public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentModel, PaymentCheckedField> {
 
-    private final DgraphAggregationQueryBuilderService dgraphAggregationQueryBuilderService;
+    private final DgraphAggregationQueryBuilderService dgraphSumQueryBuilderService;
     private final DgraphEntityResolver dgraphEntityResolver;
     private final DgraphAggregatesRepository dgraphAggregatesRepository;
 
@@ -85,7 +86,7 @@ public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentMode
         Instant endWindowTime = timestamp.minusMillis(timeWindow.getEndWindowTime());
         List<PaymentCheckedField> filters = createFiltersList(checkedField, fields);
 
-        String countQuery = dgraphAggregationQueryBuilderService.getSumQuery(
+        String countQuery = dgraphSumQueryBuilderService.getQuery(
                 dgraphEntityResolver.resolvePaymentCheckedField(checkedField),
                 targetEntity,
                 dgraphEntityResolver.resolvePaymentCheckedFieldsToMap(filters),

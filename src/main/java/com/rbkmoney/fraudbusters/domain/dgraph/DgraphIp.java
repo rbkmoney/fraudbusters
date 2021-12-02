@@ -12,8 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 public class DgraphIp {
 
-    public DgraphIp(String ip, String lastActTime) {
-        this.ip = ip;
+    public DgraphIp(String ipAddress, String lastActTime) {
+        this.ipAddress = ipAddress;
         this.lastActTime = lastActTime;
     }
 
@@ -21,11 +21,14 @@ public class DgraphIp {
     private final String type = "Ip";
 
     private String uid;
-    private String ip;
+    private String ipAddress;
     private String lastActTime;
-    private List<DgraphEmail> emails;
-    private List<DgraphToken> tokens;
     private List<DgraphPayment> payments;
+    private List<DgraphRefund> refunds;
+    private List<DgraphChargeback> chargebacks;
+    private List<DgraphToken> tokens;
+    private List<DgraphEmail> emails;
+    private List<DgraphFingerprint> fingerprints;
     private List<DgraphCountry> countries;
 
 }

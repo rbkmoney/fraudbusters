@@ -37,7 +37,7 @@ uid($constants.currencyUid) <currencyCode> "$!payment.currency.currencyCode" .
 uid($constants.currencyUid) <payments> uid($constants.paymentUid) (createdAt = $!payment.createdAt, status = "$!payment.status") .
 
 uid($constants.binUid) <dgraph.type> "$!bin.type" .
-uid($constants.binUid) <cardBin> "$!bin.bin" .
+uid($constants.binUid) <cardBin> "$!bin.cardBin" .
 uid($constants.binUid) <payments> uid($constants.paymentUid) (createdAt = $!payment.createdAt, status = "$!payment.status") .
 uid($constants.binUid) <tokens> uid($constants.tokenUid) .
 
@@ -88,7 +88,7 @@ uid($constants.countryUid) <ips> uid($constants.ipUid) .
 #end
 #if ($ip)
 uid($constants.ipUid) <dgraph.type> "$!ip.type" .
-uid($constants.ipUid) <ipAddress> "$!ip.ip" .
+uid($constants.ipUid) <ipAddress> "$!ip.ipAddress" .
 uid($constants.ipUid) <payments> uid($constants.paymentUid) (createdAt = $!payment.createdAt, status = "$!payment.status") .
 uid($constants.ipUid) <tokens> uid($constants.tokenUid) .
 uid($constants.paymentUid) <operationIp> uid($constants.ipUid) .

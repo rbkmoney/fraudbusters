@@ -21,11 +21,12 @@ public class DgraphFingerprint {
     private final String type = "Fingerprint";
 
     private String uid;
-    private String fingerprintId;
     private String fingerprintData;
     private String lastActTime;
+    private List<DgraphPayment> payments;
+    private List<DgraphRefund> refunds;
+    private List<DgraphChargeback> chargebacks;
     private List<DgraphEmail> emails;
     private List<DgraphToken> tokens;
-    private List<DgraphPayment> payments;
 
 }

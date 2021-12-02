@@ -97,7 +97,7 @@ public class WithdrawalToDgraphWithdrawalConverter implements Converter<Withdraw
 
     private DgraphBin convertBin(String bin) {
         DgraphBin dgraphBin = new DgraphBin();
-        dgraphBin.setBin(bin);
+        dgraphBin.setCardBin(bin);
         return dgraphBin;
     }
 

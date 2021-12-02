@@ -341,7 +341,7 @@ public final class VelocityTestData {
             uid(sourcePartyUid) <shops> uid(sourceShopUid) .
                         
             uid(sourceCurrencyUid) <dgraph.type> "Currency" .
-            uid(sourceCurrencyUid) <currencyCode> "DgraphCurrency(type=Currency, uid=null, currencyCode=RUB, emails=null, tokens=null, payments=null)" .
+            uid(sourceCurrencyUid) <currencyCode> "RUB" .
             uid(sourceCurrencyUid) <refunds> uid(sourceRefundUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
                         
             uid(sourceBinUid) <dgraph.type> "Bin" .
@@ -391,7 +391,7 @@ public final class VelocityTestData {
             uid(sourcePartyUid) <shops> uid(sourceShopUid) .
                         
             uid(sourceCurrencyUid) <dgraph.type> "Currency" .
-            uid(sourceCurrencyUid) <currencyCode> "DgraphCurrency(type=Currency, uid=null, currencyCode=RUB, emails=null, tokens=null, payments=null)" .
+            uid(sourceCurrencyUid) <currencyCode> "RUB" .
             uid(sourceCurrencyUid) <refunds> uid(sourceRefundUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
                         
             uid(sourceBinUid) <dgraph.type> "Bin" .

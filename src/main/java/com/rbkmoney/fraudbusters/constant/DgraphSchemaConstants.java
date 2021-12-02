@@ -120,6 +120,7 @@ public final class DgraphSchemaConstants {
                 refunds: Refund
                 chargebacks: Chargeback
                 emails: Email
+                fingerprints: Fingerprint
                 tokens: Token
             }
             

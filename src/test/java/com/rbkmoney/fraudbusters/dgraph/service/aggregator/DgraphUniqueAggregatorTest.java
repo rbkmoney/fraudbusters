@@ -36,27 +36,27 @@ public class DgraphUniqueAggregatorTest extends AbstractDgraphPaymentAggregatorT
     }
 
     private void testUniqueAggregatesByDefaultModel(PaymentModel testPaymentModel) {
-        testUniqCardTokensByEmail(testPaymentModel.getEmail(), 2);
-        testUniqCardTokensByFingerprint(testPaymentModel.getFingerprint(), 2);
-        testUniqCardTokensByShop(testPaymentModel.getShopId(), 1);
-        testUniqCardTokensByIp(testPaymentModel.getIp(), 1);
+        testUniqCardTokensByEmail(testPaymentModel.getEmail(), 3);
+        testUniqCardTokensByFingerprint(testPaymentModel.getFingerprint(), 3);
+        testUniqCardTokensByShop(testPaymentModel.getShopId(), 2);
+        testUniqCardTokensByIp(testPaymentModel.getIp(), 2);
 
-        testUniqFingerprintsByEmail(testPaymentModel.getEmail(), 1);
-        testUniqFingerprintsByIp(testPaymentModel.getIp(), 1);
-        testUniqFingerprintsByShop(testPaymentModel.getShopId(), 1);
-        testUniqFingerprintsByCardToken(testPaymentModel.getCardToken(), 1);
+        testUniqFingerprintsByEmail(testPaymentModel.getEmail(), 2);
+        testUniqFingerprintsByIp(testPaymentModel.getIp(), 2);
+        testUniqFingerprintsByShop(testPaymentModel.getShopId(), 2);
+        testUniqFingerprintsByCardToken(testPaymentModel.getCardToken(), 2);
 
-        testUniqEmailsByFingerprint(testPaymentModel.getFingerprint(), 1);
-        testUniqEmailsByIp(testPaymentModel.getIp(), 1);
-        testUniqEmailsByShop(testPaymentModel.getShopId(), 1);
-        testUniqEmailsByCardToken(testPaymentModel.getCardToken(), 1);
+        testUniqEmailsByFingerprint(testPaymentModel.getFingerprint(), 2);
+        testUniqEmailsByIp(testPaymentModel.getIp(), 2);
+        testUniqEmailsByShop(testPaymentModel.getShopId(), 2);
+        testUniqEmailsByCardToken(testPaymentModel.getCardToken(), 2);
 
-        testUniqShopsByParty(testPaymentModel.getPartyId(), 3);
+        testUniqShopsByParty(testPaymentModel.getPartyId(), 4);
     }
 
     private void testUniqueAggregatesByCustomData(String email, String partyId) {
-        testUniqCardTokensByEmail(email, 1);
-        testUniqShopsByParty(partyId, 1);
+        testUniqCardTokensByEmail(email, 2);
+        testUniqShopsByParty(partyId, 2);
     }
 
     private void testUniqCardTokensByEmail(String email, int expectedCount) {

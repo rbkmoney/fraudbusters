@@ -21,8 +21,9 @@ public class DgraphCurrency {
 
     private String uid;
     private String currencyCode;
-    private List<DgraphEmail> emails;
-    private List<DgraphToken> tokens;
     private List<DgraphPayment> payments;
+    private List<DgraphRefund> refunds;
+    private List<DgraphChargeback> chargebacks;
+    private List<DgraphWithdrawal> withdrawals;
 
 }

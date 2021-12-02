@@ -37,7 +37,7 @@ uid($constants.currencyUid) <currencyCode> "$!chargeback.currency.currencyCode" 
 uid($constants.currencyUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
 
 uid($constants.binUid) <dgraph.type> "$!bin.type" .
-uid($constants.binUid) <cardBin> "$!bin.bin" .
+uid($constants.binUid) <cardBin> "$!bin.cardBin" .
 uid($constants.binUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
 uid($constants.binUid) <tokens> uid($constants.tokenUid) .
 
@@ -74,7 +74,7 @@ uid($constants.emailUid) <fingerprints> uid($constants.fingerUid) .
 #end
 #if ($ip)
 uid($constants.ipUid) <dgraph.type> "$!ip.type" .
-uid($constants.ipUid) <ipAddress> "$!ip.ip" .
+uid($constants.ipUid) <ipAddress> "$!ip.ipAddress" .
 uid($constants.ipUid) <chargebacks> uid($constants.chargebackUid) (createdAt = $!chargeback.createdAt, status = "$!chargeback.status") .
 uid($constants.ipUid) <tokens> uid($constants.tokenUid) .
 uid($constants.chargebackUid) <operationIp> uid($constants.ipUid) .

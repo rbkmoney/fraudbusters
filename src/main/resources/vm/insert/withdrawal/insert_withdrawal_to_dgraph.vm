@@ -76,7 +76,7 @@ uid($constants.withdrawalUid) <cardToken> uid($constants.tokenUid) .
 #end
 #if ($bin)
 uid($constants.binUid) <dgraph.type> "$!bin.type" .
-uid($constants.binUid) <cardBin> "$!bin.bin" .
+uid($constants.binUid) <cardBin> "$!bin.cardBin" .
 uid($constants.binUid) <tokens> uid($constants.tokenUid) .
 uid($constants.withdrawalUid) <bin> uid($constants.binUid) .
 

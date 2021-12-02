@@ -21,11 +21,14 @@ public class DgraphShop {
     private final String type = "Shop";
 
     private String uid;
+    private DgraphParty party;
     private String shopId;
     private String lastActTime;
-    private List<DgraphEmail> emails;
-    private List<DgraphToken> tokens;
     private List<DgraphPayment> payments;
-    private DgraphParty party;
+    private List<DgraphRefund> refunds;
+    private List<DgraphChargeback> chargebacks;
+    private List<DgraphToken> tokens;
+    private List<DgraphEmail> emails;
+    private List<DgraphFingerprint> fingerprints;
 
 }

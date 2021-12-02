@@ -218,7 +218,7 @@ public final class TestDgraphObjectFactory {
 
     private static DgraphBin createTestDgraphBin() {
         DgraphBin dgraphBin = new DgraphBin();
-        dgraphBin.setBin("000000");
+        dgraphBin.setCardBin("000000");
         return dgraphBin;
     }
 
@@ -237,7 +237,7 @@ public final class TestDgraphObjectFactory {
 
     private static DgraphIp createTestDgraphIp() {
         DgraphIp dgraphIp = new DgraphIp();
-        dgraphIp.setIp("127.0.0.1");
+        dgraphIp.setIpAddress("127.0.0.1");
         return dgraphIp;
     }
 

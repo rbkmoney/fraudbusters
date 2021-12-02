@@ -33,11 +33,11 @@ uid($constants.partyUid) <shops> uid($constants.shopUid) .
 #end
 
 uid($constants.currencyUid) <dgraph.type> "Currency" .
-uid($constants.currencyUid) <currencyCode> "$!refund.currency" .
+uid($constants.currencyUid) <currencyCode> "$!refund.currency.currencyCode" .
 uid($constants.currencyUid) <refunds> uid($constants.refundUid) (createdAt = $!refund.createdAt, status = "$!refund.status") .
 
 uid($constants.binUid) <dgraph.type> "$!bin.type" .
-uid($constants.binUid) <cardBin> "$!bin.bin" .
+uid($constants.binUid) <cardBin> "$!bin.cardBin" .
 uid($constants.binUid) <refunds> uid($constants.refundUid) (createdAt = $!refund.createdAt, status = "$!refund.status") .
 uid($constants.binUid) <tokens> uid($constants.tokenUid) .
 
@@ -74,7 +74,7 @@ uid($constants.emailUid) <fingerprints> uid($constants.fingerUid) .
 #end
 #if ($ip)
 uid($constants.ipUid) <dgraph.type> "$!ip.type" .
-uid($constants.ipUid) <ipAddress> "$!ip.ip" .
+uid($constants.ipUid) <ipAddress> "$!ip.ipAddress" .
 uid($constants.ipUid) <refunds> uid($constants.refundUid) (createdAt = $!refund.createdAt, status = "$!refund.status") .
 uid($constants.ipUid) <tokens> uid($constants.tokenUid) .
 uid($constants.refundUid) <operationIp> uid($constants.ipUid) .

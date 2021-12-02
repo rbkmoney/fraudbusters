@@ -19,7 +19,7 @@ query all() {
     }
 
 #end
-    getBinUid(func: type(Bin)) @filter(eq(cardBin, "$payment.bin.bin")) {
+    getBinUid(func: type(Bin)) @filter(eq(cardBin, "$payment.bin.cardBin")) {
         $constants.binUid as uid
     }
 
@@ -42,7 +42,7 @@ query all() {
 
 #end
 #if($payment.operationIp)
-    getIpUid(func: type(Ip)) @filter(eq(ipAddress, "$payment.operationIp.ip")) {
+    getIpUid(func: type(Ip)) @filter(eq(ipAddress, "$payment.operationIp.ipAddress")) {
         $constants.ipUid as uid
     }
 

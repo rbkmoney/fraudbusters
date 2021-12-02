@@ -374,7 +374,7 @@ public class DgraphRefundCountQueryBuilderServiceTest extends AbstractDgraphQuer
 
     private String getRefundsCountQuery(DgraphEntity rootEntity,
                                         Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntitySetMap) {
-        return aggregationQueryBuilderService.getCountQuery(
+        return countQueryBuilderService.getQuery(
                 rootEntity,
                 DgraphEntity.REFUND,
                 dgraphEntitySetMap,

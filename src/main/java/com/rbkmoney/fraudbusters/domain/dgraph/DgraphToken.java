@@ -31,8 +31,12 @@ public class DgraphToken {
     private String cardholderName;
     private String category;
     private String lastActTime;
+
     private List<DgraphPayment> payments;
+    private List<DgraphRefund> refunds;
+    private List<DgraphChargeback> chargebacks;
     private List<DgraphEmail> emails;
     private List<DgraphFingerprint> fingerprints;
+    private DgraphBin bin;
 
 }

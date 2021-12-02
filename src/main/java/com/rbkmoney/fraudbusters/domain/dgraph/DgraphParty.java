@@ -22,10 +22,13 @@ public class DgraphParty {
 
     private String uid;
     private String partyId;
-    private String lastActTime;
-    private List<DgraphEmail> emails;
-    private List<DgraphToken> tokens;
-    private List<DgraphPayment> payments;
     private List<DgraphShop> shops;
+    private String lastActTime;
+    private List<DgraphPayment> payments;
+    private List<DgraphRefund> refunds;
+    private List<DgraphChargeback> chargebacks;
+    private List<DgraphEmail> emails;
+    private List<DgraphFingerprint> fingerprints;
+    private List<DgraphToken> tokens;
 
 }

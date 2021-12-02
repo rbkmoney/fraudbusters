@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
@@ -49,5 +51,7 @@ public class DgraphPayment {
     private DgraphFingerprint fingerprint;
     private DgraphEmail contactEmail;
     private DgraphFraudPayment fraudPayment;
+    private List<DgraphRefund> refunds;
+    private List<DgraphChargeback> chargebacks;
 
 }

@@ -11,6 +11,7 @@ import java.util.Set;
 
 import static com.rbkmoney.fraudbusters.dgraph.service.data.DgraphUniqueQueryBuilderServiceTestData.*;
 import static com.rbkmoney.fraudbusters.util.DgraphTestAggregationUtils.createTestPaymentModel;
+import static com.rbkmoney.fraudbusters.util.DgraphTestAggregationUtils.createTestTokenFields;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -456,7 +457,7 @@ public class DgraphUniqueQueryBuilderServiceTest extends AbstractDgraphQueryBuil
         String query = getUniqueQuery(
                 DgraphEntity.TOKEN,
                 DgraphEntity.FINGERPRINT,
-                Map.of(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN, PaymentCheckedField.PAN))
+                Map.of(DgraphEntity.TOKEN, createTestTokenFields())
         );
         assertNotNull(query);
         assertEquals(UNIQUE_FINGERPRINTS_BY_PAN_TEST_QUERY, query);
@@ -637,7 +638,7 @@ public class DgraphUniqueQueryBuilderServiceTest extends AbstractDgraphQueryBuil
                 DgraphEntity.COUNTRY,
                 Map.of(
                         DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN),
-                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN, PaymentCheckedField.PAN)
+                        DgraphEntity.TOKEN, createTestTokenFields()
                 )
         );
         assertNotNull(query);
@@ -651,7 +652,7 @@ public class DgraphUniqueQueryBuilderServiceTest extends AbstractDgraphQueryBuil
                 DgraphEntity.COUNTRY,
                 Map.of(
                         DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY),
-                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN, PaymentCheckedField.PAN)
+                        DgraphEntity.TOKEN, createTestTokenFields()
                 )
         );
         assertNotNull(query);
@@ -1263,7 +1264,7 @@ public class DgraphUniqueQueryBuilderServiceTest extends AbstractDgraphQueryBuil
                 DgraphEntity.TOKEN,
                 DgraphEntity.TOKEN,
                 Map.of(
-                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN, PaymentCheckedField.PAN)
+                        DgraphEntity.TOKEN, createTestTokenFields()
                 )
         );
         assertNotNull(query);
@@ -1883,7 +1884,7 @@ public class DgraphUniqueQueryBuilderServiceTest extends AbstractDgraphQueryBuil
     private String getUniqueQuery(DgraphEntity rootEntity,
                                   DgraphEntity onField,
                                   Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntitySetMap) {
-        return aggregationQueryBuilderService.getUniqueQuery(
+        return uniqueQueryBuilderService.getQuery(
                 rootEntity,
                 onField,
                 dgraphEntitySetMap,

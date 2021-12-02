@@ -21,9 +21,10 @@ public class DgraphCountry {
 
     private String uid;
     private String countryName;
-    private List<DgraphEmail> emails;
-    private List<DgraphToken> tokens;
     private List<DgraphPayment> payments;
+    private List<DgraphToken> tokens;
+    private List<DgraphEmail> emails;
+    private List<DgraphFingerprint> fingerprints; //TODO: fill it
     private List<DgraphIp> ips;
 
 }

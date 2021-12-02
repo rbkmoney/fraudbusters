@@ -374,7 +374,7 @@ public class DgraphRefundSumQueryBuilderServiceTest extends AbstractDgraphQueryB
 
     private String getRefundsSumQuery(DgraphEntity rootEntity,
                                         Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntitySetMap) {
-        return aggregationQueryBuilderService.getSumQuery(
+        return sumQueryBuilderService.getQuery(
                 rootEntity,
                 DgraphEntity.REFUND,
                 dgraphEntitySetMap,

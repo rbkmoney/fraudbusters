@@ -360,7 +360,7 @@ public class DgraphPaymentSumQueryBuilderServiceTest extends AbstractDgraphQuery
 
     private String getPaymentsSumQuery(DgraphEntity rootEntity,
                                        Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntitySetMap) {
-        return aggregationQueryBuilderService.getSumQuery(
+        return sumQueryBuilderService.getQuery(
                 rootEntity,
                 DgraphEntity.PAYMENT,
                 dgraphEntitySetMap,

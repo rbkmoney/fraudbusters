@@ -357,7 +357,7 @@ public class DgraphPaymentCountQueryBuilderServiceTest extends AbstractDgraphQue
 
     private String getPaymentsCountQuery(DgraphEntity rootEntity,
                                          Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntitySetMap) {
-        return aggregationQueryBuilderService.getCountQuery(
+        return countQueryBuilderService.getQuery(
                 rootEntity,
                 DgraphEntity.PAYMENT,
                 dgraphEntitySetMap,

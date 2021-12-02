@@ -19,7 +19,7 @@ query all() {
 
 #end
 #if($withdrawal.bin)
-    getBinUid(func: type(Bin)) @filter(eq(cardBin, "$withdrawal.bin.bin")) {
+    getBinUid(func: type(Bin)) @filter(eq(cardBin, "$withdrawal.bin.cardBin")) {
         $constants.binUid as uid
     }
 

@@ -12,17 +12,20 @@ import java.util.List;
 @NoArgsConstructor
 public class DgraphBin {
 
-    public DgraphBin(String bin) {
-        this.bin = bin;
+    public DgraphBin(String cardBin) {
+        this.cardBin = cardBin;
     }
 
     @JsonProperty("dgraph.type")
     private final String type = "Bin";
 
     private String uid;
-    private String bin;
-    private List<DgraphEmail> emails;
-    private List<DgraphToken> tokens;
+    private String cardBin;
     private List<DgraphPayment> payments;
+    private List<DgraphRefund> refunds;
+    private List<DgraphChargeback> chargebacks;
+    private List<DgraphEmail> emails;
+    private List<DgraphFingerprint> fingerprints; //TODO: добавить заполнение fingerprint'ов
+    private List<DgraphToken> tokens;
 
 }
