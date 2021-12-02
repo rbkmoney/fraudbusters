@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.dgraph.service.query;
 
+import com.rbkmoney.fraudbusters.constant.PaymentStatus;
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import java.util.Set;
 
 import static com.rbkmoney.fraudbusters.dgraph.service.data.DgraphPaymentsSumQueryBuilderServiceTestData.*;
 import static com.rbkmoney.fraudbusters.util.DgraphTestAggregationUtils.*;
+import static com.rbkmoney.fraudbusters.util.DgraphTestAggregationUtils.createTestPaymentFields;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -321,7 +323,7 @@ public class DgraphPaymentSumQueryBuilderServiceTest extends AbstractDgraphQuery
     @Test
     public void getPaymentsCountQueryByMobileRootWithFullDatasetTest() {
         var dgraphMap = createTestFullDgraphEntityMap();
-        dgraphMap.put(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE, PaymentCheckedField.RECURRENT));
+        dgraphMap.put(DgraphEntity.PAYMENT, createTestPaymentFields());
         String query = getPaymentsSumQuery(DgraphEntity.PAYMENT, dgraphMap);
         assertNotNull(query);
         assertEquals(PAYMENTS_SUM_QUERY_BY_MOBILE_ROOT_WITH_FULL_DATASET, query);
@@ -350,7 +352,7 @@ public class DgraphPaymentSumQueryBuilderServiceTest extends AbstractDgraphQuery
     @Test
     public void getPaymentsCountQueryByRecurrentRootWithFullDatasetTest() {
         var dgraphMap = createTestFullDgraphEntityMap();
-        dgraphMap.put(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE, PaymentCheckedField.RECURRENT));
+        dgraphMap.put(DgraphEntity.PAYMENT, createTestPaymentFields());
         String query = getPaymentsSumQuery(DgraphEntity.PAYMENT, dgraphMap);
         assertNotNull(query);
         assertEquals(PAYMENTS_SUM_QUERY_BY_RECURRENT_ROOT_WITH_FULL_DATASET, query);
@@ -365,7 +367,7 @@ public class DgraphPaymentSumQueryBuilderServiceTest extends AbstractDgraphQuery
                 createTestPaymentModel(),
                 Instant.parse("2021-10-28T19:40:54.000000Z"),
                 Instant.parse("2021-10-28T19:47:54.000000Z"),
-                "captured"
+                PaymentStatus.captured.name()
         );
     }
 

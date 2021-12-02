@@ -6,7 +6,6 @@ import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import org.springframework.stereotype.Service;
 
 @Service
-
 public class DgraphQueryConditionResolver {
 
     public String resolvePaymentFilterByDgraphEntity(DgraphEntity entity) {
@@ -27,7 +26,7 @@ public class DgraphQueryConditionResolver {
     }
 
     public String resolveConditionByPaymentCheckedField(PaymentCheckedField paymentCheckedField,
-                                                         PaymentModel paymentModel) {
+                                                        PaymentModel paymentModel) {
         return switch (paymentCheckedField) {
             case BIN -> String.format("eq(cardBin, \"%s\")", paymentModel.getBin());
             case EMAIL -> String.format("eq(userEmail, \"%s\")", paymentModel.getEmail());

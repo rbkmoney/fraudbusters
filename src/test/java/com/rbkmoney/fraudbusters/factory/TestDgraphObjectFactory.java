@@ -42,7 +42,7 @@ public final class TestDgraphObjectFactory {
         dgraphPayment.setCreatedAt("2021-10-05T18:00:00");
         dgraphPayment.setAmount(1000L);
         dgraphPayment.setCurrency(createDefaultDgraphCurrency());
-        dgraphPayment.setStatus("captured");
+        dgraphPayment.setStatus(com.rbkmoney.fraudbusters.constant.PaymentStatus.captured.name());
         dgraphPayment.setPaymentTool("tool");
         dgraphPayment.setTerminal("10001");
         dgraphPayment.setProviderId("21");
@@ -191,7 +191,7 @@ public final class TestDgraphObjectFactory {
         dgraphChargeback.setCreatedAt("2021-10-05T18:00:00");
         dgraphChargeback.setAmount(1000L);
         dgraphChargeback.setCurrency(createDefaultDgraphCurrency());
-        dgraphChargeback.setStatus("successful");
+        dgraphChargeback.setStatus(com.rbkmoney.fraudbusters.constant.RefundStatus.succeeded.name());
         dgraphChargeback.setPayerType("paid");
         dgraphChargeback.setCategory("category");
         dgraphChargeback.setCode("code404");

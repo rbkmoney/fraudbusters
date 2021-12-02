@@ -137,7 +137,7 @@ public class DgraphPaymentsSumQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_SUM_QUERY_BY_IP_ROOT_WITH_MINIMAL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade {
                         amount as amount
                     }
@@ -148,7 +148,7 @@ public class DgraphPaymentsSumQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_SUM_QUERY_BY_IP_ROOT_WITH_USUAL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade {
                         amount as amount
                         party @filter(eq(partyId, "party1"))
@@ -161,7 +161,7 @@ public class DgraphPaymentsSumQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_SUM_QUERY_BY_IP_ROOT_WITH_FULL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured")) @filter(eq(mobile, false) and eq(recurrent, true)) @cascade {
                         amount as amount
                         bin @filter(eq(cardBin, "000000"))
@@ -393,7 +393,7 @@ public class DgraphPaymentsSumQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_SUM_QUERY_BY_COUNTRY_IP_ROOT_WITH_MINIMAL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade {
                         amount as amount
                     }
@@ -404,7 +404,7 @@ public class DgraphPaymentsSumQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_SUM_QUERY_BY_COUNTRY_IP_ROOT_WITH_USUAL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade {
                         amount as amount
                         party @filter(eq(partyId, "party1"))
@@ -417,7 +417,7 @@ public class DgraphPaymentsSumQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_SUM_QUERY_BY_COUNTRY_IP_ROOT_WITH_FULL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured")) @filter(eq(mobile, false) and eq(recurrent, true)) @cascade {
                         amount as amount
                         bin @filter(eq(cardBin, "000000"))

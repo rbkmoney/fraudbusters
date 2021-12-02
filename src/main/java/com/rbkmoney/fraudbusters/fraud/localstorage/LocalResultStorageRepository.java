@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.fraud.localstorage.clickhouse;
+package com.rbkmoney.fraudbusters.fraud.localstorage;
 
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;

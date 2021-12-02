@@ -12,6 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DgraphPayment {
 
+    public DgraphPayment(String paymentId) {
+        this.paymentId = paymentId;
+    }
+
     @JsonProperty("dgraph.type")
     private final String type = "Payment";
 

@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.dgraph.service.query;
 
+import com.rbkmoney.fraudbusters.constant.PaymentStatus;
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import org.junit.jupiter.api.Test;
@@ -319,7 +320,7 @@ public class DgraphPaymentCountQueryBuilderServiceTest extends AbstractDgraphQue
     @Test
     public void getPaymentsCountQueryByMobileRootWithFullDatasetTest() {
         var dgraphMap = createTestFullDgraphEntityMap();
-        dgraphMap.put(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE, PaymentCheckedField.RECURRENT));
+        dgraphMap.put(DgraphEntity.PAYMENT, createTestPaymentFields());
         String query = getPaymentsCountQuery(DgraphEntity.PAYMENT, dgraphMap);
         assertNotNull(query);
         assertEquals(PAYMENTS_COUNT_QUERY_BY_MOBILE_ROOT_WITH_FULL_DATASET, query);
@@ -348,7 +349,7 @@ public class DgraphPaymentCountQueryBuilderServiceTest extends AbstractDgraphQue
     @Test
     public void getPaymentsCountQueryByRecurrentRootWithFullDatasetTest() {
         var dgraphMap = createTestFullDgraphEntityMap();
-        dgraphMap.put(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE, PaymentCheckedField.RECURRENT));
+        dgraphMap.put(DgraphEntity.PAYMENT, createTestPaymentFields());
         String query = getPaymentsCountQuery(DgraphEntity.PAYMENT, dgraphMap);
         assertNotNull(query);
         assertEquals(PAYMENTS_COUNT_QUERY_BY_RECURRENT_ROOT_WITH_FULL_DATASET, query);
@@ -363,7 +364,7 @@ public class DgraphPaymentCountQueryBuilderServiceTest extends AbstractDgraphQue
                 createTestPaymentModel(),
                 Instant.parse("2021-10-28T19:40:54.000000Z"),
                 Instant.parse("2021-10-28T19:47:54.000000Z"),
-                "captured"
+                PaymentStatus.captured.name()
         );
     }
 

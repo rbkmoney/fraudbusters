@@ -12,6 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 public class DgraphBin {
 
+    public DgraphBin(String bin) {
+        this.bin = bin;
+    }
+
     @JsonProperty("dgraph.type")
     private final String type = "Bin";
 

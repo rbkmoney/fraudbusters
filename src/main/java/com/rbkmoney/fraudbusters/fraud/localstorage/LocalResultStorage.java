@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.fraud.localstorage.clickhouse;
+package com.rbkmoney.fraudbusters.fraud.localstorage;
 
 import com.rbkmoney.fraudbusters.domain.CheckedPayment;
 import org.springframework.stereotype.Component;

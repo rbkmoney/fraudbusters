@@ -18,11 +18,11 @@ public abstract class AbstractDgraphDao {
     private final DgraphClient dgraphClient;
     private final RetryTemplate dgraphRetryTemplate;
 
-    public void saveNqsToDgraph(String nqs, String query) {
+    protected void saveNqsToDgraph(String nqs, String query) {
         dgraphRetryTemplate.execute(context -> insertNqsToDgraph(nqs, query));
     }
 
-    public boolean insertNqsToDgraph(String nqs, String query) {
+    protected boolean insertNqsToDgraph(String nqs, String query) {
         try (Transaction transaction = dgraphClient.newTransaction()) {
             log.trace("InsertJsonToDgraph will save data (nqs: {})", nqs);
             DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()

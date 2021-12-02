@@ -1,9 +1,8 @@
 package com.rbkmoney.fraudbusters.repository.dgraph;
 
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphChargeback;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.service.TemplateService;
+import com.rbkmoney.fraudbusters.service.template.TemplateService;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import io.dgraph.DgraphClient;
 import lombok.extern.slf4j.Slf4j;
@@ -18,19 +17,22 @@ import java.util.List;
 @Component
 public class DgraphChargebackRepository extends AbstractDgraphDao implements Repository<DgraphChargeback> {
 
-    private final TemplateService templateService;
+    private final TemplateService<DgraphChargeback> insertChargebackQueryTemplateService;
+    private final TemplateService<DgraphChargeback> upsertChargebackQueryTemplateService;
 
     public DgraphChargebackRepository(DgraphClient dgraphClient,
                                       RetryTemplate dgraphRetryTemplate,
-                                      TemplateService templateService) {
+                                      TemplateService<DgraphChargeback> insertChargebackQueryTemplateService,
+                                      TemplateService<DgraphChargeback> upsertChargebackQueryTemplateService) {
         super(dgraphClient, dgraphRetryTemplate);
-        this.templateService = templateService;
+        this.insertChargebackQueryTemplateService = insertChargebackQueryTemplateService;
+        this.upsertChargebackQueryTemplateService = upsertChargebackQueryTemplateService;
     }
 
     @Override
     public void insert(DgraphChargeback dgraphChargeback) {
-        String upsertQuery = templateService.buildUpsetChargebackQuery(dgraphChargeback);
-        String insertNqsBlock = templateService.buildInsertChargebackNqsBlock(dgraphChargeback);
+        String upsertQuery = upsertChargebackQueryTemplateService.build(dgraphChargeback);
+        String insertNqsBlock = insertChargebackQueryTemplateService.build(dgraphChargeback);
         saveNqsToDgraph(insertNqsBlock, upsertQuery);
     }
 

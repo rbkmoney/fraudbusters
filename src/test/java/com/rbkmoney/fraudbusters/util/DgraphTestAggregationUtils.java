@@ -8,9 +8,7 @@ import com.rbkmoney.fraudo.model.TimeWindow;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DgraphTestAggregationUtils {
@@ -36,16 +34,30 @@ public final class DgraphTestAggregationUtils {
     public static Map<DgraphEntity, Set<PaymentCheckedField>> createTestFullDgraphEntityMap() {
         Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntitySetMap = new HashMap<>();
         dgraphEntitySetMap.put(DgraphEntity.BIN, Set.of(PaymentCheckedField.BIN));
-        dgraphEntitySetMap.put(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN, PaymentCheckedField.PAN));
+        dgraphEntitySetMap.put(DgraphEntity.TOKEN, createTestTokenFields());
         dgraphEntitySetMap.put(DgraphEntity.PARTY, Set.of(PaymentCheckedField.PARTY_ID));
         dgraphEntitySetMap.put(DgraphEntity.SHOP, Set.of(PaymentCheckedField.SHOP_ID));
-        dgraphEntitySetMap.put(DgraphEntity.PAYMENT, Set.of(PaymentCheckedField.MOBILE, PaymentCheckedField.RECURRENT));
+        dgraphEntitySetMap.put(DgraphEntity.PAYMENT, createTestPaymentFields());
         dgraphEntitySetMap.put(DgraphEntity.COUNTRY, Set.of(PaymentCheckedField.COUNTRY_BANK));
         dgraphEntitySetMap.put(DgraphEntity.CURRENCY, Set.of(PaymentCheckedField.CURRENCY));
         dgraphEntitySetMap.put(DgraphEntity.EMAIL, Set.of(PaymentCheckedField.EMAIL));
         dgraphEntitySetMap.put(DgraphEntity.FINGERPRINT, Set.of(PaymentCheckedField.FINGERPRINT));
         dgraphEntitySetMap.put(DgraphEntity.IP, Set.of(PaymentCheckedField.IP));
         return dgraphEntitySetMap;
+    }
+
+    public static Set<PaymentCheckedField> createTestTokenFields() {
+        Set<PaymentCheckedField> tokenFields = new TreeSet<>();
+        tokenFields.add(PaymentCheckedField.PAN);
+        tokenFields.add(PaymentCheckedField.CARD_TOKEN);
+        return tokenFields;
+    }
+
+    public static Set<PaymentCheckedField> createTestPaymentFields() {
+        Set<PaymentCheckedField> paymentFields = new TreeSet<>();
+        paymentFields.add(PaymentCheckedField.MOBILE);
+        paymentFields.add(PaymentCheckedField.RECURRENT);
+        return paymentFields;
     }
 
     public static OperationProperties createDefaultOperationProperties() {

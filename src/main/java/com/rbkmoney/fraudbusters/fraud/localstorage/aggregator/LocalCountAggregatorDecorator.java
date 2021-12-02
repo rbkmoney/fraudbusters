@@ -1,9 +1,9 @@
-package com.rbkmoney.fraudbusters.fraud.localstorage.clickhouse.aggregator;
+package com.rbkmoney.fraudbusters.fraud.localstorage.aggregator;
 
 import com.rbkmoney.fraudbusters.exception.RuleFunctionException;
 import com.rbkmoney.fraudbusters.fraud.AggregateGroupingFunction;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
-import com.rbkmoney.fraudbusters.fraud.localstorage.clickhouse.LocalResultStorageRepository;
+import com.rbkmoney.fraudbusters.fraud.localstorage.LocalResultStorageRepository;
 import com.rbkmoney.fraudbusters.fraud.model.FieldModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.CountAggregatorImpl;

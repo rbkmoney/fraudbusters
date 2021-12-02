@@ -128,7 +128,7 @@ public class DgraphPaymentCountQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_COUNT_QUERY_BY_IP_ROOT_WITH_MINIMAL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade {
                         count : count(uid)
                     }
@@ -138,7 +138,7 @@ public class DgraphPaymentCountQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_COUNT_QUERY_BY_IP_ROOT_WITH_USUAL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade {
                         count : count(uid)
                         party @filter(eq(partyId, "party1"))
@@ -150,7 +150,7 @@ public class DgraphPaymentCountQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_COUNT_QUERY_BY_IP_ROOT_WITH_FULL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured")) @filter(eq(mobile, false) and eq(recurrent, true)) @cascade {
                         count : count(uid)
                         bin @filter(eq(cardBin, "000000"))
@@ -366,7 +366,7 @@ public class DgraphPaymentCountQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_COUNT_QUERY_BY_COUNTRY_IP_ROOT_WITH_MINIMAL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade {
                         count : count(uid)
                     }
@@ -376,7 +376,7 @@ public class DgraphPaymentCountQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_COUNT_QUERY_BY_COUNTRY_IP_ROOT_WITH_USUAL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured"))  @cascade {
                         count : count(uid)
                         party @filter(eq(partyId, "party1"))
@@ -388,7 +388,7 @@ public class DgraphPaymentCountQueryBuilderServiceTestData {
 
     public static final String PAYMENTS_COUNT_QUERY_BY_COUNTRY_IP_ROOT_WITH_FULL_DATASET = """
             query all() {
-                aggregates(func: type(IP)) @filter(eq(ipAddress, "localhost")) @normalize {
+                aggregates(func: type(Ip)) @filter(eq(ipAddress, "localhost")) @normalize {
                     payments @facets(ge(createdAt, "2021-10-28T19:40:54Z") and le(createdAt, "2021-10-28T19:47:54Z") and eq(status, "captured")) @filter(eq(mobile, false) and eq(recurrent, true)) @cascade {
                         count : count(uid)
                         bin @filter(eq(cardBin, "000000"))

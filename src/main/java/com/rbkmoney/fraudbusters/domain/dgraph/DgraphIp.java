@@ -12,11 +12,17 @@ import java.util.List;
 @NoArgsConstructor
 public class DgraphIp {
 
+    public DgraphIp(String ip, String lastActTime) {
+        this.ip = ip;
+        this.lastActTime = lastActTime;
+    }
+
     @JsonProperty("dgraph.type")
-    private final String type = "IP";
+    private final String type = "Ip";
 
     private String uid;
     private String ip;
+    private String lastActTime;
     private List<DgraphEmail> emails;
     private List<DgraphToken> tokens;
     private List<DgraphPayment> payments;

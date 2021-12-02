@@ -90,7 +90,6 @@ uid($constants.chargebackUid) <createdAt> "$!chargeback.createdAt" .
 uid($constants.chargebackUid) <amount> "$!chargeback.amount" .
 uid($constants.chargebackUid) <currency> uid($constants.currencyUid) .
 uid($constants.chargebackUid) <status> "$!chargeback.status" .
-uid($constants.chargebackUid) <status> "$!chargeback.status" .
 uid($constants.chargebackUid) <category> "$!chargeback.category" .
 uid($constants.chargebackUid) <code> "$!chargeback.code" .
 uid($constants.chargebackUid) <payerType> "$!chargeback.payerType" .

@@ -10,7 +10,6 @@ import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import com.rbkmoney.fraudo.aggregator.UniqueValueAggregator;
 import com.rbkmoney.fraudo.model.TimeWindow;
-import io.micrometer.shaded.reactor.core.Disposable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
@@ -58,7 +57,5 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentM
             throw new RuleFunctionException(e);
         }
     }
-
-
 
 }

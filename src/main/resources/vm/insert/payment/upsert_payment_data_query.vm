@@ -42,7 +42,7 @@ query all() {
 
 #end
 #if($payment.operationIp)
-    getIpUid(func: type(IP)) @filter(eq(ipAddress, "$payment.operationIp.ip")) {
+    getIpUid(func: type(Ip)) @filter(eq(ipAddress, "$payment.operationIp.ip")) {
         $constants.ipUid as uid
     }
 

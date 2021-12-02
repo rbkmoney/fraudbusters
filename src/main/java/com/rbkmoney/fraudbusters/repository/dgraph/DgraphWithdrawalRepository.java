@@ -2,8 +2,8 @@ package com.rbkmoney.fraudbusters.repository.dgraph;
 
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphWithdrawal;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.service.TemplateService;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
+import com.rbkmoney.fraudbusters.service.template.TemplateService;
 import io.dgraph.DgraphClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -17,19 +17,22 @@ import java.util.List;
 @Component
 public class DgraphWithdrawalRepository extends AbstractDgraphDao implements Repository<DgraphWithdrawal> {
 
-    private final TemplateService templateService;
+    private final TemplateService<DgraphWithdrawal> insertWithdrawalQueryTemplateService;
+    private final TemplateService<DgraphWithdrawal> upsertWithdrawalQueryTemplateService;
 
     public DgraphWithdrawalRepository(DgraphClient dgraphClient,
                                       RetryTemplate dgraphRetryTemplate,
-                                      TemplateService templateService) {
+                                      TemplateService<DgraphWithdrawal> insertWithdrawalQueryTemplateService,
+                                      TemplateService<DgraphWithdrawal> upsertWithdrawalQueryTemplateService) {
         super(dgraphClient, dgraphRetryTemplate);
-        this.templateService = templateService;
+        this.insertWithdrawalQueryTemplateService = insertWithdrawalQueryTemplateService;
+        this.upsertWithdrawalQueryTemplateService = upsertWithdrawalQueryTemplateService;
     }
 
     @Override
     public void insert(DgraphWithdrawal dgraphWithdrawal) {
-        String upsertQuery = templateService.buildUpsetWithdrawalQuery(dgraphWithdrawal);
-        String insertNqsBlock = templateService.buildInsertWithdrawalNqsBlock(dgraphWithdrawal);
+        String upsertQuery = upsertWithdrawalQueryTemplateService.build(dgraphWithdrawal);
+        String insertNqsBlock = insertWithdrawalQueryTemplateService.build(dgraphWithdrawal);
         saveNqsToDgraph(insertNqsBlock, upsertQuery);
     }
 

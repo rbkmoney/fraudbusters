@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph;
 
+import com.rbkmoney.fraudbusters.constant.PaymentStatus;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
@@ -45,7 +46,7 @@ public class DgraphUniqueAggregatorImpl implements UniqueValueAggregator<Payment
                 paymentModel,
                 startWindowTime,
                 endWindowTime,
-                "captured"
+                PaymentStatus.captured.name()
         );
         return dgraphAggregatesRepository.getCount(countQuery);
     }

@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.listener.events.clickhouse;
 
 import com.rbkmoney.damsel.fraudbusters.Withdrawal;
 import com.rbkmoney.fraudbusters.config.service.ListenersConfigurationService;
-import com.rbkmoney.fraudbusters.fraud.localstorage.clickhouse.LocalResultStorage;
+import com.rbkmoney.fraudbusters.fraud.localstorage.LocalResultStorage;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

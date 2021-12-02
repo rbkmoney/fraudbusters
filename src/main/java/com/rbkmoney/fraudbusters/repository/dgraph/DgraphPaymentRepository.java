@@ -2,8 +2,8 @@ package com.rbkmoney.fraudbusters.repository.dgraph;
 
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphPayment;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.service.TemplateService;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
+import com.rbkmoney.fraudbusters.service.template.TemplateService;
 import io.dgraph.DgraphClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -17,19 +17,22 @@ import java.util.List;
 @Lazy
 public class DgraphPaymentRepository extends AbstractDgraphDao implements Repository<DgraphPayment> {
 
-    private final TemplateService templateService;
+    private final TemplateService<DgraphPayment> insertPaymentQueryTemplateService;
+    private final TemplateService<DgraphPayment> upsertPaymentQueryTemplateService;
 
     public DgraphPaymentRepository(DgraphClient dgraphClient,
                                    RetryTemplate dgraphRetryTemplate,
-                                   TemplateService templateService) {
+                                   TemplateService<DgraphPayment> insertPaymentQueryTemplateService,
+                                   TemplateService<DgraphPayment> upsertPaymentQueryTemplateService) {
         super(dgraphClient, dgraphRetryTemplate);
-        this.templateService = templateService;
+        this.insertPaymentQueryTemplateService = insertPaymentQueryTemplateService;
+        this.upsertPaymentQueryTemplateService = upsertPaymentQueryTemplateService;
     }
 
     @Override
     public void insert(DgraphPayment dgraphPayment) {
-        String upsertQuery = templateService.buildUpsetPaymentQuery(dgraphPayment);
-        String insertNqsBlock = templateService.buildInsertPaymentNqsBlock(dgraphPayment);
+        String upsertQuery = upsertPaymentQueryTemplateService.build(dgraphPayment);
+        String insertNqsBlock = insertPaymentQueryTemplateService.build(dgraphPayment);
         saveNqsToDgraph(insertNqsBlock, upsertQuery);
     }
 

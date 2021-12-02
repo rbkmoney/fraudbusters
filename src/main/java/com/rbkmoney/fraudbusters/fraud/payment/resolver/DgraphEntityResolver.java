@@ -12,16 +12,6 @@ import java.util.*;
 public class DgraphEntityResolver {
 
     public Map<DgraphEntity, Set<PaymentCheckedField>> resolvePaymentCheckedFieldsToMap(
-            PaymentCheckedField rootPaymentCheckedField,
-            List<PaymentCheckedField> fields
-    ) {
-        List<PaymentCheckedField> totalPaymentFields = new ArrayList<>();
-        totalPaymentFields.addAll(fields);
-        totalPaymentFields.add(rootPaymentCheckedField);
-        return resolvePaymentCheckedFieldsToMap(totalPaymentFields);
-    }
-
-    public Map<DgraphEntity, Set<PaymentCheckedField>> resolvePaymentCheckedFieldsToMap(
             List<PaymentCheckedField> fields
     ) {
         if (fields == null || fields.isEmpty()) {

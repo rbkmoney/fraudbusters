@@ -2,8 +2,8 @@ package com.rbkmoney.fraudbusters.repository.dgraph;
 
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphRefund;
 import com.rbkmoney.fraudbusters.repository.Repository;
-import com.rbkmoney.fraudbusters.service.TemplateService;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
+import com.rbkmoney.fraudbusters.service.template.TemplateService;
 import io.dgraph.DgraphClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -17,19 +17,22 @@ import java.util.List;
 @Component
 public class DgraphRefundRepository extends AbstractDgraphDao implements Repository<DgraphRefund> {
 
-    private final TemplateService templateService;
+    private final TemplateService<DgraphRefund> insertRefundQueryTemplateService;
+    private final TemplateService<DgraphRefund> upsertRefundQueryTemplateService;
 
     public DgraphRefundRepository(DgraphClient dgraphClient,
                                   RetryTemplate dgraphRetryTemplate,
-                                  TemplateService templateService) {
+                                  TemplateService<DgraphRefund> insertRefundQueryTemplateService,
+                                  TemplateService<DgraphRefund> upsertRefundQueryTemplateService) {
         super(dgraphClient, dgraphRetryTemplate);
-        this.templateService = templateService;
+        this.insertRefundQueryTemplateService = insertRefundQueryTemplateService;
+        this.upsertRefundQueryTemplateService = upsertRefundQueryTemplateService;
     }
 
     @Override
     public void insert(DgraphRefund dgraphRefund) {
-        String upsertQuery = templateService.buildUpsetRefundQuery(dgraphRefund);
-        String insertNqsBlock = templateService.buildInsertRefundNqsBlock(dgraphRefund);
+        String upsertQuery = upsertRefundQueryTemplateService.build(dgraphRefund);
+        String insertNqsBlock = insertRefundQueryTemplateService.build(dgraphRefund);
         saveNqsToDgraph(insertNqsBlock, upsertQuery);
     }
 

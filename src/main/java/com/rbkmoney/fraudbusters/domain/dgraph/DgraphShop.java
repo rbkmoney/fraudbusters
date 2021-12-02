@@ -12,6 +12,11 @@ import java.util.List;
 @NoArgsConstructor
 public class DgraphShop {
 
+    public DgraphShop(String shopId, String lastActTime) {
+        this.shopId = shopId;
+        this.lastActTime = lastActTime;
+    }
+
     @JsonProperty("dgraph.type")
     private final String type = "Shop";
 

@@ -12,6 +12,11 @@ import java.util.List;
 @NoArgsConstructor
 public class DgraphParty {
 
+    public DgraphParty(String partyId, String lastActTime) {
+        this.partyId = partyId;
+        this.lastActTime = lastActTime;
+    }
+
     @JsonProperty("dgraph.type")
     private final String type = "Party";
 

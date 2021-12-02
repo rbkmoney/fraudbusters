@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.dgraph.service.query;
 
+import com.rbkmoney.fraudbusters.constant.RefundStatus;
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import org.junit.jupiter.api.Test;
@@ -380,7 +381,7 @@ public class DgraphRefundCountQueryBuilderServiceTest extends AbstractDgraphQuer
                 createTestPaymentModel(),
                 Instant.parse("2021-10-28T19:40:54.000000Z"),
                 Instant.parse("2021-10-28T19:47:54.000000Z"),
-                "successful"
+                RefundStatus.succeeded.name()
         );
     }
 

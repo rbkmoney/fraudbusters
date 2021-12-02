@@ -7,11 +7,12 @@ import com.rbkmoney.fraudbusters.fraud.model.DgraphAggregationQueryModel;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphQueryConditionResolver;
-import com.rbkmoney.fraudbusters.service.TemplateService;
+import com.rbkmoney.fraudbusters.service.template.TemplateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.Map;
@@ -25,13 +26,18 @@ import java.util.stream.Collectors;
 public class DgraphAggregationQueryBuilderServiceImpl implements DgraphAggregationQueryBuilderService {
 
     private final DgraphEntityResolver dgraphEntityResolver;
-
     private final DgraphQueryConditionResolver dgraphQueryConditionResolver;
-
-    private final TemplateService templateService;
+    private final TemplateService<DgraphAggregationQueryModel> countQueryTemplateService;
+    private final TemplateService<DgraphAggregationQueryModel> rootCountQueryTemplateService;
+    private final TemplateService<DgraphAggregationQueryModel> sumQueryTemplateService;
+    private final TemplateService<DgraphAggregationQueryModel> rootSumQueryTemplateService;
+    private final TemplateService<DgraphAggregationQueryModel> uniqueQueryTemplateService;
+    private final TemplateService<DgraphAggregationQueryModel> rootUniqueQueryTemplateService;
+    private final TemplateService<DgraphAggregationQueryModel> equalFieldsUniqueQueryTemplateService;
 
     private static final String DGRAPH_FILTER_PATTERN = "@filter(%s)";
     private static final String DGRAPH_FASET_PATTERN = "@facets(%s)";
+    private static final String DGRAPH_CONDITION_AND = " and ";
 
     @Override
     public String getCountQuery(DgraphEntity rootEntity,
@@ -51,8 +57,8 @@ public class DgraphAggregationQueryBuilderServiceImpl implements DgraphAggregati
                 status
         );
         return queryModel.isRootModel()
-                ? templateService.buildRootCountQuery(queryModel)
-                : templateService.buildCountQuery(queryModel);
+                ? rootCountQueryTemplateService.build(queryModel)
+                : countQueryTemplateService.build(queryModel);
     }
 
     @Override
@@ -73,8 +79,8 @@ public class DgraphAggregationQueryBuilderServiceImpl implements DgraphAggregati
                 status
         );
         return queryModel.isRootModel()
-                ? templateService.buildRootSumQuery(queryModel)
-                : templateService.buildSumQuery(queryModel);
+                ? rootSumQueryTemplateService.build(queryModel)
+                : sumQueryTemplateService.build(queryModel);
     }
 
     @Override
@@ -95,11 +101,11 @@ public class DgraphAggregationQueryBuilderServiceImpl implements DgraphAggregati
                 status
         );
         if (rootEntity == onField) {
-            return templateService.buildEqualFiledsUniqueQuery(queryModel);
+            return equalFieldsUniqueQueryTemplateService.build(queryModel);
         }
         return queryModel.isRootModel()
-                ? templateService.buildRootUniqueQuery(queryModel)
-                : templateService.buildUniqueQuery(queryModel);
+                ? rootUniqueQueryTemplateService.build(queryModel)
+                : uniqueQueryTemplateService.build(queryModel);
     }
 
     public DgraphAggregationQueryModel prepareAggregationQueryModel(
@@ -115,11 +121,11 @@ public class DgraphAggregationQueryBuilderServiceImpl implements DgraphAggregati
 
         Set<String> innerConditions = createInnerConditions(rootEntity, targetEntity, dgraphEntityMap, paymentModel);
         String rootCondition = createRootCondition(rootEntity, dgraphEntityMap, paymentModel);
-        String targetFasetCondition = createTargetFacetCondition(startWindowTime, endWindowTime, status);
+        String targetFacetCondition = createTargetFacetCondition(startWindowTime, endWindowTime, status);
 
         if (dgraphEntityResolver.resolveDgraphEntityByTargetAggregationType(targetType) == rootEntity) {
             String extendedRootCondition = Strings.isEmpty(rootCondition)
-                    ? targetFasetCondition : String.format("%s and %s", targetFasetCondition, rootCondition);
+                    ? targetFacetCondition : String.format("%s and %s", targetFacetCondition, rootCondition);
             return DgraphAggregationQueryModel.builder()
                     .rootType(rootEntity.getTypeName())
                     .rootFilter(String.format(DGRAPH_FILTER_PATTERN, extendedRootCondition))
@@ -132,7 +138,7 @@ public class DgraphAggregationQueryBuilderServiceImpl implements DgraphAggregati
                     .rootFilter(Strings.isEmpty(rootCondition)
                             ? Strings.EMPTY : String.format(DGRAPH_FILTER_PATTERN, rootCondition))
                     .targetType(targetType.getFieldName())
-                    .targetFaset(String.format(DGRAPH_FASET_PATTERN, targetFasetCondition))
+                    .targetFaset(String.format(DGRAPH_FASET_PATTERN, targetFacetCondition))
                     .targetFilter(createTargetFilterCondition(targetType, dgraphEntityMap, paymentModel))
                     .innerTypesFilters(innerConditions)
                     .build();
@@ -149,17 +155,12 @@ public class DgraphAggregationQueryBuilderServiceImpl implements DgraphAggregati
                 continue;
             }
             Set<PaymentCheckedField> paymentCheckedFields = dgraphEntityMap.get(dgraphEntity);
-            if (paymentCheckedFields == null || paymentCheckedFields.isEmpty()) {
+            if (CollectionUtils.isEmpty(paymentCheckedFields)) {
                 log.warn("PaymentCheckedField set for {} is empty!", rootDgraphEntity);
                 continue;
             }
 
-            String condition = paymentCheckedFields.stream()
-                    .sorted()
-                    .map(checkedField ->
-                            dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(
-                                    checkedField, paymentModel))
-                    .collect(Collectors.joining(" and "));
+            String condition = createConditionLine(paymentCheckedFields, paymentModel);
             String filter = String.format(
                     dgraphQueryConditionResolver.resolvePaymentFilterByDgraphEntity(dgraphEntity), condition);
             innerFilters.add(filter);
@@ -171,26 +172,19 @@ public class DgraphAggregationQueryBuilderServiceImpl implements DgraphAggregati
                                        Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntityMap,
                                        PaymentModel paymentModel) {
         Set<PaymentCheckedField> paymentCheckedFields = dgraphEntityMap.get(rootDgraphEntity);
-        return paymentCheckedFields == null || paymentCheckedFields.isEmpty()
-                ? Strings.EMPTY : paymentCheckedFields.stream()
-                .sorted()
-                .map(checkedField ->
-                        dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(checkedField, paymentModel))
-                .collect(Collectors.joining(" and "));
+        return CollectionUtils.isEmpty(paymentCheckedFields)
+                ? Strings.EMPTY : createConditionLine(paymentCheckedFields, paymentModel);
     }
 
     private String createTargetFilterCondition(DgraphTargetAggregationType type,
                                                Map<DgraphEntity, Set<PaymentCheckedField>> dgraphEntityMap,
                                                PaymentModel paymentModel) {
         DgraphEntity dgraphEntity = dgraphEntityResolver.resolveDgraphEntityByTargetAggregationType(type);
-        if (dgraphEntityMap == null || !dgraphEntityMap.containsKey(dgraphEntity)) {
+        if (CollectionUtils.isEmpty(dgraphEntityMap) || !dgraphEntityMap.containsKey(dgraphEntity)) {
             return Strings.EMPTY;
         }
 
-        String targetCondition = dgraphEntityMap.get(dgraphEntity).stream()
-                .sorted()
-                .map(field -> dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(field, paymentModel))
-                .collect(Collectors.joining(" and "));
+        String targetCondition = createConditionLine(dgraphEntityMap.get(dgraphEntity), paymentModel);
         return Strings.isEmpty(targetCondition) ? Strings.EMPTY : String.format(DGRAPH_FILTER_PATTERN, targetCondition);
     }
 
@@ -201,6 +195,13 @@ public class DgraphAggregationQueryBuilderServiceImpl implements DgraphAggregati
             basicFacet.append(String.format(" and eq(status, \"%s\")", status));
         }
         return basicFacet.toString();
+    }
+
+    private String createConditionLine(Set<PaymentCheckedField> paymentCheckedFields, PaymentModel paymentModel) {
+        return paymentCheckedFields.stream()
+                .map(field ->
+                        dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(field, paymentModel))
+                .collect(Collectors.joining(DGRAPH_CONDITION_AND));
     }
 
 }

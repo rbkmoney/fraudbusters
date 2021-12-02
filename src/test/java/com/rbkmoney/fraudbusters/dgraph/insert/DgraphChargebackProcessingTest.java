@@ -43,7 +43,7 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
         checkCountOfObjects("Chargeback", 5);
         checkCountOfObjects("Email", 1);
         checkCountOfObjects("Fingerprint", 1);
-        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Ip", 1);
         checkCountOfObjects("Bin", 1);
         checkCountOfObjects("Party", 1);
         checkCountOfObjects("Shop", 1);
@@ -55,7 +55,7 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
         checkCountOfObjects("Chargeback", 5);
         checkCountOfObjects("Email", 1);
         checkCountOfObjects("Fingerprint", 1);
-        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Ip", 1);
         checkCountOfObjects("Bin", 1);
         checkCountOfObjects("Party", 1);
         checkCountOfObjects("Shop", 1);
@@ -78,7 +78,7 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
         checkCountOfObjects("Chargeback", 11);
         checkCountOfObjects("Email", 2);
         checkCountOfObjects("Fingerprint", 1);
-        checkCountOfObjects("IP", 1);
+        checkCountOfObjects("Ip", 1);
         checkCountOfObjects("Bin", 1);
         checkCountOfObjects("Party", 1);
         checkCountOfObjects("Shop", 2);
@@ -101,7 +101,7 @@ public class DgraphChargebackProcessingTest extends DgraphAbstractIntegrationTes
         checkCountOfObjects("Chargeback", 21);
         checkCountOfObjects("Email", 3);
         checkCountOfObjects("Fingerprint", 2);
-        checkCountOfObjects("IP", 2);
+        checkCountOfObjects("Ip", 2);
         checkCountOfObjects("Bin", 2);
         checkCountOfObjects("Party", 2);
         checkCountOfObjects("Shop", 3);

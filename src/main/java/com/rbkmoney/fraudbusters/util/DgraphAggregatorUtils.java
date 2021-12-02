@@ -14,11 +14,12 @@ public class DgraphAggregatorUtils {
 
     public static boolean doesNotContainField(PaymentCheckedField countField,
                                               List<PaymentCheckedField> fields) {
-        if (fields == null) {
-            return true;
-        }
-        return fields.stream()
-                .noneMatch(field -> field == countField);
+        return !doesContainField(countField, fields);
+    }
+
+    private static boolean doesContainField(PaymentCheckedField countField,
+                                               List<PaymentCheckedField> fields) {
+        return fields == null ? false : fields.contains(countField);
     }
 
     public static List<PaymentCheckedField> createFiltersList(PaymentCheckedField mainField,

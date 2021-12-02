@@ -12,6 +12,12 @@ import java.util.List;
 @NoArgsConstructor
 public class DgraphToken {
 
+    public DgraphToken(String tokenId, String maskedPan, String lastActTime) {
+        this.tokenId = tokenId;
+        this.maskedPan = maskedPan;
+        this.lastActTime = lastActTime;
+    }
+
     @JsonProperty("dgraph.type")
     private final String type = "Token";
 

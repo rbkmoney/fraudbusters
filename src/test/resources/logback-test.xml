@@ -3,9 +3,9 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
-    <root level="warn">
+    <root level="ERROR">
         <appender-ref ref="CONSOLE"/>
     </root>
-    <logger name="com.rbkmoney" level="info"/>
+    <logger name="com.rbkmoney" level="ERROR"/>
 
 </configuration>

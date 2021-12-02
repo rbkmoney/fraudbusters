@@ -12,6 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 public class DgraphCurrency {
 
+    public DgraphCurrency(String currencyCode) {
+        this.currencyCode = currencyCode;
+    }
+
     @JsonProperty("dgraph.type")
     private final String type = "Currency";
 

@@ -68,7 +68,7 @@ public final class VelocityTestData {
                     sourceCountryUid as uid
                 }
                         
-                getIpUid(func: type(IP)) @filter(eq(ipAddress, "127.0.0.1")) {
+                getIpUid(func: type(Ip)) @filter(eq(ipAddress, "127.0.0.1")) {
                     sourceIpUid as uid
                 }
                         
@@ -189,7 +189,7 @@ public final class VelocityTestData {
             uid(sourceCountryUid) <emails> uid(sourceEmailUid) .
             uid(sourceCountryUid) <ips> uid(sourceIpUid) .
                         
-            uid(sourceIpUid) <dgraph.type> "IP" .
+            uid(sourceIpUid) <dgraph.type> "Ip" .
             uid(sourceIpUid) <ipAddress> "127.0.0.1" .
             uid(sourceIpUid) <payments> uid(sourcePaymentUid) (createdAt = 2021-10-05T18:00:00, status = "captured") .
             uid(sourceIpUid) <tokens> uid(sourceTokenUid) .
@@ -304,7 +304,7 @@ public final class VelocityTestData {
                     sourceFingerUid as uid
                 }
                         
-                getIpUid(func: type(IP)) @filter(eq(ipAddress, "127.0.0.1")) {
+                getIpUid(func: type(Ip)) @filter(eq(ipAddress, "127.0.0.1")) {
                     sourceIpUid as uid
                 }
                         
@@ -420,7 +420,7 @@ public final class VelocityTestData {
             uid(sourceRefundUid) <contactEmail> uid(sourceEmailUid) .
             uid(sourceEmailUid) <fingerprints> uid(sourceFingerUid) .
                         
-            uid(sourceIpUid) <dgraph.type> "IP" .
+            uid(sourceIpUid) <dgraph.type> "Ip" .
             uid(sourceIpUid) <ipAddress> "127.0.0.1" .
             uid(sourceIpUid) <refunds> uid(sourceRefundUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
             uid(sourceIpUid) <tokens> uid(sourceTokenUid) .
@@ -508,7 +508,7 @@ public final class VelocityTestData {
                     sourceFingerUid as uid
                 }
                         
-                getIpUid(func: type(IP)) @filter(eq(ipAddress, "127.0.0.1")) {
+                getIpUid(func: type(Ip)) @filter(eq(ipAddress, "127.0.0.1")) {
                     sourceIpUid as uid
                 }
                         
@@ -528,29 +528,29 @@ public final class VelocityTestData {
             uid(sourceTokenUid) <bin> uid(sourceBinUid) .
             uid(sourceTokenUid) <maskedPan> "maskedPan" .
             uid(sourceTokenUid) <lastActTime> "2021-10-05T18:00:00" .
-            uid(sourceTokenUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourceTokenUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
                         
             uid(sourcePartyUid) <dgraph.type> "Party" .
             uid(sourcePartyUid) <partyId> "Party" .
             uid(sourcePartyUid) <lastActTime> "2021-10-05T18:00:00" .
-            uid(sourcePartyUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourcePartyUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
             uid(sourcePartyUid) <tokens> uid(sourceTokenUid) .
                         
             uid(sourceShopUid) <dgraph.type> "Shop" .
             uid(sourceShopUid) <lastActTime> "2021-10-05T18:00:00" .
             uid(sourceShopUid) <shopId> "Shop" .
-            uid(sourceShopUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourceShopUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
             uid(sourceShopUid) <tokens> uid(sourceTokenUid) .
             uid(sourceShopUid) <party> uid(sourcePartyUid) .
             uid(sourcePartyUid) <shops> uid(sourceShopUid) .
                         
             uid(sourceCurrencyUid) <dgraph.type> "Currency" .
             uid(sourceCurrencyUid) <currencyCode> "RUB" .
-            uid(sourceCurrencyUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourceCurrencyUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
                         
             uid(sourceBinUid) <dgraph.type> "Bin" .
             uid(sourceBinUid) <cardBin> "000000" .
-            uid(sourceBinUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourceBinUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
             uid(sourceBinUid) <tokens> uid(sourceTokenUid) .
                         
             uid(sourceChargebackUid) <dgraph.type> "Chargeback" .
@@ -559,8 +559,7 @@ public final class VelocityTestData {
             uid(sourceChargebackUid) <createdAt> "2021-10-05T18:00:00" .
             uid(sourceChargebackUid) <amount> "1000" .
             uid(sourceChargebackUid) <currency> uid(sourceCurrencyUid) .
-            uid(sourceChargebackUid) <status> "successful" .
-            uid(sourceChargebackUid) <status> "successful" .
+            uid(sourceChargebackUid) <status> "succeeded" .
             uid(sourceChargebackUid) <category> "category" .
             uid(sourceChargebackUid) <code> "code404" .
             uid(sourceChargebackUid) <payerType> "paid" .
@@ -572,7 +571,7 @@ public final class VelocityTestData {
                         
             uid(sourcePaymentUid) <dgraph.type> "Payment" .
             uid(sourcePaymentUid) <paymentId> "TestPayId" .
-            uid(sourcePaymentUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourcePaymentUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
             """;
 
     public static final String TEST_INSERT_FULL_CHARGEBACK_BLOCK = """
@@ -581,35 +580,35 @@ public final class VelocityTestData {
             uid(sourceTokenUid) <bin> uid(sourceBinUid) .
             uid(sourceTokenUid) <maskedPan> "maskedPan" .
             uid(sourceTokenUid) <lastActTime> "2021-10-05T18:00:00" .
-            uid(sourceTokenUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourceTokenUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
                         
             uid(sourcePartyUid) <dgraph.type> "Party" .
             uid(sourcePartyUid) <partyId> "Party" .
             uid(sourcePartyUid) <lastActTime> "2021-10-05T18:00:00" .
-            uid(sourcePartyUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourcePartyUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
             uid(sourcePartyUid) <tokens> uid(sourceTokenUid) .
                         
             uid(sourceShopUid) <dgraph.type> "Shop" .
             uid(sourceShopUid) <lastActTime> "2021-10-05T18:00:00" .
             uid(sourceShopUid) <shopId> "Shop" .
-            uid(sourceShopUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourceShopUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
             uid(sourceShopUid) <tokens> uid(sourceTokenUid) .
             uid(sourceShopUid) <party> uid(sourcePartyUid) .
             uid(sourcePartyUid) <shops> uid(sourceShopUid) .
                         
             uid(sourceCurrencyUid) <dgraph.type> "Currency" .
             uid(sourceCurrencyUid) <currencyCode> "RUB" .
-            uid(sourceCurrencyUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourceCurrencyUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
                         
             uid(sourceBinUid) <dgraph.type> "Bin" .
             uid(sourceBinUid) <cardBin> "000000" .
-            uid(sourceBinUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourceBinUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
             uid(sourceBinUid) <tokens> uid(sourceTokenUid) .
                         
             uid(sourceFingerUid) <dgraph.type> "Fingerprint" .
             uid(sourceFingerUid) <fingerprintData> "fData" .
             uid(sourceFingerUid) <lastActTime> "2021-10-05T18:00:00" .
-            uid(sourceFingerUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourceFingerUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
             uid(sourceFingerUid) <tokens> uid(sourceTokenUid) .
             uid(sourceTokenUid) <fingerprints> uid(sourceFingerUid) .
             uid(sourceChargebackUid) <fingerprint> uid(sourceFingerUid) .
@@ -618,7 +617,7 @@ public final class VelocityTestData {
             uid(sourceEmailUid) <dgraph.type> "Email" .
             uid(sourceEmailUid) <userEmail> "1@1.ru" .
             uid(sourceEmailUid) <lastActTime> "2021-10-05T18:00:00" .
-            uid(sourceEmailUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourceEmailUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
             uid(sourceEmailUid) <tokens> uid(sourceTokenUid) .
             uid(sourceBinUid) <emails> uid(sourceEmailUid) .
             uid(sourcePartyUid) <emails> uid(sourceEmailUid) .
@@ -627,9 +626,9 @@ public final class VelocityTestData {
             uid(sourceChargebackUid) <contactEmail> uid(sourceEmailUid) .
             uid(sourceEmailUid) <fingerprints> uid(sourceFingerUid) .
                         
-            uid(sourceIpUid) <dgraph.type> "IP" .
+            uid(sourceIpUid) <dgraph.type> "Ip" .
             uid(sourceIpUid) <ipAddress> "127.0.0.1" .
-            uid(sourceIpUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourceIpUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
             uid(sourceIpUid) <tokens> uid(sourceTokenUid) .
             uid(sourceChargebackUid) <operationIp> uid(sourceIpUid) .
             uid(sourceIpUid) <emails> uid(sourceEmailUid) .
@@ -640,8 +639,7 @@ public final class VelocityTestData {
             uid(sourceChargebackUid) <createdAt> "2021-10-05T18:00:00" .
             uid(sourceChargebackUid) <amount> "1000" .
             uid(sourceChargebackUid) <currency> uid(sourceCurrencyUid) .
-            uid(sourceChargebackUid) <status> "successful" .
-            uid(sourceChargebackUid) <status> "successful" .
+            uid(sourceChargebackUid) <status> "succeeded" .
             uid(sourceChargebackUid) <category> "category" .
             uid(sourceChargebackUid) <code> "code404" .
             uid(sourceChargebackUid) <payerType> "paid" .
@@ -653,7 +651,7 @@ public final class VelocityTestData {
                         
             uid(sourcePaymentUid) <dgraph.type> "Payment" .
             uid(sourcePaymentUid) <paymentId> "TestPayId" .
-            uid(sourcePaymentUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "successful") .
+            uid(sourcePaymentUid) <chargebacks> uid(sourceChargebackUid) (createdAt = 2021-10-05T18:00:00, status = "succeeded") .
             """;
 
     public static final String TEST_SMALL_WITHDRAWAL_UPSERT_QUERY = """

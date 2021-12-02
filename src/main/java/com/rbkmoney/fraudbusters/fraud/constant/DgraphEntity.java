@@ -14,7 +14,7 @@ public enum DgraphEntity {
     PARTY("Party"),
     SHOP("Shop"),
     COUNTRY("Country"),
-    IP("IP"),
+    IP("Ip"),
     BIN("Bin"),
     CURRENCY("Currency"),
     FRAUD_PAYMENT("FraudPayment"),

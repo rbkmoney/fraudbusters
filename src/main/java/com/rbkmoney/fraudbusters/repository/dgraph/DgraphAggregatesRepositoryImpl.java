@@ -1,10 +1,8 @@
 package com.rbkmoney.fraudbusters.repository.dgraph;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rbkmoney.fraudbusters.converter.DgraphResponseConverter;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphAggregates;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphMetrics;
-import com.rbkmoney.fraudbusters.exception.DgraphException;
 import com.rbkmoney.fraudbusters.repository.DgraphAggregatesRepository;
 import io.dgraph.DgraphClient;
 import io.dgraph.DgraphProto;
@@ -21,13 +19,15 @@ import java.util.List;
 @Lazy
 public class DgraphAggregatesRepositoryImpl extends AbstractDgraphDao implements DgraphAggregatesRepository {
 
-    private final ObjectMapper dgraphMapper;
+    private final DgraphResponseConverter dgraphResponseConverter;
+
+    private static final long MILLI_SCALE = 1_000_000L;
 
     public DgraphAggregatesRepositoryImpl(DgraphClient dgraphClient,
                                           RetryTemplate dgraphRetryTemplate,
-                                          ObjectMapper dgraphMapper) {
+                                          DgraphResponseConverter dgraphResponseConverter) {
         super(dgraphClient, dgraphRetryTemplate);
-        this.dgraphMapper = dgraphMapper;
+        this.dgraphResponseConverter = dgraphResponseConverter;
     }
 
     @Override
@@ -44,21 +44,14 @@ public class DgraphAggregatesRepositoryImpl extends AbstractDgraphDao implements
         DgraphProto.Response response = processDgraphQuery(query);
         String responseJson = response.getJson().toStringUtf8();
         log.trace("Received json with aggregates (query: {}): {}", query, responseJson);
-        DgraphAggregatesDecorator dgraphAggregates = convertToObject(responseJson, DgraphAggregatesDecorator.class);
+        DgraphAggregatesDecorator dgraphAggregates =
+                dgraphResponseConverter.convert(responseJson, DgraphAggregatesDecorator.class);
         log.debug("Received TokenResponse for query {}: {}", query, dgraphAggregates);
         DgraphAggregates aggregates = dgraphAggregates.aggregates.stream()
                 .findFirst()
                 .orElse(new DgraphAggregates())
                 .setQueryMetrics(toMetrics(response.getLatency()));
         return aggregates;
-    }
-
-    protected <T> T convertToObject(String json, Class<T> clazz) {
-        try {
-            return dgraphMapper.readValue(json, clazz);
-        } catch (JsonProcessingException ex) {
-            throw new DgraphException(String.format("Cannot covert json '%s' to class '%s", json, clazz), ex);
-        }
     }
 
     public static DgraphMetrics toMetrics(DgraphProto.Latency latency) {
@@ -72,7 +65,7 @@ public class DgraphAggregatesRepositoryImpl extends AbstractDgraphDao implements
     }
 
     private static long toMs(long nanosec) {
-        return nanosec / 1_000_000L;
+        return nanosec / MILLI_SCALE;
     }
 
     @Data

@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.dgraph.service.query;
 
+import com.rbkmoney.fraudbusters.constant.PaymentStatus;
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import org.junit.jupiter.api.Test;
@@ -455,7 +456,7 @@ public class DgraphUniqueQueryBuilderServiceTest extends AbstractDgraphQueryBuil
         String query = getUniqueQuery(
                 DgraphEntity.TOKEN,
                 DgraphEntity.FINGERPRINT,
-                Map.of(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN, PaymentCheckedField.CARD_TOKEN))
+                Map.of(DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN, PaymentCheckedField.PAN))
         );
         assertNotNull(query);
         assertEquals(UNIQUE_FINGERPRINTS_BY_PAN_TEST_QUERY, query);
@@ -1262,7 +1263,7 @@ public class DgraphUniqueQueryBuilderServiceTest extends AbstractDgraphQueryBuil
                 DgraphEntity.TOKEN,
                 DgraphEntity.TOKEN,
                 Map.of(
-                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.PAN, PaymentCheckedField.CARD_TOKEN)
+                        DgraphEntity.TOKEN, Set.of(PaymentCheckedField.CARD_TOKEN, PaymentCheckedField.PAN)
                 )
         );
         assertNotNull(query);
@@ -1889,7 +1890,7 @@ public class DgraphUniqueQueryBuilderServiceTest extends AbstractDgraphQueryBuil
                 createTestPaymentModel(),
                 Instant.parse("2021-10-28T19:40:54.000000Z"),
                 Instant.parse("2021-10-28T19:47:54.000000Z"),
-                "captured"
+                PaymentStatus.captured.name()
         );
     }
 

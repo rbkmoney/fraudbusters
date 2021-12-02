@@ -1,6 +1,9 @@
 package com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph;
 
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
+import com.rbkmoney.fraudbusters.constant.ChargebackStatus;
+import com.rbkmoney.fraudbusters.constant.PaymentStatus;
+import com.rbkmoney.fraudbusters.constant.RefundStatus;
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
@@ -40,7 +43,9 @@ public class DgraphCountAggregatorImpl implements CountPaymentAggregator<Payment
                                 PaymentModel paymentModel,
                                 TimeWindow timeWindow,
                                 List<PaymentCheckedField> list) {
-        return getCount(checkedField, paymentModel, timeWindow, list, DgraphEntity.PAYMENT, "captured");
+        return getCount(
+                checkedField, paymentModel, timeWindow, list, DgraphEntity.PAYMENT, PaymentStatus.captured.name()
+        );
     }
 
     @Override
@@ -50,7 +55,9 @@ public class DgraphCountAggregatorImpl implements CountPaymentAggregator<Payment
                               TimeWindow timeWindow,
                               String errorCode,
                               List<PaymentCheckedField> list) {
-        return getCount(checkedField, paymentModel, timeWindow, list, DgraphEntity.PAYMENT, "failure");
+        return getCount(
+                checkedField, paymentModel, timeWindow, list, DgraphEntity.PAYMENT, PaymentStatus.failed.name()
+        );
     }
 
     @Override
@@ -60,7 +67,9 @@ public class DgraphCountAggregatorImpl implements CountPaymentAggregator<Payment
             PaymentModel paymentModel,
             TimeWindow timeWindow,
             List<PaymentCheckedField> list) {
-        return getCount(checkedField, paymentModel, timeWindow, list, DgraphEntity.CHARGEBACK, null);
+        return getCount(
+                checkedField, paymentModel, timeWindow, list, DgraphEntity.CHARGEBACK, ChargebackStatus.accepted.name()
+        );
     }
 
     @Override
@@ -70,7 +79,9 @@ public class DgraphCountAggregatorImpl implements CountPaymentAggregator<Payment
             PaymentModel paymentModel,
             TimeWindow timeWindow,
             List<PaymentCheckedField> list) {
-        return getCount(checkedField, paymentModel, timeWindow, list, DgraphEntity.REFUND, "successful");
+        return getCount(
+                checkedField, paymentModel, timeWindow, list, DgraphEntity.REFUND, RefundStatus.succeeded.name()
+        );
     }
 
     private Integer getCount(PaymentCheckedField checkedField,

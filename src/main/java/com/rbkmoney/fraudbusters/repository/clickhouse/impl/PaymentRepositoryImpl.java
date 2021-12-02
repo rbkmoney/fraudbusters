@@ -64,7 +64,6 @@ public class PaymentRepositoryImpl implements Repository<CheckedPayment>, Paymen
         return namedParameterJdbcTemplate.query(query, params, checkedPaymentMapper);
     }
 
-
     @Override
     public Integer countOperationByField(String fieldName, Object value, Long from, Long to) {
         String sql = String.format("""

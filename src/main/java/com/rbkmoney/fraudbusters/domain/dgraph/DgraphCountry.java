@@ -12,6 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 public class DgraphCountry {
 
+    public DgraphCountry(String countryName) {
+        this.countryName = countryName;
+    }
+
     @JsonProperty("dgraph.type")
     private final String type = "Country";
 

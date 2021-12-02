@@ -12,6 +12,11 @@ import java.util.List;
 @NoArgsConstructor
 public class DgraphFingerprint {
 
+    public DgraphFingerprint(String fingerprintData, String lastActTime) {
+        this.fingerprintData = fingerprintData;
+        this.lastActTime = lastActTime;
+    }
+
     @JsonProperty("dgraph.type")
     private final String type = "Fingerprint";
 

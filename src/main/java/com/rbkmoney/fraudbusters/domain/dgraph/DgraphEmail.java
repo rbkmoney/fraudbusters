@@ -10,6 +10,11 @@ import java.util.List;
 @NoArgsConstructor
 public class DgraphEmail {
 
+    public DgraphEmail(String userEmail, String lastActTime) {
+        this.userEmail = userEmail;
+        this.lastActTime = lastActTime;
+    }
+
     @JsonProperty("dgraph.type")
     private final String type = "Email";
 

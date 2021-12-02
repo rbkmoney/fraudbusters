@@ -1,6 +1,9 @@
 package com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph;
 
 import com.rbkmoney.fraudbusters.aspect.BasicMetric;
+import com.rbkmoney.fraudbusters.constant.ChargebackStatus;
+import com.rbkmoney.fraudbusters.constant.PaymentStatus;
+import com.rbkmoney.fraudbusters.constant.RefundStatus;
 import com.rbkmoney.fraudbusters.fraud.constant.DgraphEntity;
 import com.rbkmoney.fraudbusters.fraud.constant.PaymentCheckedField;
 import com.rbkmoney.fraudbusters.fraud.model.PaymentModel;
@@ -40,7 +43,7 @@ public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentMode
                              PaymentModel model,
                              TimeWindow timeWindow,
                              List<PaymentCheckedField> fields) {
-        return getSum(checkedField, model, timeWindow, fields, DgraphEntity.PAYMENT, "captured");
+        return getSum(checkedField, model, timeWindow, fields, DgraphEntity.PAYMENT, PaymentStatus.captured.name());
     }
 
     @Override
@@ -50,7 +53,7 @@ public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentMode
                            TimeWindow timeWindow,
                            String errorCode,
                            List<PaymentCheckedField> fields) {
-        return getSum(checkedField, model, timeWindow, fields, DgraphEntity.PAYMENT, "failure");
+        return getSum(checkedField, model, timeWindow, fields, DgraphEntity.PAYMENT, PaymentStatus.failed.name());
     }
 
     @Override
@@ -58,7 +61,9 @@ public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentMode
                                 PaymentModel model,
                                 TimeWindow timeWindow,
                                 List<PaymentCheckedField> fields) {
-        return getSum(checkedField, model, timeWindow, fields, DgraphEntity.CHARGEBACK, null);
+        return getSum(
+                checkedField, model, timeWindow, fields, DgraphEntity.CHARGEBACK, ChargebackStatus.accepted.name()
+        );
     }
 
     @Override
@@ -66,7 +71,7 @@ public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentMode
                             PaymentModel model,
                             TimeWindow timeWindow,
                             List<PaymentCheckedField> fields) {
-        return getSum(checkedField, model, timeWindow, fields, DgraphEntity.REFUND, "successful");
+        return getSum(checkedField, model, timeWindow, fields, DgraphEntity.REFUND, RefundStatus.succeeded.name());
     }
 
     private Double getSum(PaymentCheckedField checkedField,
