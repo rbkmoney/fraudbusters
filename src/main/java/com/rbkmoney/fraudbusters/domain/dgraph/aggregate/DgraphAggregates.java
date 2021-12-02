@@ -1,5 +1,6 @@
-package com.rbkmoney.fraudbusters.domain.dgraph;
+package com.rbkmoney.fraudbusters.domain.dgraph.aggregate;
 
+import com.rbkmoney.fraudbusters.domain.dgraph.DgraphMetrics;
 import lombok.Data;
 
 @Data

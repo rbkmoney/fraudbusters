@@ -1,4 +1,4 @@
-## @vtlvariable name="payment" type="com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment"
+## @vtlvariable name="payment" type="com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphFraudPayment"
 ## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
 uid($constants.fraudPaymentUid) <dgraph.type> "$!payment.type" .
 uid($constants.fraudPaymentUid) <paymentId> "$!payment.paymentId" .

@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.domain.dgraph;
+package com.rbkmoney.fraudbusters.domain.dgraph.common;
 
 import lombok.Data;
 

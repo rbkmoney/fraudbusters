@@ -8,21 +8,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class DgraphQueryConditionResolver {
 
+    private static final String FILTER_POSTFIX = " @filter(%s)";
+
     public String resolvePaymentFilterByDgraphEntity(DgraphEntity entity) {
-        return switch (entity) {
-            case TOKEN -> "cardToken @filter(%s)";
-            case BIN -> "bin @filter(%s)";
-            case EMAIL -> "contactEmail @filter(%s)";
-            case FINGERPRINT -> "fingerprint @filter(%s)";
-            case IP -> "operationIp @filter(%s)";
-            case PARTY -> "party @filter(%s)";
-            case SHOP -> "shop @filter(%s)";
-            case COUNTRY -> "country @filter(%s)";
-            case CURRENCY -> "currency @filter(%s)";
-            case FRAUD_PAYMENT -> "fraudPayment @filter(%s)";
-            case PAYMENT -> "sourcePayment @filter(%s)";
+        String entityName =  switch (entity) {
+            case TOKEN -> "cardToken";
+            case BIN -> "bin";
+            case EMAIL -> "contactEmail";
+            case FINGERPRINT -> "fingerprint";
+            case IP -> "operationIp";
+            case PARTY -> "party";
+            case SHOP -> "shop";
+            case COUNTRY -> "country";
+            case CURRENCY -> "currency";
+            case FRAUD_PAYMENT -> "fraudPayment";
+            case PAYMENT -> "sourcePayment";
             default -> throw new UnsupportedOperationException(String.format("Unknown %s", entity));
         };
+        return entityName + FILTER_POSTFIX;
     }
 
     public String resolveConditionByPaymentCheckedField(PaymentCheckedField paymentCheckedField,

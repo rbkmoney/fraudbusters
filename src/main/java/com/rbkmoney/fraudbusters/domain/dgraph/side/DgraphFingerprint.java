@@ -1,31 +1,32 @@
-package com.rbkmoney.fraudbusters.domain.dgraph;
+package com.rbkmoney.fraudbusters.domain.dgraph.side;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rbkmoney.fraudbusters.domain.dgraph.DgraphSideObject;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphChargeback;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphPayment;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphRefund;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
-public class DgraphFingerprint {
+@ToString(callSuper = true)
+public class DgraphFingerprint extends DgraphSideObject {
 
     public DgraphFingerprint(String fingerprintData, String lastActTime) {
+        super(lastActTime);
         this.fingerprintData = fingerprintData;
-        this.lastActTime = lastActTime;
     }
 
     @JsonProperty("dgraph.type")
     private final String type = "Fingerprint";
 
-    private String uid;
     private String fingerprintData;
-    private String lastActTime;
-    private List<DgraphPayment> payments;
-    private List<DgraphRefund> refunds;
-    private List<DgraphChargeback> chargebacks;
     private List<DgraphEmail> emails;
     private List<DgraphToken> tokens;
 

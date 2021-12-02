@@ -1,6 +1,7 @@
-package com.rbkmoney.fraudbusters.domain.dgraph;
+package com.rbkmoney.fraudbusters.domain.dgraph.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rbkmoney.fraudbusters.domain.dgraph.side.*;
 import lombok.Data;
 
 @Data

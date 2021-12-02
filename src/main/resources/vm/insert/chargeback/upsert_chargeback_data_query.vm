@@ -1,4 +1,4 @@
-## @vtlvariable name="chargeback" type="com.rbkmoney.fraudbusters.domain.dgraph.DgraphChargeback"
+## @vtlvariable name="chargeback" type="com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphChargeback"
 ## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
 query all() {
     getTokenUid(func: type(Token)) @filter(eq(tokenId, "$chargeback.cardToken.tokenId")) {

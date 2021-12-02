@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.service.template.insert.withdrawal;
 
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphWithdrawal;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphWithdrawal;
 import com.rbkmoney.fraudbusters.service.template.AbstractDgraphTemplateService;
 import com.rbkmoney.fraudbusters.service.template.TemplateService;
 import org.apache.velocity.app.VelocityEngine;

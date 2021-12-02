@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.service.template.insert.chargeback;
 
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphChargeback;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphChargeback;
 import com.rbkmoney.fraudbusters.service.template.AbstractDgraphTemplateService;
 import com.rbkmoney.fraudbusters.service.template.TemplateService;
 import org.apache.velocity.app.VelocityEngine;

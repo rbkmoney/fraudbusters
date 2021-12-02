@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.listener.events.dgraph;
 
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphFraudPayment;
 import com.rbkmoney.fraudbusters.exception.NotFoundException;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import lombok.RequiredArgsConstructor;

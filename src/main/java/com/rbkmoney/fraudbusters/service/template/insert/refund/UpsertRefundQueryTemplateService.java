@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.service.template.insert.refund;
 
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphRefund;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphRefund;
 import com.rbkmoney.fraudbusters.service.template.AbstractDgraphTemplateService;
 import com.rbkmoney.fraudbusters.service.template.TemplateService;
 import org.apache.velocity.app.VelocityEngine;

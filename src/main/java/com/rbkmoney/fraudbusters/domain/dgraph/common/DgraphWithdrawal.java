@@ -1,6 +1,10 @@
-package com.rbkmoney.fraudbusters.domain.dgraph;
+package com.rbkmoney.fraudbusters.domain.dgraph.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rbkmoney.fraudbusters.domain.dgraph.side.DgraphBin;
+import com.rbkmoney.fraudbusters.domain.dgraph.side.DgraphCountry;
+import com.rbkmoney.fraudbusters.domain.dgraph.side.DgraphCurrency;
+import com.rbkmoney.fraudbusters.domain.dgraph.side.DgraphToken;
 import lombok.Data;
 
 @Data

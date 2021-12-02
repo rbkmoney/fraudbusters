@@ -1,4 +1,4 @@
-## @vtlvariable name="refund" type="com.rbkmoney.fraudbusters.domain.dgraph.DgraphRefund"
+## @vtlvariable name="refund" type="com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphRefund"
 ## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
 #set ($paymentId = $!refund.paymentId)
 #set ($cardToken = $!refund.cardToken)

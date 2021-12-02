@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.repository.dgraph;
 
 import com.rbkmoney.fraudbusters.converter.DgraphResponseConverter;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphAggregates;
+import com.rbkmoney.fraudbusters.domain.dgraph.aggregate.DgraphAggregates;
 import com.rbkmoney.fraudbusters.domain.dgraph.DgraphMetrics;
 import com.rbkmoney.fraudbusters.repository.DgraphAggregatesRepository;
 import io.dgraph.DgraphClient;

@@ -1,4 +1,4 @@
-## @vtlvariable name="chargeback" type="com.rbkmoney.fraudbusters.domain.dgraph.DgraphChargeback"
+## @vtlvariable name="chargeback" type="com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphChargeback"
 ## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
 #set ($paymentId = $!chargeback.paymentId)
 #set ($cardToken = $!chargeback.cardToken)

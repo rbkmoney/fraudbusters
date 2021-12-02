@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.service.template.insert.fraud;
 
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphFraudPayment;
 import com.rbkmoney.fraudbusters.service.template.AbstractDgraphTemplateService;
 import com.rbkmoney.fraudbusters.service.template.TemplateService;
 import org.apache.velocity.app.VelocityEngine;

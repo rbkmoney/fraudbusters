@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.repository.dgraph;
 
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphPayment;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphPayment;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.service.dto.FilterDto;
 import com.rbkmoney.fraudbusters.service.template.TemplateService;

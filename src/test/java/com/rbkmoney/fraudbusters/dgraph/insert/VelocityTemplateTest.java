@@ -2,7 +2,7 @@ package com.rbkmoney.fraudbusters.dgraph.insert;
 
 import com.rbkmoney.fraudbusters.config.dgraph.TemplateConfig;
 import com.rbkmoney.fraudbusters.dgraph.insert.data.VelocityTestData;
-import com.rbkmoney.fraudbusters.domain.dgraph.*;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.*;
 import com.rbkmoney.fraudbusters.service.template.TemplateService;
 import com.rbkmoney.fraudbusters.service.template.insert.chargeback.InsertChargebackQueryTemplateService;
 import com.rbkmoney.fraudbusters.service.template.insert.chargeback.UpsertChargebackQueryTemplateService;

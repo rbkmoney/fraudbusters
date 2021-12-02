@@ -1,4 +1,4 @@
-## @vtlvariable name="payment" type="com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment"
+## @vtlvariable name="payment" type="com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphFraudPayment"
 ## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
 query all() {
     getFraudPaymentUid(func: type(FraudPayment)) @filter(eq(paymentId, "$payment.paymentId")) {
