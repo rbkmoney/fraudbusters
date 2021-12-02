@@ -11,4 +11,5 @@
     <suppress checks="LineLength" files="DgraphRefundsSumQueryBuilderServiceTestData.java"/>
     <suppress checks="LineLength" files="DgraphPaymentCountQueryBuilderServiceTestData.java"/>
     <suppress checks="LineLength" files="DgraphUniqueQueryBuilderServiceTestData.java"/>
+    <suppress checks="Indentation" files="DgraphQueryConditionResolver.java"/>
 </suppressions>

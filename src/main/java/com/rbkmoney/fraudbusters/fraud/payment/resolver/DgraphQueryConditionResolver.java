@@ -11,7 +11,7 @@ public class DgraphQueryConditionResolver {
     private static final String FILTER_POSTFIX = " @filter(%s)";
 
     public String resolvePaymentFilterByDgraphEntity(DgraphEntity entity) {
-        String entityName =  switch (entity) {
+        String entityName = switch (entity) {
             case TOKEN -> "cardToken";
             case BIN -> "bin";
             case EMAIL -> "contactEmail";
