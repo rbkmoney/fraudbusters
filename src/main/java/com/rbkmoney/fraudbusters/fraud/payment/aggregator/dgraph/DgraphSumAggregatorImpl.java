@@ -76,14 +76,12 @@ public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentMode
     }
 
     private Double getSum(PaymentCheckedField checkedField,
-                             PaymentModel paymentModel,
-                             TimeWindow timeWindow,
-                             List<PaymentCheckedField> fields,
-                             DgraphEntity targetEntity,
-                             String status) {
+                          PaymentModel paymentModel,
+                          TimeWindow timeWindow,
+                          List<PaymentCheckedField> fields,
+                          DgraphEntity targetEntity,
+                          String status) {
         Instant timestamp = getTimestamp(paymentModel);
-        Instant startWindowTime = timestamp.minusMillis(timeWindow.getStartWindowTime());
-        Instant endWindowTime = timestamp.minusMillis(timeWindow.getEndWindowTime());
         List<PaymentCheckedField> filters = createFiltersList(checkedField, fields);
 
         String countQuery = dgraphSumQueryBuilderService.getQuery(
@@ -91,8 +89,8 @@ public class DgraphSumAggregatorImpl implements SumPaymentAggregator<PaymentMode
                 targetEntity,
                 dgraphEntityResolver.resolvePaymentCheckedFieldsToMap(filters),
                 paymentModel,
-                startWindowTime,
-                endWindowTime,
+                timestamp.minusMillis(timeWindow.getStartWindowTime()),
+                timestamp.minusMillis(timeWindow.getEndWindowTime()),
                 status
         );
         return dgraphAggregatesRepository.getSum(countQuery);

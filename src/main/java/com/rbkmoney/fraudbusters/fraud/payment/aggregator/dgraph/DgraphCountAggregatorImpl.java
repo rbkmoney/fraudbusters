@@ -92,8 +92,6 @@ public class DgraphCountAggregatorImpl implements CountPaymentAggregator<Payment
                              DgraphEntity targetEntity,
                              String status) {
         Instant timestamp = getTimestamp(paymentModel);
-        Instant startWindowTime = timestamp.minusMillis(timeWindow.getStartWindowTime());
-        Instant endWindowTime = timestamp.minusMillis(timeWindow.getEndWindowTime());
         List<PaymentCheckedField> filters = createFiltersList(checkedField, fields);
 
         String countQuery = dgraphCountQueryBuilderService.getQuery(
@@ -101,8 +99,8 @@ public class DgraphCountAggregatorImpl implements CountPaymentAggregator<Payment
                 targetEntity,
                 dgraphEntityResolver.resolvePaymentCheckedFieldsToMap(filters),
                 paymentModel,
-                startWindowTime,
-                endWindowTime,
+                timestamp.minusMillis(timeWindow.getStartWindowTime()),
+                timestamp.minusMillis(timeWindow.getEndWindowTime()),
                 status
         );
         return dgraphAggregatesRepository.getCount(countQuery);

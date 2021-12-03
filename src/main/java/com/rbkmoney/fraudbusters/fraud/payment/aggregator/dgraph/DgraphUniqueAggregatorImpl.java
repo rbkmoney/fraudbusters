@@ -47,8 +47,6 @@ public class DgraphUniqueAggregatorImpl implements UniqueValueAggregator<Payment
         }
 
         Instant timestamp = getTimestamp(paymentModel);
-        Instant startWindowTime = timestamp.minusMillis(timeWindow.getStartWindowTime());
-        Instant endWindowTime = timestamp.minusMillis(timeWindow.getEndWindowTime());
         List<PaymentCheckedField> filters = createFiltersList(countField, fields);
 
         String countQuery = dgraphUniqueQueryBuilderService.getQuery(
@@ -56,8 +54,8 @@ public class DgraphUniqueAggregatorImpl implements UniqueValueAggregator<Payment
                 dgraphEntityResolver.resolvePaymentCheckedField(onField),
                 dgraphEntityResolver.resolvePaymentCheckedFieldsToMap(filters),
                 paymentModel,
-                startWindowTime,
-                endWindowTime,
+                timestamp.minusMillis(timeWindow.getStartWindowTime()),
+                timestamp.minusMillis(timeWindow.getEndWindowTime()),
                 PaymentStatus.captured.name()
         );
         return dgraphAggregatesRepository.getCount(countQuery) + CURRENT_ONE;
