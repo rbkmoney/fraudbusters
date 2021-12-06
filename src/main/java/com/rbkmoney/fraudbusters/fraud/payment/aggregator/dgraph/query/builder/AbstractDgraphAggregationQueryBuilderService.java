@@ -26,9 +26,12 @@ public abstract class AbstractDgraphAggregationQueryBuilderService {
     private final DgraphEntityResolver dgraphEntityResolver;
     private final DgraphQueryConditionResolver dgraphQueryConditionResolver;
 
-    private static final String DGRAPH_FILTER_PATTERN = "@filter(%s)";
-    private static final String DGRAPH_FASET_PATTERN = "@facets(%s)";
-    private static final String DGRAPH_CONDITION_AND = " and ";
+    private static final String FILTER_PATTERN = "@filter(%s)";
+    private static final String FACET_PATTERN = "@facets(%s)";
+    private static final String CONDITION_AND = " and ";
+    private static final String EXTENDED_CONDITION_AND = "%s and %s";
+    private static final String TARGET_FACET_CONDITION = "ge(createdAt, \"%s\") and le(createdAt, \"%s\")";
+    private static final String TARGET_FACET_STATUS_CONDITION = " and eq(status, \"%s\")";
 
     protected DgraphAggregationQueryModel prepareAggregationQueryModel(
             DgraphEntity rootEntity,
@@ -47,10 +50,10 @@ public abstract class AbstractDgraphAggregationQueryBuilderService {
 
         if (dgraphEntityResolver.resolveDgraphEntityByTargetAggregationType(targetType) == rootEntity) {
             String extendedRootCondition = Strings.isEmpty(rootCondition)
-                    ? targetFacetCondition : String.format("%s and %s", targetFacetCondition, rootCondition);
+                    ? targetFacetCondition : String.format(EXTENDED_CONDITION_AND, targetFacetCondition, rootCondition);
             return DgraphAggregationQueryModel.builder()
                     .rootType(rootEntity.getTypeName())
-                    .rootFilter(String.format(DGRAPH_FILTER_PATTERN, extendedRootCondition))
+                    .rootFilter(String.format(FILTER_PATTERN, extendedRootCondition))
                     .innerTypesFilters(innerConditions)
                     .isRootModel(true)
                     .build();
@@ -58,9 +61,9 @@ public abstract class AbstractDgraphAggregationQueryBuilderService {
             return DgraphAggregationQueryModel.builder()
                     .rootType(rootEntity.getTypeName())
                     .rootFilter(Strings.isEmpty(rootCondition)
-                            ? Strings.EMPTY : String.format(DGRAPH_FILTER_PATTERN, rootCondition))
+                            ? Strings.EMPTY : String.format(FILTER_PATTERN, rootCondition))
                     .targetType(targetType.getFieldName())
-                    .targetFaset(String.format(DGRAPH_FASET_PATTERN, targetFacetCondition))
+                    .targetFaset(String.format(FACET_PATTERN, targetFacetCondition))
                     .targetFilter(createTargetFilterCondition(targetType, dgraphEntityMap, paymentModel))
                     .innerTypesFilters(innerConditions)
                     .build();
@@ -116,14 +119,14 @@ public abstract class AbstractDgraphAggregationQueryBuilderService {
         }
 
         String targetCondition = createConditionLine(dgraphEntityMap.get(dgraphEntity), paymentModel);
-        return Strings.isEmpty(targetCondition) ? Strings.EMPTY : String.format(DGRAPH_FILTER_PATTERN, targetCondition);
+        return Strings.isEmpty(targetCondition) ? Strings.EMPTY : String.format(FILTER_PATTERN, targetCondition);
     }
 
     private String createTargetFacetCondition(Instant fromTime, Instant toTime, String status) {
         StringBuilder basicFacet = new StringBuilder();
-        basicFacet.append(String.format("ge(createdAt, \"%s\") and le(createdAt, \"%s\")", fromTime, toTime));
+        basicFacet.append(String.format(TARGET_FACET_CONDITION, fromTime, toTime));
         if (Strings.isNotEmpty(status)) {
-            basicFacet.append(String.format(" and eq(status, \"%s\")", status));
+            basicFacet.append(String.format(TARGET_FACET_STATUS_CONDITION, status));
         }
         return basicFacet.toString();
     }
@@ -132,7 +135,7 @@ public abstract class AbstractDgraphAggregationQueryBuilderService {
         return paymentCheckedFields.stream()
                 .map(field ->
                         dgraphQueryConditionResolver.resolveConditionByPaymentCheckedField(field, paymentModel))
-                .collect(Collectors.joining(DGRAPH_CONDITION_AND));
+                .collect(Collectors.joining(CONDITION_AND));
     }
 
 }
