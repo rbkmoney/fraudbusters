@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.support.RetryTemplate;
 
+import java.util.Map;
+
 @Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractDgraphDao {
@@ -16,11 +18,11 @@ public abstract class AbstractDgraphDao {
     private final DgraphClient dgraphClient;
     private final RetryTemplate dgraphRetryTemplate;
 
-    public void saveNqsToDgraph(String nqs, String query) {
+    protected void saveNqsToDgraph(String nqs, String query) {
         dgraphRetryTemplate.execute(context -> insertNqsToDgraph(nqs, query));
     }
 
-    public boolean insertNqsToDgraph(String nqs, String query) {
+    protected boolean insertNqsToDgraph(String nqs, String query) {
         try (Transaction transaction = dgraphClient.newTransaction()) {
             log.trace("InsertJsonToDgraph will save data (nqs: {})", nqs);
             DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
@@ -38,6 +40,15 @@ public abstract class AbstractDgraphDao {
             log.warn("Received a dgraph exception while the service add new data)", ex);
             throw new DgraphException(String.format("Received exception from dgraph while the service " +
                     "was saving data (nqs: %s)", nqs), ex);
+        }
+    }
+
+    protected DgraphProto.Response processDgraphQuery(String query) {
+        try (Transaction transaction = dgraphClient.newTransaction()) {
+            return transaction.query(query);
+        } catch (RuntimeException ex) {
+            throw new DgraphException(String.format("Received exception from dgraph while the service " +
+                    "process query with args (query: %s)", query), ex);
         }
     }
 

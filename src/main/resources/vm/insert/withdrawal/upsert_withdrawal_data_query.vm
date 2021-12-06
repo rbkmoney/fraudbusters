@@ -1,0 +1,42 @@
+## @vtlvariable name="withdrawal" type="com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphWithdrawal"
+## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
+query all() {
+
+    getCurrencyUid(func: type(Currency)) @filter(eq(currencyCode, "$withdrawal.currency.currencyCode")) {
+        $constants.currencyUid as uid
+    }
+
+#if ($withdrawal.accountCurrency)
+    getAccountCurrencyUid(func: type(Currency)) @filter(eq(currencyCode, "$withdrawal.accountCurrency.currencyCode")) {
+        $constants.accountCurrencyUid as uid
+    }
+
+#end
+#if ($withdrawal.cryptoWalletCurrency)
+    getCryptoCurrencyUid(func: type(Currency)) @filter(eq(currencyCode, "$withdrawal.cryptoWalletCurrency.currencyCode")) {
+        $constants.cryptoCurrencyUid as uid
+    }
+
+#end
+#if($withdrawal.bin)
+    getBinUid(func: type(Bin)) @filter(eq(cardBin, "$withdrawal.bin.cardBin")) {
+        $constants.binUid as uid
+    }
+
+#end
+#if($withdrawal.cardToken)
+    getTokenUid(func: type(Token)) @filter(eq(tokenId, "$withdrawal.cardToken.tokenId")) {
+        $constants.tokenUid as uid
+    }
+
+#end
+#if($withdrawal.country)
+    getCountryUid(func: type(Country)) @filter(eq(countryName, "$withdrawal.country.countryName")) {
+        $constants.countryUid as uid
+    }
+
+#end
+    getWithdrawalUid(func: type(Withdrawal)) @filter(eq(withdrawalId, "$withdrawal.withdrawalId")) {
+        $constants.withdrawalUid as uid
+    }
+}

@@ -1,0 +1,51 @@
+## @vtlvariable name="refund" type="com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphRefund"
+## @vtlvariable name="constants" type="com.rbkmoney.fraudbusters.constant.DgraphPaymentUpsertConstants"
+query all() {
+    getTokenUid(func: type(Token)) @filter(eq(tokenId, "$refund.cardToken.tokenId")) {
+        $constants.tokenUid as uid
+    }
+
+    getCurrencyUid(func: type(Currency)) @filter(eq(currencyCode, "$refund.currency.currencyCode")) {
+        $constants.currencyUid as uid
+    }
+
+    getPartyUid(func: type(Party)) @filter(eq(partyId, "$refund.party.partyId")) {
+        $constants.partyUid as uid
+    }
+
+#if($refund.shop)
+    getShopUid(func: type(Shop)) @filter(eq(shopId, "$refund.shop.shopId")) {
+        $constants.shopUid as uid
+    }
+
+#end
+    getBinUid(func: type(Bin)) @filter(eq(cardBin, "$refund.bin.cardBin")) {
+        $constants.binUid as uid
+    }
+
+#if($refund.contactEmail)
+    getEmailUid(func: type(Email)) @filter(eq(userEmail, "$refund.contactEmail.userEmail")) {
+        $constants.emailUid as uid
+    }
+
+#end
+#if($refund.fingerprint)
+    getFingerUid(func: type(Fingerprint)) @filter(eq(fingerprintData, "$refund.fingerprint.fingerprintData")) {
+        $constants.fingerUid as uid
+    }
+
+#end
+#if($refund.operationIp)
+    getIpUid(func: type(Ip)) @filter(eq(ipAddress, "$refund.operationIp.ipAddress")) {
+        $constants.ipUid as uid
+    }
+
+#end
+    getPaymentUid(func: type(Payment)) @filter(eq(paymentId, "$refund.paymentId")) {
+        $constants.paymentUid as uid
+    }
+
+    getRefundUid(func: type(Refund)) @filter(eq(paymentId, "$refund.paymentId") and eq(refundId, "$refund.refundId")) {
+        $constants.refundUid as uid
+    }
+}

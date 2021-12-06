@@ -1,7 +1,7 @@
 package com.rbkmoney.fraudbusters.converter;
 
 import com.rbkmoney.damsel.fraudbusters.FraudPayment;
-import com.rbkmoney.fraudbusters.domain.dgraph.DgraphFraudPayment;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphFraudPayment;
 import com.rbkmoney.fraudbusters.util.TimestampUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;

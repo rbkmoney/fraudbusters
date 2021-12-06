@@ -11,7 +11,7 @@ import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.damsel.fraudbusters.Withdrawal;
 import com.rbkmoney.fraudbusters.converter.PaymentToDgraphPaymentConverter;
 import com.rbkmoney.fraudbusters.converter.PaymentToPaymentModelConverter;
-import com.rbkmoney.fraudbusters.domain.dgraph.*;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.*;
 import com.rbkmoney.fraudbusters.listener.events.dgraph.*;
 import com.rbkmoney.fraudbusters.repository.Repository;
 import com.rbkmoney.fraudbusters.stream.impl.FullTemplateVisitorImpl;

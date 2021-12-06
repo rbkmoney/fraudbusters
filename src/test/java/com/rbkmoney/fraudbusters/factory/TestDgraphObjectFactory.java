@@ -1,18 +1,22 @@
 package com.rbkmoney.fraudbusters.factory;
 
 import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.fraudbusters.ClientInfo;
 import com.rbkmoney.damsel.fraudbusters.CryptoWallet;
 import com.rbkmoney.damsel.fraudbusters.DigitalWallet;
 import com.rbkmoney.damsel.fraudbusters.Error;
-import com.rbkmoney.fraudbusters.domain.dgraph.*;
+import com.rbkmoney.damsel.fraudbusters.*;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.*;
+import com.rbkmoney.fraudbusters.domain.dgraph.side.*;
 import com.rbkmoney.fraudbusters.factory.properties.OperationProperties;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TestDgraphObjectFactory {
@@ -33,18 +37,16 @@ public final class TestDgraphObjectFactory {
         dgraphPayment.setPaymentId("TestPayment");
         String partyId = "partyId-1";
         String shopId = "shopId-1";
-        dgraphPayment.setPartyId(partyId);
-        dgraphPayment.setShopId(shopId);
-        dgraphPayment.setPartyShop(createTestDgraphPartyShop(partyId, shopId));
+        dgraphPayment.setParty(createTestDgraphParty(partyId));
+        dgraphPayment.setShop(createTestDgraphShop(shopId));
 
         dgraphPayment.setCreatedAt("2021-10-05T18:00:00");
         dgraphPayment.setAmount(1000L);
-        dgraphPayment.setCurrency("RUB");
-        dgraphPayment.setStatus("captured");
+        dgraphPayment.setCurrency(createDefaultDgraphCurrency());
+        dgraphPayment.setStatus(com.rbkmoney.fraudbusters.constant.PaymentStatus.captured.name());
         dgraphPayment.setPaymentTool("tool");
         dgraphPayment.setTerminal("10001");
         dgraphPayment.setProviderId("21");
-        dgraphPayment.setBankCountry("Russia");
         dgraphPayment.setPayerType("type-1");
         dgraphPayment.setTokenProvider("provider-1");
         dgraphPayment.setMobile(false);
@@ -59,10 +61,18 @@ public final class TestDgraphObjectFactory {
         dgraphPayment.setCardToken(createTestDgraphToken("token-1", "pan-1"));
 
         dgraphPayment.setCountry(countryExists ? createTestDgraphCountry() : null);
-        dgraphPayment.setPaymentIp(ipExists ? createTestDgraphIp() : null);
+        dgraphPayment.setOperationIp(ipExists ? createTestDgraphIp() : null);
         dgraphPayment.setFingerprint(fingerprintExists ? createTestDgraphFingerprint() : null);
         dgraphPayment.setContactEmail(emailExists ? createTestDgraphEmail() : null);
         return dgraphPayment;
+    }
+
+    public static List<Payment> generatePayments(int count, OperationProperties properties) {
+        List<Payment> payments = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            payments.add(generatePayment(properties, i));
+        }
+        return payments;
     }
 
     public static Payment generatePayment(OperationProperties properties, int idx) {
@@ -75,7 +85,8 @@ public final class TestDgraphObjectFactory {
                         .setShopId(properties.getShopId())
         );
         payment.setReferenceInfo(referenceInfo);
-        payment.setEventTime(Instant.now().toString());
+        payment.setEventTime(properties.isEventTimeDispersion()
+                ? Instant.now().minus(idx, ChronoUnit.MINUTES).toString() : Instant.now().toString());
         payment.setCost(
                 new Cash()
                         .setAmount(1000L)
@@ -86,7 +97,7 @@ public final class TestDgraphObjectFactory {
                 new BankCard()
                         .setToken(properties.getTokenId())
                         .setBin(properties.getBin())
-                        .setLastDigits("0000")
+                        .setLastDigits(properties.getMaskedPan())
                         .setPaymentToken(new BankCardTokenServiceRef().setId("PT-111"))
                         .setPaymentSystem(new PaymentSystemRef().setId("PS-111"))
         ));
@@ -144,22 +155,21 @@ public final class TestDgraphObjectFactory {
         DgraphRefund dgraphRefund = new DgraphRefund();
         dgraphRefund.setRefundId("TestRefId");
         dgraphRefund.setPaymentId("TestPayId");
-        dgraphRefund.setPartyId("Party");
-        dgraphRefund.setShopId("Shop");
-        dgraphRefund.setPartyShop(createTestDgraphPartyShop("Party", "Shop"));
+        dgraphRefund.setParty(createTestDgraphParty("Party"));
+        dgraphRefund.setShop(createTestDgraphShop("Shop"));
         dgraphRefund.setCreatedAt("2021-10-05T18:00:00");
         dgraphRefund.setAmount(1000L);
-        dgraphRefund.setCurrency("RUB");
+        dgraphRefund.setCurrency(createDefaultDgraphCurrency());
         dgraphRefund.setStatus("successful");
         dgraphRefund.setPayerType("paid");
         dgraphRefund.setErrorCode(null);
         dgraphRefund.setErrorReason(null);
-        dgraphRefund.setPayment(createTestDgraphPaymentLink("TestPayId"));
+        dgraphRefund.setSourcePayment(createTestDgraphPaymentLink("TestPayId"));
         dgraphRefund.setCardToken(createTestDgraphToken("token", "maskedPan"));
         dgraphRefund.setBin(createTestDgraphBin());
         dgraphRefund.setFingerprint(fingerprintExists ? createTestDgraphFingerprint() : null);
-        dgraphRefund.setRefundIp(ipExists ? createTestDgraphIp() : null);
-        dgraphRefund.setEmail(emailExists ? createTestDgraphEmail() : null);
+        dgraphRefund.setOperationIp(ipExists ? createTestDgraphIp() : null);
+        dgraphRefund.setContactEmail(emailExists ? createTestDgraphEmail() : null);
         return dgraphRefund;
     }
 
@@ -177,13 +187,12 @@ public final class TestDgraphObjectFactory {
         DgraphChargeback dgraphChargeback = new DgraphChargeback();
         dgraphChargeback.setChargebackId("TestChargebackIdId");
         dgraphChargeback.setPaymentId("TestPayId");
-        dgraphChargeback.setPartyId("Party");
-        dgraphChargeback.setShopId("Shop");
-        dgraphChargeback.setPartyShop(createTestDgraphPartyShop("Party", "Shop"));
+        dgraphChargeback.setParty(createTestDgraphParty("Party"));
+        dgraphChargeback.setShop(createTestDgraphShop("Shop"));
         dgraphChargeback.setCreatedAt("2021-10-05T18:00:00");
         dgraphChargeback.setAmount(1000L);
-        dgraphChargeback.setCurrency("RUB");
-        dgraphChargeback.setStatus("successful");
+        dgraphChargeback.setCurrency(createDefaultDgraphCurrency());
+        dgraphChargeback.setStatus(com.rbkmoney.fraudbusters.constant.RefundStatus.succeeded.name());
         dgraphChargeback.setPayerType("paid");
         dgraphChargeback.setCategory("category");
         dgraphChargeback.setCode("code404");
@@ -191,21 +200,26 @@ public final class TestDgraphObjectFactory {
         dgraphChargeback.setCardToken(createTestDgraphToken("token", "maskedPan"));
         dgraphChargeback.setBin(createTestDgraphBin());
         dgraphChargeback.setFingerprint(fingerprintExists ? createTestDgraphFingerprint() : null);
-        dgraphChargeback.setChargebackIp(ipExists ? createTestDgraphIp() : null);
+        dgraphChargeback.setOperationIp(ipExists ? createTestDgraphIp() : null);
         dgraphChargeback.setEmail(emailExists ? createTestDgraphEmail() : null);
         return dgraphChargeback;
     }
 
-    private static DgraphPartyShop createTestDgraphPartyShop(String partyId, String shopId) {
-        DgraphPartyShop partyShop = new DgraphPartyShop();
-        partyShop.setPartyId(partyId);
-        partyShop.setShopId(shopId);
-        return partyShop;
+    private static DgraphParty createTestDgraphParty(String partyId) {
+        DgraphParty dgraphParty = new DgraphParty();
+        dgraphParty.setPartyId(partyId);
+        return dgraphParty;
+    }
+
+    private static DgraphShop createTestDgraphShop(String shopId) {
+        DgraphShop dgraphShop = new DgraphShop();
+        dgraphShop.setShopId(shopId);
+        return dgraphShop;
     }
 
     private static DgraphBin createTestDgraphBin() {
         DgraphBin dgraphBin = new DgraphBin();
-        dgraphBin.setBin("000000");
+        dgraphBin.setCardBin("000000");
         return dgraphBin;
     }
 
@@ -224,7 +238,7 @@ public final class TestDgraphObjectFactory {
 
     private static DgraphIp createTestDgraphIp() {
         DgraphIp dgraphIp = new DgraphIp();
-        dgraphIp.setIp("127.0.0.1");
+        dgraphIp.setIpAddress("127.0.0.1");
         return dgraphIp;
     }
 
@@ -349,6 +363,16 @@ public final class TestDgraphObjectFactory {
         );
     }
 
+    private static DgraphCurrency createDefaultDgraphCurrency() {
+        return createDefaultDgraphCurrency("RUB");
+    }
+
+    private static DgraphCurrency createDefaultDgraphCurrency(String currencyCode) {
+        DgraphCurrency currency = new DgraphCurrency();
+        currency.setCurrencyCode(currencyCode);
+        return currency;
+    }
+
     private static DgraphWithdrawal createTestDgraphWithdrawal(boolean accountExists,
                                                                boolean errorExists,
                                                                Resource resource) {
@@ -356,7 +380,7 @@ public final class TestDgraphObjectFactory {
         dgraphWithdrawal.setWithdrawalId("Wid-1");
         dgraphWithdrawal.setCreatedAt("2021-10-05T18:00:00");
         dgraphWithdrawal.setAmount(1000L);
-        dgraphWithdrawal.setCurrency("RUB");
+        dgraphWithdrawal.setCurrency(createDefaultDgraphCurrency());
         dgraphWithdrawal.setStatus("status-1");
         dgraphWithdrawal.setProviderId("123");
         dgraphWithdrawal.setTerminalId("345");
@@ -364,7 +388,7 @@ public final class TestDgraphObjectFactory {
         if (accountExists) {
             dgraphWithdrawal.setAccountId("AccId");
             dgraphWithdrawal.setAccountIdentity("Iddy");
-            dgraphWithdrawal.setAccountCurrency("BSD");
+            dgraphWithdrawal.setAccountCurrency(createDefaultDgraphCurrency("BSD"));
         }
         if (errorExists) {
             dgraphWithdrawal.setErrorReason("reason");
@@ -373,7 +397,7 @@ public final class TestDgraphObjectFactory {
         dgraphWithdrawal.setDestinationResource(resource.getSetField().getFieldName());
         if (resource.isSetCryptoWallet()) {
             dgraphWithdrawal.setCryptoWalletId("CID-1");
-            dgraphWithdrawal.setCryptoWalletCurrency("ETH");
+            dgraphWithdrawal.setCryptoWalletCurrency(createDefaultDgraphCurrency("ETH"));
         } else if (resource.isSetDigitalWallet()) {
             dgraphWithdrawal.setDigitalWalletId("DGT-1");
             dgraphWithdrawal.setDigitalWalletDataProvider("P-1");

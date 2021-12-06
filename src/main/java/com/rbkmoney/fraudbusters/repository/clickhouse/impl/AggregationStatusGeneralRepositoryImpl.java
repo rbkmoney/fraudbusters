@@ -42,9 +42,13 @@ public class AggregationStatusGeneralRepositoryImpl implements AggregationStatus
     }
 
     @Override
-    public Integer countOperationByFieldWithGroupBy(
-            String table, String fieldName, Object value, Long from, Long to,
-            List<FieldModel> fieldModels, String status) {
+    public Integer countOperationByFieldWithGroupBy(String table,
+                                                    String fieldName,
+                                                    Object value,
+                                                    Long from,
+                                                    Long to,
+                                                    List<FieldModel> fieldModels,
+                                                    String status) {
         List<Object> params = AggregationUtil.generateParams(from, to, fieldModels, value, status);
 
         StringBuilder sql = new StringBuilder(String.format("""

@@ -1,0 +1,16 @@
+## @vtlvariable name="queryModel" type="com.rbkmoney.fraudbusters.fraud.model.DgraphAggregationQueryModel"
+query all() {
+    src as var(func: type($queryModel.rootType)) $queryModel.rootFilter @cascade {
+        #foreach ($innerCondition in $queryModel.innerTypesFilters)
+        $innerCondition
+        #end
+    }
+
+    var(func: type($queryModel.rootType)) @filter(uid(src)) {
+        amount as amount
+    }
+
+    aggregates() {
+        sum : sum(val(amount))
+    }
+}

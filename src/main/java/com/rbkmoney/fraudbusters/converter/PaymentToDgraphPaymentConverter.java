@@ -1,10 +1,12 @@
 package com.rbkmoney.fraudbusters.converter;
 
+import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.domain.PaymentTool;
-import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.fraudbusters.Error;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.fraudbusters.constant.PaymentToolType;
-import com.rbkmoney.fraudbusters.domain.dgraph.*;
+import com.rbkmoney.fraudbusters.domain.dgraph.common.DgraphPayment;
+import com.rbkmoney.fraudbusters.domain.dgraph.side.*;
 import com.rbkmoney.fraudbusters.util.PaymentTypeByContextResolver;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.mamsel.TokenProviderUtil;
@@ -24,14 +26,10 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
     public DgraphPayment convert(Payment payment) {
         DgraphPayment dgraphPayment = new DgraphPayment();
         dgraphPayment.setPaymentId(payment.getId());
-
-        ReferenceInfo referenceInfo = payment.getReferenceInfo();
-        MerchantInfo merchantInfo = payment.getReferenceInfo().getMerchantInfo();
-        dgraphPayment.setPartyId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getPartyId() : UNKNOWN);
-        dgraphPayment.setShopId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getShopId() : UNKNOWN);
-        dgraphPayment.setCreatedAt(payment.getEventTime());
+        String createdAt = payment.getEventTime();
+        dgraphPayment.setCreatedAt(createdAt);
         dgraphPayment.setAmount(payment.getCost().getAmount());
-        dgraphPayment.setCurrency(payment.getCost().getCurrency().getSymbolicCode());
+        dgraphPayment.setCurrency(new DgraphCurrency(payment.getCost().getCurrency().getSymbolicCode()));
         dgraphPayment.setStatus(payment.getStatus().name());
 
         PaymentTool paymentTool = payment.getPaymentTool();
@@ -40,8 +38,9 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
         ProviderInfo providerInfo = payment.getProviderInfo();
         dgraphPayment.setProviderId(providerInfo.getProviderId());
         dgraphPayment.setTerminal(providerInfo.getTerminalId());
-        dgraphPayment.setBankCountry(providerInfo.getCountry());
         dgraphPayment.setPayerType(payment.isSetPayerType() ? payment.getPayerType().name() : UNKNOWN);
+        dgraphPayment.setCountry(providerInfo.getCountry() == null
+                ? null : new DgraphCountry(providerInfo.getCountry()));
         dgraphPayment.setTokenProvider(paymentTool.isSetBankCard()
                 && paymentTypeByContextResolver.isMobile(paymentTool.getBankCard())
                 ? TokenProviderUtil.getTokenProviderName(paymentTool.getBankCard())
@@ -49,73 +48,53 @@ public class PaymentToDgraphPaymentConverter implements Converter<Payment, Dgrap
         dgraphPayment.setMobile(payment.isMobile());
         dgraphPayment.setRecurrent(payment.isRecurrent());
 
-        Error error = payment.getError();
-        dgraphPayment.setErrorCode(error == null ? null : error.getErrorCode());
-        dgraphPayment.setErrorReason(error == null ? null : error.getErrorReason());
+        fillErrorInfo(payment, dgraphPayment);
+        fillBankCardInfo(payment, dgraphPayment);
+        fillClientInfo(payment, dgraphPayment);
+        fillMerchantInfo(payment, dgraphPayment);
 
-        dgraphPayment.setCardToken(convertToken(payment));
-        ClientInfo clientInfo = payment.getClientInfo();
-        if (clientInfo != null) {
-            dgraphPayment.setFingerprint(clientInfo.getFingerprint() == null ? null : convertFingerprint(payment));
-            dgraphPayment.setContactEmail(clientInfo.getEmail() == null ? null : convertEmail(payment));
-            dgraphPayment.setPaymentIp(clientInfo.getIp() == null ? null : convertIp(payment));
-        }
-
-        dgraphPayment.setBin(paymentTool.isSetBankCard() ? convertBin(payment) : null);
-        dgraphPayment.setPartyShop(convertPartyShop(payment));
-        dgraphPayment.setCountry(providerInfo.getCountry() == null ? null : convertCountry(payment));
         return dgraphPayment;
     }
 
-    private DgraphToken convertToken(Payment payment) {
-        DgraphToken dgraphToken = new DgraphToken();
+    private void fillBankCardInfo(Payment payment, DgraphPayment dgraphPayment) {
         PaymentTool paymentTool = payment.getPaymentTool();
-        dgraphToken.setTokenId(paymentTool.isSetBankCard() ? paymentTool.getBankCard().getToken() : UNKNOWN);
-        dgraphToken.setMaskedPan(paymentTool.isSetBankCard() ? paymentTool.getBankCard().getLastDigits() : UNKNOWN);
-        dgraphToken.setLastActTime(payment.getEventTime());
-        return dgraphToken;
+        String createdAt = payment.getEventTime();
+        if (paymentTool.isSetBankCard()) {
+            BankCard bankCard = paymentTool.getBankCard();
+            dgraphPayment.setCardToken(new DgraphToken(bankCard.getToken(), bankCard.getLastDigits(), createdAt));
+            dgraphPayment.setBin(new DgraphBin(bankCard.getBin()));
+        } else {
+            dgraphPayment.setCardToken(new DgraphToken(UNKNOWN, UNKNOWN, createdAt));
+        }
     }
 
-    private DgraphEmail convertEmail(Payment payment) {
-        DgraphEmail dgraphEmail = new DgraphEmail();
-        dgraphEmail.setUserEmail(payment.getClientInfo().getEmail());
-        dgraphEmail.setLastActTime(payment.getEventTime());
-        return dgraphEmail;
+    private void fillClientInfo(Payment payment, DgraphPayment dgraphPayment) {
+        ClientInfo clientInfo = payment.getClientInfo();
+        if (clientInfo != null) {
+            String createdAt = payment.getEventTime();
+            dgraphPayment.setFingerprint(clientInfo.getFingerprint() == null
+                    ? null : new DgraphFingerprint(clientInfo.getFingerprint(), createdAt));
+            dgraphPayment.setContactEmail(clientInfo.getEmail() == null
+                    ? null : new DgraphEmail(clientInfo.getEmail(), createdAt));
+            dgraphPayment.setOperationIp(clientInfo.getIp() == null
+                    ? null : new DgraphIp(clientInfo.getIp(), createdAt));
+        }
     }
 
-    private DgraphFingerprint convertFingerprint(Payment payment) {
-        DgraphFingerprint dgraphFingerprint = new DgraphFingerprint();
-        dgraphFingerprint.setFingerprintData(payment.getClientInfo().getFingerprint());
-        dgraphFingerprint.setLastActTime(payment.getEventTime());
-        return dgraphFingerprint;
-    }
-
-    private DgraphBin convertBin(Payment payment) {
-        DgraphBin dgraphBin = new DgraphBin();
-        PaymentTool paymentTool = payment.getPaymentTool();
-        dgraphBin.setBin(paymentTool.getBankCard().getBin());
-        return dgraphBin;
-    }
-
-    private DgraphCountry convertCountry(Payment payment) {
-        DgraphCountry dgraphCountry = new DgraphCountry();
-        dgraphCountry.setCountryName(payment.getProviderInfo().getCountry());
-        return dgraphCountry;
-    }
-
-    private DgraphPartyShop convertPartyShop(Payment payment) {
-        DgraphPartyShop partyShop = new DgraphPartyShop();
+    private void fillMerchantInfo(Payment payment, DgraphPayment dgraphPayment) {
         ReferenceInfo referenceInfo = payment.getReferenceInfo();
         MerchantInfo merchantInfo = payment.getReferenceInfo().getMerchantInfo();
-        partyShop.setPartyId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getPartyId() : UNKNOWN);
-        partyShop.setShopId(referenceInfo.isSetMerchantInfo() ? merchantInfo.getShopId() : UNKNOWN);
-        return partyShop;
+        if (referenceInfo.isSetMerchantInfo()) {
+            String createdAt = payment.getEventTime();
+            dgraphPayment.setParty(new DgraphParty(merchantInfo.getPartyId(), createdAt));
+            dgraphPayment.setShop(new DgraphShop(merchantInfo.getShopId(), createdAt));
+        }
     }
 
-    private DgraphIp convertIp(Payment payment) {
-        DgraphIp dgraphIp = new DgraphIp();
-        dgraphIp.setIp(payment.getClientInfo().getIp());
-        return dgraphIp;
+    private void fillErrorInfo(Payment payment, DgraphPayment dgraphPayment) {
+        Error error = payment.getError();
+        dgraphPayment.setErrorCode(error == null ? null : error.getErrorCode());
+        dgraphPayment.setErrorReason(error == null ? null : error.getErrorReason());
     }
 
 }

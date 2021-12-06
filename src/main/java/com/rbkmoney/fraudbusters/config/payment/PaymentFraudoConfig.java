@@ -11,10 +11,16 @@ import com.rbkmoney.fraudbusters.fraud.payment.CountryByIpResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.CountAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.SumAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.aggregator.clickhouse.UniqueValueAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.query.builder.DgraphAggregationQueryBuilderService;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphCountAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphSumAggregatorImpl;
+import com.rbkmoney.fraudbusters.fraud.payment.aggregator.dgraph.DgraphUniqueAggregatorImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.finder.PaymentInListFinderImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.CountryResolverImpl;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.DatabasePaymentFieldResolver;
+import com.rbkmoney.fraudbusters.fraud.payment.resolver.DgraphEntityResolver;
 import com.rbkmoney.fraudbusters.fraud.payment.resolver.PaymentModelFieldResolver;
+import com.rbkmoney.fraudbusters.repository.DgraphAggregatesRepository;
 import com.rbkmoney.fraudbusters.repository.PaymentRepository;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.ChargebackRepository;
 import com.rbkmoney.fraudbusters.repository.clickhouse.impl.RefundRepository;
@@ -33,6 +39,7 @@ import com.rbkmoney.fraudo.resolver.CountryResolver;
 import com.rbkmoney.fraudo.resolver.FieldResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
 public class PaymentFraudoConfig {
@@ -173,7 +180,6 @@ public class PaymentFraudoConfig {
         );
     }
 
-
     @Bean
     public FirstFindVisitorImpl<PaymentModel, PaymentCheckedField> fullPaymentRuleVisitor(
             CountPaymentAggregator<PaymentModel, PaymentCheckedField> countResultAggregator,
@@ -196,6 +202,49 @@ public class PaymentFraudoConfig {
                 new PaymentTimeWindowResolver(),
                 paymentTypeResolver,
                 customerTypeResolver
+        );
+    }
+
+    @Bean
+    @Lazy
+    public UniqueValueAggregator<PaymentModel, PaymentCheckedField> dgraphUniqueAggregator(
+            DgraphAggregationQueryBuilderService dgraphUniqueQueryBuilderService,
+            DgraphEntityResolver dgraphEntityResolver,
+            DgraphAggregatesRepository dgraphAggregatesRepository,
+            DatabasePaymentFieldResolver databasePaymentFieldResolver) {
+        return new DgraphUniqueAggregatorImpl(
+                dgraphUniqueQueryBuilderService,
+                dgraphEntityResolver,
+                dgraphAggregatesRepository,
+                databasePaymentFieldResolver
+        );
+    }
+
+    @Bean
+    @Lazy
+    public CountPaymentAggregator<PaymentModel, PaymentCheckedField> dgraphCountAggregator(
+            DgraphAggregationQueryBuilderService dgraphCountQueryBuilderService,
+            DgraphEntityResolver dgraphEntityResolver,
+            DgraphAggregatesRepository dgraphAggregatesRepository
+    ) {
+        return new DgraphCountAggregatorImpl(
+                dgraphCountQueryBuilderService,
+                dgraphEntityResolver,
+                dgraphAggregatesRepository
+        );
+    }
+
+    @Bean
+    @Lazy
+    public SumPaymentAggregator<PaymentModel, PaymentCheckedField> dgraphSumAggregator(
+            DgraphAggregationQueryBuilderService dgraphSumQueryBuilderService,
+            DgraphEntityResolver dgraphEntityResolver,
+            DgraphAggregatesRepository dgraphAggregatesRepository
+    ) {
+        return new DgraphSumAggregatorImpl(
+                dgraphSumQueryBuilderService,
+                dgraphEntityResolver,
+                dgraphAggregatesRepository
         );
     }
 

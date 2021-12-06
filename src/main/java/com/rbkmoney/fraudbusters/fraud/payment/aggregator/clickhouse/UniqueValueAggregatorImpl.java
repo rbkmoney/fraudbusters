@@ -57,4 +57,5 @@ public class UniqueValueAggregatorImpl implements UniqueValueAggregator<PaymentM
             throw new RuleFunctionException(e);
         }
     }
+
 }
